@@ -105,3 +105,46 @@ model Plan {
 
   project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
+
+model Distributor {
+  id              String      @id @default(cuid())
+  name            String
+  contactName     String?
+  email           String?
+  phone           String?
+  website         String?
+  address         String?
+  notes           String?
+  isActive        Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  equipment       Equipment[]
+
+  @@index([name])
+}
+
+model Equipment {
+  id              String      @id @default(cuid())
+  distributorId   String
+  category        String      // solar, battery, inverter, mounting, electrical, other
+  name            String
+  manufacturer    String?
+  modelNumber     String
+  description     String?
+  specifications  String?     // JSON string for detailed specs
+  unitPrice       Float
+  imageUrl        String?
+  dataSheetUrl    String?
+  isActive        Boolean     @default(true)
+  inStock         Boolean     @default(true)
+  leadTimeDays    Int?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  distributor     Distributor @relation(fields: [distributorId], references: [id], onDelete: Cascade)
+
+  @@index([distributorId])
+  @@index([category])
+  @@index([modelNumber])
+}

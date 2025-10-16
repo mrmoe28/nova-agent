@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Plus, FolderOpen } from "lucide-react"
+import { Plus, FolderOpen, Building2 } from "lucide-react"
 
 export default function BrandHeader() {
   return (
@@ -30,6 +30,15 @@ export default function BrandHeader() {
         <div className="flex items-center gap-2">
           <Button
             asChild
+            variant="ghost"
+            className="text-white hover:bg-white/10"
+          >
+            <Link href="/distributors">
+              <Building2 className="mr-2 h-4 w-4" /> Distributors
+            </Link>
+          </Button>
+          <Button
+            asChild
             variant="secondary"
             className="bg-white/10 text-white hover:bg-white/20"
           >
@@ -42,7 +51,7 @@ export default function BrandHeader() {
             className="bg-[#22D3EE] text-black hover:bg-[#6EE7F9]"
           >
             <Link href="/projects">
-              <FolderOpen className="mr-2 h-4 w-4" /> Open Project
+              <FolderOpen className="mr-2 h-4 w-4" /> Projects
             </Link>
           </Button>
         </div>
