@@ -21,48 +21,35 @@ export default function IntakePage() {
   const handleContinue = async () => {
     setProcessing(true)
     try {
-      // Analyze uploaded bills
-      const response = await fetch("/api/analyze", {
+      // First, process all bills with OCR
+      const ocrResponse = await fetch(`/api/ocr?projectId=${projectId}`)
+      const ocrData = await ocrResponse.json()
+
+      if (!ocrData.success) {
+        alert(`OCR Error: ${ocrData.error}`)
+        setProcessing(false)
+        return
+      }
+
+      console.log(`Processed ${ocrData.processed} bills with OCR`)
+
+      // Then analyze the extracted data
+      const analyzeResponse = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ projectId }),
       })
 
-      const data = await response.json()
+      const analyzeData = await analyzeResponse.json()
 
-      if (data.success) {
+      if (analyzeData.success) {
         router.push(`/wizard/${projectId}/sizing`)
       } else {
-        alert(`Error: ${data.error}`)
+        alert(`Analysis Error: ${analyzeData.error}`)
       }
     } catch (error) {
       console.error("Error:", error)
       alert("Failed to analyze bills")
-    } finally {
-      setProcessing(false)
-    }
-  }
-
-  const handleDemoMode = async () => {
-    setProcessing(true)
-    try {
-      // Use demo data (skip file upload)
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId }),
-      })
-
-      const data = await response.json()
-
-      if (data.success) {
-        router.push(`/wizard/${projectId}/sizing`)
-      } else {
-        alert(`Error: ${data.error}`)
-      }
-    } catch (error) {
-      console.error("Error:", error)
-      alert("Failed to analyze")
     } finally {
       setProcessing(false)
     }
@@ -80,60 +67,35 @@ export default function IntakePage() {
       <Card className="p-6">
         <FileUpload projectId={projectId} onUploadComplete={handleUploadComplete} />
 
-        <div className="mt-6 flex flex-col gap-3">
-          <div className="flex gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push("/projects")}
-              className="flex-1"
-            >
-              Save & Exit
-            </Button>
-            <Button
-              onClick={handleContinue}
-              disabled={processing || !hasFiles}
-              className="flex-1"
-            >
-              {processing ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
-                </>
-              ) : (
-                "Analyze Bills & Continue"
-              )}
-            </Button>
-          </div>
-
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or</span>
-            </div>
-          </div>
-
+        <div className="mt-6 flex gap-3">
           <Button
-            variant="secondary"
-            onClick={handleDemoMode}
-            disabled={processing}
-            className="w-full"
+            type="button"
+            variant="outline"
+            onClick={() => router.push("/projects")}
+            className="flex-1"
+          >
+            Save & Exit
+          </Button>
+          <Button
+            onClick={handleContinue}
+            disabled={processing || !hasFiles}
+            className="flex-1"
           >
             {processing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing...
+                Processing & Analyzing...
               </>
             ) : (
-              "Use Demo Data (Skip Upload)"
+              "Process Bills & Continue"
             )}
           </Button>
-          <p className="text-center text-xs text-muted-foreground">
-            Demo mode uses simulated usage data for testing
-          </p>
         </div>
+        {!hasFiles && (
+          <p className="mt-3 text-center text-xs text-muted-foreground">
+            Please upload at least one bill to continue
+          </p>
+        )}
       </Card>
     </div>
   )

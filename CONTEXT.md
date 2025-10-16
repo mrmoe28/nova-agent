@@ -62,7 +62,7 @@ NovaAgent is a fully functional Next.js 14 production-ready web application for 
 ### 1. Project Wizard Flow
 Multi-step wizard guiding users through:
 1. Client intake (name, address, contact info)
-2. Bill upload with OCR processing (real file upload + demo mode fallback)
+2. Bill upload with OCR processing (real file upload required - no demo mode)
 3. System sizing (backup duration, critical loads)
 4. BOM generation (automated equipment list)
 5. Review and PDF generation
@@ -187,8 +187,9 @@ Potential enhancements:
 
 ## Notes for Future Development
 
-- Demo mode automatically generates realistic usage data when OCR fails
-- OCR processing is automatic on file upload
+- **No demo mode**: Real bill uploads with OCR extraction required
+- OCR processing is triggered when user clicks "Process Bills & Continue"
+- Analysis fails if no OCR data extracted (requires valid bill uploads)
 - Extracted bill data includes: kWh usage, kW demand, costs, billing period, account info
 - All monetary values in USD
 - System sizing uses conservative estimates (1.2x safety factors)

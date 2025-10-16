@@ -51,21 +51,21 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // If we have OCR data, use it; otherwise fall back to demo data
-    if (billsWithData > 0) {
-      // Average the monthly usage if we have multiple bills
-      monthlyUsageKwh = monthlyUsageKwh / billsWithData
-    } else {
-      // Use demo data
-      console.log('No OCR data available, using demo values')
-      monthlyUsageKwh = 850 + Math.random() * 300 // Mock: 850-1150 kWh/month
-      peakDemandKw = 5 + Math.random() * 3 // Mock: 5-8 kW peak
+    // Require OCR data - no demo fallback
+    if (billsWithData === 0) {
+      return NextResponse.json(
+        { success: false, error: 'No extracted data found. Please ensure bills have been processed with OCR.' },
+        { status: 400 }
+      )
     }
 
-    // Calculate cost per kWh
+    // Average the monthly usage if we have multiple bills
+    monthlyUsageKwh = monthlyUsageKwh / billsWithData
+
+    // Calculate cost per kWh from actual data
     const averageCostPerKwh = totalCost > 0 && monthlyUsageKwh > 0
       ? totalCost / monthlyUsageKwh
-      : 0.12 + Math.random() * 0.08 // Fallback: $0.12-0.20/kWh
+      : 0 // No cost data available
 
     const annualCostUsd = monthlyUsageKwh * 12 * averageCostPerKwh
 

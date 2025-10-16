@@ -49,12 +49,9 @@ export default function Page() {
             <li>Review sizing, BOM pricing, and plan warnings.</li>
             <li>Generate NovaAgent PDFs and export bundle.</li>
           </ol>
-          <div className="mt-6 flex gap-2">
-            <Button asChild variant="outline">
-              <Link href="/wizard/new?demo=1">Try Demo Project</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/wizard/new?step=intake">Go to Intake</Link>
+          <div className="mt-6">
+            <Button asChild size="lg" className="w-full sm:w-auto">
+              <Link href="/wizard/new">Start New Project</Link>
             </Button>
           </div>
         </div>
