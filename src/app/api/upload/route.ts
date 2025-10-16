@@ -4,6 +4,10 @@ import { join } from 'path'
 import { prisma } from '@/lib/prisma'
 import { performOCR, parseBillText } from '@/lib/ocr'
 
+// Required for file uploads in Next.js 15
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData()
