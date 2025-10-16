@@ -126,20 +126,25 @@ npx prisma studio
 
 ## Current Status
 
-**Status**: ✅ Fully Functional & Deployed to GitHub
+**Status**: ✅ Fully Functional & Deployed
 
-Repository: https://github.com/mrmoe28/nova-agent.git
+- **GitHub**: https://github.com/mrmoe28/nova-agent.git
+- **Production**: https://novaagent-kappa.vercel.app
+- **Database**: Neon PostgreSQL (serverless)
+- **Dev Server**: http://localhost:3002
 
 All core features implemented and tested:
-- ✅ Database schema and migrations
+- ✅ Database schema and migrations (PostgreSQL)
+- ✅ Production database on Neon with persistent storage
 - ✅ All API endpoints working
 - ✅ Complete wizard UI flow
+- ✅ **Real file upload** with drag-and-drop (PDF/image/CSV)
 - ✅ PDF generation with NovaAgent branding
 - ✅ Projects list and management
 - ✅ ESLint passing
 - ✅ Build passing
+- ✅ Deployed to Vercel
 - ✅ Code pushed to GitHub
-- ✅ Dev server running (http://localhost:3002)
 
 ## Next Steps
 
