@@ -25,11 +25,48 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Simulate analysis logic
-    // In production, this would parse bill data and calculate usage
-    const monthlyUsageKwh = 850 + Math.random() * 300 // Mock: 850-1150 kWh/month
-    const peakDemandKw = 5 + Math.random() * 3 // Mock: 5-8 kW peak
-    const averageCostPerKwh = 0.12 + Math.random() * 0.08 // Mock: $0.12-0.20/kWh
+    // Try to use OCR data if available
+    let monthlyUsageKwh = 0
+    let peakDemandKw = 0
+    let totalCost = 0
+    let billsWithData = 0
+
+    for (const bill of bills) {
+      if (bill.extractedData) {
+        try {
+          const data = JSON.parse(bill.extractedData)
+          if (data.usage?.kwh) {
+            monthlyUsageKwh += data.usage.kwh
+            billsWithData++
+          }
+          if (data.usage?.kw) {
+            peakDemandKw = Math.max(peakDemandKw, data.usage.kw)
+          }
+          if (data.charges?.total) {
+            totalCost += data.charges.total
+          }
+        } catch (error) {
+          console.error('Error parsing bill data:', error)
+        }
+      }
+    }
+
+    // If we have OCR data, use it; otherwise fall back to demo data
+    if (billsWithData > 0) {
+      // Average the monthly usage if we have multiple bills
+      monthlyUsageKwh = monthlyUsageKwh / billsWithData
+    } else {
+      // Use demo data
+      console.log('No OCR data available, using demo values')
+      monthlyUsageKwh = 850 + Math.random() * 300 // Mock: 850-1150 kWh/month
+      peakDemandKw = 5 + Math.random() * 3 // Mock: 5-8 kW peak
+    }
+
+    // Calculate cost per kWh
+    const averageCostPerKwh = totalCost > 0 && monthlyUsageKwh > 0
+      ? totalCost / monthlyUsageKwh
+      : 0.12 + Math.random() * 0.08 // Fallback: $0.12-0.20/kWh
+
     const annualCostUsd = monthlyUsageKwh * 12 * averageCostPerKwh
 
     const recommendations = [

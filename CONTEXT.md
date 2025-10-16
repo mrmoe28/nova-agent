@@ -17,8 +17,9 @@ NovaAgent is a fully functional Next.js 14 production-ready web application for 
 
 - **Framework**: Next.js 15 with App Router + TypeScript
 - **Styling**: TailwindCSS v4 + shadcn/ui components
-- **Database**: SQLite with Prisma ORM
+- **Database**: PostgreSQL (Neon) with Prisma ORM
 - **PDF Generation**: pdfkit
+- **OCR**: pdf-parse (PDF text extraction) + tesseract.js (image OCR)
 - **Forms**: react-hook-form + zod validation
 - **UI Components**: shadcn/ui (button, card, input, label, select, textarea)
 
@@ -38,7 +39,10 @@ NovaAgent is a fully functional Next.js 14 production-ready web application for 
 - `GET /api/projects/[id]` - Get project details
 - `PATCH /api/projects/[id]` - Update project
 - `DELETE /api/projects/[id]` - Delete project
-- `POST /api/analyze` - Analyze bills and generate usage data
+- `POST /api/upload` - Upload bill files (PDF/image/CSV)
+- `POST /api/ocr` - Process single bill with OCR
+- `GET /api/ocr?projectId=X` - Batch process all bills for project
+- `POST /api/analyze` - Analyze bills and generate usage data (uses OCR data when available)
 - `POST /api/size` - Calculate system sizing
 - `POST /api/bom` - Generate bill of materials
 - `POST /api/plan` - Create installation plan with NEC checks
@@ -58,7 +62,7 @@ NovaAgent is a fully functional Next.js 14 production-ready web application for 
 ### 1. Project Wizard Flow
 Multi-step wizard guiding users through:
 1. Client intake (name, address, contact info)
-2. Bill upload (currently uses demo data)
+2. Bill upload with OCR processing (real file upload + demo mode fallback)
 3. System sizing (backup duration, critical loads)
 4. BOM generation (automated equipment list)
 5. Review and PDF generation
@@ -80,7 +84,19 @@ Automated checks for:
 - NEC 705.12 (Point of Connection)
 - NEC 706 (Energy Storage Systems)
 
-### 4. PDF Report Generation
+### 4. OCR Text Extraction
+Automatic extraction of bill data using:
+- **PDF text extraction** via pdf-parse for digital PDFs
+- **Image OCR** via tesseract.js for scanned bills/photos
+- **CSV parsing** for spreadsheet bills
+- Smart regex patterns to extract:
+  - kWh usage and kW demand
+  - Total costs and energy charges
+  - Account numbers and billing periods
+  - Utility company names
+  - Average daily usage calculations
+
+### 5. PDF Report Generation
 Professional branded PDFs include:
 - Client information
 - Usage analysis
@@ -136,9 +152,12 @@ npx prisma studio
 All core features implemented and tested:
 - ✅ Database schema and migrations (PostgreSQL)
 - ✅ Production database on Neon with persistent storage
-- ✅ All API endpoints working
+- ✅ All API endpoints working (including OCR processing)
 - ✅ Complete wizard UI flow
 - ✅ **Real file upload** with drag-and-drop (PDF/image/CSV)
+- ✅ **OCR text extraction** from bills (pdf-parse + tesseract.js)
+- ✅ **Bill data parsing** with smart regex patterns
+- ✅ Analysis using OCR data with demo fallback
 - ✅ PDF generation with NovaAgent branding
 - ✅ Projects list and management
 - ✅ ESLint passing
@@ -149,26 +168,62 @@ All core features implemented and tested:
 ## Next Steps
 
 Potential enhancements:
-1. Implement actual file upload with OCR (currently uses demo data)
-2. Add user authentication
-3. Integrate real equipment pricing APIs
-4. Add project export/import functionality
-5. Implement email delivery of PDF reports
-6. Add analytics dashboard
-7. Mobile-responsive improvements
-8. Add unit and integration tests
+1. Add user authentication (login/signup)
+2. Integrate real equipment pricing APIs
+3. Add project export/import functionality
+4. Implement email delivery of PDF reports
+5. Add analytics dashboard
+6. Mobile-responsive improvements
+7. Add unit and integration tests
+8. Enhance OCR accuracy with more utility company patterns
+9. Add bill comparison visualization
 
 ## Known Issues
 
-- File upload is currently simulated with demo data
 - Build has font-related warnings (works fine in dev mode)
-- OCR integration not yet implemented
 - Equipment pricing is mocked data
+- OCR accuracy depends on bill format clarity
+- File storage is local (consider cloud storage for production scale)
 
 ## Notes for Future Development
 
-- Demo mode automatically generates realistic usage data
+- Demo mode automatically generates realistic usage data when OCR fails
+- OCR processing is automatic on file upload
+- Extracted bill data includes: kWh usage, kW demand, costs, billing period, account info
 - All monetary values in USD
 - System sizing uses conservative estimates (1.2x safety factors)
-- PDF save path: `~/Documents/NovaAgent/` (not yet implemented, downloads instead)
-- Database file: `prisma/dev.db` (SQLite)
+- PDF save path: Browser download (not server-side save)
+- Database: Neon PostgreSQL (serverless/production-ready)
+- File uploads stored in `/uploads/{projectId}/` directory
+
+## OCR Implementation Details
+
+### Libraries Used
+- **pdf-parse**: Fast, native PDF text extraction for digital PDFs
+- **tesseract.js**: JavaScript OCR for scanned images and photos
+
+### Supported File Types
+- PDF (text-based and scanned)
+- Images (JPG, JPEG, PNG)
+- CSV (direct text parsing)
+
+### Data Extraction Patterns
+Regex patterns extract:
+- Energy usage: `(\d+(?:,\d+)?)\s*kWh` with total usage variants
+- Demand: `(?:peak\s*)?demand[:\s]*(\d+(?:\.\d+)?)\s*kW`
+- Costs: Total amount, energy charges, demand charges
+- Billing info: Period dates, account numbers
+- Utility companies: PG&E, Duke Energy, SCE, Con Edison, etc.
+
+### API Flow
+1. Upload bill → `/api/upload` (saves file, creates DB record)
+2. Process OCR → `/api/ocr` POST (extracts text, parses data, updates DB)
+3. Analyze → `/api/analyze` (aggregates OCR data from all bills, calculates metrics)
+
+### Database Schema
+```prisma
+model Bill {
+  ocrText       String?  // Raw extracted text
+  extractedData String?  // JSON string of ParsedBillData
+}
+```
