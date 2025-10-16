@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
 import {
   Select,
   SelectContent,
@@ -147,22 +148,22 @@ export default function DistributorsPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold">Distributors & Equipment</h1>
-        <p className="mt-2 text-muted-foreground">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-foreground">Distributors & Equipment</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
           Manage your distributor network and equipment catalog
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 border-b">
-        <div className="flex gap-6">
+      <div className="mb-8 border-b border-border">
+        <div className="flex gap-8">
           <button
             onClick={() => setActiveTab("distributors")}
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
+            className={`pb-4 text-sm font-semibold border-b-2 ${
               activeTab === "distributors"
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-slate-600"
             }`}
           >
             <Building2 className="inline-block mr-2 h-4 w-4" />
@@ -170,10 +171,10 @@ export default function DistributorsPage() {
           </button>
           <button
             onClick={() => setActiveTab("equipment")}
-            className={`pb-3 text-sm font-medium border-b-2 transition-colors ${
+            className={`pb-4 text-sm font-semibold border-b-2 ${
               activeTab === "equipment"
-                ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground"
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-slate-600"
             }`}
           >
             <Package className="inline-block mr-2 h-4 w-4" />
@@ -183,14 +184,14 @@ export default function DistributorsPage() {
       </div>
 
       {/* Search and Add */}
-      <div className="mb-6 flex gap-3">
+      <div className="mb-8 flex gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input
             placeholder={`Search ${activeTab}...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
+            className="pl-9 bg-white border-slate-200"
           />
         </div>
         <Button
@@ -203,6 +204,7 @@ export default function DistributorsPage() {
               setShowAddEquipment(true)
             }
           }}
+          className="bg-blue-600 text-white"
         >
           <Plus className="mr-2 h-4 w-4" />
           Add {activeTab === "distributors" ? "Distributor" : "Equipment"}
@@ -211,110 +213,123 @@ export default function DistributorsPage() {
 
       {/* Content */}
       {activeTab === "distributors" ? (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredDistributors.map((distributor) => (
-            <Card key={distributor.id} className="p-4">
-              <div className="flex justify-between items-start mb-3">
+            <Card key={distributor.id} className="p-6 bg-white border border-slate-200 shadow-sm">
+              <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="font-semibold text-lg">{distributor.name}</h3>
+                  <h3 className="font-semibold text-lg text-slate-900">{distributor.name}</h3>
                   {distributor.contactName && (
-                    <p className="text-sm text-muted-foreground">{distributor.contactName}</p>
+                    <p className="text-sm text-slate-600 mt-1">{distributor.contactName}</p>
                   )}
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-2">
                   <Button
                     size="sm"
-                    variant="ghost"
+                    variant="outline"
                     onClick={() => {
                       setEditingDistributor(distributor)
                       setShowAddDistributor(true)
                     }}
+                    className="h-8 w-8 p-0 border-slate-300"
                   >
-                    <Pencil className="h-3 w-3" />
+                    <Pencil className="h-3.5 w-3.5 text-slate-700" />
                   </Button>
                   <Button
                     size="sm"
-                    variant="ghost"
+                    variant="outline"
                     onClick={() => handleDeleteDistributor(distributor.id)}
+                    className="h-8 w-8 p-0 border-red-300"
                   >
-                    <Trash2 className="h-3 w-3 text-destructive" />
+                    <Trash2 className="h-3.5 w-3.5 text-red-600" />
                   </Button>
                 </div>
               </div>
-              <div className="space-y-1 text-sm">
-                {distributor.email && <p className="text-muted-foreground">{distributor.email}</p>}
-                {distributor.phone && <p className="text-muted-foreground">{distributor.phone}</p>}
+              <div className="space-y-2 text-sm">
+                {distributor.email && <p className="text-slate-600">{distributor.email}</p>}
+                {distributor.phone && <p className="text-slate-600">{distributor.phone}</p>}
                 {distributor.website && (
                   <a
                     href={distributor.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-primary hover:underline flex items-center gap-1"
+                    className="text-blue-600 flex items-center gap-1"
                   >
                     Website <ExternalLink className="h-3 w-3" />
                   </a>
                 )}
               </div>
               {distributor.equipment && distributor.equipment.length > 0 && (
-                <div className="mt-3 pt-3 border-t text-sm text-muted-foreground">
-                  {distributor.equipment.length} equipment item(s)
+                <div className="mt-4 pt-4 border-t border-slate-200">
+                  <Badge variant="secondary" className="bg-slate-100 text-slate-700">
+                    {distributor.equipment.length} equipment item{distributor.equipment.length !== 1 ? 's' : ''}
+                  </Badge>
                 </div>
               )}
             </Card>
           ))}
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredEquipment.map((item) => (
-            <Card key={item.id} className="p-4">
+            <Card key={item.id} className="p-5 bg-white border border-slate-200 shadow-sm">
               {item.imageUrl && (
-                <div className="relative w-full h-32 mb-3">
+                <div className="relative w-full h-40 mb-4 bg-slate-50 rounded-lg overflow-hidden">
                   <Image
                     src={item.imageUrl}
                     alt={item.name}
                     fill
-                    className="object-cover rounded"
+                    className="object-cover"
                   />
                 </div>
               )}
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex-1">
-                  <h3 className="font-semibold">{item.name}</h3>
-                  <p className="text-xs text-muted-foreground">{item.manufacturer}</p>
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex-1 pr-2">
+                  <h3 className="font-semibold text-slate-900 text-sm leading-tight">{item.name}</h3>
+                  {item.manufacturer && (
+                    <p className="text-xs text-slate-500 mt-1">{item.manufacturer}</p>
+                  )}
                 </div>
-                <div className="flex gap-1">
+                <div className="flex gap-2">
                   <Button
                     size="sm"
-                    variant="ghost"
+                    variant="outline"
                     onClick={() => {
                       setEditingEquipment(item)
                       setShowAddEquipment(true)
                     }}
+                    className="h-8 w-8 p-0 border-slate-300"
                   >
-                    <Pencil className="h-3 w-3" />
+                    <Pencil className="h-3.5 w-3.5 text-slate-700" />
                   </Button>
                   <Button
                     size="sm"
-                    variant="ghost"
+                    variant="outline"
                     onClick={() => handleDeleteEquipment(item.id)}
+                    className="h-8 w-8 p-0 border-red-300"
                   >
-                    <Trash2 className="h-3 w-3 text-destructive" />
+                    <Trash2 className="h-3.5 w-3.5 text-red-600" />
                   </Button>
                 </div>
               </div>
-              <p className="text-sm mb-2">Model: {item.modelNumber}</p>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-lg font-bold text-primary">
+              <p className="text-xs text-slate-600 mb-3">Model: {item.modelNumber}</p>
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-lg font-bold text-blue-600">
                   ${item.unitPrice.toLocaleString()}
                 </span>
-                <span className={`text-xs px-2 py-1 rounded ${item.inStock ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>
+                <Badge
+                  variant={item.inStock ? "default" : "destructive"}
+                  className={item.inStock ? "bg-emerald-100 text-emerald-800 border-0" : "bg-red-100 text-red-800 border-0"}
+                >
                   {item.inStock ? "In Stock" : "Out of Stock"}
-                </span>
+                </Badge>
               </div>
               {item.distributor && (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  {item.distributor.name}
-                </p>
+                <div className="pt-3 border-t border-slate-200">
+                  <p className="text-xs text-slate-500">
+                    {item.distributor.name}
+                  </p>
+                </div>
               )}
             </Card>
           ))}
@@ -408,79 +423,86 @@ function DistributorForm({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
-        <h2 className="text-xl font-bold mb-4">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+      <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 bg-white border border-slate-200 shadow-xl">
+        <h2 className="text-xl font-bold mb-6 text-slate-900">
           {distributor ? "Edit" : "Add"} Distributor
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Label htmlFor="name">Name *</Label>
+            <Label htmlFor="name" className="text-slate-700 font-medium">Name *</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
+              className="mt-1 bg-white border-slate-300"
             />
           </div>
           <div>
-            <Label htmlFor="contactName">Contact Name</Label>
+            <Label htmlFor="contactName" className="text-slate-700 font-medium">Contact Name</Label>
             <Input
               id="contactName"
               value={formData.contactName}
               onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
+              className="mt-1 bg-white border-slate-300"
             />
           </div>
           <div>
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email" className="text-slate-700 font-medium">Email</Label>
             <Input
               id="email"
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="mt-1 bg-white border-slate-300"
             />
           </div>
           <div>
-            <Label htmlFor="phone">Phone</Label>
+            <Label htmlFor="phone" className="text-slate-700 font-medium">Phone</Label>
             <Input
               id="phone"
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              className="mt-1 bg-white border-slate-300"
             />
           </div>
           <div>
-            <Label htmlFor="website">Website</Label>
+            <Label htmlFor="website" className="text-slate-700 font-medium">Website</Label>
             <Input
               id="website"
               type="url"
               value={formData.website}
               onChange={(e) => setFormData({ ...formData, website: e.target.value })}
               placeholder="https://"
+              className="mt-1 bg-white border-slate-300"
             />
           </div>
           <div>
-            <Label htmlFor="address">Address</Label>
+            <Label htmlFor="address" className="text-slate-700 font-medium">Address</Label>
             <Textarea
               id="address"
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
               rows={2}
+              className="mt-1 bg-white border-slate-300"
             />
           </div>
           <div>
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes" className="text-slate-700 font-medium">Notes</Label>
             <Textarea
               id="notes"
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               rows={3}
+              className="mt-1 bg-white border-slate-300"
             />
           </div>
-          <div className="flex gap-2 justify-end">
-            <Button type="button" variant="outline" onClick={onClose}>
+          <div className="flex gap-3 justify-end pt-4">
+            <Button type="button" variant="outline" onClick={onClose} className="border-slate-300">
               Cancel
             </Button>
-            <Button type="submit" disabled={saving}>
+            <Button type="submit" disabled={saving} className="bg-blue-600 text-white">
               {saving ? "Saving..." : "Save"}
             </Button>
           </div>
@@ -545,20 +567,20 @@ function EquipmentForm({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6">
-        <h2 className="text-xl font-bold mb-4">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 bg-white border border-slate-200 shadow-xl">
+        <h2 className="text-xl font-bold mb-6 text-slate-900">
           {equipment ? "Edit" : "Add"} Equipment
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="distributorId">Distributor *</Label>
+              <Label htmlFor="distributorId" className="text-slate-700 font-medium">Distributor *</Label>
               <Select
                 value={formData.distributorId}
                 onValueChange={(value) => setFormData({ ...formData, distributorId: value })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="mt-1 bg-white border-slate-300">
                   <SelectValue placeholder="Select distributor" />
                 </SelectTrigger>
                 <SelectContent>
@@ -571,12 +593,12 @@ function EquipmentForm({
               </Select>
             </div>
             <div>
-              <Label htmlFor="category">Category *</Label>
+              <Label htmlFor="category" className="text-slate-700 font-medium">Category *</Label>
               <Select
                 value={formData.category}
                 onValueChange={(value) => setFormData({ ...formData, category: value })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="mt-1 bg-white border-slate-300">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -592,48 +614,52 @@ function EquipmentForm({
           </div>
 
           <div>
-            <Label htmlFor="name">Equipment Name *</Label>
+            <Label htmlFor="name" className="text-slate-700 font-medium">Equipment Name *</Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
+              className="mt-1 bg-white border-slate-300"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="manufacturer">Manufacturer</Label>
+              <Label htmlFor="manufacturer" className="text-slate-700 font-medium">Manufacturer</Label>
               <Input
                 id="manufacturer"
                 value={formData.manufacturer}
                 onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
+                className="mt-1 bg-white border-slate-300"
               />
             </div>
             <div>
-              <Label htmlFor="modelNumber">Model Number *</Label>
+              <Label htmlFor="modelNumber" className="text-slate-700 font-medium">Model Number *</Label>
               <Input
                 id="modelNumber"
                 value={formData.modelNumber}
                 onChange={(e) => setFormData({ ...formData, modelNumber: e.target.value })}
                 required
+                className="mt-1 bg-white border-slate-300"
               />
             </div>
           </div>
 
           <div>
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description" className="text-slate-700 font-medium">Description</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               rows={2}
+              className="mt-1 bg-white border-slate-300"
             />
           </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="unitPrice">Unit Price (USD) *</Label>
+              <Label htmlFor="unitPrice" className="text-slate-700 font-medium">Unit Price (USD) *</Label>
               <Input
                 id="unitPrice"
                 type="number"
@@ -641,24 +667,26 @@ function EquipmentForm({
                 value={formData.unitPrice}
                 onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
                 required
+                className="mt-1 bg-white border-slate-300"
               />
             </div>
             <div>
-              <Label htmlFor="leadTimeDays">Lead Time (Days)</Label>
+              <Label htmlFor="leadTimeDays" className="text-slate-700 font-medium">Lead Time (Days)</Label>
               <Input
                 id="leadTimeDays"
                 type="number"
                 value={formData.leadTimeDays}
                 onChange={(e) => setFormData({ ...formData, leadTimeDays: e.target.value })}
+                className="mt-1 bg-white border-slate-300"
               />
             </div>
             <div>
-              <Label htmlFor="inStock">Availability</Label>
+              <Label htmlFor="inStock" className="text-slate-700 font-medium">Availability</Label>
               <Select
                 value={formData.inStock.toString()}
                 onValueChange={(value) => setFormData({ ...formData, inStock: value === "true" })}
               >
-                <SelectTrigger>
+                <SelectTrigger className="mt-1 bg-white border-slate-300">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -670,32 +698,34 @@ function EquipmentForm({
           </div>
 
           <div>
-            <Label htmlFor="imageUrl">Image URL</Label>
+            <Label htmlFor="imageUrl" className="text-slate-700 font-medium">Image URL</Label>
             <Input
               id="imageUrl"
               type="url"
               value={formData.imageUrl}
               onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
               placeholder="https://"
+              className="mt-1 bg-white border-slate-300"
             />
           </div>
 
           <div>
-            <Label htmlFor="dataSheetUrl">Data Sheet URL</Label>
+            <Label htmlFor="dataSheetUrl" className="text-slate-700 font-medium">Data Sheet URL</Label>
             <Input
               id="dataSheetUrl"
               type="url"
               value={formData.dataSheetUrl}
               onChange={(e) => setFormData({ ...formData, dataSheetUrl: e.target.value })}
               placeholder="https://"
+              className="mt-1 bg-white border-slate-300"
             />
           </div>
 
-          <div className="flex gap-2 justify-end">
-            <Button type="button" variant="outline" onClick={onClose}>
+          <div className="flex gap-3 justify-end pt-4">
+            <Button type="button" variant="outline" onClick={onClose} className="border-slate-300">
               Cancel
             </Button>
-            <Button type="submit" disabled={saving}>
+            <Button type="submit" disabled={saving} className="bg-blue-600 text-white">
               {saving ? "Saving..." : "Save"}
             </Button>
           </div>
