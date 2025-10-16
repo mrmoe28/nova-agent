@@ -65,8 +65,16 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error('Error generating PDF:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    const errorStack = error instanceof Error ? error.stack : ''
+    console.error('PDF Error Stack:', errorStack)
+
     return NextResponse.json(
-      { success: false, error: 'Failed to generate PDF' },
+      {
+        success: false,
+        error: `Failed to generate PDF: ${errorMessage}`,
+        details: process.env.NODE_ENV === 'development' ? errorStack : undefined
+      },
       { status: 500 }
     )
   }
