@@ -184,6 +184,7 @@ Potential enhancements:
 - Equipment pricing is mocked data
 - OCR accuracy depends on bill format clarity
 - **File storage uses /tmp directory in serverless**: Files are ephemeral and deleted after processing (consider Vercel Blob Storage for persistent storage)
+- **Image OCR disabled in production**: Tesseract.js requires canvas/DOMMatrix APIs not available in Vercel serverless - use PDF files for OCR
 
 ## Notes for Future Development
 
@@ -203,8 +204,14 @@ Potential enhancements:
 ## OCR Implementation Details
 
 ### Libraries Used
-- **pdf-parse**: Fast, native PDF text extraction for digital PDFs
-- **tesseract.js**: JavaScript OCR for scanned images and photos
+- **pdf-parse**: Fast, native PDF text extraction for digital PDFs (works in serverless)
+- **tesseract.js**: JavaScript OCR for scanned images - **DISABLED in production serverless environments** due to canvas/DOMMatrix dependency issues
+
+### Serverless Considerations
+- **Production (Vercel)**: Image OCR disabled - Tesseract.js requires browser DOM APIs (DOMMatrix, canvas) not available in Node.js serverless
+- **Local Development**: Full OCR support for all file types
+- **Recommended**: Use PDF bills in production for best results
+- **Fix Applied**: Dynamic import with environment detection to prevent crashes
 
 ### Supported File Types
 - PDF (text-based and scanned)
