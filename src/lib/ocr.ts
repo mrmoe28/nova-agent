@@ -1,5 +1,5 @@
 import { readFile } from 'fs/promises'
-import pdfParse from 'pdf-parse'
+import { PDFParse } from 'pdf-parse'
 import Tesseract from 'tesseract.js'
 
 export interface OCRResult {
@@ -9,16 +9,17 @@ export interface OCRResult {
 }
 
 /**
- * Extract text from PDF file
+ * Extract text from PDF file using pdf-parse
  */
 export async function extractTextFromPDF(filePath: string): Promise<OCRResult> {
   try {
     const dataBuffer = await readFile(filePath)
-    const pdfData = await pdfParse(dataBuffer)
+    const parser = new PDFParse({ data: dataBuffer })
+    const textResult = await parser.getText()
 
     return {
-      text: pdfData.text,
-      pageCount: pdfData.numpages,
+      text: textResult.text,
+      pageCount: textResult.total,
       confidence: 0.95, // PDF text extraction is usually highly accurate
     }
   } catch (error) {
