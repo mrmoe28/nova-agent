@@ -1,5 +1,5 @@
 import { readFile } from 'fs/promises'
-import { PDFParse } from 'pdf-parse'
+import { extractText, getDocumentProxy } from 'unpdf'
 // Dynamic import for Tesseract to avoid serverless environment issues
 
 export interface OCRResult {
@@ -9,17 +9,22 @@ export interface OCRResult {
 }
 
 /**
- * Extract text from PDF file using pdf-parse
+ * Extract text from PDF file using unpdf (serverless-compatible)
  */
 export async function extractTextFromPDF(filePath: string): Promise<OCRResult> {
   try {
     const dataBuffer = await readFile(filePath)
-    const parser = new PDFParse({ data: dataBuffer })
-    const textResult = await parser.getText()
+
+    // Get document proxy to count pages
+    const pdf = await getDocumentProxy(dataBuffer)
+    const pageCount = pdf.numPages
+
+    // Extract all text from the PDF
+    const { text } = await extractText(dataBuffer, { mergePages: true })
 
     return {
-      text: textResult.text,
-      pageCount: textResult.pages.length,
+      text,
+      pageCount,
       confidence: 0.95, // PDF text extraction is usually highly accurate
     }
   } catch (error) {
