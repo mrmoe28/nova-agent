@@ -99,68 +99,152 @@ export interface ParsedBillData {
 export function parseBillText(text: string): ParsedBillData {
   const data: ParsedBillData = {}
 
-  // Common patterns for utility bills
+  // Normalize text for better matching
+  const normalizedText = text.replace(/\s+/g, ' ').trim()
+
+  // Enhanced patterns for utility bills with multiple variations
   const patterns = {
-    // kWh usage patterns
-    kwh: /(\d+(?:,\d+)?)\s*kWh/i,
-    totalKwh: /total\s*(?:usage|consumption)[:\s]*(\d+(?:,\d+)?)\s*kWh/i,
+    // kWh usage patterns - multiple variations
+    kwh: [
+      /total\s*(?:usage|consumption|kwh)[:\s]*(\d+(?:,\d+)?(?:\.\d+)?)\s*kWh/gi,
+      /(\d+(?:,\d+)?(?:\.\d+)?)\s*kWh\s*(?:used|consumed|total)/gi,
+      /(?:current|this\s*month)\s*(?:usage|consumption)[:\s]*(\d+(?:,\d+)?(?:\.\d+)?)\s*kWh/gi,
+      /electric\s*usage[:\s]*(\d+(?:,\d+)?(?:\.\d+)?)\s*kWh/gi,
+      /kWh\s*delivered[:\s]*(\d+(?:,\d+)?(?:\.\d+)?)/gi,
+      /(\d+(?:,\d+)?(?:\.\d+)?)\s*kWh/gi, // Fallback: any kWh value
+    ],
 
-    // Demand patterns
-    demand: /(?:peak\s*)?demand[:\s]*(\d+(?:\.\d+)?)\s*kW/i,
+    // Demand patterns - peak/max demand
+    demand: [
+      /(?:peak|maximum|max)\s*demand[:\s]*(\d+(?:\.\d+)?)\s*kW/gi,
+      /demand[:\s]*(\d+(?:\.\d+)?)\s*kW/gi,
+      /kW\s*demand[:\s]*(\d+(?:\.\d+)?)/gi,
+    ],
 
-    // Cost patterns
-    totalAmount: /(?:total\s*amount|amount\s*due|balance\s*due)[:\s]*\$?\s*(\d+(?:,\d+)?(?:\.\d+)?)/i,
-    energyCharge: /energy\s*charge[:\s]*\$?\s*(\d+(?:,\d+)?(?:\.\d+)?)/i,
+    // Cost patterns - total amount due
+    totalAmount: [
+      /(?:total\s*amount|amount\s*due|total\s*due|balance\s*due|total\s*current\s*charges)[:\s]*\$?\s*(\d+(?:,\d+)?(?:\.\d+)?)/gi,
+      /(?:new\s*charges|current\s*charges)[:\s]*\$?\s*(\d+(?:,\d+)?(?:\.\d+)?)/gi,
+      /please\s*pay[:\s]*\$?\s*(\d+(?:,\d+)?(?:\.\d+)?)/gi,
+    ],
 
-    // Account info
-    accountNumber: /account\s*(?:number|#)[:\s]*(\w+)/i,
+    // Energy charge
+    energyCharge: [
+      /(?:energy|electricity)\s*charge[s]?[:\s]*\$?\s*(\d+(?:,\d+)?(?:\.\d+)?)/gi,
+      /(?:usage|consumption)\s*charge[s]?[:\s]*\$?\s*(\d+(?:,\d+)?(?:\.\d+)?)/gi,
+    ],
 
-    // Billing period
-    billingPeriod: /(?:billing|service)\s*period[:\s]*(\d{1,2}\/\d{1,2}\/\d{2,4})\s*(?:to|-)\s*(\d{1,2}\/\d{1,2}\/\d{2,4})/i,
+    // Demand charge
+    demandCharge: [
+      /demand\s*charge[s]?[:\s]*\$?\s*(\d+(?:,\d+)?(?:\.\d+)?)/gi,
+      /(?:peak|maximum)\s*demand\s*charge[s]?[:\s]*\$?\s*(\d+(?:,\d+)?(?:\.\d+)?)/gi,
+    ],
 
-    // Utility company (common names)
-    utility: /(PG&E|Duke Energy|Southern California Edison|SCE|Con Edison|Pacific Gas|Georgia Power|Florida Power|National Grid)/i,
+    // Account info - more flexible
+    accountNumber: [
+      /account\s*(?:number|no|#)[:\s]*([A-Z0-9-]+)/gi,
+      /acct[:\s]*([A-Z0-9-]+)/gi,
+      /customer\s*(?:number|id)[:\s]*([A-Z0-9-]+)/gi,
+    ],
+
+    // Billing period - multiple date formats
+    billingPeriod: [
+      /(?:billing|service)\s*period[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*(?:to|through|-|–)\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/gi,
+      /(?:from|start)[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*(?:to|through|-|–)\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/gi,
+      /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*(?:to|through|-|–)\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/gi,
+    ],
+
+    // Utility companies - comprehensive list
+    utility: [
+      /(PG&E|Pacific\s*Gas\s*(?:and|&)\s*Electric)/gi,
+      /(Duke\s*Energy)/gi,
+      /(Southern\s*California\s*Edison|SCE)/gi,
+      /(Con\s*Edison|ConEd)/gi,
+      /(Georgia\s*Power)/gi,
+      /(Florida\s*Power\s*(?:and|&)\s*Light|FPL)/gi,
+      /(National\s*Grid)/gi,
+      /(Ameren|AEP|Dominion|Exelon|FPL|PECO|ComEd)/gi,
+      /(Xcel\s*Energy|NV\s*Energy|PSEG|APS|SRP)/gi,
+    ],
   }
 
-  // Extract utility company
-  const utilityMatch = text.match(patterns.utility)
-  if (utilityMatch) {
-    data.utilityCompany = utilityMatch[1]
+  // Helper function to try multiple patterns and return first match
+  const tryPatterns = (patternArray: RegExp[], text: string): string | null => {
+    for (const pattern of patternArray) {
+      const match = text.match(pattern)
+      if (match && match[1]) {
+        return match[1]
+      }
+    }
+    return null
+  }
+
+  // Helper function to extract all matches and find the most reasonable value
+  const extractBestNumber = (patternArray: RegExp[], text: string, validation?: (n: number) => boolean): number | undefined => {
+    const values: number[] = []
+
+    for (const pattern of patternArray) {
+      const matches = [...text.matchAll(pattern)]
+      for (const match of matches) {
+        if (match[1]) {
+          const numValue = parseFloat(match[1].replace(/,/g, ''))
+          if (!isNaN(numValue) && numValue > 0) {
+            if (!validation || validation(numValue)) {
+              values.push(numValue)
+            }
+          }
+        }
+      }
+    }
+
+    if (values.length === 0) return undefined
+
+    // If multiple values found, prefer the largest (usually the total)
+    // unless it's unreasonably large
+    values.sort((a, b) => b - a)
+    return values[0]
+  }
+
+  // Extract utility company (try all patterns)
+  for (const pattern of patterns.utility) {
+    const match = normalizedText.match(pattern)
+    if (match && match[1]) {
+      data.utilityCompany = match[1].trim()
+      break
+    }
   }
 
   // Extract account number
-  const accountMatch = text.match(patterns.accountNumber)
-  if (accountMatch) {
-    data.accountNumber = accountMatch[1]
+  const accountValue = tryPatterns(patterns.accountNumber, normalizedText)
+  if (accountValue) {
+    data.accountNumber = accountValue.trim()
   }
 
   // Extract billing period
-  const periodMatch = text.match(patterns.billingPeriod)
-  if (periodMatch) {
-    data.billingPeriod = {
-      start: periodMatch[1],
-      end: periodMatch[2],
+  for (const pattern of patterns.billingPeriod) {
+    const match = normalizedText.match(pattern)
+    if (match && match[1] && match[2]) {
+      data.billingPeriod = {
+        start: match[1],
+        end: match[2],
+      }
+      break
     }
   }
 
-  // Extract kWh usage (try multiple patterns)
-  let kwhValue: number | undefined
-  const totalKwhMatch = text.match(patterns.totalKwh)
-  if (totalKwhMatch) {
-    kwhValue = parseFloat(totalKwhMatch[1].replace(/,/g, ''))
-  } else {
-    const kwhMatch = text.match(patterns.kwh)
-    if (kwhMatch) {
-      kwhValue = parseFloat(kwhMatch[1].replace(/,/g, ''))
-    }
-  }
+  // Extract kWh usage (try all patterns, validate reasonable range)
+  const kwhValue = extractBestNumber(
+    patterns.kwh,
+    normalizedText,
+    (n) => n < 100000 // Sanity check: less than 100,000 kWh/month
+  )
 
-  // Extract demand
-  const demandMatch = text.match(patterns.demand)
-  let demandValue: number | undefined
-  if (demandMatch) {
-    demandValue = parseFloat(demandMatch[1])
-  }
+  // Extract demand (validate reasonable range)
+  const demandValue = extractBestNumber(
+    patterns.demand,
+    normalizedText,
+    (n) => n < 10000 // Sanity check: less than 10,000 kW
+  )
 
   if (kwhValue || demandValue) {
     data.usage = {
@@ -170,13 +254,29 @@ export function parseBillText(text: string): ParsedBillData {
   }
 
   // Extract charges
-  const totalMatch = text.match(patterns.totalAmount)
-  const energyMatch = text.match(patterns.energyCharge)
+  const totalCharge = extractBestNumber(
+    patterns.totalAmount,
+    normalizedText,
+    (n) => n < 100000 // Sanity check: less than $100k
+  )
 
-  if (totalMatch || energyMatch) {
+  const energyChargeValue = extractBestNumber(
+    patterns.energyCharge,
+    normalizedText,
+    (n) => n < 100000
+  )
+
+  const demandChargeValue = extractBestNumber(
+    patterns.demandCharge,
+    normalizedText,
+    (n) => n < 100000
+  )
+
+  if (totalCharge || energyChargeValue || demandChargeValue) {
     data.charges = {
-      total: totalMatch ? parseFloat(totalMatch[1].replace(/,/g, '')) : undefined,
-      energyCharge: energyMatch ? parseFloat(energyMatch[1].replace(/,/g, '')) : undefined,
+      total: totalCharge,
+      energyCharge: energyChargeValue,
+      demandCharge: demandChargeValue,
     }
   }
 
