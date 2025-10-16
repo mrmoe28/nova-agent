@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises'
 import { PDFParse } from 'pdf-parse'
-import Tesseract from 'tesseract.js'
+// Dynamic import for Tesseract to avoid serverless environment issues
 
 export interface OCRResult {
   text: string
@@ -19,7 +19,7 @@ export async function extractTextFromPDF(filePath: string): Promise<OCRResult> {
 
     return {
       text: textResult.text,
-      pageCount: textResult.total,
+      pageCount: textResult.pages.length,
       confidence: 0.95, // PDF text extraction is usually highly accurate
     }
   } catch (error) {
@@ -30,10 +30,25 @@ export async function extractTextFromPDF(filePath: string): Promise<OCRResult> {
 
 /**
  * Extract text from image file using OCR
+ * Note: OCR is disabled in serverless environments due to canvas dependency issues
  */
 export async function extractTextFromImage(filePath: string): Promise<OCRResult> {
   try {
-    const result = await Tesseract.recognize(filePath, 'eng', {
+    // Check if we're in a serverless environment (Vercel, Lambda, etc.)
+    const isServerless = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME
+
+    if (isServerless) {
+      console.warn('OCR disabled in serverless environment - canvas/DOMMatrix not available')
+      return {
+        text: 'OCR unavailable in serverless environment. Please use PDF files or implement external OCR API.',
+        confidence: 0,
+      }
+    }
+
+    // Dynamic import to avoid loading Tesseract in serverless environments
+    const Tesseract = await import('tesseract.js')
+
+    const result = await Tesseract.default.recognize(filePath, 'eng', {
       logger: (info) => {
         if (info.status === 'recognizing text') {
           console.log(`OCR Progress: ${Math.round(info.progress * 100)}%`)
@@ -47,7 +62,11 @@ export async function extractTextFromImage(filePath: string): Promise<OCRResult>
     }
   } catch (error) {
     console.error('Error extracting text from image:', error)
-    throw new Error('Failed to extract text from image')
+    // Return empty result instead of throwing to prevent endpoint crash
+    return {
+      text: `OCR failed: ${error instanceof Error ? error.message : 'Unknown error'}. Please use PDF files for better results.`,
+      confidence: 0,
+    }
   }
 }
 
