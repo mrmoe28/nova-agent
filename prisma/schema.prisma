@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  clientName  String
+  address     String?
+  phone       String?
+  email       String?
+  status      String   @default("intake") // intake, analysis, sizing, bom, plan, review, complete
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bills       Bill[]
+  analysis    Analysis?
+  system      System?
+  bomItems    BOMItem[]
+  plan        Plan?
+}
+
+model Bill {
+  id            String   @id @default(cuid())
+  projectId     String
+  fileName      String
+  fileType      String   // pdf, image, csv
+  filePath      String
+  uploadedAt    DateTime @default(now())
+  ocrText       String?
+  extractedData String?  // JSON string
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Analysis {
+  id                 String   @id @default(cuid())
+  projectId          String   @unique
+  monthlyUsageKwh    Float
+  peakDemandKw       Float?
+  averageCostPerKwh  Float
+  annualCostUsd      Float
+  recommendations    String   // JSON string
+  createdAt          DateTime @default(now())
+
+  project            Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model System {
+  id                String   @id @default(cuid())
+  projectId         String   @unique
+  solarPanelCount   Int
+  solarPanelWattage Int
+  totalSolarKw      Float
+  batteryKwh        Float
+  batteryType       String   // lithium, lead-acid
+  inverterKw        Float
+  inverterType      String
+  backupDurationHrs Int
+  criticalLoadKw    Float
+  estimatedCostUsd  Float
+  createdAt         DateTime @default(now())
+
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model BOMItem {
+  id            String  @id @default(cuid())
+  projectId     String
+  category      String  // solar, battery, inverter, mounting, electrical
+  itemName      String
+  manufacturer  String?
+  modelNumber   String
+  quantity      Int
+  unitPriceUsd  Float
+  totalPriceUsd Float
+  sourceUrl     String?
+  notes         String?
+
+  project       Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Plan {
+  id              String   @id @default(cuid())
+  projectId       String   @unique
+  necChecks       String   // JSON array of checks
+  warnings        String?  // JSON array of warnings
+  installSteps    String   // JSON array of steps
+  timeline        String?
+  laborHoursEst   Float?
+  permitNotes     String?
+  finalPdfPath    String?
+  createdAt       DateTime @default(now())
+
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
