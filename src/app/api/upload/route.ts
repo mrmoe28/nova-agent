@@ -45,8 +45,9 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(process.cwd(), 'uploads', projectId)
+    // Use /tmp directory for serverless environment (Vercel)
+    // Note: Files in /tmp are ephemeral and will be deleted after function execution
+    const uploadsDir = join('/tmp', 'uploads', projectId)
     try {
       await mkdir(uploadsDir, { recursive: true })
     } catch {
@@ -64,6 +65,8 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes)
     await writeFile(filePath, buffer)
 
+    console.log(`File saved to: ${filePath} (${buffer.length} bytes)`)
+
     // Determine file type category
     let fileType: 'pdf' | 'image' | 'csv' = 'pdf'
     if (file.type.startsWith('image/')) {
@@ -72,15 +75,17 @@ export async function POST(request: NextRequest) {
       fileType = 'csv'
     }
 
-    // Save to database
+    // Save to database with full /tmp path
     const bill = await prisma.bill.create({
       data: {
         projectId,
         fileName: file.name,
         fileType,
-        filePath: `/uploads/${projectId}/${fileName}`,
+        filePath: filePath, // Store full path for OCR processing
       },
     })
+
+    console.log(`Bill record created: ${bill.id}`)
 
     return NextResponse.json({
       success: true,

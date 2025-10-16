@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { join } from 'path'
 import { prisma } from '@/lib/prisma'
 import { performOCR, parseBillText } from '@/lib/ocr'
 
@@ -30,11 +29,11 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Construct full file path
-    const filePath = join(process.cwd(), bill.filePath)
+    // File path is already absolute (/tmp/uploads/...)
+    const filePath = bill.filePath
 
     // Perform OCR
-    console.log(`Starting OCR for bill ${billId} (${bill.fileType})`)
+    console.log(`Starting OCR for bill ${billId} at ${filePath} (${bill.fileType})`)
     const ocrResult = await performOCR(filePath, bill.fileType as 'pdf' | 'image' | 'csv')
 
     console.log(`OCR completed with confidence: ${ocrResult.confidence}`)
@@ -110,7 +109,8 @@ export async function GET(request: NextRequest) {
     const results = []
     for (const bill of bills) {
       try {
-        const filePath = join(process.cwd(), bill.filePath)
+        // File path is already absolute (/tmp/uploads/...)
+        const filePath = bill.filePath
         const ocrResult = await performOCR(filePath, bill.fileType as 'pdf' | 'image' | 'csv')
         const parsedData = parseBillText(ocrResult.text)
 

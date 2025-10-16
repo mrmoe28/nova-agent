@@ -183,7 +183,7 @@ Potential enhancements:
 - Build has font-related warnings (works fine in dev mode)
 - Equipment pricing is mocked data
 - OCR accuracy depends on bill format clarity
-- File storage is local (consider cloud storage for production scale)
+- **File storage uses /tmp directory in serverless**: Files are ephemeral and deleted after processing (consider Vercel Blob Storage for persistent storage)
 
 ## Notes for Future Development
 
@@ -194,7 +194,10 @@ Potential enhancements:
 - System sizing uses conservative estimates (1.2x safety factors)
 - PDF save path: Browser download (not server-side save)
 - Database: Neon PostgreSQL (serverless/production-ready)
-- File uploads stored in `/uploads/{projectId}/` directory
+- **File uploads stored in `/tmp/uploads/{projectId}/`** (serverless environment)
+  - Files in `/tmp` are ephemeral and deleted after function execution
+  - OCR processing should happen immediately after upload
+  - For production scale, consider Vercel Blob Storage or AWS S3
 
 ## OCR Implementation Details
 
