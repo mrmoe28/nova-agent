@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { writeFile, mkdir } from 'fs/promises'
 import { join } from 'path'
 import { prisma } from '@/lib/prisma'
+import { performOCR, parseBillText } from '@/lib/ocr'
 
 export async function POST(request: NextRequest) {
   try {
@@ -75,13 +76,36 @@ export async function POST(request: NextRequest) {
       fileType = 'csv'
     }
 
-    // Save to database with full /tmp path
+    // Process OCR immediately while file is in /tmp
+    let ocrText: string | null = null
+    let extractedData: string | null = null
+    let ocrConfidence = 0
+
+    try {
+      console.log(`Processing OCR for ${fileName}...`)
+      const ocrResult = await performOCR(filePath, fileType)
+      ocrText = ocrResult.text
+      ocrConfidence = ocrResult.confidence || 0
+
+      // Parse bill data
+      const parsedData = parseBillText(ocrText)
+      extractedData = JSON.stringify(parsedData)
+
+      console.log(`OCR completed with ${ocrConfidence} confidence, extracted ${Object.keys(parsedData).length} fields`)
+    } catch (ocrError) {
+      console.error('OCR processing failed:', ocrError)
+      // Continue without OCR data - better to have the bill uploaded
+    }
+
+    // Save to database with OCR data
     const bill = await prisma.bill.create({
       data: {
         projectId,
         fileName: file.name,
         fileType,
-        filePath: filePath, // Store full path for OCR processing
+        filePath: filePath,
+        ocrText,
+        extractedData,
       },
     })
 
@@ -94,6 +118,8 @@ export async function POST(request: NextRequest) {
         fileName: bill.fileName,
         fileType: bill.fileType,
         uploadedAt: bill.uploadedAt,
+        ocrProcessed: !!ocrText,
+        extractedData: extractedData ? JSON.parse(extractedData) : null,
       },
     })
   } catch (error) {

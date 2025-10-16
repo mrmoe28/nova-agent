@@ -21,19 +21,7 @@ export default function IntakePage() {
   const handleContinue = async () => {
     setProcessing(true)
     try {
-      // First, process all bills with OCR
-      const ocrResponse = await fetch(`/api/ocr?projectId=${projectId}`)
-      const ocrData = await ocrResponse.json()
-
-      if (!ocrData.success) {
-        alert(`OCR Error: ${ocrData.error}`)
-        setProcessing(false)
-        return
-      }
-
-      console.log(`Processed ${ocrData.processed} bills with OCR`)
-
-      // Then analyze the extracted data
+      // Analyze the extracted data (OCR already processed during upload)
       const analyzeResponse = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -84,10 +72,10 @@ export default function IntakePage() {
             {processing ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Processing & Analyzing...
+                Analyzing...
               </>
             ) : (
-              "Process Bills & Continue"
+              "Analyze Bills & Continue"
             )}
           </Button>
         </div>
