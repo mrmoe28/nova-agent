@@ -4,18 +4,49 @@ import { useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Loader2, Upload, FileText } from "lucide-react"
+import { Loader2 } from "lucide-react"
+import FileUpload from "@/components/FileUpload"
 
 export default function IntakePage() {
   const router = useRouter()
   const params = useParams()
   const projectId = params.projectId as string
   const [processing, setProcessing] = useState(false)
+  const [hasFiles, setHasFiles] = useState(false)
 
-  const handleSkipToAnalysis = async () => {
+  const handleUploadComplete = (bills: { id: string; fileName: string; fileType: string; uploadedAt: Date }[]) => {
+    setHasFiles(bills.length > 0)
+  }
+
+  const handleContinue = async () => {
     setProcessing(true)
     try {
-      // For demo purposes, we'll skip file upload and go straight to analysis
+      // Analyze uploaded bills
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectId }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        router.push(`/wizard/${projectId}/sizing`)
+      } else {
+        alert(`Error: ${data.error}`)
+      }
+    } catch (error) {
+      console.error("Error:", error)
+      alert("Failed to analyze bills")
+    } finally {
+      setProcessing(false)
+    }
+  }
+
+  const handleDemoMode = async () => {
+    setProcessing(true)
+    try {
+      // Use demo data (skip file upload)
       const response = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -46,36 +77,11 @@ export default function IntakePage() {
         </p>
       </div>
 
-      <Card className="p-8">
-        <div className="flex flex-col items-center justify-center space-y-6 text-center">
-          <div className="rounded-full bg-muted p-6">
-            <Upload className="h-12 w-12 text-muted-foreground" />
-          </div>
+      <Card className="p-6">
+        <FileUpload projectId={projectId} onUploadComplete={handleUploadComplete} />
 
-          <div>
-            <h3 className="text-lg font-semibold">Upload Power Bills</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Drag and drop files here or click to browse
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Supports PDF, JPG, PNG, and CSV (1-12 months recommended)
-            </p>
-          </div>
-
-          <div className="w-full border-2 border-dashed border-muted-foreground/25 rounded-lg p-12">
-            <div className="flex flex-col items-center gap-4">
-              <FileText className="h-16 w-16 text-muted-foreground/50" />
-              <p className="text-sm text-muted-foreground">
-                File upload interface (OCR integration coming soon)
-              </p>
-              <Button variant="outline" disabled>
-                <Upload className="mr-2 h-4 w-4" />
-                Browse Files
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex w-full gap-3 pt-4">
+        <div className="mt-6 flex flex-col gap-3">
+          <div className="flex gap-3">
             <Button
               type="button"
               variant="outline"
@@ -85,23 +91,47 @@ export default function IntakePage() {
               Save & Exit
             </Button>
             <Button
-              onClick={handleSkipToAnalysis}
-              disabled={processing}
+              onClick={handleContinue}
+              disabled={processing || !hasFiles}
               className="flex-1"
             >
               {processing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Processing...
+                  Analyzing...
                 </>
               ) : (
-                "Use Demo Data & Continue"
+                "Analyze Bills & Continue"
               )}
             </Button>
           </div>
 
-          <p className="text-xs text-muted-foreground">
-            Demo mode uses simulated usage data for testing purposes
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-card px-2 text-muted-foreground">Or</span>
+            </div>
+          </div>
+
+          <Button
+            variant="secondary"
+            onClick={handleDemoMode}
+            disabled={processing}
+            className="w-full"
+          >
+            {processing ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Processing...
+              </>
+            ) : (
+              "Use Demo Data (Skip Upload)"
+            )}
+          </Button>
+          <p className="text-center text-xs text-muted-foreground">
+            Demo mode uses simulated usage data for testing
           </p>
         </div>
       </Card>
