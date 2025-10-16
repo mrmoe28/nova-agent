@@ -23,6 +23,10 @@ NovaAgent helps solar professionals analyze power bills, design solar + battery 
 ### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/mrmoe28/nova-agent.git
+cd nova-agent
+
 # Install dependencies
 npm install
 
