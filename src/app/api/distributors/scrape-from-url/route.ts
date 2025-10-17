@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { scrapeCompanyInfo, scrapeMultipleProducts, detectCategory, deepCrawlForProducts } from '@/lib/scraper'
-import { getBrowserScraper, closeBrowserScraper } from '@/lib/browser-scraper'
+import { getBrowserScraper, closeBrowserScraper } from '@/lib/browser-scraper-bql'
 import { createLogger, logOperation } from '@/lib/logger'
 
 const logger = createLogger('scrape-api')
