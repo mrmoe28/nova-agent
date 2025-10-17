@@ -98,7 +98,24 @@ export async function POST(request: NextRequest) {
       console.log(`OCR completed with ${ocrConfidence} confidence, extracted ${Object.keys(parsedData).length} fields`)
     } catch (ocrError) {
       console.error('OCR processing failed:', ocrError)
-      // Continue without OCR data - better to have the bill uploaded
+      console.error('Error details:', ocrError instanceof Error ? ocrError.message : String(ocrError))
+
+      // Provide demo/fallback data so analysis can still proceed
+      console.log('Using fallback demo data for analysis')
+      const fallbackData = {
+        utilityCompany: 'Demo Utility Company',
+        usage: {
+          kwh: 1000,
+          kw: 5.0,
+        },
+        charges: {
+          total: 150.00,
+          energyCharge: 100.00,
+          demandCharge: 50.00,
+        },
+      }
+      extractedData = JSON.stringify(fallbackData)
+      ocrText = 'OCR processing unavailable - using demo data for analysis'
     }
 
     // Save to database with OCR data
@@ -115,15 +132,19 @@ export async function POST(request: NextRequest) {
 
     console.log(`Bill record created: ${bill.id}`)
 
+    const isFallbackData = ocrText === 'OCR processing unavailable - using demo data for analysis'
+
     return NextResponse.json({
       success: true,
+      warning: isFallbackData ? 'OCR processing unavailable. Using demo data for analysis. For accurate results, please ensure your bill is a clear PDF.' : undefined,
       bill: {
         id: bill.id,
         fileName: bill.fileName,
         fileType: bill.fileType,
         uploadedAt: bill.uploadedAt,
-        ocrProcessed: !!ocrText,
+        ocrProcessed: !!ocrText && !isFallbackData,
         extractedData: extractedData ? JSON.parse(extractedData) : null,
+        usingFallbackData: isFallbackData,
       },
     })
   } catch (error) {
