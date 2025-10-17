@@ -26,6 +26,7 @@ import {
   ExternalLink,
   Globe,
   Loader2,
+  Star,
 } from "lucide-react"
 
 interface Distributor {
@@ -53,6 +54,8 @@ interface Equipment {
   dataSheetUrl?: string
   inStock: boolean
   leadTimeDays?: number
+  rating?: number
+  reviewCount?: number
   distributor?: { id: string; name: string }
 }
 
@@ -281,65 +284,148 @@ export default function DistributorsPage() {
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredEquipment.map((item) => (
-            <Card key={item.id} className="p-5 bg-white border border-slate-200 shadow-sm">
-              {item.imageUrl && (
-                <div className="relative w-full h-40 mb-4 bg-slate-50 rounded-lg overflow-hidden">
+            <Card
+              key={item.id}
+              className="group p-0 bg-white border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-blue-300"
+            >
+              {/* Product Image */}
+              <div className="relative w-full h-48 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
+                {item.imageUrl ? (
                   <Image
                     src={item.imageUrl}
                     alt={item.name}
                     fill
-                    className="object-cover"
+                    className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement
+                      target.style.display = 'none'
+                      const parent = target.parentElement
+                      if (parent) {
+                        parent.innerHTML = '<div class="flex items-center justify-center h-full text-slate-400"><svg class="h-16 w-16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg></div>'
+                      }
+                    }}
                   />
-                </div>
-              )}
-              <div className="flex justify-between items-start mb-3">
-                <div className="flex-1 pr-2">
-                  <h3 className="font-semibold text-slate-900 text-sm leading-tight">{item.name}</h3>
-                  {item.manufacturer && (
-                    <p className="text-xs text-slate-500 mt-1">{item.manufacturer}</p>
-                  )}
-                </div>
-                <div className="flex gap-2">
+                ) : (
+                  <div className="flex items-center justify-center h-full text-slate-400">
+                    <Package className="h-16 w-16" />
+                  </div>
+                )}
+
+                {/* Action Buttons Overlay */}
+                <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation()
                       setEditingEquipment(item)
                       setShowAddEquipment(true)
                     }}
-                    className="h-8 w-8 p-0 border-slate-300"
+                    className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm border-slate-300 shadow-md"
                   >
                     <Pencil className="h-3.5 w-3.5 text-slate-700" />
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleDeleteEquipment(item.id)}
-                    className="h-8 w-8 p-0 border-red-300"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleDeleteEquipment(item.id)
+                    }}
+                    className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm border-red-300 shadow-md"
                   >
                     <Trash2 className="h-3.5 w-3.5 text-red-600" />
                   </Button>
                 </div>
-              </div>
-              <p className="text-xs text-slate-600 mb-3">Model: {item.modelNumber}</p>
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-lg font-bold text-blue-600">
-                  ${item.unitPrice.toLocaleString()}
-                </span>
-                <Badge
-                  variant={item.inStock ? "default" : "destructive"}
-                  className={item.inStock ? "bg-emerald-100 text-emerald-800 border-0" : "bg-red-100 text-red-800 border-0"}
-                >
-                  {item.inStock ? "In Stock" : "Out of Stock"}
-                </Badge>
-              </div>
-              {item.distributor && (
-                <div className="pt-3 border-t border-slate-200">
-                  <p className="text-xs text-slate-500">
-                    {item.distributor.name}
-                  </p>
+
+                {/* Stock Badge Overlay */}
+                <div className="absolute top-2 left-2">
+                  <Badge
+                    variant={item.inStock ? "default" : "destructive"}
+                    className={
+                      item.inStock
+                        ? "bg-emerald-500 text-white border-0 shadow-md"
+                        : "bg-red-500 text-white border-0 shadow-md"
+                    }
+                  >
+                    {item.inStock ? "In Stock" : "Out of Stock"}
+                  </Badge>
                 </div>
-              )}
+
+                {/* Category Badge */}
+                <div className="absolute bottom-2 left-2">
+                  <Badge variant="secondary" className="text-xs bg-white/90 backdrop-blur-sm">
+                    {item.category}
+                  </Badge>
+                </div>
+              </div>
+
+              {/* Product Details */}
+              <div className="p-4 space-y-3">
+                {/* Title and Manufacturer */}
+                <div>
+                  <h3 className="font-semibold text-base leading-tight text-slate-900 line-clamp-2">
+                    {item.name}
+                  </h3>
+                  {item.manufacturer && (
+                    <p className="text-xs text-slate-500 mt-1 font-medium">
+                      {item.manufacturer}
+                    </p>
+                  )}
+                </div>
+
+                {/* Model Number */}
+                <div className="text-xs text-slate-600 bg-slate-50 px-2 py-1 rounded inline-block">
+                  Model: {item.modelNumber}
+                </div>
+
+                {/* Description (if available) */}
+                {item.description && (
+                  <p className="text-xs text-slate-600 line-clamp-2">
+                    {item.description}
+                  </p>
+                )}
+
+                {/* Rating (if available) */}
+                {item.rating && (
+                  <div className="flex items-center gap-2">
+                    <div className="flex">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-3 w-3 ${
+                            i < Math.floor(item.rating!)
+                              ? "text-yellow-400 fill-yellow-400"
+                              : "text-slate-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    {item.reviewCount && (
+                      <span className="text-xs text-slate-500">
+                        ({item.reviewCount})
+                      </span>
+                    )}
+                  </div>
+                )}
+
+                {/* Price */}
+                <div className="pt-2 border-t border-slate-100">
+                  <span className="text-2xl font-bold text-blue-600">
+                    ${item.unitPrice.toLocaleString()}
+                  </span>
+                </div>
+
+                {/* Distributor */}
+                {item.distributor && (
+                  <div className="pt-2 border-t border-slate-100">
+                    <p className="text-xs text-slate-500 flex items-center gap-1">
+                      <Building2 className="h-3 w-3" />
+                      {item.distributor.name}
+                    </p>
+                  </div>
+                )}
+              </div>
             </Card>
           ))}
         </div>
