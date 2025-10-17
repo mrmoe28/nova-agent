@@ -27,6 +27,7 @@ import {
   Globe,
   Loader2,
   Star,
+  Upload,
 } from "lucide-react";
 
 interface Distributor {
@@ -872,6 +873,68 @@ function EquipmentForm({
     leadTimeDays: equipment?.leadTimeDays?.toString() || "",
   });
   const [saving, setSaving] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(
+    equipment?.imageUrl || null,
+  );
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      alert("Please select an image file (JPG, PNG, etc.)");
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (file.size > maxSize) {
+      alert("Image size must be less than 5MB");
+      return;
+    }
+
+    setImageFile(file);
+
+    // Create preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleImageUpload = async () => {
+    if (!imageFile) return;
+
+    setUploadingImage(true);
+    try {
+      const formDataUpload = new FormData();
+      formDataUpload.append("image", imageFile);
+
+      const response = await fetch("/api/equipment/upload-image", {
+        method: "POST",
+        body: formDataUpload,
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.imageUrl) {
+        setFormData({ ...formData, imageUrl: data.imageUrl });
+        alert("Image uploaded successfully!");
+        setImageFile(null);
+      } else {
+        alert("Failed to upload image: " + (data.error || "Unknown error"));
+      }
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      alert("Failed to upload image");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -946,7 +1009,7 @@ function EquipmentForm({
                 }
               >
                 <SelectTrigger className="mt-1 bg-white border-slate-300">
-                  <SelectValue />
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="solar">Solar Panels</SelectItem>
@@ -1071,7 +1134,7 @@ function EquipmentForm({
                 }
               >
                 <SelectTrigger className="mt-1 bg-white border-slate-300">
-                  <SelectValue />
+                  <SelectValue placeholder="Select availability" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="true">In Stock</SelectItem>
@@ -1081,20 +1144,82 @@ function EquipmentForm({
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="imageUrl" className="text-slate-700 font-medium">
-              Image URL
-            </Label>
-            <Input
-              id="imageUrl"
-              type="url"
-              value={formData.imageUrl}
-              onChange={(e) =>
-                setFormData({ ...formData, imageUrl: e.target.value })
-              }
-              placeholder="https://"
-              className="mt-1 bg-white border-slate-300"
-            />
+          <div className="space-y-3">
+            <Label className="text-slate-700 font-medium">Product Image</Label>
+
+            {/* Image Preview */}
+            {imagePreview && (
+              <div className="relative w-full h-48 border-2 border-slate-200 rounded-lg overflow-hidden bg-slate-50">
+                <img
+                  src={imagePreview}
+                  alt="Product preview"
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            )}
+
+            {/* Image Upload Section */}
+            <div className="flex gap-2">
+              <input
+                type="file"
+                id="imageFile"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => document.getElementById("imageFile")?.click()}
+                className="flex-1"
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Choose Image
+              </Button>
+
+              {imageFile && (
+                <Button
+                  type="button"
+                  onClick={handleImageUpload}
+                  disabled={uploadingImage}
+                  className="bg-blue-600 text-white"
+                >
+                  {uploadingImage ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    "Upload"
+                  )}
+                </Button>
+              )}
+            </div>
+
+            {imageFile && (
+              <p className="text-xs text-slate-600">
+                Selected: {imageFile.name} (
+                {(imageFile.size / 1024 / 1024).toFixed(2)} MB)
+              </p>
+            )}
+
+            {/* Manual URL Input (Alternative) */}
+            <div className="pt-2 border-t border-slate-200">
+              <Label htmlFor="imageUrl" className="text-xs text-slate-600">
+                Or enter image URL manually
+              </Label>
+              <Input
+                id="imageUrl"
+                type="url"
+                value={formData.imageUrl}
+                onChange={(e) => {
+                  setFormData({ ...formData, imageUrl: e.target.value });
+                  setImagePreview(e.target.value);
+                }}
+                placeholder="https://"
+                className="mt-1 bg-white border-slate-300 text-sm"
+              />
+            </div>
           </div>
 
           <div>

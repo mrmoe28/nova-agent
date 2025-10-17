@@ -49,3 +49,7 @@ next-env.d.ts
 # Test files
 test-*.ts
 test-*.js
+
+# Uploaded images (keep .gitkeep but ignore actual files)
+/public/uploads/**
+!/public/uploads/**/.gitkeep
