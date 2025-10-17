@@ -34,10 +34,10 @@ export async function POST(request: NextRequest) {
     if (scrapeProducts) {
       console.log('Starting deep crawl for products...')
       const crawlResult = await deepCrawlForProducts(url, {
-        maxPages: 20,  // Crawl up to 20 pages
-        maxDepth: 3,   // Go 3 levels deep
+        maxPages: 50,  // Crawl up to 50 pages (increased for better coverage)
+        maxDepth: 4,   // Go 4 levels deep (increased for nested categories)
         config: {
-          rateLimit: 1500,
+          rateLimit: 1000, // Reduced to 1 second for faster crawling
           timeout: 30000,
         },
       })

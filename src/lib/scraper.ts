@@ -506,8 +506,14 @@ export async function deepCrawlForProducts(
   const baseHostname = urlObj.hostname
 
   // Keywords for identifying catalog/listing pages
-  const catalogKeywords = ['shop', 'products', 'catalog', 'store', 'category', 'collection', 'inventory']
-  const paginationKeywords = ['page', 'p=', 'pg', 'offset', 'start']
+  const catalogKeywords = [
+    'shop', 'products', 'catalog', 'store', 'category', 'collection', 'inventory',
+    // Solar/battery specific
+    'solar', 'battery', 'batteries', 'inverter', 'panel', 'charger', 'storage',
+    // Common e-commerce patterns
+    'all-', 'browse', 'search', 'filter', 'list', 'grid'
+  ]
+  const paginationKeywords = ['page', 'p=', 'pg', 'offset', 'start', 'limit']
 
   console.log(`Starting deep crawl from: ${startUrl}`)
 
@@ -563,21 +569,47 @@ export async function deepCrawlForProducts(
 
           const linkText = $(link).text().toLowerCase()
           const linkHref = href.toLowerCase()
+          const pathname = linkObj.pathname.toLowerCase()
 
-          // Check if it's a product link
-          const isProductLink = ['product', 'item', 'detail'].some(
-            keyword => linkText.includes(keyword) || linkHref.includes(keyword)
-          )
+          // Enhanced product link detection with multiple patterns
+          const productPatterns = [
+            // Direct product keywords
+            'product', 'item', 'detail', 'p/', '/p/',
+            // E-commerce patterns
+            '/pd/', '/dp/', '/gp/', '/itm/',
+            // Category + item patterns (e.g., /batteries/eg4-lifepower4)
+            /\/(solar|battery|batteries|inverter|panel|charger|cable|mount|bracket)s?\/[^\/]+$/,
+            // SKU-like patterns
+            /-\d{3,}/, // ends with dash and 3+ digits
+            /[a-z]+-[a-z0-9]+-[a-z0-9]+/, // multi-dash separated (e.g., eg4-lifepower4-48v)
+          ]
 
-          if (isProductLink) {
+          const isProductLink = productPatterns.some(pattern => {
+            if (typeof pattern === 'string') {
+              return linkText.includes(pattern) || linkHref.includes(pattern) || pathname.includes(pattern)
+            } else {
+              // RegExp pattern
+              return pattern.test(pathname) || pattern.test(linkHref)
+            }
+          })
+
+          // Also check if link has product-like classes
+          const linkClasses = $(link).attr('class') || ''
+          const hasProductClass = linkClasses.match(/product|item|card/i)
+
+          if (isProductLink || hasProductClass) {
             productLinks.add(absoluteUrl)
           }
 
-          // Check if it's a catalog or pagination link (for queue)
-          const isCatalogLink = catalogKeywords.some(k => linkHref.includes(k))
+          // Enhanced catalog/pagination detection
+          const isCatalogLink = catalogKeywords.some(k => linkHref.includes(k) || pathname.includes(k))
           const isPaginationLink = paginationKeywords.some(k => linkHref.includes(k))
 
-          if ((isCatalogLink || isPaginationLink) && depth < maxDepth) {
+          // Also look for numeric pages and "next" links
+          const isNextLink = linkText.includes('next') || linkText.includes('more') ||
+                            linkHref.includes('next') || /page[\/=]\d+/.test(linkHref)
+
+          if ((isCatalogLink || isPaginationLink || isNextLink) && depth < maxDepth) {
             urlQueue.push({ url: absoluteUrl, depth: depth + 1 })
           }
 
