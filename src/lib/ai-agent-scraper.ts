@@ -255,9 +255,9 @@ Respond in JSON format:
       }
     }
 
-    // Fallback: try hybrid approach
+    // Fallback: try hybrid approach with HTTP method
     return {
-      method: 'mixed',
+      method: 'http',
       approach: 'hybrid',
       targetUrls: [url],
       maxDepth: 2,
