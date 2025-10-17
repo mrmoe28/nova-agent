@@ -144,7 +144,10 @@ export class BrowserScraperBQL {
     const data = await this.executeBQL(query, {
       url,
       waitTime: 2000,
-    })
+    }) as {
+      html: { content: string }
+      evaluate?: { value: string }
+    }
 
     const html = data.html.content
     const imageUrl = data.evaluate?.value || null
