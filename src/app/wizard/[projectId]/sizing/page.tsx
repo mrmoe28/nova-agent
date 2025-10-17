@@ -1,26 +1,26 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card } from "@/components/ui/card"
-import { Loader2 } from "lucide-react"
+import { useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 
 export default function SizingPage() {
-  const router = useRouter()
-  const params = useParams()
-  const projectId = params.projectId as string
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const params = useParams();
+  const projectId = params.projectId as string;
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     backupDurationHrs: 24,
     criticalLoadKw: 3,
-  })
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
       const response = await fetch("/api/size", {
@@ -30,22 +30,22 @@ export default function SizingPage() {
           projectId,
           ...formData,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
-        router.push(`/wizard/${projectId}/bom`)
+        router.push(`/wizard/${projectId}/bom`);
       } else {
-        alert(`Error: ${data.error}`)
+        alert(`Error: ${data.error}`);
       }
     } catch (error) {
-      console.error("Error sizing system:", error)
-      alert("Failed to size system")
+      console.error("Error sizing system:", error);
+      alert("Failed to size system");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -59,9 +59,7 @@ export default function SizingPage() {
       <Card className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="backupDurationHrs">
-              Backup Duration (hours)
-            </Label>
+            <Label htmlFor="backupDurationHrs">Backup Duration (hours)</Label>
             <Input
               id="backupDurationHrs"
               type="number"
@@ -75,7 +73,7 @@ export default function SizingPage() {
                 })
               }
               className="bg-white text-black"
-              style={{ color: '#000000' }}
+              style={{ color: "#000000" }}
             />
             <p className="text-xs text-muted-foreground">
               Recommended: 24h (1 day), 48h (2 days), or 72h (3 days)
@@ -83,9 +81,7 @@ export default function SizingPage() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="criticalLoadKw">
-              Critical Load (kW)
-            </Label>
+            <Label htmlFor="criticalLoadKw">Critical Load (kW)</Label>
             <Input
               id="criticalLoadKw"
               type="number"
@@ -100,7 +96,7 @@ export default function SizingPage() {
                 })
               }
               className="bg-white text-black"
-              style={{ color: '#000000' }}
+              style={{ color: "#000000" }}
             />
             <p className="text-xs text-muted-foreground">
               Essential circuits to keep powered during outage (refrigerator,
@@ -140,5 +136,5 @@ export default function SizingPage() {
         </form>
       </Card>
     </div>
-  )
+  );
 }

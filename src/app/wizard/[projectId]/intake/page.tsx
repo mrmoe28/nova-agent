@@ -1,47 +1,54 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Loader2 } from "lucide-react"
-import FileUpload from "@/components/FileUpload"
+import { useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
+import FileUpload from "@/components/FileUpload";
 
 export default function IntakePage() {
-  const router = useRouter()
-  const params = useParams()
-  const projectId = params.projectId as string
-  const [processing, setProcessing] = useState(false)
-  const [hasFiles, setHasFiles] = useState(false)
+  const router = useRouter();
+  const params = useParams();
+  const projectId = params.projectId as string;
+  const [processing, setProcessing] = useState(false);
+  const [hasFiles, setHasFiles] = useState(false);
 
-  const handleUploadComplete = (bills: { id: string; fileName: string; fileType: string; uploadedAt: Date }[]) => {
-    setHasFiles(bills.length > 0)
-  }
+  const handleUploadComplete = (
+    bills: {
+      id: string;
+      fileName: string;
+      fileType: string;
+      uploadedAt: Date;
+    }[],
+  ) => {
+    setHasFiles(bills.length > 0);
+  };
 
   const handleContinue = async () => {
-    setProcessing(true)
+    setProcessing(true);
     try {
       // Analyze the extracted data (OCR already processed during upload)
       const analyzeResponse = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ projectId }),
-      })
+      });
 
-      const analyzeData = await analyzeResponse.json()
+      const analyzeData = await analyzeResponse.json();
 
       if (analyzeData.success) {
-        router.push(`/wizard/${projectId}/sizing`)
+        router.push(`/wizard/${projectId}/sizing`);
       } else {
-        alert(`Analysis Error: ${analyzeData.error}`)
+        alert(`Analysis Error: ${analyzeData.error}`);
       }
     } catch (error) {
-      console.error("Error:", error)
-      alert("Failed to analyze bills")
+      console.error("Error:", error);
+      alert("Failed to analyze bills");
     } finally {
-      setProcessing(false)
+      setProcessing(false);
     }
-  }
+  };
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -53,7 +60,10 @@ export default function IntakePage() {
       </div>
 
       <Card className="p-6">
-        <FileUpload projectId={projectId} onUploadComplete={handleUploadComplete} />
+        <FileUpload
+          projectId={projectId}
+          onUploadComplete={handleUploadComplete}
+        />
 
         <div className="mt-6 flex gap-3">
           <Button
@@ -86,5 +96,5 @@ export default function IntakePage() {
         )}
       </Card>
     </div>
-  )
+  );
 }

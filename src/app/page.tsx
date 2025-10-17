@@ -1,7 +1,13 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Sparkles,
   Upload,
@@ -12,47 +18,53 @@ import {
   Sun,
   TrendingUp,
   ArrowRight,
-} from "lucide-react"
+} from "lucide-react";
 
 export default function Page() {
   const features = [
     {
       icon: Upload,
       title: "Smart Bill Analysis",
-      description: "Upload PDF, CSV, or image bills. AI-powered OCR extracts usage patterns instantly.",
+      description:
+        "Upload PDF, CSV, or image bills. AI-powered OCR extracts usage patterns instantly.",
       badge: "AI Powered",
     },
     {
       icon: Sun,
       title: "System Sizing",
-      description: "Automatically calculate optimal solar panel and battery configurations.",
+      description:
+        "Automatically calculate optimal solar panel and battery configurations.",
       badge: "Automated",
     },
     {
       icon: Battery,
       title: "BOM Generation",
-      description: "Generate detailed bills of materials with real-time pricing from distributors.",
+      description:
+        "Generate detailed bills of materials with real-time pricing from distributors.",
       badge: "Real-time",
     },
     {
       icon: ShieldCheck,
       title: "NEC Compliance",
-      description: "Built-in NEC 2023 checks ensure your designs meet electrical code standards.",
+      description:
+        "Built-in NEC 2023 checks ensure your designs meet electrical code standards.",
       badge: "Compliant",
     },
     {
       icon: FileText,
       title: "Professional Reports",
-      description: "One-click PDF generation with branding, charts, and detailed specifications.",
+      description:
+        "One-click PDF generation with branding, charts, and detailed specifications.",
       badge: "Branded",
     },
     {
       icon: TrendingUp,
       title: "ROI Analysis",
-      description: "Calculate savings, payback periods, and long-term energy cost reductions.",
+      description:
+        "Calculate savings, payback periods, and long-term energy cost reductions.",
       badge: "Analytics",
     },
-  ]
+  ];
 
   const steps = [
     {
@@ -75,7 +87,7 @@ export default function Page() {
       title: "Generate PDF",
       description: "Export professional reports with one click",
     },
-  ]
+  ];
 
   return (
     <div className="relative">
@@ -106,8 +118,9 @@ export default function Page() {
                 </h1>
 
                 <p className="text-lg text-gray-300 max-w-2xl">
-                  AI Energy Planner for Solar & Battery Systems. Analyze power bills, size PV and
-                  storage, build a BOM, run NEC checks, and generate professional PDFs—end to end.
+                  AI Energy Planner for Solar & Battery Systems. Analyze power
+                  bills, size PV and storage, build a BOM, run NEC checks, and
+                  generate professional PDFs—end to end.
                 </p>
               </div>
 
@@ -139,14 +152,22 @@ export default function Page() {
               <div className="flex flex-wrap gap-8 pt-4">
                 <div>
                   <div className="text-3xl font-bold text-cyan-400">30min</div>
-                  <div className="text-sm text-gray-400">Average Project Time</div>
+                  <div className="text-sm text-gray-400">
+                    Average Project Time
+                  </div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-cyan-400">NEC 2023</div>
-                  <div className="text-sm text-gray-400">Compliance Built-in</div>
+                  <div className="text-3xl font-bold text-cyan-400">
+                    NEC 2023
+                  </div>
+                  <div className="text-sm text-gray-400">
+                    Compliance Built-in
+                  </div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-cyan-400">1-Click</div>
+                  <div className="text-3xl font-bold text-cyan-400">
+                    1-Click
+                  </div>
                   <div className="text-sm text-gray-400">PDF Export</div>
                 </div>
               </div>
@@ -176,8 +197,12 @@ export default function Page() {
                         </div>
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-white">{step.title}</h4>
-                        <p className="text-sm text-gray-400">{step.description}</p>
+                        <h4 className="font-semibold text-white">
+                          {step.title}
+                        </h4>
+                        <p className="text-sm text-gray-400">
+                          {step.description}
+                        </p>
                       </div>
                       {index < steps.length - 1 && (
                         <div className="flex items-center">
@@ -187,7 +212,11 @@ export default function Page() {
                     </div>
                   ))}
 
-                  <Button asChild size="lg" className="w-full mt-4 bg-cyan-600 hover:bg-cyan-700">
+                  <Button
+                    asChild
+                    size="lg"
+                    className="w-full mt-4 bg-cyan-600 hover:bg-cyan-700"
+                  >
                     <Link href="/wizard/new">Start Your First Project</Link>
                   </Button>
                 </CardContent>
@@ -211,13 +240,14 @@ export default function Page() {
               Everything You Need for Solar Design
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Comprehensive tools to streamline your solar and battery system planning workflow
+              Comprehensive tools to streamline your solar and battery system
+              planning workflow
             </p>
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {features.map((feature) => {
-              const Icon = feature.icon
+              const Icon = feature.icon;
               return (
                 <Card
                   key={feature.title}
@@ -233,10 +263,12 @@ export default function Page() {
                       </Badge>
                     </div>
                     <CardTitle className="text-lg">{feature.title}</CardTitle>
-                    <CardDescription className="text-sm">{feature.description}</CardDescription>
+                    <CardDescription className="text-sm">
+                      {feature.description}
+                    </CardDescription>
                   </CardHeader>
                 </Card>
-              )
+              );
             })}
           </div>
         </div>
@@ -249,7 +281,8 @@ export default function Page() {
             Ready to Design Your Next Solar System?
           </h2>
           <p className="text-xl text-cyan-50 mb-8 max-w-2xl mx-auto">
-            Start planning smarter solar solutions with AI-powered tools and instant reports
+            Start planning smarter solar solutions with AI-powered tools and
+            instant reports
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Button
@@ -275,5 +308,5 @@ export default function Page() {
         </div>
       </section>
     </div>
-  )
+  );
 }

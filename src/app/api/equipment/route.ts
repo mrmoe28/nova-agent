@@ -1,24 +1,24 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 /**
  * GET /api/equipment - List equipment with filters
  */
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const distributorId = searchParams.get('distributorId')
-    const category = searchParams.get('category')
+    const { searchParams } = new URL(request.url);
+    const distributorId = searchParams.get("distributorId");
+    const category = searchParams.get("category");
 
     const where: {
-      distributorId?: string
-      category?: string
-      isActive?: boolean
-    } = {}
+      distributorId?: string;
+      category?: string;
+      isActive?: boolean;
+    } = {};
 
-    if (distributorId) where.distributorId = distributorId
-    if (category) where.category = category
-    where.isActive = true
+    if (distributorId) where.distributorId = distributorId;
+    if (category) where.category = category;
+    where.isActive = true;
 
     const equipment = await prisma.equipment.findMany({
       where,
@@ -30,16 +30,16 @@ export async function GET(request: NextRequest) {
           },
         },
       },
-      orderBy: { name: 'asc' },
-    })
+      orderBy: { name: "asc" },
+    });
 
-    return NextResponse.json({ success: true, equipment })
+    return NextResponse.json({ success: true, equipment });
   } catch (error) {
-    console.error('Error fetching equipment:', error)
+    console.error("Error fetching equipment:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch equipment' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to fetch equipment" },
+      { status: 500 },
+    );
   }
 }
 
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
+    const body = await request.json();
     const {
       distributorId,
       category,
@@ -62,13 +62,23 @@ export async function POST(request: NextRequest) {
       dataSheetUrl,
       inStock,
       leadTimeDays,
-    } = body
+    } = body;
 
-    if (!distributorId || !category || !name || !modelNumber || unitPrice == null) {
+    if (
+      !distributorId ||
+      !category ||
+      !name ||
+      !modelNumber ||
+      unitPrice == null
+    ) {
       return NextResponse.json(
-        { success: false, error: 'Required fields: distributorId, category, name, modelNumber, unitPrice' },
-        { status: 400 }
-      )
+        {
+          success: false,
+          error:
+            "Required fields: distributorId, category, name, modelNumber, unitPrice",
+        },
+        { status: 400 },
+      );
     }
 
     const equipment = await prisma.equipment.create({
@@ -89,14 +99,14 @@ export async function POST(request: NextRequest) {
       include: {
         distributor: true,
       },
-    })
+    });
 
-    return NextResponse.json({ success: true, equipment })
+    return NextResponse.json({ success: true, equipment });
   } catch (error) {
-    console.error('Error creating equipment:', error)
+    console.error("Error creating equipment:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to create equipment' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to create equipment" },
+      { status: 500 },
+    );
   }
 }

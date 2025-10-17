@@ -1,50 +1,50 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Plus, Loader2, FolderOpen } from "lucide-react"
-import { formatDate } from "@/lib/utils"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Plus, Loader2, FolderOpen } from "lucide-react";
+import { formatDate } from "@/lib/utils";
 
 interface Project {
-  id: string
-  clientName: string
-  address: string | null
-  status: string
-  createdAt: string
-  updatedAt: string
+  id: string;
+  clientName: string;
+  address: string | null;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
   _count: {
-    bills: number
-    bomItems: number
-  }
+    bills: number;
+    bomItems: number;
+  };
 }
 
 export default function ProjectsPage() {
-  const [loading, setLoading] = useState(true)
-  const [projects, setProjects] = useState<Project[]>([])
+  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState<Project[]>([]);
 
   useEffect(() => {
-    fetchProjects()
-  }, [])
+    fetchProjects();
+  }, []);
 
   const fetchProjects = async () => {
     try {
-      const response = await fetch("/api/projects")
-      const data = await response.json()
+      const response = await fetch("/api/projects");
+      const data = await response.json();
 
       if (data.success) {
-        setProjects(data.projects)
+        setProjects(data.projects);
       } else {
-        alert(`Error: ${data.error}`)
+        alert(`Error: ${data.error}`);
       }
     } catch (error) {
-      console.error("Error fetching projects:", error)
-      alert("Failed to load projects")
+      console.error("Error fetching projects:", error);
+      alert("Failed to load projects");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const getStatusBadge = (status: string) => {
     const statusColors: Record<string, string> = {
@@ -55,7 +55,7 @@ export default function ProjectsPage() {
       plan: "bg-cyan-100 text-cyan-800",
       review: "bg-indigo-100 text-indigo-800",
       complete: "bg-green-100 text-green-800",
-    }
+    };
 
     return (
       <span
@@ -65,8 +65,8 @@ export default function ProjectsPage() {
       >
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
-    )
-  }
+    );
+  };
 
   if (loading) {
     return (
@@ -76,7 +76,7 @@ export default function ProjectsPage() {
           <p className="mt-4 text-muted-foreground">Loading projects...</p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -113,7 +113,10 @@ export default function ProjectsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
-            <Card key={project.id} className="p-5 hover:shadow-lg transition-shadow">
+            <Card
+              key={project.id}
+              className="p-5 hover:shadow-lg transition-shadow"
+            >
               <div className="mb-3 flex items-start justify-between">
                 <div className="flex-1">
                   <h3 className="font-semibold text-lg line-clamp-1">
@@ -143,5 +146,5 @@ export default function ProjectsPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

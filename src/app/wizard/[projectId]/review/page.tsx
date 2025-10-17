@@ -1,115 +1,119 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Loader2, Download, CheckCircle2, AlertTriangle } from "lucide-react"
-import { formatCurrency } from "@/lib/utils"
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Loader2, Download, CheckCircle2, AlertTriangle } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 
 interface ProjectData {
-  id: string
-  clientName: string
-  address: string | null
+  id: string;
+  clientName: string;
+  address: string | null;
   system: {
-    solarPanelCount: number
-    solarPanelWattage: number
-    totalSolarKw: number
-    batteryKwh: number
-    inverterKw: number
-    backupDurationHrs: number
-    estimatedCostUsd: number
-  } | null
+    solarPanelCount: number;
+    solarPanelWattage: number;
+    totalSolarKw: number;
+    batteryKwh: number;
+    inverterKw: number;
+    backupDurationHrs: number;
+    estimatedCostUsd: number;
+  } | null;
   plan: {
-    necChecks: string
-    warnings: string | null
-    installSteps: string
-    timeline: string | null
-    laborHoursEst: number | null
-  } | null
+    necChecks: string;
+    warnings: string | null;
+    installSteps: string;
+    timeline: string | null;
+    laborHoursEst: number | null;
+  } | null;
 }
 
 export default function ReviewPage() {
-  const router = useRouter()
-  const params = useParams()
-  const projectId = params.projectId as string
-  const [loading, setLoading] = useState(true)
-  const [generating, setGenerating] = useState(false)
-  const [project, setProject] = useState<ProjectData | null>(null)
+  const router = useRouter();
+  const params = useParams();
+  const projectId = params.projectId as string;
+  const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
+  const [project, setProject] = useState<ProjectData | null>(null);
 
   useEffect(() => {
-    fetchProject()
+    fetchProject();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   const fetchProject = async () => {
     try {
-      const response = await fetch(`/api/projects/${projectId}`)
-      const data = await response.json()
+      const response = await fetch(`/api/projects/${projectId}`);
+      const data = await response.json();
 
       if (data.success) {
-        setProject(data.project)
+        setProject(data.project);
       } else {
-        alert(`Error: ${data.error}`)
+        alert(`Error: ${data.error}`);
       }
     } catch (error) {
-      console.error("Error fetching project:", error)
-      alert("Failed to load project")
+      console.error("Error fetching project:", error);
+      alert("Failed to load project");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleGeneratePDF = async () => {
-    setGenerating(true)
+    setGenerating(true);
     try {
       const response = await fetch("/api/pdf", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ projectId }),
-      })
+      });
 
       if (response.ok) {
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement("a")
-        a.href = url
-        a.download = `${project?.clientName.replace(/\s+/g, "_")}_NovaAgent_Report.pdf`
-        document.body.appendChild(a)
-        a.click()
-        a.remove()
-        window.URL.revokeObjectURL(url)
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${project?.clientName.replace(/\s+/g, "_")}_NovaAgent_Report.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
 
         // Navigate to projects page after successful PDF generation
         setTimeout(() => {
-          router.push("/projects")
-        }, 1000)
+          router.push("/projects");
+        }, 1000);
       } else {
-        alert("Failed to generate PDF")
+        alert("Failed to generate PDF");
       }
     } catch (error) {
-      console.error("Error generating PDF:", error)
-      alert("Failed to generate PDF")
+      console.error("Error generating PDF:", error);
+      alert("Failed to generate PDF");
     } finally {
-      setGenerating(false)
+      setGenerating(false);
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
       </div>
-    )
+    );
   }
 
   if (!project) {
-    return <div>Project not found</div>
+    return <div>Project not found</div>;
   }
 
-  const necChecks = project.plan ? JSON.parse(project.plan.necChecks) : []
-  const warnings = project.plan?.warnings ? JSON.parse(project.plan.warnings) : []
-  const installSteps = project.plan ? JSON.parse(project.plan.installSteps) : []
+  const necChecks = project.plan ? JSON.parse(project.plan.necChecks) : [];
+  const warnings = project.plan?.warnings
+    ? JSON.parse(project.plan.warnings)
+    : [];
+  const installSteps = project.plan
+    ? JSON.parse(project.plan.installSteps)
+    : [];
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -129,7 +133,8 @@ export default function ReviewPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Solar Array</p>
                 <p className="text-lg font-semibold">
-                  {project.system.solarPanelCount} × {project.system.solarPanelWattage}W ={" "}
+                  {project.system.solarPanelCount} ×{" "}
+                  {project.system.solarPanelWattage}W ={" "}
                   {project.system.totalSolarKw.toFixed(2)} kW
                 </p>
               </div>
@@ -165,19 +170,26 @@ export default function ReviewPage() {
         <Card className="p-6">
           <h2 className="text-lg font-semibold mb-4">NEC Compliance Checks</h2>
           <div className="space-y-3">
-            {necChecks.map((check: { code: string; description: string; status: string }, idx: number) => (
-              <div key={idx} className="flex items-start gap-3">
-                {check.status === "pass" ? (
-                  <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
-                ) : (
-                  <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                )}
-                <div>
-                  <p className="font-medium">{check.code}</p>
-                  <p className="text-sm text-muted-foreground">{check.description}</p>
+            {necChecks.map(
+              (
+                check: { code: string; description: string; status: string },
+                idx: number,
+              ) => (
+                <div key={idx} className="flex items-start gap-3">
+                  {check.status === "pass" ? (
+                    <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                  )}
+                  <div>
+                    <p className="font-medium">{check.code}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {check.description}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ),
+            )}
           </div>
 
           {warnings.length > 0 && (
@@ -235,10 +247,12 @@ export default function ReviewPage() {
         {/* Actions */}
         <Card className="p-6 bg-gradient-to-br from-[#0A0F1C] to-gray-900">
           <div className="text-white">
-            <h2 className="text-lg font-semibold mb-2">Generate NovaAgent Report</h2>
+            <h2 className="text-lg font-semibold mb-2">
+              Generate NovaAgent Report
+            </h2>
             <p className="text-cyan-100/80 text-sm mb-6">
-              Create a professional PDF with complete system specifications, BOM, NEC
-              compliance checks, and installation plan
+              Create a professional PDF with complete system specifications,
+              BOM, NEC compliance checks, and installation plan
             </p>
 
             <div className="flex gap-3">
@@ -272,5 +286,5 @@ export default function ReviewPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

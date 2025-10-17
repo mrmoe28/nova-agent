@@ -1,121 +1,127 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { writeFile, mkdir } from 'fs/promises'
-import { join } from 'path'
-import { prisma } from '@/lib/prisma'
-import { performOCR, parseBillText } from '@/lib/ocr'
+import { NextRequest, NextResponse } from "next/server";
+import { writeFile, mkdir } from "fs/promises";
+import { join } from "path";
+import { prisma } from "@/lib/prisma";
+import { performOCR, parseBillText } from "@/lib/ocr";
 
 // Required for file uploads in Next.js 15
-export const runtime = 'nodejs'
-export const dynamic = 'force-dynamic'
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData()
-    const projectId = formData.get('projectId') as string
-    const file = formData.get('file') as File
+    const formData = await request.formData();
+    const projectId = formData.get("projectId") as string;
+    const file = formData.get("file") as File;
 
     if (!projectId || !file) {
       return NextResponse.json(
-        { success: false, error: 'Project ID and file are required' },
-        { status: 400 }
-      )
+        { success: false, error: "Project ID and file are required" },
+        { status: 400 },
+      );
     }
 
     // Validate file type
     const allowedTypes = [
-      'application/pdf',
-      'image/jpeg',
-      'image/png',
-      'image/jpg',
-      'text/csv',
-      'application/vnd.ms-excel',
-    ]
+      "application/pdf",
+      "image/jpeg",
+      "image/png",
+      "image/jpg",
+      "text/csv",
+      "application/vnd.ms-excel",
+    ];
 
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid file type. Only PDF, images (JPG, PNG), and CSV are allowed.',
+          error:
+            "Invalid file type. Only PDF, images (JPG, PNG), and CSV are allowed.",
         },
-        { status: 400 }
-      )
+        { status: 400 },
+      );
     }
 
     // Validate file size (max 10MB)
-    const maxSize = 10 * 1024 * 1024 // 10MB
+    const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
       return NextResponse.json(
-        { success: false, error: 'File size must be less than 10MB' },
-        { status: 400 }
-      )
+        { success: false, error: "File size must be less than 10MB" },
+        { status: 400 },
+      );
     }
 
     // Use /tmp directory for serverless environment (Vercel)
     // Note: Files in /tmp are ephemeral and will be deleted after function execution
-    const uploadsDir = join('/tmp', 'uploads', projectId)
+    const uploadsDir = join("/tmp", "uploads", projectId);
     try {
-      await mkdir(uploadsDir, { recursive: true })
+      await mkdir(uploadsDir, { recursive: true });
     } catch {
       // Directory might already exist, that's fine
     }
 
     // Generate unique filename
-    const timestamp = Date.now()
-    const safeFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_')
-    const fileName = `${timestamp}_${safeFileName}`
-    const filePath = join(uploadsDir, fileName)
+    const timestamp = Date.now();
+    const safeFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const fileName = `${timestamp}_${safeFileName}`;
+    const filePath = join(uploadsDir, fileName);
 
     // Convert file to buffer and save
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
-    await writeFile(filePath, buffer)
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+    await writeFile(filePath, buffer);
 
-    console.log(`File saved to: ${filePath} (${buffer.length} bytes)`)
+    console.log(`File saved to: ${filePath} (${buffer.length} bytes)`);
 
     // Determine file type category
-    let fileType: 'pdf' | 'image' | 'csv' = 'pdf'
-    if (file.type.startsWith('image/')) {
-      fileType = 'image'
-    } else if (file.type.includes('csv') || file.type.includes('excel')) {
-      fileType = 'csv'
+    let fileType: "pdf" | "image" | "csv" = "pdf";
+    if (file.type.startsWith("image/")) {
+      fileType = "image";
+    } else if (file.type.includes("csv") || file.type.includes("excel")) {
+      fileType = "csv";
     }
 
     // Process OCR immediately while file is in /tmp
-    let ocrText: string | null = null
-    let extractedData: string | null = null
-    let ocrConfidence = 0
+    let ocrText: string | null = null;
+    let extractedData: string | null = null;
+    let ocrConfidence = 0;
 
     try {
-      console.log(`Processing OCR for ${fileName}...`)
-      const ocrResult = await performOCR(filePath, fileType)
-      ocrText = ocrResult.text
-      ocrConfidence = ocrResult.confidence || 0
+      console.log(`Processing OCR for ${fileName}...`);
+      const ocrResult = await performOCR(filePath, fileType);
+      ocrText = ocrResult.text;
+      ocrConfidence = ocrResult.confidence || 0;
 
       // Parse bill data
-      const parsedData = parseBillText(ocrText)
-      extractedData = JSON.stringify(parsedData)
+      const parsedData = parseBillText(ocrText);
+      extractedData = JSON.stringify(parsedData);
 
-      console.log(`OCR completed with ${ocrConfidence} confidence, extracted ${Object.keys(parsedData).length} fields`)
+      console.log(
+        `OCR completed with ${ocrConfidence} confidence, extracted ${Object.keys(parsedData).length} fields`,
+      );
     } catch (ocrError) {
-      console.error('OCR processing failed:', ocrError)
-      console.error('Error details:', ocrError instanceof Error ? ocrError.message : String(ocrError))
+      console.error("OCR processing failed:", ocrError);
+      console.error(
+        "Error details:",
+        ocrError instanceof Error ? ocrError.message : String(ocrError),
+      );
 
       // Provide demo/fallback data so analysis can still proceed
-      console.log('Using fallback demo data for analysis')
+      console.log("Using fallback demo data for analysis");
       const fallbackData = {
-        utilityCompany: 'Demo Utility Company',
+        utilityCompany: "Demo Utility Company",
         usage: {
           kwh: 1000,
           kw: 5.0,
         },
         charges: {
-          total: 150.00,
-          energyCharge: 100.00,
-          demandCharge: 50.00,
+          total: 150.0,
+          energyCharge: 100.0,
+          demandCharge: 50.0,
         },
-      }
-      extractedData = JSON.stringify(fallbackData)
-      ocrText = 'OCR processing unavailable - using demo data for analysis'
+      };
+      extractedData = JSON.stringify(fallbackData);
+      ocrText = "OCR processing unavailable - using demo data for analysis";
     }
 
     // Save to database with OCR data
@@ -128,15 +134,18 @@ export async function POST(request: NextRequest) {
         ocrText,
         extractedData,
       },
-    })
+    });
 
-    console.log(`Bill record created: ${bill.id}`)
+    console.log(`Bill record created: ${bill.id}`);
 
-    const isFallbackData = ocrText === 'OCR processing unavailable - using demo data for analysis'
+    const isFallbackData =
+      ocrText === "OCR processing unavailable - using demo data for analysis";
 
     return NextResponse.json({
       success: true,
-      warning: isFallbackData ? 'OCR processing unavailable. Using demo data for analysis. For accurate results, please ensure your bill is a clear PDF.' : undefined,
+      warning: isFallbackData
+        ? "OCR processing unavailable. Using demo data for analysis. For accurate results, please ensure your bill is a clear PDF."
+        : undefined,
       bill: {
         id: bill.id,
         fileName: bill.fileName,
@@ -146,40 +155,40 @@ export async function POST(request: NextRequest) {
         extractedData: extractedData ? JSON.parse(extractedData) : null,
         usingFallbackData: isFallbackData,
       },
-    })
+    });
   } catch (error) {
-    console.error('Error uploading file:', error)
+    console.error("Error uploading file:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to upload file' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to upload file" },
+      { status: 500 },
+    );
   }
 }
 
 // Get uploaded bills for a project
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const projectId = searchParams.get('projectId')
+    const { searchParams } = new URL(request.url);
+    const projectId = searchParams.get("projectId");
 
     if (!projectId) {
       return NextResponse.json(
-        { success: false, error: 'Project ID is required' },
-        { status: 400 }
-      )
+        { success: false, error: "Project ID is required" },
+        { status: 400 },
+      );
     }
 
     const bills = await prisma.bill.findMany({
       where: { projectId },
-      orderBy: { uploadedAt: 'desc' },
-    })
+      orderBy: { uploadedAt: "desc" },
+    });
 
-    return NextResponse.json({ success: true, bills })
+    return NextResponse.json({ success: true, bills });
   } catch (error) {
-    console.error('Error fetching bills:', error)
+    console.error("Error fetching bills:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch bills' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to fetch bills" },
+      { status: 500 },
+    );
   }
 }

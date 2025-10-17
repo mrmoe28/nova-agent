@@ -1,53 +1,53 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { projectId } = body
+    const body = await request.json();
+    const { projectId } = body;
 
     if (!projectId) {
       return NextResponse.json(
-        { success: false, error: 'Project ID is required' },
-        { status: 400 }
-      )
+        { success: false, error: "Project ID is required" },
+        { status: 400 },
+      );
     }
 
     // Get system design
     const system = await prisma.system.findUnique({
       where: { projectId },
-    })
+    });
 
     if (!system) {
       return NextResponse.json(
-        { success: false, error: 'System sizing must be completed first' },
-        { status: 400 }
-      )
+        { success: false, error: "System sizing must be completed first" },
+        { status: 400 },
+      );
     }
 
     // Clear existing BOM items
     await prisma.bOMItem.deleteMany({
       where: { projectId },
-    })
+    });
 
     // Generate BOM items based on system design
     const bomItems = [
       {
         projectId,
-        category: 'solar' as const,
-        itemName: 'Solar Panel - Monocrystalline',
-        manufacturer: 'SolarTech',
-        modelNumber: 'ST-400W',
+        category: "solar" as const,
+        itemName: "Solar Panel - Monocrystalline",
+        manufacturer: "SolarTech",
+        modelNumber: "ST-400W",
         quantity: system.solarPanelCount,
         unitPriceUsd: 200,
         totalPriceUsd: system.solarPanelCount * 200,
-        notes: '400W high-efficiency panels',
+        notes: "400W high-efficiency panels",
       },
       {
         projectId,
-        category: 'battery' as const,
-        itemName: 'Lithium Battery Storage System',
-        manufacturer: 'PowerStore',
+        category: "battery" as const,
+        itemName: "Lithium Battery Storage System",
+        manufacturer: "PowerStore",
         modelNumber: `PS-${Math.ceil(system.batteryKwh)}kWh`,
         quantity: 1,
         unitPriceUsd: system.batteryKwh * 800,
@@ -56,9 +56,9 @@ export async function POST(request: NextRequest) {
       },
       {
         projectId,
-        category: 'inverter' as const,
-        itemName: 'Hybrid String Inverter',
-        manufacturer: 'InverterPro',
+        category: "inverter" as const,
+        itemName: "Hybrid String Inverter",
+        manufacturer: "InverterPro",
         modelNumber: `IP-${Math.ceil(system.inverterKw)}K`,
         quantity: 1,
         unitPriceUsd: system.inverterKw * 1200,
@@ -67,54 +67,54 @@ export async function POST(request: NextRequest) {
       },
       {
         projectId,
-        category: 'mounting' as const,
-        itemName: 'Roof Mounting Rails & Hardware',
-        manufacturer: 'MountTech',
-        modelNumber: 'MT-RAIL-KIT',
+        category: "mounting" as const,
+        itemName: "Roof Mounting Rails & Hardware",
+        manufacturer: "MountTech",
+        modelNumber: "MT-RAIL-KIT",
         quantity: Math.ceil(system.solarPanelCount / 4),
         unitPriceUsd: 300,
         totalPriceUsd: Math.ceil(system.solarPanelCount / 4) * 300,
-        notes: 'Aluminum rails with stainless hardware',
+        notes: "Aluminum rails with stainless hardware",
       },
       {
         projectId,
-        category: 'electrical' as const,
-        itemName: 'Electrical BOS Components',
-        manufacturer: 'Various',
-        modelNumber: 'BOS-COMPLETE',
+        category: "electrical" as const,
+        itemName: "Electrical BOS Components",
+        manufacturer: "Various",
+        modelNumber: "BOS-COMPLETE",
         quantity: 1,
         unitPriceUsd: 2000,
         totalPriceUsd: 2000,
-        notes: 'DC/AC disconnects, combiner box, conduit, wire',
+        notes: "DC/AC disconnects, combiner box, conduit, wire",
       },
-    ]
+    ];
 
     // Create BOM items
     await prisma.bOMItem.createMany({
       data: bomItems,
-    })
+    });
 
     // Fetch created items to return
     const allBomItems = await prisma.bOMItem.findMany({
       where: { projectId },
-    })
+    });
 
     // Update project status
     await prisma.project.update({
       where: { id: projectId },
-      data: { status: 'bom' },
-    })
+      data: { status: "bom" },
+    });
 
     return NextResponse.json({
       success: true,
       bomItems: allBomItems,
       totalCost: allBomItems.reduce((sum, item) => sum + item.totalPriceUsd, 0),
-    })
+    });
   } catch (error) {
-    console.error('Error generating BOM:', error)
+    console.error("Error generating BOM:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to generate BOM' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to generate BOM" },
+      { status: 500 },
+    );
   }
 }

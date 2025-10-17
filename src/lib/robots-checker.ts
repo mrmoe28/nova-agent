@@ -1,6 +1,6 @@
-import { createLogger } from './logger';
+import { createLogger } from "./logger";
 
-const logger = createLogger('robots-checker');
+const logger = createLogger("robots-checker");
 
 export interface RobotsRule {
   userAgent: string;
@@ -10,33 +10,39 @@ export interface RobotsRule {
 }
 
 export class RobotsChecker {
-  private cache: Map<string, { rules: RobotsRule[]; expiry: number }> = new Map();
+  private cache: Map<string, { rules: RobotsRule[]; expiry: number }> =
+    new Map();
   private readonly cacheTimeout = 24 * 60 * 60 * 1000; // 24 hours
 
   async getRobotsRules(baseUrl: string): Promise<RobotsRule[]> {
-    const robotsUrl = new URL('/robots.txt', baseUrl).href;
+    const robotsUrl = new URL("/robots.txt", baseUrl).href;
 
     // Check cache first
     const cached = this.cache.get(baseUrl);
     if (cached && cached.expiry > Date.now()) {
-      logger.debug({ baseUrl }, 'Using cached robots.txt rules');
+      logger.debug({ baseUrl }, "Using cached robots.txt rules");
       return cached.rules;
     }
 
     try {
       const response = await fetch(robotsUrl, {
         headers: {
-          'User-Agent': 'NovaAgent/1.0 (+https://novaagent-kappa.vercel.app)',
+          "User-Agent": "NovaAgent/1.0 (+https://novaagent-kappa.vercel.app)",
         },
       });
 
       if (!response.ok) {
-        logger.debug({ robotsUrl, status: response.status }, 'No robots.txt found, allowing all');
-        const defaultRules: RobotsRule[] = [{
-          userAgent: '*',
-          allow: ['/'],
-          disallow: [],
-        }];
+        logger.debug(
+          { robotsUrl, status: response.status },
+          "No robots.txt found, allowing all",
+        );
+        const defaultRules: RobotsRule[] = [
+          {
+            userAgent: "*",
+            allow: ["/"],
+            disallow: [],
+          },
+        ];
         this.cache.set(baseUrl, {
           rules: defaultRules,
           expiry: Date.now() + this.cacheTimeout,
@@ -52,38 +58,43 @@ export class RobotsChecker {
         expiry: Date.now() + this.cacheTimeout,
       });
 
-      logger.info({ baseUrl, rulesCount: rules.length }, 'Fetched robots.txt rules');
+      logger.info(
+        { baseUrl, rulesCount: rules.length },
+        "Fetched robots.txt rules",
+      );
       return rules;
     } catch (error) {
-      logger.error({ robotsUrl, error }, 'Error fetching robots.txt');
-      return [{
-        userAgent: '*',
-        allow: ['/'],
-        disallow: [],
-      }];
+      logger.error({ robotsUrl, error }, "Error fetching robots.txt");
+      return [
+        {
+          userAgent: "*",
+          allow: ["/"],
+          disallow: [],
+        },
+      ];
     }
   }
 
   private parseRobotsTxt(robotsText: string): RobotsRule[] {
-    const lines = robotsText.split('\n').map(line => line.trim());
+    const lines = robotsText.split("\n").map((line) => line.trim());
     const rules: RobotsRule[] = [];
     let currentRule: Partial<RobotsRule> | null = null;
 
     for (const line of lines) {
-      if (!line || line.startsWith('#')) continue;
+      if (!line || line.startsWith("#")) continue;
 
-      const [directive, ...valueParts] = line.split(':');
-      const value = valueParts.join(':').trim();
+      const [directive, ...valueParts] = line.split(":");
+      const value = valueParts.join(":").trim();
 
       if (!directive || !value) continue;
 
       const normalizedDirective = directive.toLowerCase().trim();
 
       switch (normalizedDirective) {
-        case 'user-agent':
+        case "user-agent":
           if (currentRule) {
             rules.push({
-              userAgent: currentRule.userAgent || '*',
+              userAgent: currentRule.userAgent || "*",
               allow: currentRule.allow || [],
               disallow: currentRule.disallow || [],
               crawlDelay: currentRule.crawlDelay,
@@ -96,21 +107,21 @@ export class RobotsChecker {
           };
           break;
 
-        case 'allow':
+        case "allow":
           if (currentRule) {
             if (!currentRule.allow) currentRule.allow = [];
             currentRule.allow.push(value);
           }
           break;
 
-        case 'disallow':
+        case "disallow":
           if (currentRule) {
             if (!currentRule.disallow) currentRule.disallow = [];
             currentRule.disallow.push(value);
           }
           break;
 
-        case 'crawl-delay':
+        case "crawl-delay":
           if (currentRule) {
             const delay = parseInt(value);
             if (!isNaN(delay)) {
@@ -123,7 +134,7 @@ export class RobotsChecker {
 
     if (currentRule) {
       rules.push({
-        userAgent: currentRule.userAgent || '*',
+        userAgent: currentRule.userAgent || "*",
         allow: currentRule.allow || [],
         disallow: currentRule.disallow || [],
         crawlDelay: currentRule.crawlDelay,
@@ -133,7 +144,10 @@ export class RobotsChecker {
     return rules;
   }
 
-  async canCrawl(url: string, userAgent: string = 'novaagent'): Promise<{
+  async canCrawl(
+    url: string,
+    userAgent: string = "novaagent",
+  ): Promise<{
     allowed: boolean;
     crawlDelay?: number;
     matchedRule?: string;
@@ -150,7 +164,7 @@ export class RobotsChecker {
 
       // Find matching rule (specific user-agent or wildcard)
       for (const rule of rules) {
-        if (rule.userAgent === normalizedUserAgent || rule.userAgent === '*') {
+        if (rule.userAgent === normalizedUserAgent || rule.userAgent === "*") {
           matchedRule = rule;
           break;
         }
@@ -163,10 +177,13 @@ export class RobotsChecker {
       // Check disallow rules first
       for (const disallowPattern of matchedRule.disallow) {
         if (this.pathMatches(path, disallowPattern)) {
-          logger.debug({ url, pattern: disallowPattern }, 'URL blocked by robots.txt');
+          logger.debug(
+            { url, pattern: disallowPattern },
+            "URL blocked by robots.txt",
+          );
           return {
             allowed: false,
-            matchedRule: `Disallow: ${disallowPattern}`
+            matchedRule: `Disallow: ${disallowPattern}`,
           };
         }
       }
@@ -176,33 +193,33 @@ export class RobotsChecker {
         if (this.pathMatches(path, allowPattern)) {
           return {
             allowed: true,
-            crawlDelay: matchedRule.crawlDelay
+            crawlDelay: matchedRule.crawlDelay,
           };
         }
       }
 
       return {
         allowed: true,
-        crawlDelay: matchedRule.crawlDelay
+        crawlDelay: matchedRule.crawlDelay,
       };
     } catch (error) {
-      logger.error({ url, error }, 'Error checking robots.txt');
+      logger.error({ url, error }, "Error checking robots.txt");
       return { allowed: true };
     }
   }
 
   private pathMatches(path: string, pattern: string): boolean {
     // Empty pattern matches nothing
-    if (pattern === '') return false;
+    if (pattern === "") return false;
 
     // Exact match
     if (pattern === path) return true;
 
     // Wildcard matching
-    if (pattern.includes('*')) {
+    if (pattern.includes("*")) {
       const regexPattern = pattern
-        .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-        .replace(/\*/g, '.*');
+        .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
+        .replace(/\*/g, ".*");
       return new RegExp(`^${regexPattern}`).test(path);
     }
 

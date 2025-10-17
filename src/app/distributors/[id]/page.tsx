@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useCallback } from "react"
-import { useParams, useRouter } from "next/navigation"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { useState, useEffect, useCallback } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +15,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 import {
   ArrowLeft,
   Mail,
@@ -27,80 +27,80 @@ import {
   ExternalLink,
   Pencil,
   RefreshCw,
-} from "lucide-react"
+} from "lucide-react";
 
 interface Distributor {
-  id: string
-  name: string
-  contactName?: string
-  email?: string
-  phone?: string
-  website?: string
-  address?: string
-  notes?: string
-  logoUrl?: string
-  rating?: number
-  shippingInfo?: string
-  paymentTerms?: string
-  lastScrapedAt?: string
-  createdAt: string
-  equipment: Equipment[]
+  id: string;
+  name: string;
+  contactName?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  address?: string;
+  notes?: string;
+  logoUrl?: string;
+  rating?: number;
+  shippingInfo?: string;
+  paymentTerms?: string;
+  lastScrapedAt?: string;
+  createdAt: string;
+  equipment: Equipment[];
 }
 
 interface Equipment {
-  id: string
-  category: string
-  name: string
-  manufacturer?: string
-  modelNumber: string
-  description?: string
-  unitPrice: number
-  imageUrl?: string
-  sourceUrl?: string
-  inStock: boolean
-  rating?: number
-  reviewCount?: number
+  id: string;
+  category: string;
+  name: string;
+  manufacturer?: string;
+  modelNumber: string;
+  description?: string;
+  unitPrice: number;
+  imageUrl?: string;
+  sourceUrl?: string;
+  inStock: boolean;
+  rating?: number;
+  reviewCount?: number;
 }
 
 export default function DistributorDetailPage() {
-  const params = useParams()
-  const router = useRouter()
-  const distributorId = params.id as string
+  const params = useParams();
+  const router = useRouter();
+  const distributorId = params.id as string;
 
-  const [distributor, setDistributor] = useState<Distributor | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [scraping, setScraping] = useState(false)
-  const [useBrowser, setUseBrowser] = useState(true) // Default to true for image extraction
-  const [useAI, setUseAI] = useState(false) // AI Agent mode for intelligent scraping
-  const [showAddUrlDialog, setShowAddUrlDialog] = useState(false)
-  const [newUrl, setNewUrl] = useState("")
+  const [distributor, setDistributor] = useState<Distributor | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [scraping, setScraping] = useState(false);
+  const [useBrowser, setUseBrowser] = useState(true); // Default to true for image extraction
+  const [useAI, setUseAI] = useState(false); // AI Agent mode available if needed
+  const [showAddUrlDialog, setShowAddUrlDialog] = useState(false);
+  const [newUrl, setNewUrl] = useState("");
 
   const fetchDistributor = useCallback(async () => {
     try {
-      const response = await fetch(`/api/distributors/${distributorId}`)
-      const data = await response.json()
+      const response = await fetch(`/api/distributors/${distributorId}`);
+      const data = await response.json();
 
       if (data.success) {
-        setDistributor(data.distributor)
+        setDistributor(data.distributor);
       }
     } catch (error) {
-      console.error("Error fetching distributor:", error)
+      console.error("Error fetching distributor:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [distributorId])
+  }, [distributorId]);
 
   useEffect(() => {
-    fetchDistributor()
-  }, [fetchDistributor])
+    fetchDistributor();
+  }, [fetchDistributor]);
 
   const handleRescrape = async () => {
     if (!distributor?.website) {
-      alert("No website URL found for this distributor")
-      return
+      alert("No website URL found for this distributor");
+      return;
     }
 
-    setScraping(true)
+    setScraping(true);
     try {
       const response = await fetch("/api/distributors/scrape-from-url", {
         method: "POST",
@@ -114,37 +114,39 @@ export default function DistributorDetailPage() {
           useBrowser, // Use browser mode if enabled
           useAI, // Use AI Agent mode if enabled
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
-        alert(`Successfully rescraped! Found ${data.productsFound} products. Refreshing...`)
+        alert(
+          `Successfully rescraped! Found ${data.productsFound} products. Refreshing...`,
+        );
         // Add delay to ensure database transaction commits before fetching
         setTimeout(() => {
-          fetchDistributor()
-        }, 1000) // Wait 1 second for DB transaction to complete
+          fetchDistributor();
+        }, 1000); // Wait 1 second for DB transaction to complete
       } else {
-        alert(`Rescrape failed: ${data.error}`)
+        alert(`Rescrape failed: ${data.error}`);
       }
     } catch (error) {
-      console.error("Error rescraping:", error)
-      alert("Failed to rescrape distributor")
+      console.error("Error rescraping:", error);
+      alert("Failed to rescrape distributor");
     } finally {
-      setScraping(false)
+      setScraping(false);
     }
-  }
+  };
 
   const handleAddUrl = async () => {
     if (!newUrl.trim()) {
-      alert("Please enter a URL")
-      return
+      alert("Please enter a URL");
+      return;
     }
 
-    if (!distributor) return
+    if (!distributor) return;
 
-    setScraping(true)
-    setShowAddUrlDialog(false)
+    setScraping(true);
+    setShowAddUrlDialog(false);
 
     try {
       const response = await fetch("/api/distributors/scrape-from-url", {
@@ -159,33 +161,35 @@ export default function DistributorDetailPage() {
           useBrowser,
           useAI,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
-        alert(`Successfully scraped new URL! Found ${data.productsFound} products. Refreshing...`)
-        setNewUrl("") // Clear the input
+        alert(
+          `Successfully scraped new URL! Found ${data.productsFound} products. Refreshing...`,
+        );
+        setNewUrl(""); // Clear the input
         setTimeout(() => {
-          fetchDistributor()
-        }, 1000)
+          fetchDistributor();
+        }, 1000);
       } else {
-        alert(`Scrape failed: ${data.error}`)
+        alert(`Scrape failed: ${data.error}`);
       }
     } catch (error) {
-      console.error("Error scraping new URL:", error)
-      alert("Failed to scrape new URL")
+      console.error("Error scraping new URL:", error);
+      alert("Failed to scrape new URL");
     } finally {
-      setScraping(false)
+      setScraping(false);
     }
-  }
+  };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-muted-foreground">Loading...</div>
       </div>
-    )
+    );
   }
 
   if (!distributor) {
@@ -196,7 +200,7 @@ export default function DistributorDetailPage() {
           Back to Distributors
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -247,7 +251,8 @@ export default function DistributorDetailPage() {
               )}
               {distributor.lastScrapedAt && (
                 <p className="text-xs text-muted-foreground mt-1">
-                  Last scraped: {new Date(distributor.lastScrapedAt).toLocaleDateString()}
+                  Last scraped:{" "}
+                  {new Date(distributor.lastScrapedAt).toLocaleDateString()}
                 </p>
               )}
             </div>
@@ -265,7 +270,8 @@ export default function DistributorDetailPage() {
                     disabled={scraping}
                   />
                   <span className="text-muted-foreground">
-                    Browser Mode (extracts product images, slower but more accurate)
+                    Browser Mode (extracts product images, slower but more
+                    accurate)
                   </span>
                 </label>
                 <label className="flex items-center gap-2 text-sm">
@@ -297,7 +303,9 @@ export default function DistributorDetailPage() {
                   onClick={handleRescrape}
                   disabled={scraping}
                 >
-                  <RefreshCw className={`mr-2 h-4 w-4 ${scraping ? "animate-spin" : ""}`} />
+                  <RefreshCw
+                    className={`mr-2 h-4 w-4 ${scraping ? "animate-spin" : ""}`}
+                  />
                   {scraping ? "Scraping..." : "Rescrape"}
                 </Button>
               )}
@@ -313,13 +321,17 @@ export default function DistributorDetailPage() {
           <div className="space-y-3">
             {distributor.contactName && (
               <div className="text-sm">
-                <span className="font-medium">Contact:</span> {distributor.contactName}
+                <span className="font-medium">Contact:</span>{" "}
+                {distributor.contactName}
               </div>
             )}
             {distributor.email && (
               <div className="flex items-center gap-2 text-sm">
                 <Mail className="h-4 w-4 text-muted-foreground" />
-                <a href={`mailto:${distributor.email}`} className="text-blue-600">
+                <a
+                  href={`mailto:${distributor.email}`}
+                  className="text-blue-600"
+                >
                   {distributor.email}
                 </a>
               </div>
@@ -357,18 +369,22 @@ export default function DistributorDetailPage() {
           <div className="space-y-3">
             {distributor.shippingInfo && (
               <div className="text-sm">
-                <span className="font-medium">Shipping:</span> {distributor.shippingInfo}
+                <span className="font-medium">Shipping:</span>{" "}
+                {distributor.shippingInfo}
               </div>
             )}
             {distributor.paymentTerms && (
               <div className="text-sm">
-                <span className="font-medium">Payment Terms:</span> {distributor.paymentTerms}
+                <span className="font-medium">Payment Terms:</span>{" "}
+                {distributor.paymentTerms}
               </div>
             )}
             {distributor.notes && (
               <div className="text-sm">
                 <span className="font-medium">Notes:</span>
-                <p className="mt-1 text-muted-foreground">{distributor.notes}</p>
+                <p className="mt-1 text-muted-foreground">
+                  {distributor.notes}
+                </p>
               </div>
             )}
           </div>
@@ -406,16 +422,17 @@ export default function DistributorDetailPage() {
                       fill
                       className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
                       onError={(e) => {
-                        const target = e.target as HTMLImageElement
-                        console.error('Image failed to load:', {
+                        const target = e.target as HTMLImageElement;
+                        console.error("Image failed to load:", {
                           url: item.imageUrl,
                           name: item.name,
-                          error: e
-                        })
-                        target.style.display = 'none'
-                        const parent = target.parentElement
+                          error: e,
+                        });
+                        target.style.display = "none";
+                        const parent = target.parentElement;
                         if (parent) {
-                          parent.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-slate-400"><svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg><p class="text-xs mt-2">Image unavailable</p></div>'
+                          parent.innerHTML =
+                            '<div class="flex flex-col items-center justify-center h-full text-slate-400"><svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg><p class="text-xs mt-2">Image unavailable</p></div>';
                         }
                       }}
                     />
@@ -441,7 +458,10 @@ export default function DistributorDetailPage() {
 
                   {/* Category Badge */}
                   <div className="absolute bottom-2 left-2">
-                    <Badge variant="secondary" className="text-xs bg-white/90 backdrop-blur-sm">
+                    <Badge
+                      variant="secondary"
+                      className="text-xs bg-white/90 backdrop-blur-sm"
+                    >
                       {item.category}
                     </Badge>
                   </div>
@@ -530,7 +550,8 @@ export default function DistributorDetailPage() {
           <DialogHeader>
             <DialogTitle>Add New URL to Scrape</DialogTitle>
             <DialogDescription>
-              Enter a product page or category URL from {distributor?.name} to scrape additional products.
+              Enter a product page or category URL from {distributor?.name} to
+              scrape additional products.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -543,7 +564,7 @@ export default function DistributorDetailPage() {
                 onChange={(e) => setNewUrl(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    handleAddUrl()
+                    handleAddUrl();
                   }
                 }}
               />
@@ -553,8 +574,8 @@ export default function DistributorDetailPage() {
             <Button
               variant="outline"
               onClick={() => {
-                setShowAddUrlDialog(false)
-                setNewUrl("")
+                setShowAddUrlDialog(false);
+                setNewUrl("");
               }}
             >
               Cancel
@@ -566,5 +587,5 @@ export default function DistributorDetailPage() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

@@ -1,6 +1,7 @@
-import pino from 'pino';
+import pino from "pino";
 
-const logLevel = (process.env.LOG_LEVEL as 'info' | 'debug' | 'warn' | 'error') || 'info';
+const logLevel =
+  (process.env.LOG_LEVEL as "info" | "debug" | "warn" | "error") || "info";
 
 export const logger = pino({
   level: logLevel,
@@ -26,7 +27,7 @@ export async function logOperation<T>(
   logger: pino.Logger,
   operation: string,
   fn: () => Promise<T>,
-  context: Record<string, unknown> = {}
+  context: Record<string, unknown> = {},
 ): Promise<T> {
   const startTime = Date.now();
   const logContext = { operation, ...context };
@@ -40,12 +41,15 @@ export async function logOperation<T>(
     return result;
   } catch (error) {
     const duration = Date.now() - startTime;
-    logger.error({
-      ...logContext,
-      duration,
-      error: error instanceof Error ? error.message : String(error),
-      stack: error instanceof Error ? error.stack : undefined
-    }, `Failed ${operation}`);
+    logger.error(
+      {
+        ...logContext,
+        duration,
+        error: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      },
+      `Failed ${operation}`,
+    );
     throw error;
   }
 }

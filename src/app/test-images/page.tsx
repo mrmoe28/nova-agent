@@ -1,33 +1,35 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import { Card } from "@/components/ui/card"
-import { useState } from "react"
+import Image from "next/image";
+import { Card } from "@/components/ui/card";
+import { useState } from "react";
 
 export default function TestImagesPage() {
-  const [imageStatuses, setImageStatuses] = useState<Record<string, 'loading' | 'success' | 'error'>>({
-    svg: 'loading',
-    jpeg: 'loading',
-    png: 'loading',
-  })
+  const [imageStatuses, setImageStatuses] = useState<
+    Record<string, "loading" | "success" | "error">
+  >({
+    svg: "loading",
+    jpeg: "loading",
+    png: "loading",
+  });
 
   const testImages = [
     {
-      format: 'SVG',
-      url: 'https://upload.wikimedia.org/wikipedia/commons/0/02/SVG_logo.svg',
-      key: 'svg',
+      format: "SVG",
+      url: "https://upload.wikimedia.org/wikipedia/commons/0/02/SVG_logo.svg",
+      key: "svg",
     },
     {
-      format: 'JPEG',
-      url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/PNG_Test.png/240px-PNG_Test.png',
-      key: 'jpeg',
+      format: "JPEG",
+      url: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6a/PNG_Test.png/240px-PNG_Test.png",
+      key: "jpeg",
     },
     {
-      format: 'PNG',
-      url: 'https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png',
-      key: 'png',
+      format: "PNG",
+      url: "https://upload.wikimedia.org/wikipedia/commons/4/47/PNG_transparency_demonstration_1.png",
+      key: "png",
     },
-  ]
+  ];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -48,10 +50,13 @@ export default function TestImagesPage() {
                 fill
                 className="object-contain p-4"
                 onLoadingComplete={() => {
-                  setImageStatuses(prev => ({ ...prev, [img.key]: 'success' }))
+                  setImageStatuses((prev) => ({
+                    ...prev,
+                    [img.key]: "success",
+                  }));
                 }}
                 onError={() => {
-                  setImageStatuses(prev => ({ ...prev, [img.key]: 'error' }))
+                  setImageStatuses((prev) => ({ ...prev, [img.key]: "error" }));
                 }}
               />
             </div>
@@ -59,13 +64,15 @@ export default function TestImagesPage() {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium">Status:</span>
-                <span className={`text-sm px-2 py-1 rounded ${
-                  imageStatuses[img.key] === 'success'
-                    ? 'bg-green-100 text-green-800'
-                    : imageStatuses[img.key] === 'error'
-                    ? 'bg-red-100 text-red-800'
-                    : 'bg-yellow-100 text-yellow-800'
-                }`}>
+                <span
+                  className={`text-sm px-2 py-1 rounded ${
+                    imageStatuses[img.key] === "success"
+                      ? "bg-green-100 text-green-800"
+                      : imageStatuses[img.key] === "error"
+                        ? "bg-red-100 text-red-800"
+                        : "bg-yellow-100 text-yellow-800"
+                  }`}
+                >
                   {imageStatuses[img.key]}
                 </span>
               </div>
@@ -81,22 +88,44 @@ export default function TestImagesPage() {
       <div className="mt-8 p-6 bg-blue-50 rounded-lg">
         <h3 className="font-semibold mb-2">Configuration Details:</h3>
         <ul className="text-sm space-y-1">
-          <li>✅ <strong>SVG:</strong> dangerouslyAllowSVG enabled with CSP</li>
-          <li>✅ <strong>JPEG/JPG:</strong> Native Next.js support with WebP/AVIF conversion</li>
-          <li>✅ <strong>PNG:</strong> Native Next.js support with WebP/AVIF conversion</li>
-          <li>✅ <strong>Remote Images:</strong> All HTTPS/HTTP domains allowed</li>
+          <li>
+            ✅ <strong>SVG:</strong> dangerouslyAllowSVG enabled with CSP
+          </li>
+          <li>
+            ✅ <strong>JPEG/JPG:</strong> Native Next.js support with WebP/AVIF
+            conversion
+          </li>
+          <li>
+            ✅ <strong>PNG:</strong> Native Next.js support with WebP/AVIF
+            conversion
+          </li>
+          <li>
+            ✅ <strong>Remote Images:</strong> All HTTPS/HTTP domains allowed
+          </li>
         </ul>
       </div>
 
       <div className="mt-6 p-6 bg-slate-50 rounded-lg">
         <h3 className="font-semibold mb-2">How It Works:</h3>
         <ul className="text-sm space-y-2">
-          <li>• <strong>SVG files</strong> are passed through without optimization (security sanitized)</li>
-          <li>• <strong>JPEG/PNG files</strong> are automatically optimized and can be converted to WebP/AVIF</li>
-          <li>• <strong>All formats</strong> support responsive sizing and lazy loading</li>
-          <li>• <strong>Error handling</strong> shows fallback when images fail to load</li>
+          <li>
+            • <strong>SVG files</strong> are passed through without optimization
+            (security sanitized)
+          </li>
+          <li>
+            • <strong>JPEG/PNG files</strong> are automatically optimized and
+            can be converted to WebP/AVIF
+          </li>
+          <li>
+            • <strong>All formats</strong> support responsive sizing and lazy
+            loading
+          </li>
+          <li>
+            • <strong>Error handling</strong> shows fallback when images fail to
+            load
+          </li>
         </ul>
       </div>
     </div>
-  )
+  );
 }

@@ -1,96 +1,98 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Loader2 } from "lucide-react"
-import { formatCurrency } from "@/lib/utils"
+import { useState, useEffect } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
 
 interface BOMItem {
-  id: string
-  category: string
-  itemName: string
-  manufacturer: string | null
-  modelNumber: string
-  quantity: number
-  unitPriceUsd: number
-  totalPriceUsd: number
-  notes: string | null
+  id: string;
+  category: string;
+  itemName: string;
+  manufacturer: string | null;
+  modelNumber: string;
+  quantity: number;
+  unitPriceUsd: number;
+  totalPriceUsd: number;
+  notes: string | null;
 }
 
 export default function BOMPage() {
-  const router = useRouter()
-  const params = useParams()
-  const projectId = params.projectId as string
-  const [loading, setLoading] = useState(false)
-  const [generating, setGenerating] = useState(false)
-  const [bomItems, setBomItems] = useState<BOMItem[]>([])
-  const [totalCost, setTotalCost] = useState(0)
+  const router = useRouter();
+  const params = useParams();
+  const projectId = params.projectId as string;
+  const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [bomItems, setBomItems] = useState<BOMItem[]>([]);
+  const [totalCost, setTotalCost] = useState(0);
 
   useEffect(() => {
-    generateBOM()
+    generateBOM();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   const generateBOM = async () => {
-    setGenerating(true)
+    setGenerating(true);
     try {
       const response = await fetch("/api/bom", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ projectId }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
-        setBomItems(data.bomItems)
-        setTotalCost(data.totalCost)
+        setBomItems(data.bomItems);
+        setTotalCost(data.totalCost);
       } else {
-        alert(`Error: ${data.error}`)
+        alert(`Error: ${data.error}`);
       }
     } catch (error) {
-      console.error("Error generating BOM:", error)
-      alert("Failed to generate BOM")
+      console.error("Error generating BOM:", error);
+      alert("Failed to generate BOM");
     } finally {
-      setGenerating(false)
+      setGenerating(false);
     }
-  }
+  };
 
   const handleContinue = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       const response = await fetch("/api/plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ projectId }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
-        router.push(`/wizard/${projectId}/review`)
+        router.push(`/wizard/${projectId}/review`);
       } else {
-        alert(`Error: ${data.error}`)
+        alert(`Error: ${data.error}`);
       }
     } catch (error) {
-      console.error("Error generating plan:", error)
-      alert("Failed to generate plan")
+      console.error("Error generating plan:", error);
+      alert("Failed to generate plan");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (generating) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
           <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
-          <p className="mt-4 text-muted-foreground">Generating Bill of Materials...</p>
+          <p className="mt-4 text-muted-foreground">
+            Generating Bill of Materials...
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -154,7 +156,11 @@ export default function BOMPage() {
           >
             Back
           </Button>
-          <Button onClick={handleContinue} disabled={loading} className="flex-1">
+          <Button
+            onClick={handleContinue}
+            disabled={loading}
+            className="flex-1"
+          >
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -167,5 +173,5 @@ export default function BOMPage() {
         </div>
       </Card>
     </div>
-  )
+  );
 }

@@ -1,9 +1,9 @@
-import * as cheerio from 'cheerio'
-import { createLogger } from './logger'
-import { ScrapedProduct, ScraperConfig } from './scraper'
-import { BROWSER_CONFIG } from './config'
+import * as cheerio from "cheerio";
+import { createLogger } from "./logger";
+import { ScrapedProduct, ScraperConfig } from "./scraper";
+import { BROWSER_CONFIG } from "./config";
 
-const logger = createLogger('browser-scraper-bql')
+const logger = createLogger("browser-scraper-bql");
 
 /**
  * Browser-based scraper using BrowserQL (GraphQL API)
@@ -11,53 +11,58 @@ const logger = createLogger('browser-scraper-bql')
  * Uses HTTP/GraphQL for browser automation
  */
 export class BrowserScraperBQL {
-  private endpoint: string
-  private token: string
+  private endpoint: string;
+  private token: string;
 
   constructor() {
-    const token = process.env.BROWSERLESS_TOKEN
+    const token = process.env.BROWSERLESS_TOKEN;
     if (!token) {
       throw new Error(
-        'BROWSERLESS_TOKEN not configured. Please set your Browserless API token.'
-      )
+        "BROWSERLESS_TOKEN not configured. Please set your Browserless API token.",
+      );
     }
 
-    this.endpoint = BROWSER_CONFIG.BROWSERLESS_ENDPOINT
-    this.token = token
+    this.endpoint = BROWSER_CONFIG.BROWSERLESS_ENDPOINT;
+    this.token = token;
   }
 
   /**
    * Execute a BrowserQL GraphQL mutation
    */
-  private async executeBQL(query: string, variables: Record<string, unknown>): Promise<unknown> {
+  private async executeBQL(
+    query: string,
+    variables: Record<string, unknown>,
+  ): Promise<unknown> {
     const response = await fetch(`${this.endpoint}?token=${this.token}`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({ query, variables }),
-    })
+    });
 
     if (!response.ok) {
-      throw new Error(`BrowserQL request failed: ${response.status} ${response.statusText}`)
+      throw new Error(
+        `BrowserQL request failed: ${response.status} ${response.statusText}`,
+      );
     }
 
-    const data = await response.json()
+    const data = await response.json();
 
     if (data.errors) {
-      throw new Error(`BrowserQL errors: ${JSON.stringify(data.errors)}`)
+      throw new Error(`BrowserQL errors: ${JSON.stringify(data.errors)}`);
     }
 
-    return data.data
+    return data.data;
   }
 
   /**
    * Fetch HTML and extract live image URL using BrowserQL
    */
   async fetchHTMLWithImage(
-    url: string
+    url: string,
   ): Promise<{ html: string; imageUrl: string | null }> {
-    logger.info({ url }, 'Fetching page with BrowserQL')
+    logger.info({ url }, "Fetching page with BrowserQL");
 
     // Step 1: Navigate and get HTML
     const gotoQuery = `
@@ -70,13 +75,13 @@ export class BrowserScraperBQL {
           content
         }
       }
-    `
+    `;
 
-    const gotoData = await this.executeBQL(gotoQuery, { url }) as {
-      html: { content: string }
-    }
+    const gotoData = (await this.executeBQL(gotoQuery, { url })) as {
+      html: { content: string };
+    };
 
-    const html = gotoData.html.content
+    const html = gotoData.html.content;
 
     // Step 2: Execute JavaScript to extract image URL (separate mutation)
     // Use proper JavaScript as a variable to avoid quote escaping issues
@@ -141,7 +146,7 @@ export class BrowserScraperBQL {
 
         return null;
       })()
-    `
+    `;
 
     const evaluateQuery = `
       mutation EvaluateScript($script: String!) {
@@ -149,15 +154,15 @@ export class BrowserScraperBQL {
           value
         }
       }
-    `
+    `;
 
-    const evaluateData = await this.executeBQL(evaluateQuery, {
+    const evaluateData = (await this.executeBQL(evaluateQuery, {
       script: imageExtractionScript,
-    }) as {
-      evaluate?: { value: string }
-    }
+    })) as {
+      evaluate?: { value: string };
+    };
 
-    const imageUrl = evaluateData.evaluate?.value || null
+    const imageUrl = evaluateData.evaluate?.value || null;
 
     logger.info(
       {
@@ -166,71 +171,80 @@ export class BrowserScraperBQL {
         hasImage: !!imageUrl,
         imageUrl: imageUrl?.substring(0, 50),
       },
-      'Successfully fetched HTML with BrowserQL'
-    )
+      "Successfully fetched HTML with BrowserQL",
+    );
 
-    return { html, imageUrl }
+    return { html, imageUrl };
   }
 
   /**
    * Scrape a product page using BrowserQL
    */
-  async scrapeProductPage(
-    url: string
-  ): Promise<ScrapedProduct> {
+  async scrapeProductPage(url: string): Promise<ScrapedProduct> {
     try {
-      const { html, imageUrl: liveImageUrl } = await this.fetchHTMLWithImage(url)
-      const $ = cheerio.load(html)
+      const { html, imageUrl: liveImageUrl } =
+        await this.fetchHTMLWithImage(url);
+      const $ = cheerio.load(html);
 
       const product: ScrapedProduct = {
         sourceUrl: url,
-      }
+      };
 
       // Extract product data using cheerio (same patterns as regular scraper)
       // Try schema.org JSON-LD first
       $('script[type="application/ld+json"]').each((_, script) => {
         try {
-          const data = JSON.parse($(script).html() || '{}')
-          if (data['@type'] === 'Product' || data['@context']?.includes('schema.org')) {
-            if (data.name) product.name = data.name
+          const data = JSON.parse($(script).html() || "{}");
+          if (
+            data["@type"] === "Product" ||
+            data["@context"]?.includes("schema.org")
+          ) {
+            if (data.name) product.name = data.name;
             if (data.image) {
-              product.imageUrl = Array.isArray(data.image) ? data.image[0] : data.image
+              product.imageUrl = Array.isArray(data.image)
+                ? data.image[0]
+                : data.image;
             }
             if (data.offers) {
-              const offers = Array.isArray(data.offers) ? data.offers[0] : data.offers
-              if (offers.price) product.price = parseFloat(offers.price)
+              const offers = Array.isArray(data.offers)
+                ? data.offers[0]
+                : data.offers;
+              if (offers.price) product.price = parseFloat(offers.price);
             }
-            if (data.description) product.description = data.description
-            if (data.sku) product.modelNumber = data.sku
+            if (data.description) product.description = data.description;
+            if (data.sku) product.modelNumber = data.sku;
             if (data.brand) {
-              product.manufacturer = typeof data.brand === 'string' ? data.brand : data.brand.name
+              product.manufacturer =
+                typeof data.brand === "string" ? data.brand : data.brand.name;
             }
           }
         } catch {
           // Invalid JSON
         }
-      })
+      });
 
       // Fallback to HTML extraction
       if (!product.name) {
         product.name =
           $('h1[itemprop="name"]').first().text().trim() ||
-          $('h1.product-title').first().text().trim() ||
-          $('meta[property="og:title"]').attr('content') ||
-          $('title').text().split('|')[0].trim()
+          $("h1.product-title").first().text().trim() ||
+          $('meta[property="og:title"]').attr("content") ||
+          $("title").text().split("|")[0].trim();
       }
 
       // Extract price
       if (!product.price) {
         const priceText =
-          $('[itemprop="price"]').first().attr('content') ||
-          $('.price').first().text() ||
-          $('[class*="price"]').first().text()
+          $('[itemprop="price"]').first().attr("content") ||
+          $(".price").first().text() ||
+          $('[class*="price"]').first().text();
 
         if (priceText) {
-          const priceMatch = priceText.replace(/[,$]/g, '').match(/(\d+\.?\d*)/)
+          const priceMatch = priceText
+            .replace(/[,$]/g, "")
+            .match(/(\d+\.?\d*)/);
           if (priceMatch) {
-            product.price = parseFloat(priceMatch[1])
+            product.price = parseFloat(priceMatch[1]);
           }
         }
       }
@@ -238,8 +252,8 @@ export class BrowserScraperBQL {
       // Use image URL extracted from live DOM (2025 best practice)
       // This captures lazy-loaded images that Cheerio misses
       if (!product.imageUrl && liveImageUrl) {
-        product.imageUrl = liveImageUrl
-        logger.debug({ liveImageUrl }, 'Using image URL from live DOM')
+        product.imageUrl = liveImageUrl;
+        logger.debug({ liveImageUrl }, "Using image URL from live DOM");
       }
 
       logger.info(
@@ -249,19 +263,19 @@ export class BrowserScraperBQL {
           hasPrice: !!product.price,
           hasImage: !!product.imageUrl,
         },
-        'Product scraped with BrowserQL'
-      )
+        "Product scraped with BrowserQL",
+      );
 
-      return product
+      return product;
     } catch (error) {
       logger.error(
         {
           url,
-          error: error instanceof Error ? error.message : 'Unknown error',
+          error: error instanceof Error ? error.message : "Unknown error",
         },
-        'Failed to scrape product with BrowserQL'
-      )
-      throw error
+        "Failed to scrape product with BrowserQL",
+      );
+      throw error;
     }
   }
 
@@ -270,61 +284,65 @@ export class BrowserScraperBQL {
    */
   async scrapeMultipleProducts(
     urls: string[],
-    config: Partial<ScraperConfig> = {}
+    config: Partial<ScraperConfig> = {},
   ): Promise<ScrapedProduct[]> {
-    const results: ScrapedProduct[] = []
+    const results: ScrapedProduct[] = [];
 
-    logger.info({ totalUrls: urls.length }, 'Starting BrowserQL batch scraping')
+    logger.info(
+      { totalUrls: urls.length },
+      "Starting BrowserQL batch scraping",
+    );
 
     for (let i = 0; i < urls.length; i++) {
       try {
-        const product = await this.scrapeProductPage(urls[i])
-        results.push(product)
+        const product = await this.scrapeProductPage(urls[i]);
+        results.push(product);
 
         // Rate limiting
         if (i < urls.length - 1 && config.rateLimit) {
-          await new Promise((resolve) => setTimeout(resolve, config.rateLimit))
+          await new Promise((resolve) => setTimeout(resolve, config.rateLimit));
         }
       } catch (error) {
         logger.error(
           {
             url: urls[i],
-            error: error instanceof Error ? error.message : 'Unknown error',
+            error: error instanceof Error ? error.message : "Unknown error",
           },
-          'Failed to scrape product in batch'
-        )
-        results.push({ name: `Error: ${urls[i]}`, sourceUrl: urls[i] })
+          "Failed to scrape product in batch",
+        );
+        results.push({ name: `Error: ${urls[i]}`, sourceUrl: urls[i] });
       }
     }
 
     logger.info(
       {
         totalUrls: urls.length,
-        successCount: results.filter((r) => !r.name?.startsWith('Error:')).length,
+        successCount: results.filter((r) => !r.name?.startsWith("Error:"))
+          .length,
       },
-      'BrowserQL batch scraping completed'
-    )
+      "BrowserQL batch scraping completed",
+    );
 
-    return results
+    return results;
   }
 }
 
 // Singleton instance
-let browserScraperInstance: BrowserScraperBQL | null = null
+let browserScraperInstance: BrowserScraperBQL | null = null;
 
 /**
  * Get or create browser scraper instance
  */
 export async function getBrowserScraper(): Promise<BrowserScraperBQL> {
   if (!browserScraperInstance) {
-    browserScraperInstance = new BrowserScraperBQL()
+    browserScraperInstance = new BrowserScraperBQL();
   }
-  return browserScraperInstance
+  return browserScraperInstance;
 }
 
 /**
  * Clean up browser scraper (no-op for BrowserQL)
  */
 export async function closeBrowserScraper() {
-  browserScraperInstance = null
+  browserScraperInstance = null;
 }

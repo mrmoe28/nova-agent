@@ -1,21 +1,21 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from "@/components/ui/select";
 import {
   Plus,
   Pencil,
@@ -27,136 +27,149 @@ import {
   Globe,
   Loader2,
   Star,
-} from "lucide-react"
+} from "lucide-react";
 
 interface Distributor {
-  id: string
-  name: string
-  contactName?: string
-  email?: string
-  phone?: string
-  website?: string
-  address?: string
-  notes?: string
-  equipment?: { id: string; category: string }[]
+  id: string;
+  name: string;
+  contactName?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  address?: string;
+  notes?: string;
+  equipment?: { id: string; category: string }[];
 }
 
 interface Equipment {
-  id: string
-  distributorId: string
-  category: string
-  name: string
-  manufacturer?: string
-  modelNumber: string
-  description?: string
-  unitPrice: number
-  imageUrl?: string
-  dataSheetUrl?: string
-  inStock: boolean
-  leadTimeDays?: number
-  rating?: number
-  reviewCount?: number
-  distributor?: { id: string; name: string }
+  id: string;
+  distributorId: string;
+  category: string;
+  name: string;
+  manufacturer?: string;
+  modelNumber: string;
+  description?: string;
+  unitPrice: number;
+  imageUrl?: string;
+  dataSheetUrl?: string;
+  inStock: boolean;
+  leadTimeDays?: number;
+  rating?: number;
+  reviewCount?: number;
+  distributor?: { id: string; name: string };
 }
 
 export default function DistributorsPage() {
-  const router = useRouter()
-  const [activeTab, setActiveTab] = useState<"distributors" | "equipment">("distributors")
-  const [distributors, setDistributors] = useState<Distributor[]>([])
-  const [equipment, setEquipment] = useState<Equipment[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [showAddDistributor, setShowAddDistributor] = useState(false)
-  const [showAddEquipment, setShowAddEquipment] = useState(false)
-  const [editingDistributor, setEditingDistributor] = useState<Distributor | null>(null)
-  const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null)
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<"distributors" | "equipment">(
+    "distributors",
+  );
+  const [distributors, setDistributors] = useState<Distributor[]>([]);
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showAddDistributor, setShowAddDistributor] = useState(false);
+  const [showAddEquipment, setShowAddEquipment] = useState(false);
+  const [editingDistributor, setEditingDistributor] =
+    useState<Distributor | null>(null);
+  const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(
+    null,
+  );
 
   // Fetch distributors
   const fetchDistributors = async () => {
     try {
-      const response = await fetch("/api/distributors")
-      const data = await response.json()
+      const response = await fetch("/api/distributors");
+      const data = await response.json();
       if (data.success) {
-        setDistributors(data.distributors)
+        setDistributors(data.distributors);
       }
     } catch (error) {
-      console.error("Error fetching distributors:", error)
+      console.error("Error fetching distributors:", error);
     }
-  }
+  };
 
   // Fetch equipment
   const fetchEquipment = async () => {
     try {
-      const response = await fetch("/api/equipment")
-      const data = await response.json()
+      const response = await fetch("/api/equipment");
+      const data = await response.json();
       if (data.success) {
-        setEquipment(data.equipment)
+        setEquipment(data.equipment);
       }
     } catch (error) {
-      console.error("Error fetching equipment:", error)
+      console.error("Error fetching equipment:", error);
     }
-  }
+  };
 
   useEffect(() => {
     const loadData = async () => {
-      setLoading(true)
-      await Promise.all([fetchDistributors(), fetchEquipment()])
-      setLoading(false)
-    }
-    loadData()
-  }, [])
+      setLoading(true);
+      await Promise.all([fetchDistributors(), fetchEquipment()]);
+      setLoading(false);
+    };
+    loadData();
+  }, []);
 
   const handleDeleteDistributor = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this distributor?")) return
+    if (!confirm("Are you sure you want to delete this distributor?")) return;
 
     try {
-      const response = await fetch(`/api/distributors/${id}`, { method: "DELETE" })
+      const response = await fetch(`/api/distributors/${id}`, {
+        method: "DELETE",
+      });
       if (response.ok) {
-        await fetchDistributors()
+        await fetchDistributors();
       }
     } catch (error) {
-      console.error("Error deleting distributor:", error)
-      alert("Failed to delete distributor")
+      console.error("Error deleting distributor:", error);
+      alert("Failed to delete distributor");
     }
-  }
+  };
 
   const handleDeleteEquipment = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this equipment?")) return
+    if (!confirm("Are you sure you want to delete this equipment?")) return;
 
     try {
-      const response = await fetch(`/api/equipment/${id}`, { method: "DELETE" })
+      const response = await fetch(`/api/equipment/${id}`, {
+        method: "DELETE",
+      });
       if (response.ok) {
-        await fetchEquipment()
+        await fetchEquipment();
       }
     } catch (error) {
-      console.error("Error deleting equipment:", error)
-      alert("Failed to delete equipment")
+      console.error("Error deleting equipment:", error);
+      alert("Failed to delete equipment");
     }
-  }
+  };
 
-  const filteredDistributors = distributors.filter((d) =>
-    d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    d.contactName?.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredDistributors = distributors.filter(
+    (d) =>
+      d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      d.contactName?.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
-  const filteredEquipment = equipment.filter((e) =>
-    e.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    e.modelNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    e.manufacturer?.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  const filteredEquipment = equipment.filter(
+    (e) =>
+      e.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.modelNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.manufacturer?.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
 
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-muted-foreground">Loading...</div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Distributors & Equipment</h1>
+        <h1 className="text-3xl font-bold text-foreground">
+          Distributors & Equipment
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Manage your distributor network and equipment catalog
         </p>
@@ -204,11 +217,11 @@ export default function DistributorsPage() {
         <Button
           onClick={() => {
             if (activeTab === "distributors") {
-              setEditingDistributor(null)
-              setShowAddDistributor(true)
+              setEditingDistributor(null);
+              setShowAddDistributor(true);
             } else {
-              setEditingEquipment(null)
-              setShowAddEquipment(true)
+              setEditingEquipment(null);
+              setShowAddEquipment(true);
             }
           }}
           className="bg-blue-600 text-white"
@@ -229,18 +242,25 @@ export default function DistributorsPage() {
             >
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="font-semibold text-lg text-slate-900">{distributor.name}</h3>
+                  <h3 className="font-semibold text-lg text-slate-900">
+                    {distributor.name}
+                  </h3>
                   {distributor.contactName && (
-                    <p className="text-sm text-slate-600 mt-1">{distributor.contactName}</p>
+                    <p className="text-sm text-slate-600 mt-1">
+                      {distributor.contactName}
+                    </p>
                   )}
                 </div>
-                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                <div
+                  className="flex gap-2"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => {
-                      setEditingDistributor(distributor)
-                      setShowAddDistributor(true)
+                      setEditingDistributor(distributor);
+                      setShowAddDistributor(true);
                     }}
                     className="h-8 w-8 p-0 border-slate-300"
                   >
@@ -257,8 +277,12 @@ export default function DistributorsPage() {
                 </div>
               </div>
               <div className="space-y-2 text-sm">
-                {distributor.email && <p className="text-slate-600">{distributor.email}</p>}
-                {distributor.phone && <p className="text-slate-600">{distributor.phone}</p>}
+                {distributor.email && (
+                  <p className="text-slate-600">{distributor.email}</p>
+                )}
+                {distributor.phone && (
+                  <p className="text-slate-600">{distributor.phone}</p>
+                )}
                 {distributor.website && (
                   <a
                     href={distributor.website}
@@ -273,8 +297,12 @@ export default function DistributorsPage() {
               </div>
               {distributor.equipment && distributor.equipment.length > 0 && (
                 <div className="mt-4 pt-4 border-t border-slate-200">
-                  <Badge variant="secondary" className="bg-slate-100 text-slate-700">
-                    {distributor.equipment.length} equipment item{distributor.equipment.length !== 1 ? 's' : ''}
+                  <Badge
+                    variant="secondary"
+                    className="bg-slate-100 text-slate-700"
+                  >
+                    {distributor.equipment.length} equipment item
+                    {distributor.equipment.length !== 1 ? "s" : ""}
                   </Badge>
                 </div>
               )}
@@ -297,16 +325,17 @@ export default function DistributorsPage() {
                     fill
                     className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
                     onError={(e) => {
-                      const target = e.target as HTMLImageElement
-                      console.error('Image failed to load:', {
+                      const target = e.target as HTMLImageElement;
+                      console.error("Image failed to load:", {
                         url: item.imageUrl,
                         name: item.name,
-                        error: e
-                      })
-                      target.style.display = 'none'
-                      const parent = target.parentElement
+                        error: e,
+                      });
+                      target.style.display = "none";
+                      const parent = target.parentElement;
                       if (parent) {
-                        parent.innerHTML = '<div class="flex items-center justify-center h-full text-slate-400"><svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg><p class="text-xs mt-2">Image unavailable</p></div>'
+                        parent.innerHTML =
+                          '<div class="flex items-center justify-center h-full text-slate-400"><svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg><p class="text-xs mt-2">Image unavailable</p></div>';
                       }
                     }}
                   />
@@ -322,9 +351,9 @@ export default function DistributorsPage() {
                     size="sm"
                     variant="outline"
                     onClick={(e) => {
-                      e.stopPropagation()
-                      setEditingEquipment(item)
-                      setShowAddEquipment(true)
+                      e.stopPropagation();
+                      setEditingEquipment(item);
+                      setShowAddEquipment(true);
                     }}
                     className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm border-slate-300 shadow-md"
                   >
@@ -334,8 +363,8 @@ export default function DistributorsPage() {
                     size="sm"
                     variant="outline"
                     onClick={(e) => {
-                      e.stopPropagation()
-                      handleDeleteEquipment(item.id)
+                      e.stopPropagation();
+                      handleDeleteEquipment(item.id);
                     }}
                     className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm border-red-300 shadow-md"
                   >
@@ -359,7 +388,10 @@ export default function DistributorsPage() {
 
                 {/* Category Badge */}
                 <div className="absolute bottom-2 left-2">
-                  <Badge variant="secondary" className="text-xs bg-white/90 backdrop-blur-sm">
+                  <Badge
+                    variant="secondary"
+                    className="text-xs bg-white/90 backdrop-blur-sm"
+                  >
                     {item.category}
                   </Badge>
                 </div>
@@ -441,18 +473,18 @@ export default function DistributorsPage() {
         <DistributorForm
           distributor={editingDistributor}
           onClose={() => {
-            setShowAddDistributor(false)
-            setEditingDistributor(null)
+            setShowAddDistributor(false);
+            setEditingDistributor(null);
           }}
           onSuccess={() => {
-            setShowAddDistributor(false)
-            setEditingDistributor(null)
-            fetchDistributors()
+            setShowAddDistributor(false);
+            setEditingDistributor(null);
+            fetchDistributors();
           }}
           onEquipmentUpdated={() => {
-            fetchEquipment()
+            fetchEquipment();
             // Switch to Equipment tab so user can see new products
-            setActiveTab("equipment")
+            setActiveTab("equipment");
           }}
         />
       )}
@@ -463,18 +495,18 @@ export default function DistributorsPage() {
           equipment={editingEquipment}
           distributors={distributors}
           onClose={() => {
-            setShowAddEquipment(false)
-            setEditingEquipment(null)
+            setShowAddEquipment(false);
+            setEditingEquipment(null);
           }}
           onSuccess={() => {
-            setShowAddEquipment(false)
-            setEditingEquipment(null)
-            fetchEquipment()
+            setShowAddEquipment(false);
+            setEditingEquipment(null);
+            fetchEquipment();
           }}
         />
       )}
     </div>
-  )
+  );
 }
 
 // Distributor Form Component
@@ -484,10 +516,10 @@ function DistributorForm({
   onSuccess,
   onEquipmentUpdated,
 }: {
-  distributor: Distributor | null
-  onClose: () => void
-  onSuccess: () => void
-  onEquipmentUpdated?: () => void
+  distributor: Distributor | null;
+  onClose: () => void;
+  onSuccess: () => void;
+  onEquipmentUpdated?: () => void;
 }) {
   const [formData, setFormData] = useState({
     name: distributor?.name || "",
@@ -497,47 +529,47 @@ function DistributorForm({
     website: distributor?.website || "",
     address: distributor?.address || "",
     notes: distributor?.notes || "",
-  })
-  const [saving, setSaving] = useState(false)
-  const [scraping, setScraping] = useState(false)
-  const [scrapeUrl, setScrapeUrl] = useState("")
-  const [scrapeProducts, setScrapeProducts] = useState(true)
+  });
+  const [saving, setSaving] = useState(false);
+  const [scraping, setScraping] = useState(false);
+  const [scrapeUrl, setScrapeUrl] = useState("");
+  const [scrapeProducts, setScrapeProducts] = useState(true);
   const [scrapeResults, setScrapeResults] = useState<{
     company?: {
-      name?: string
-      contactName?: string
-      email?: string
-      phone?: string
-      website?: string
-      address?: string
-      description?: string
-    }
-    productsFound?: number
-    productLinks?: string[]
-  } | null>(null)
+      name?: string;
+      contactName?: string;
+      email?: string;
+      phone?: string;
+      website?: string;
+      address?: string;
+      description?: string;
+    };
+    productsFound?: number;
+    productLinks?: string[];
+  } | null>(null);
 
   const handleScrapeUrl = async () => {
-    if (!scrapeUrl || !scrapeUrl.startsWith('http')) {
-      alert('Please enter a valid URL starting with http:// or https://')
-      return
+    if (!scrapeUrl || !scrapeUrl.startsWith("http")) {
+      alert("Please enter a valid URL starting with http:// or https://");
+      return;
     }
 
-    setScraping(true)
-    setScrapeResults(null)
+    setScraping(true);
+    setScrapeResults(null);
 
     try {
-      const response = await fetch('/api/distributors/scrape-from-url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/distributors/scrape-from-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           url: scrapeUrl,
           saveToDatabase: scrapeProducts, // Save products if enabled
           scrapeProducts: scrapeProducts, // Scrape products if enabled
-          useBrowser: true, // Use browser mode for better results
+          useBrowser: true, // Use browser mode by default for better image extraction
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.success) {
         // Auto-fill form with scraped company data if available
@@ -550,77 +582,78 @@ function DistributorForm({
             website: data.company.website || scrapeUrl,
             address: data.company.address || formData.address,
             notes: data.company.description || formData.notes,
-          })
+          });
         }
 
         setScrapeResults({
           company: data.company,
           productsFound: data.products?.length || 0,
           productLinks: data.productLinks || [],
-        })
+        });
 
-        const productsCount = data.products?.length || data.productLinks?.length || 0
+        const productsCount =
+          data.products?.length || data.productLinks?.length || 0;
 
         // Refresh equipment list if products were saved
         // Add delay to ensure database transaction commits before fetching
         if (scrapeProducts && productsCount > 0 && onEquipmentUpdated) {
           alert(
             `Successfully scraped!\n` +
-            `Found ${productsCount} product${productsCount !== 1 ? 's' : ''} and saved to database.\n\n` +
-            `The page will refresh in a moment to show the new distributor and products...`
-          )
+              `Found ${productsCount} product${productsCount !== 1 ? "s" : ""} and saved to database.\n\n` +
+              `The page will refresh in a moment to show the new distributor and products...`,
+          );
 
           setTimeout(() => {
             // Refresh both distributors and equipment lists
-            onSuccess() // This refreshes the distributors list
-            onEquipmentUpdated() // This refreshes equipment and switches to Equipment tab
+            onSuccess(); // This refreshes the distributors list
+            onEquipmentUpdated(); // This refreshes equipment and switches to Equipment tab
             // Modal will be closed by onSuccess callback
-          }, 1000) // Wait 1 second for DB transaction to complete
+          }, 1000); // Wait 1 second for DB transaction to complete
         } else {
           alert(
             `Successfully scraped!\n` +
-            `Found ${productsCount} product${productsCount !== 1 ? 's' : ''}.`
-          )
+              `Found ${productsCount} product${productsCount !== 1 ? "s" : ""}.`,
+          );
         }
       } else {
-        alert(`Failed to scrape: ${data.error || 'Unknown error'}`)
+        alert(`Failed to scrape: ${data.error || "Unknown error"}`);
       }
     } catch (error) {
-      console.error('Error scraping URL:', error)
-      alert('Failed to scrape URL. Please check the URL and try again.')
+      console.error("Error scraping URL:", error);
+      alert("Failed to scrape URL. Please check the URL and try again.");
     } finally {
-      setScraping(false)
+      setScraping(false);
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSaving(true)
+    e.preventDefault();
+    setSaving(true);
 
     try {
       const url = distributor
         ? `/api/distributors/${distributor.id}`
-        : "/api/distributors"
-      const method = distributor ? "PATCH" : "POST"
+        : "/api/distributors";
+      const method = distributor ? "PATCH" : "POST";
 
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
-      })
+      });
 
       if (response.ok) {
-        onSuccess()
+        onSuccess();
       } else {
-        alert("Failed to save distributor")
+        alert("Failed to save distributor");
       }
     } catch (error) {
-      console.error("Error saving distributor:", error)
-      alert("Failed to save distributor")
+      console.error("Error saving distributor:", error);
+      alert("Failed to save distributor");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
@@ -637,7 +670,8 @@ function DistributorForm({
                 <span>Auto-Fill from Website</span>
               </div>
               <p className="text-xs text-blue-700">
-                Paste a distributor&apos;s website URL to automatically extract company info and find products
+                Paste a distributor&apos;s website URL to automatically extract
+                company info and find products
               </p>
               <div className="flex gap-2">
                 <Input
@@ -659,7 +693,7 @@ function DistributorForm({
                       Scraping...
                     </>
                   ) : (
-                    'Scrape'
+                    "Scrape"
                   )}
                 </Button>
               </div>
@@ -671,99 +705,145 @@ function DistributorForm({
                   onChange={(e) => setScrapeProducts(e.target.checked)}
                   className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
-                <label htmlFor="scrapeProducts" className="text-sm text-blue-900">
+                <label
+                  htmlFor="scrapeProducts"
+                  className="text-sm text-blue-900"
+                >
                   Scrape and save products to database (takes longer)
                 </label>
               </div>
-              {scrapeResults && scrapeResults.productsFound !== undefined && scrapeResults.productsFound > 0 && (
-                <div className="text-xs text-green-700 bg-green-50 p-2 rounded">
-                  ✓ Found {scrapeResults.productsFound} product{scrapeResults.productsFound !== 1 ? 's' : ''}! {scrapeProducts ? 'Saved to database.' : 'Form auto-filled with company info.'}
-                </div>
-              )}
+              {scrapeResults &&
+                scrapeResults.productsFound !== undefined &&
+                scrapeResults.productsFound > 0 && (
+                  <div className="text-xs text-green-700 bg-green-50 p-2 rounded">
+                    ✓ Found {scrapeResults.productsFound} product
+                    {scrapeResults.productsFound !== 1 ? "s" : ""}!{" "}
+                    {scrapeProducts
+                      ? "Saved to database."
+                      : "Form auto-filled with company info."}
+                  </div>
+                )}
             </div>
           )}
 
           <div>
-            <Label htmlFor="name" className="text-slate-700 font-medium">Name *</Label>
+            <Label htmlFor="name" className="text-slate-700 font-medium">
+              Name *
+            </Label>
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               required
               className="mt-1 bg-white border-slate-300"
             />
           </div>
           <div>
-            <Label htmlFor="contactName" className="text-slate-700 font-medium">Contact Name</Label>
+            <Label htmlFor="contactName" className="text-slate-700 font-medium">
+              Contact Name
+            </Label>
             <Input
               id="contactName"
               value={formData.contactName}
-              onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, contactName: e.target.value })
+              }
               className="mt-1 bg-white border-slate-300"
             />
           </div>
           <div>
-            <Label htmlFor="email" className="text-slate-700 font-medium">Email</Label>
+            <Label htmlFor="email" className="text-slate-700 font-medium">
+              Email
+            </Label>
             <Input
               id="email"
               type="email"
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, email: e.target.value })
+              }
               className="mt-1 bg-white border-slate-300"
             />
           </div>
           <div>
-            <Label htmlFor="phone" className="text-slate-700 font-medium">Phone</Label>
+            <Label htmlFor="phone" className="text-slate-700 font-medium">
+              Phone
+            </Label>
             <Input
               id="phone"
               value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
               className="mt-1 bg-white border-slate-300"
             />
           </div>
           <div>
-            <Label htmlFor="website" className="text-slate-700 font-medium">Website</Label>
+            <Label htmlFor="website" className="text-slate-700 font-medium">
+              Website
+            </Label>
             <Input
               id="website"
               type="url"
               value={formData.website}
-              onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, website: e.target.value })
+              }
               placeholder="https://"
               className="mt-1 bg-white border-slate-300"
             />
           </div>
           <div>
-            <Label htmlFor="address" className="text-slate-700 font-medium">Address</Label>
+            <Label htmlFor="address" className="text-slate-700 font-medium">
+              Address
+            </Label>
             <Textarea
               id="address"
               value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, address: e.target.value })
+              }
               rows={2}
               className="mt-1 bg-white border-slate-300"
             />
           </div>
           <div>
-            <Label htmlFor="notes" className="text-slate-700 font-medium">Notes</Label>
+            <Label htmlFor="notes" className="text-slate-700 font-medium">
+              Notes
+            </Label>
             <Textarea
               id="notes"
               value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
               rows={3}
               className="mt-1 bg-white border-slate-300"
             />
           </div>
           <div className="flex gap-3 justify-end pt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="border-slate-300">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="border-slate-300"
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={saving} className="bg-blue-600 text-white">
+            <Button
+              type="submit"
+              disabled={saving}
+              className="bg-blue-600 text-white"
+            >
               {saving ? "Saving..." : "Save"}
             </Button>
           </div>
         </form>
       </Card>
     </div>
-  )
+  );
 }
 
 // Equipment Form Component
@@ -773,10 +853,10 @@ function EquipmentForm({
   onClose,
   onSuccess,
 }: {
-  equipment: Equipment | null
-  distributors: Distributor[]
-  onClose: () => void
-  onSuccess: () => void
+  equipment: Equipment | null;
+  distributors: Distributor[];
+  onClose: () => void;
+  onSuccess: () => void;
 }) {
   const [formData, setFormData] = useState({
     distributorId: equipment?.distributorId || "",
@@ -790,35 +870,37 @@ function EquipmentForm({
     dataSheetUrl: equipment?.dataSheetUrl || "",
     inStock: equipment?.inStock !== false,
     leadTimeDays: equipment?.leadTimeDays?.toString() || "",
-  })
-  const [saving, setSaving] = useState(false)
+  });
+  const [saving, setSaving] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setSaving(true)
+    e.preventDefault();
+    setSaving(true);
 
     try {
-      const url = equipment ? `/api/equipment/${equipment.id}` : "/api/equipment"
-      const method = equipment ? "PATCH" : "POST"
+      const url = equipment
+        ? `/api/equipment/${equipment.id}`
+        : "/api/equipment";
+      const method = equipment ? "PATCH" : "POST";
 
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
-      })
+      });
 
       if (response.ok) {
-        onSuccess()
+        onSuccess();
       } else {
-        alert("Failed to save equipment")
+        alert("Failed to save equipment");
       }
     } catch (error) {
-      console.error("Error saving equipment:", error)
-      alert("Failed to save equipment")
+      console.error("Error saving equipment:", error);
+      alert("Failed to save equipment");
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
@@ -829,10 +911,17 @@ function EquipmentForm({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="distributorId" className="text-slate-700 font-medium">Distributor *</Label>
+              <Label
+                htmlFor="distributorId"
+                className="text-slate-700 font-medium"
+              >
+                Distributor *
+              </Label>
               <Select
                 value={formData.distributorId}
-                onValueChange={(value) => setFormData({ ...formData, distributorId: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, distributorId: value })
+                }
               >
                 <SelectTrigger className="mt-1 bg-white border-slate-300">
                   <SelectValue placeholder="Select distributor" />
@@ -847,10 +936,14 @@ function EquipmentForm({
               </Select>
             </div>
             <div>
-              <Label htmlFor="category" className="text-slate-700 font-medium">Category *</Label>
+              <Label htmlFor="category" className="text-slate-700 font-medium">
+                Category *
+              </Label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, category: value })
+                }
               >
                 <SelectTrigger className="mt-1 bg-white border-slate-300">
                   <SelectValue />
@@ -868,11 +961,15 @@ function EquipmentForm({
           </div>
 
           <div>
-            <Label htmlFor="name" className="text-slate-700 font-medium">Equipment Name *</Label>
+            <Label htmlFor="name" className="text-slate-700 font-medium">
+              Equipment Name *
+            </Label>
             <Input
               id="name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               required
               className="mt-1 bg-white border-slate-300"
             />
@@ -880,20 +977,34 @@ function EquipmentForm({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="manufacturer" className="text-slate-700 font-medium">Manufacturer</Label>
+              <Label
+                htmlFor="manufacturer"
+                className="text-slate-700 font-medium"
+              >
+                Manufacturer
+              </Label>
               <Input
                 id="manufacturer"
                 value={formData.manufacturer}
-                onChange={(e) => setFormData({ ...formData, manufacturer: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, manufacturer: e.target.value })
+                }
                 className="mt-1 bg-white border-slate-300"
               />
             </div>
             <div>
-              <Label htmlFor="modelNumber" className="text-slate-700 font-medium">Model Number *</Label>
+              <Label
+                htmlFor="modelNumber"
+                className="text-slate-700 font-medium"
+              >
+                Model Number *
+              </Label>
               <Input
                 id="modelNumber"
                 value={formData.modelNumber}
-                onChange={(e) => setFormData({ ...formData, modelNumber: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, modelNumber: e.target.value })
+                }
                 required
                 className="mt-1 bg-white border-slate-300"
               />
@@ -901,11 +1012,15 @@ function EquipmentForm({
           </div>
 
           <div>
-            <Label htmlFor="description" className="text-slate-700 font-medium">Description</Label>
+            <Label htmlFor="description" className="text-slate-700 font-medium">
+              Description
+            </Label>
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, description: e.target.value })
+              }
               rows={2}
               className="mt-1 bg-white border-slate-300"
             />
@@ -913,32 +1028,47 @@ function EquipmentForm({
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <Label htmlFor="unitPrice" className="text-slate-700 font-medium">Unit Price (USD) *</Label>
+              <Label htmlFor="unitPrice" className="text-slate-700 font-medium">
+                Unit Price (USD) *
+              </Label>
               <Input
                 id="unitPrice"
                 type="number"
                 step="0.01"
                 value={formData.unitPrice}
-                onChange={(e) => setFormData({ ...formData, unitPrice: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, unitPrice: e.target.value })
+                }
                 required
                 className="mt-1 bg-white border-slate-300"
               />
             </div>
             <div>
-              <Label htmlFor="leadTimeDays" className="text-slate-700 font-medium">Lead Time (Days)</Label>
+              <Label
+                htmlFor="leadTimeDays"
+                className="text-slate-700 font-medium"
+              >
+                Lead Time (Days)
+              </Label>
               <Input
                 id="leadTimeDays"
                 type="number"
                 value={formData.leadTimeDays}
-                onChange={(e) => setFormData({ ...formData, leadTimeDays: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, leadTimeDays: e.target.value })
+                }
                 className="mt-1 bg-white border-slate-300"
               />
             </div>
             <div>
-              <Label htmlFor="inStock" className="text-slate-700 font-medium">Availability</Label>
+              <Label htmlFor="inStock" className="text-slate-700 font-medium">
+                Availability
+              </Label>
               <Select
                 value={formData.inStock.toString()}
-                onValueChange={(value) => setFormData({ ...formData, inStock: value === "true" })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, inStock: value === "true" })
+                }
               >
                 <SelectTrigger className="mt-1 bg-white border-slate-300">
                   <SelectValue />
@@ -952,39 +1082,59 @@ function EquipmentForm({
           </div>
 
           <div>
-            <Label htmlFor="imageUrl" className="text-slate-700 font-medium">Image URL</Label>
+            <Label htmlFor="imageUrl" className="text-slate-700 font-medium">
+              Image URL
+            </Label>
             <Input
               id="imageUrl"
               type="url"
               value={formData.imageUrl}
-              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, imageUrl: e.target.value })
+              }
               placeholder="https://"
               className="mt-1 bg-white border-slate-300"
             />
           </div>
 
           <div>
-            <Label htmlFor="dataSheetUrl" className="text-slate-700 font-medium">Data Sheet URL</Label>
+            <Label
+              htmlFor="dataSheetUrl"
+              className="text-slate-700 font-medium"
+            >
+              Data Sheet URL
+            </Label>
             <Input
               id="dataSheetUrl"
               type="url"
               value={formData.dataSheetUrl}
-              onChange={(e) => setFormData({ ...formData, dataSheetUrl: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, dataSheetUrl: e.target.value })
+              }
               placeholder="https://"
               className="mt-1 bg-white border-slate-300"
             />
           </div>
 
           <div className="flex gap-3 justify-end pt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="border-slate-300">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="border-slate-300"
+            >
               Cancel
             </Button>
-            <Button type="submit" disabled={saving} className="bg-blue-600 text-white">
+            <Button
+              type="submit"
+              disabled={saving}
+              className="bg-blue-600 text-white"
+            >
               {saving ? "Saving..." : "Save"}
             </Button>
           </div>
         </form>
       </Card>
     </div>
-  )
+  );
 }

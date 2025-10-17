@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 /**
  * GET /api/distributors/[id]/scrape-status
@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: distributorId } = await params;
@@ -15,13 +15,13 @@ export async function GET(
     // Get the most recent crawl job for this distributor
     const latestJob = await prisma.crawlJob.findFirst({
       where: { distributorId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
     if (!latestJob) {
       return NextResponse.json({
-        status: 'not_found',
-        message: 'No scrape jobs found for this distributor',
+        status: "not_found",
+        message: "No scrape jobs found for this distributor",
       });
     }
 
@@ -43,13 +43,14 @@ export async function GET(
       metadata: latestJob.metadata ? JSON.parse(latestJob.metadata) : null,
     });
   } catch (error) {
-    console.error('Error checking scrape status:', error);
+    console.error("Error checking scrape status:", error);
     return NextResponse.json(
       {
-        status: 'error',
-        message: error instanceof Error ? error.message : 'Failed to check status',
+        status: "error",
+        message:
+          error instanceof Error ? error.message : "Failed to check status",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

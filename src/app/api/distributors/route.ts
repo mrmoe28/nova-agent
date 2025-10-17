@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 
 /**
  * GET /api/distributors - List all distributors
@@ -15,16 +15,16 @@ export async function GET() {
           },
         },
       },
-      orderBy: { name: 'asc' },
-    })
+      orderBy: { name: "asc" },
+    });
 
-    return NextResponse.json({ success: true, distributors })
+    return NextResponse.json({ success: true, distributors });
   } catch (error) {
-    console.error('Error fetching distributors:', error)
+    console.error("Error fetching distributors:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to fetch distributors' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to fetch distributors" },
+      { status: 500 },
+    );
   }
 }
 
@@ -33,14 +33,14 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { name, contactName, email, phone, website, address, notes } = body
+    const body = await request.json();
+    const { name, contactName, email, phone, website, address, notes } = body;
 
     if (!name) {
       return NextResponse.json(
-        { success: false, error: 'Distributor name is required' },
-        { status: 400 }
-      )
+        { success: false, error: "Distributor name is required" },
+        { status: 400 },
+      );
     }
 
     const distributor = await prisma.distributor.create({
@@ -53,14 +53,14 @@ export async function POST(request: NextRequest) {
         address,
         notes,
       },
-    })
+    });
 
-    return NextResponse.json({ success: true, distributor })
+    return NextResponse.json({ success: true, distributor });
   } catch (error) {
-    console.error('Error creating distributor:', error)
+    console.error("Error creating distributor:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to create distributor' },
-      { status: 500 }
-    )
+      { success: false, error: "Failed to create distributor" },
+      { status: 500 },
+    );
   }
 }

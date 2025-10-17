@@ -1,6 +1,6 @@
-import { createLogger } from './logger';
+import { createLogger } from "./logger";
 
-const logger = createLogger('retry');
+const logger = createLogger("retry");
 
 export interface RetryOptions {
   maxRetries?: number;
@@ -14,10 +14,10 @@ export class RetryError extends Error {
   constructor(
     message: string,
     public attempts: number,
-    public lastError: Error
+    public lastError: Error,
   ) {
     super(message);
-    this.name = 'RetryError';
+    this.name = "RetryError";
   }
 }
 
@@ -29,7 +29,7 @@ export class RetryError extends Error {
  */
 export async function retry<T>(
   fn: () => Promise<T>,
-  options: RetryOptions = {}
+  options: RetryOptions = {},
 ): Promise<T> {
   const {
     maxRetries = 3,
@@ -52,14 +52,14 @@ export async function retry<T>(
           {
             attempts: attempt + 1,
             error: lastError.message,
-            stack: lastError.stack
+            stack: lastError.stack,
           },
-          'Max retries reached'
+          "Max retries reached",
         );
         throw new RetryError(
           `Failed after ${attempt + 1} attempts: ${lastError.message}`,
           attempt + 1,
-          lastError
+          lastError,
         );
       }
 
@@ -71,9 +71,9 @@ export async function retry<T>(
           attempt: attempt + 1,
           maxRetries,
           delay,
-          error: lastError.message
+          error: lastError.message,
         },
-        `Retry attempt ${attempt + 1}/${maxRetries}`
+        `Retry attempt ${attempt + 1}/${maxRetries}`,
       );
 
       if (onRetry) {
@@ -96,7 +96,7 @@ export async function retry<T>(
 export async function retryWithCondition<T>(
   fn: () => Promise<T>,
   shouldRetry: (error: Error, attempt: number) => boolean,
-  options: RetryOptions = {}
+  options: RetryOptions = {},
 ): Promise<T> {
   const {
     maxRetries = 3,
@@ -118,7 +118,7 @@ export async function retryWithCondition<T>(
       if (!shouldRetry(lastError, attempt + 1)) {
         logger.info(
           { error: lastError.message, attempt: attempt + 1 },
-          'Error is not retryable, throwing immediately'
+          "Error is not retryable, throwing immediately",
         );
         throw lastError;
       }
@@ -126,12 +126,12 @@ export async function retryWithCondition<T>(
       if (attempt === maxRetries) {
         logger.error(
           { attempts: attempt + 1, error: lastError.message },
-          'Max retries reached'
+          "Max retries reached",
         );
         throw new RetryError(
           `Failed after ${attempt + 1} attempts: ${lastError.message}`,
           attempt + 1,
-          lastError
+          lastError,
         );
       }
 
@@ -139,7 +139,7 @@ export async function retryWithCondition<T>(
 
       logger.warn(
         { attempt: attempt + 1, maxRetries, delay, error: lastError.message },
-        `Retry attempt ${attempt + 1}/${maxRetries}`
+        `Retry attempt ${attempt + 1}/${maxRetries}`,
       );
 
       if (onRetry) {
@@ -157,7 +157,7 @@ export async function retryWithCondition<T>(
  * Helper function to sleep for a specified duration
  */
 function sleep(ms: number): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
@@ -165,19 +165,19 @@ function sleep(ms: number): Promise<void> {
  */
 export function isNetworkError(error: Error): boolean {
   const networkErrorPatterns = [
-    'ECONNRESET',
-    'ENOTFOUND',
-    'ETIMEDOUT',
-    'ECONNREFUSED',
-    'ENETUNREACH',
-    'socket hang up',
-    'network timeout',
-    'fetch failed',
+    "ECONNRESET",
+    "ENOTFOUND",
+    "ETIMEDOUT",
+    "ECONNREFUSED",
+    "ENETUNREACH",
+    "socket hang up",
+    "network timeout",
+    "fetch failed",
   ];
 
   const errorMessage = error.message.toLowerCase();
-  return networkErrorPatterns.some(pattern =>
-    errorMessage.includes(pattern.toLowerCase())
+  return networkErrorPatterns.some((pattern) =>
+    errorMessage.includes(pattern.toLowerCase()),
   );
 }
 

@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Plus, FolderOpen, Building2, Zap } from "lucide-react"
-import { cn } from "@/lib/utils"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Plus, FolderOpen, Building2, Zap } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function BrandHeader() {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   const navItems = [
     {
@@ -21,9 +21,10 @@ export default function BrandHeader() {
       href: "/projects",
       icon: FolderOpen,
     },
-  ]
+  ];
 
-  const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/")
+  const isActive = (href: string) =>
+    pathname === href || pathname.startsWith(href + "/");
 
   return (
     <header className="sticky top-0 z-50 border-b bg-gradient-to-r from-[#0A0F1C] to-[#0f1829] backdrop-blur-sm">
@@ -55,8 +56,8 @@ export default function BrandHeader() {
         {/* Navigation */}
         <nav className="flex items-center gap-1 sm:gap-2">
           {navItems.map((item) => {
-            const Icon = item.icon
-            const active = isActive(item.href)
+            const Icon = item.icon;
+            const active = isActive(item.href);
 
             return (
               <Button
@@ -66,7 +67,7 @@ export default function BrandHeader() {
                 size="sm"
                 className={cn(
                   "relative text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200",
-                  active && "text-white bg-white/10"
+                  active && "text-white bg-white/10",
                 )}
               >
                 <Link href={item.href} className="flex items-center gap-2">
@@ -77,7 +78,7 @@ export default function BrandHeader() {
                   )}
                 </Link>
               </Button>
-            )
+            );
           })}
 
           {/* CTA Button */}
@@ -90,7 +91,7 @@ export default function BrandHeader() {
               "text-white font-semibold",
               "shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40",
               "transition-all duration-200",
-              "ml-2"
+              "ml-2",
             )}
           >
             <Link href="/wizard/new" className="flex items-center gap-1.5">
@@ -102,5 +103,5 @@ export default function BrandHeader() {
         </nav>
       </div>
     </header>
-  )
+  );
 }
