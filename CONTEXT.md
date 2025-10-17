@@ -184,7 +184,32 @@ Potential enhancements:
 - Equipment pricing is mocked data
 - OCR accuracy depends on bill format clarity
 - **File storage uses /tmp directory in serverless**: Files are ephemeral and deleted after processing (consider Vercel Blob Storage for persistent storage)
-- **Image OCR disabled in production**: Tesseract.js requires canvas/DOMMatrix APIs not available in Vercel serverless - use PDF files for OCR
+- **Image OCR disabled in production**: Tesseract.js requires canvas/DOMMatrix APIs not available in Vercel serverless - PDF files recommended for best results
+
+### Recent Fixes (2025-10-17)
+
+#### Image Upload UX Improvements
+**Problem**: Users were unaware when image OCR failed in production, leading to confusion about demo data fallbacks.
+
+**Root Cause**:
+1. Tesseract.js OCR disabled in serverless (requires canvas/DOMMatrix APIs)
+2. FileUpload component ignored API warnings
+3. No visual feedback about OCR processing status
+4. Users uploaded images thinking they'd be processed correctly
+
+**Solution Implemented**:
+1. ✅ Added Sonner toast notifications for upload feedback
+2. ✅ Display warnings when OCR fails and fallback data is used
+3. ✅ Visual indicators showing OCR status (green checkmark) and fallback data (amber warning icon)
+4. ✅ Added prominent messaging recommending PDF files for best accuracy
+5. ✅ Enhanced error handling with descriptive toast messages
+
+**Files Modified**:
+- `src/app/layout.tsx` - Added Sonner Toaster component
+- `src/components/FileUpload.tsx` - Complete UX overhaul with toast notifications and status indicators
+- `src/components/ui/sonner.tsx` - Installed shadcn/ui Sonner component
+
+**Result**: Users now have clear visibility into upload status and are guided toward using PDF files for optimal OCR results.
 
 ## Notes for Future Development
 

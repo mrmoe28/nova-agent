@@ -1,15 +1,18 @@
 "use client"
 
 import { useState, useCallback } from "react"
-import { Upload, FileText, X, Loader2 } from "lucide-react"
+import { Upload, FileText, X, Loader2, AlertCircle, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { toast } from "sonner"
 
 interface UploadedFile {
   id: string
   fileName: string
   fileType: string
   uploadedAt: Date
+  ocrProcessed?: boolean
+  usingFallbackData?: boolean
 }
 
 interface FileUploadProps {
@@ -72,8 +75,26 @@ export default function FileUpload({ projectId, onUploadComplete }: FileUploadPr
 
         if (data.success) {
           uploaded.push(data.bill)
+
+          // Show appropriate toast based on upload status
+          if (data.warning) {
+            toast.warning(`${file.name} uploaded with issues`, {
+              description: data.warning,
+              duration: 6000,
+            })
+          } else if (data.bill.ocrProcessed) {
+            toast.success(`${file.name} uploaded successfully`, {
+              description: "OCR processing completed",
+            })
+          } else {
+            toast.success(`${file.name} uploaded`, {
+              description: "File saved successfully",
+            })
+          }
         } else {
-          alert(`Failed to upload ${file.name}: ${data.error}`)
+          toast.error(`Failed to upload ${file.name}`, {
+            description: data.error,
+          })
         }
       }
 
@@ -82,7 +103,9 @@ export default function FileUpload({ projectId, onUploadComplete }: FileUploadPr
       onUploadComplete?.(newFiles)
     } catch (error) {
       console.error("Error uploading files:", error)
-      alert("Failed to upload files")
+      toast.error("Upload failed", {
+        description: "An unexpected error occurred. Please try again.",
+      })
     } finally {
       setUploading(false)
     }
@@ -123,6 +146,10 @@ export default function FileUpload({ projectId, onUploadComplete }: FileUploadPr
                 <p className="mt-1 text-xs text-muted-foreground">
                   Supports PDF, JPG, PNG, and CSV (max 10MB per file)
                 </p>
+                <p className="mt-2 flex items-center justify-center gap-1 text-xs font-medium text-cyan-600">
+                  <CheckCircle className="h-3 w-3" />
+                  PDF files recommended for best OCR accuracy
+                </p>
               </div>
               <input
                 type="file"
@@ -150,13 +177,33 @@ export default function FileUpload({ projectId, onUploadComplete }: FileUploadPr
           <div className="space-y-2">
             {uploadedFiles.map((file) => (
               <Card key={file.id} className="flex items-center justify-between p-3">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-1">
                   <FileText className="h-5 w-5 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium">{file.fileName}</p>
-                    <p className="text-xs text-muted-foreground capitalize">
-                      {file.fileType} · {new Date(file.uploadedAt).toLocaleDateString()}
-                    </p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{file.fileName}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="capitalize">{file.fileType}</span>
+                      <span>·</span>
+                      <span>{new Date(file.uploadedAt).toLocaleDateString()}</span>
+                      {file.ocrProcessed && (
+                        <>
+                          <span>·</span>
+                          <span className="flex items-center gap-1 text-green-600">
+                            <CheckCircle className="h-3 w-3" />
+                            OCR Success
+                          </span>
+                        </>
+                      )}
+                      {file.usingFallbackData && (
+                        <>
+                          <span>·</span>
+                          <span className="flex items-center gap-1 text-amber-600">
+                            <AlertCircle className="h-3 w-3" />
+                            Demo Data
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <Button
