@@ -113,7 +113,7 @@ Each step updates the `Project.status` field: `intake` → `analysis` → `sizin
 
 ### Web Scraping Architecture
 
-**Two-Mode Scraping System**:
+**Three-Mode Scraping System**:
 
 1. **HTTP Scraper** (`src/lib/scraper.ts`):
    - Fast, uses Cheerio for HTML parsing
@@ -130,10 +130,41 @@ Each step updates the `Project.status` field: `intake` → `analysis` → `sizin
    - Slower but more accurate
    - Requires `BROWSERLESS_TOKEN` env var
 
-**When to Use Browser Mode**:
-- Product images aren't loading → re-scrape with `useBrowser: true`
-- Site uses heavy JavaScript rendering
-- Bypassing bot detection needed
+3. **🤖 AI Agent Scraper** (`src/lib/ai-agent-scraper.ts`):
+   - **NEW**: Intelligent scraping with reasoning and self-correction
+   - Uses Claude AI to analyze page structure
+   - Makes strategic decisions (browser vs HTTP, deep crawl vs direct scrape)
+   - Self-corrects when scraping fails (up to 3 attempts)
+   - Automatically detects product links from any page structure
+   - Handles pagination, tabs, and lazy loading intelligently
+   - Requires `ANTHROPIC_API_KEY` env var
+
+**When to Use Each Mode**:
+- **HTTP Mode** (default): Simple HTML pages, fast results
+- **Browser Mode** (`useBrowser: true`): JS-heavy sites, bot detection, images
+- **AI Agent Mode** (`useAI: true`): Complex sites, unknown structure, self-correcting
+
+**AI Agent Scraper Features**:
+1. **Page Analysis**: Claude analyzes HTML and identifies page type (product/category/listing)
+2. **Strategy Decision**: Chooses optimal scraping method based on page structure
+3. **Self-Correction Loop**: If scraping fails, diagnoses issue and tries alternative approach
+4. **Intelligent Product Discovery**: Finds products on ANY website structure
+5. **Fallback Safety**: Falls back to traditional scraping if AI fails
+
+**Example API Requests**:
+```bash
+# Traditional HTTP scraping (fast, simple)
+curl -X POST /api/distributors/scrape-from-url \
+  -d '{"url":"https://example.com/products", "useBrowser":false}'
+
+# Browser scraping (for JS-rendered images)
+curl -X POST /api/distributors/scrape-from-url \
+  -d '{"url":"https://example.com/products", "useBrowser":true}'
+
+# AI Agent scraping (intelligent, self-correcting)
+curl -X POST /api/distributors/scrape-from-url \
+  -d '{"url":"https://example.com/products", "useAI":true}'
+```
 
 **Scraping Best Practices**:
 - Always check `robots.txt` before scraping
@@ -141,6 +172,7 @@ Each step updates the `Project.status` field: `intake` → `analysis` → `sizin
 - Rotate User-Agent headers
 - Log all scraping operations with pino
 - Store scraped data with timestamps
+- Use AI mode for unknown/complex websites
 
 ### OCR Text Extraction
 
@@ -189,6 +221,7 @@ DATABASE_URL="postgresql://user:password@host/database"
 
 # Optional: Web Scraping
 BROWSERLESS_TOKEN=""        # For BrowserQL scraper (product images)
+ANTHROPIC_API_KEY=""        # For AI Agent scraper (intelligent scraping)
 
 # Optional: Cron Jobs
 CRON_SECRET=""              # Secret for scheduled scraping
@@ -295,6 +328,7 @@ npm run dev
 **Environment Variables**: Set in Vercel Dashboard
 - `DATABASE_URL` - Neon PostgreSQL connection string
 - `BROWSERLESS_TOKEN` - Optional, for browser scraping
+- `ANTHROPIC_API_KEY` - Optional, for AI Agent scraping
 - `CRON_SECRET` - Optional, for scheduled jobs
 
 **Deployment Triggers**:

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { scrapeCompanyInfo, scrapeMultipleProducts, detectCategory, deepCrawlForProducts, isProductPageUrl } from '@/lib/scraper'
 import { getBrowserScraper, closeBrowserScraper } from '@/lib/browser-scraper-bql'
+import { getAIScraper } from '@/lib/ai-agent-scraper'
 import { createLogger, logOperation } from '@/lib/logger'
 
 const logger = createLogger('scrape-api')
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { url, saveToDatabase, scrapeProducts, maxProducts = 5, distributorId, useBrowser = false } = body
+    const { url, saveToDatabase, scrapeProducts, maxProducts = 5, distributorId, useBrowser = false, useAI = false } = body
 
     if (!url) {
       return NextResponse.json(
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    logger.info({ url, saveToDatabase, scrapeProducts, maxProducts, useBrowser }, 'Starting scrape job')
+    logger.info({ url, saveToDatabase, scrapeProducts, maxProducts, useBrowser, useAI }, 'Starting scrape job')
 
     // Create a CrawlJob record to track this scraping operation
     const crawlJob = await prisma.crawlJob.create({
@@ -68,9 +69,39 @@ export async function POST(request: NextRequest) {
 
     logger.info({ companyName: companyInfo.name }, 'Found company')
 
-    // Step 2: Detect if URL is a product page or category page
+    // AI-Powered Scraping Mode (bypasses traditional crawling)
+    let scrapedProducts: Awaited<ReturnType<typeof scrapeMultipleProducts>> = []
+
+    if (useAI && scrapeProducts) {
+      logger.info({ url, useAI: true }, '🤖 AI Agent mode enabled - using intelligent scraping')
+
+      try {
+        const aiScraper = getAIScraper()
+        scrapedProducts = await logOperation(
+          logger,
+          'ai-agent-scrape',
+          () => aiScraper.scrape(url, {
+            rateLimit: 300,
+            timeout: 8000,
+            respectRobotsTxt: true,
+            maxRetries: 1,
+          }),
+          { url, mode: 'AI-powered' }
+        )
+
+        logger.info(
+          { productsFound: scrapedProducts.length },
+          '🤖 AI Agent scraping completed'
+        )
+      } catch (error) {
+        logger.error({ error }, '🤖 AI Agent scraping failed, falling back to traditional method')
+        // Fall through to traditional scraping
+      }
+    }
+
+    // Step 2: Traditional scraping (skip if AI already succeeded)
     let allProductLinks: string[] = []
-    if (scrapeProducts) {
+    if (scrapeProducts && scrapedProducts.length === 0) {
       const isProductPage = isProductPageUrl(url)
       logger.info({ url, isProductPage }, 'Analyzing URL type')
 
@@ -110,9 +141,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Step 3: Scrape products (limit to maxProducts if specified)
-    let scrapedProducts: Awaited<ReturnType<typeof scrapeMultipleProducts>> = []
-    if (scrapeProducts && allProductLinks.length > 0) {
+    // Step 3: Traditional product scraping (skip if AI already succeeded)
+    if (scrapeProducts && allProductLinks.length > 0 && scrapedProducts.length === 0) {
       const productUrls = allProductLinks.slice(0, maxProducts)
       logger.info({ productsToScrape: productUrls.length, useBrowser }, 'Starting product scraping')
 
