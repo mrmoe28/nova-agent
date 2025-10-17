@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { scrapeCompanyInfo, scrapeMultipleProducts, detectCategory, deepCrawlForProducts } from '@/lib/scraper'
+import { getBrowserScraper, closeBrowserScraper } from '@/lib/browser-scraper'
 import { createLogger, logOperation } from '@/lib/logger'
 
 const logger = createLogger('scrape-api')
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { url, saveToDatabase, scrapeProducts, maxProducts = 5, distributorId } = body
+    const { url, saveToDatabase, scrapeProducts, maxProducts = 5, distributorId, useBrowser = false } = body
 
     if (!url) {
       return NextResponse.json(
@@ -37,7 +38,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    logger.info({ url, saveToDatabase, scrapeProducts, maxProducts }, 'Starting scrape job')
+    logger.info({ url, saveToDatabase, scrapeProducts, maxProducts, useBrowser }, 'Starting scrape job')
 
     // Create a CrawlJob record to track this scraping operation
     const crawlJob = await prisma.crawlJob.create({
@@ -103,19 +104,37 @@ export async function POST(request: NextRequest) {
     let scrapedProducts: Awaited<ReturnType<typeof scrapeMultipleProducts>> = []
     if (scrapeProducts && allProductLinks.length > 0) {
       const productUrls = allProductLinks.slice(0, maxProducts)
-      logger.info({ productsToScrape: productUrls.length }, 'Starting product scraping')
+      logger.info({ productsToScrape: productUrls.length, useBrowser }, 'Starting product scraping')
 
-      scrapedProducts = await logOperation(
-        logger,
-        'scrape-products',
-        () => scrapeMultipleProducts(productUrls, {
-          rateLimit: 300, // Ultra-fast for quick preview
-          timeout: 8000,
-          respectRobotsTxt: true,
-          maxRetries: 1,
-        }),
-        { count: productUrls.length }
-      )
+      // Use browser scraper if requested (bypasses bot detection)
+      if (useBrowser) {
+        const browserScraper = await getBrowserScraper()
+        scrapedProducts = await logOperation(
+          logger,
+          'scrape-products-browser',
+          () => browserScraper.scrapeMultipleProducts(productUrls, {
+            rateLimit: 2000, // Slower for browser mode
+            timeout: 30000,
+          }),
+          { count: productUrls.length, method: 'browser' }
+        )
+
+        // Clean up browser
+        await closeBrowserScraper()
+      } else {
+        // Regular fetch-based scraping (fast)
+        scrapedProducts = await logOperation(
+          logger,
+          'scrape-products',
+          () => scrapeMultipleProducts(productUrls, {
+            rateLimit: 300, // Ultra-fast for quick preview
+            timeout: 8000,
+            respectRobotsTxt: true,
+            maxRetries: 1,
+          }),
+          { count: productUrls.length, method: 'fetch' }
+        )
+      }
 
       logger.info({ productsScraped: scrapedProducts.length }, 'Product scraping completed')
     }
@@ -302,6 +321,13 @@ export async function POST(request: NextRequest) {
       },
       'Scrape operation failed'
     )
+
+    // Clean up browser if it was used
+    try {
+      await closeBrowserScraper()
+    } catch (cleanupError) {
+      logger.error({ cleanupError }, 'Failed to clean up browser')
+    }
 
     // Update CrawlJob to failed status
     if (crawlJobId) {

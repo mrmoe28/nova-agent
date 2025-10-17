@@ -60,6 +60,7 @@ export default function DistributorDetailPage() {
   const [distributor, setDistributor] = useState<Distributor | null>(null)
   const [loading, setLoading] = useState(true)
   const [scraping, setScraping] = useState(false)
+  const [useBrowser, setUseBrowser] = useState(false)
 
   const fetchDistributor = useCallback(async () => {
     try {
@@ -97,6 +98,7 @@ export default function DistributorDetailPage() {
           scrapeProducts: true,
           distributorId: distributor.id,
           maxProducts: 500,
+          useBrowser, // Use browser mode if enabled
         }),
       })
 
@@ -189,21 +191,37 @@ export default function DistributorDetailPage() {
             </div>
           </div>
 
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => router.push(`/distributors`)}>
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit
-            </Button>
+          <div className="flex flex-col gap-2 items-end">
             {distributor.website && (
-              <Button
-                variant="outline"
-                onClick={handleRescrape}
-                disabled={scraping}
-              >
-                <RefreshCw className={`mr-2 h-4 w-4 ${scraping ? "animate-spin" : ""}`} />
-                {scraping ? "Scraping..." : "Rescrape"}
-              </Button>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={useBrowser}
+                  onChange={(e) => setUseBrowser(e.target.checked)}
+                  className="w-4 h-4"
+                  disabled={scraping}
+                />
+                <span className="text-muted-foreground">
+                  Browser Mode (slower, bypasses blocks)
+                </span>
+              </label>
             )}
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => router.push(`/distributors`)}>
+                <Pencil className="mr-2 h-4 w-4" />
+                Edit
+              </Button>
+              {distributor.website && (
+                <Button
+                  variant="outline"
+                  onClick={handleRescrape}
+                  disabled={scraping}
+                >
+                  <RefreshCw className={`mr-2 h-4 w-4 ${scraping ? "animate-spin" : ""}`} />
+                  {scraping ? "Scraping..." : "Rescrape"}
+                </Button>
+              )}
+            </div>
           </div>
         </div>
       </div>
