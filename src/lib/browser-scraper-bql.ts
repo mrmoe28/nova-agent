@@ -271,7 +271,7 @@ export class BrowserScraperBQL {
 
     for (let i = 0; i < urls.length; i++) {
       try {
-        const product = await this.scrapeProductPage(urls[i], config)
+        const product = await this.scrapeProductPage(urls[i])
         results.push(product)
 
         // Rate limiting
