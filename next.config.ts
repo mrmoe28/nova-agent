@@ -16,8 +16,12 @@ const nextConfig: NextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     // Increase image sizes
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    // Allow SVG format
+    // Output formats for optimization (JPEG and PNG are automatically supported)
     formats: ['image/webp', 'image/avif'],
+    // Enable SVG support (SVGs are passed through without optimization)
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     // Disable static image import optimization (using external URLs)
     unoptimized: false,
   },
