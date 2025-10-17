@@ -60,7 +60,7 @@ export default function DistributorDetailPage() {
   const [distributor, setDistributor] = useState<Distributor | null>(null)
   const [loading, setLoading] = useState(true)
   const [scraping, setScraping] = useState(false)
-  const [useBrowser, setUseBrowser] = useState(false)
+  const [useBrowser, setUseBrowser] = useState(true) // Default to true for image extraction
 
   const fetchDistributor = useCallback(async () => {
     try {
@@ -202,7 +202,7 @@ export default function DistributorDetailPage() {
                   disabled={scraping}
                 />
                 <span className="text-muted-foreground">
-                  Browser Mode (slower, bypasses blocks)
+                  Browser Mode (extracts product images, slower but more accurate)
                 </span>
               </label>
             )}
