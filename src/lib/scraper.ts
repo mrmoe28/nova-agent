@@ -27,7 +27,10 @@ export interface ScrapedCompany {
   website?: string
   address?: string
   description?: string
+  logoUrl?: string
   productLinks?: string[]
+  catalogPages?: string[]  // Pages with product listings
+  totalPagesFound?: number
 }
 
 const DEFAULT_CONFIG: ScraperConfig = {
@@ -366,11 +369,149 @@ export async function scrapeCompanyInfo(
       }
     })
 
-    company.productLinks = Array.from(productLinks).slice(0, 50) // Limit to 50 product links
+    company.productLinks = Array.from(productLinks).slice(0, 100) // Increased to 100 product links
+    company.totalPagesFound = productLinks.size
+
+    // Extract logo
+    company.logoUrl =
+      $('meta[property="og:image"]').attr('content') ||
+      $('[itemtype*="Organization"] [itemprop="logo"]').first().attr('src') ||
+      $('.logo img, .site-logo img, [class*="logo"] img').first().attr('src')
+
+    // Make logo URL absolute
+    if (company.logoUrl && !company.logoUrl.startsWith('http')) {
+      try {
+        company.logoUrl = new URL(company.logoUrl, company.website).href
+      } catch {
+        company.logoUrl = undefined
+      }
+    }
 
     return company
   } catch (error) {
     console.error('Error scraping company info:', error)
     throw new Error(`Failed to scrape company info from ${url}: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+}
+
+/**
+ * Crawl multiple pages to find more product links
+ * Follows pagination and category pages
+ */
+export async function deepCrawlForProducts(
+  startUrl: string,
+  options: {
+    maxPages?: number
+    maxDepth?: number
+    config?: Partial<ScraperConfig>
+  } = {}
+): Promise<{
+  productLinks: string[]
+  pagesVisited: string[]
+  catalogPages: string[]
+}> {
+  const { maxPages = 10, maxDepth = 2, config = {} } = options
+  const finalConfig = { ...DEFAULT_CONFIG, ...config }
+
+  const productLinks: Set<string> = new Set()
+  const catalogPages: Set<string> = new Set()
+  const visitedUrls: Set<string> = new Set()
+  const urlQueue: { url: string; depth: number }[] = [{ url: startUrl, depth: 0 }]
+
+  const urlObj = new URL(startUrl)
+  const baseHostname = urlObj.hostname
+
+  // Keywords for identifying catalog/listing pages
+  const catalogKeywords = ['shop', 'products', 'catalog', 'store', 'category', 'collection', 'inventory']
+  const paginationKeywords = ['page', 'p=', 'pg', 'offset', 'start']
+
+  console.log(`Starting deep crawl from: ${startUrl}`)
+
+  while (urlQueue.length > 0 && visitedUrls.size < maxPages) {
+    const { url, depth } = urlQueue.shift()!
+
+    if (visitedUrls.has(url) || depth > maxDepth) {
+      continue
+    }
+
+    try {
+      console.log(`Crawling: ${url} (depth: ${depth}, visited: ${visitedUrls.size}/${maxPages})`)
+      visitedUrls.add(url)
+
+      // Add rate limiting
+      if (visitedUrls.size > 1 && finalConfig.rateLimit) {
+        await new Promise(resolve => setTimeout(resolve, finalConfig.rateLimit))
+      }
+
+      const html = await fetchHTML(url, finalConfig)
+      const $ = cheerio.load(html)
+
+      // Check if this is a catalog/listing page
+      const isCatalogPage = catalogKeywords.some(keyword =>
+        url.toLowerCase().includes(keyword) ||
+        $('title').text().toLowerCase().includes(keyword) ||
+        $('.products, .product-list, .catalog, [class*="product-grid"]').length > 0
+      )
+
+      if (isCatalogPage) {
+        catalogPages.add(url)
+      }
+
+      // Extract all links from this page
+      $('a[href]').each((_, link) => {
+        const href = $(link).attr('href')
+        if (!href) return
+
+        try {
+          // Make URL absolute
+          const absoluteUrl = href.startsWith('http') ? href : new URL(href, url).href
+          const linkObj = new URL(absoluteUrl)
+
+          // Only follow links on the same domain
+          if (linkObj.hostname !== baseHostname) return
+
+          // Skip non-page links
+          if (absoluteUrl.includes('#') ||
+              absoluteUrl.includes('javascript:') ||
+              absoluteUrl.match(/\.(pdf|jpg|jpeg|png|gif|zip|exe)$/i)) {
+            return
+          }
+
+          const linkText = $(link).text().toLowerCase()
+          const linkHref = href.toLowerCase()
+
+          // Check if it's a product link
+          const isProductLink = ['product', 'item', 'detail'].some(
+            keyword => linkText.includes(keyword) || linkHref.includes(keyword)
+          )
+
+          if (isProductLink) {
+            productLinks.add(absoluteUrl)
+          }
+
+          // Check if it's a catalog or pagination link (for queue)
+          const isCatalogLink = catalogKeywords.some(k => linkHref.includes(k))
+          const isPaginationLink = paginationKeywords.some(k => linkHref.includes(k))
+
+          if ((isCatalogLink || isPaginationLink) && depth < maxDepth) {
+            urlQueue.push({ url: absoluteUrl, depth: depth + 1 })
+          }
+
+        } catch {
+          // Invalid URL, skip
+        }
+      })
+
+    } catch (error) {
+      console.error(`Error crawling ${url}:`, error)
+    }
+  }
+
+  console.log(`Deep crawl complete: ${visitedUrls.size} pages visited, ${productLinks.size} products found`)
+
+  return {
+    productLinks: Array.from(productLinks),
+    pagesVisited: Array.from(visitedUrls),
+    catalogPages: Array.from(catalogPages),
   }
 }

@@ -115,13 +115,21 @@ model Distributor {
   website         String?
   address         String?
   notes           String?
+  logoUrl         String?     // Company logo
+  rating          Float?      // Average rating 0-5
+  shippingInfo    String?     // Shipping policies
+  paymentTerms    String?     // Payment terms
+  lastScrapedAt   DateTime?   // Last time scraped
+  scrapeMetadata  String?     // JSON metadata from scraping
   isActive        Boolean     @default(true)
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
   equipment       Equipment[]
+  scrapeHistory   ScrapeHistory[]
 
   @@index([name])
+  @@index([website])
 }
 
 model Equipment {
@@ -136,9 +144,14 @@ model Equipment {
   unitPrice       Float
   imageUrl        String?
   dataSheetUrl    String?
+  sourceUrl       String?     // Original product page URL
+  rating          Float?      // Product rating 0-5
+  reviewCount     Int?        // Number of reviews
+  warranty        String?     // Warranty information
   isActive        Boolean     @default(true)
   inStock         Boolean     @default(true)
   leadTimeDays    Int?
+  lastScrapedAt   DateTime?   // Last time this product was scraped
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
 
@@ -147,4 +160,23 @@ model Equipment {
   @@index([distributorId])
   @@index([category])
   @@index([modelNumber])
+  @@index([manufacturer])
+}
+
+// Track scraping history for auditing and debugging
+model ScrapeHistory {
+  id              String      @id @default(cuid())
+  distributorId   String
+  url             String      // URL that was scraped
+  status          String      // success, partial, failed
+  itemsFound      Int         @default(0)
+  itemsSaved      Int         @default(0)
+  errorMessage    String?
+  metadata        String?     // JSON metadata
+  scrapedAt       DateTime    @default(now())
+
+  distributor     Distributor @relation(fields: [distributorId], references: [id], onDelete: Cascade)
+
+  @@index([distributorId])
+  @@index([scrapedAt])
 }
