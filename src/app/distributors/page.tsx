@@ -444,6 +444,7 @@ export default function DistributorsPage() {
             setEditingDistributor(null)
             fetchDistributors()
           }}
+          onEquipmentUpdated={fetchEquipment}
         />
       )}
 
@@ -472,10 +473,12 @@ function DistributorForm({
   distributor,
   onClose,
   onSuccess,
+  onEquipmentUpdated,
 }: {
   distributor: Distributor | null
   onClose: () => void
   onSuccess: () => void
+  onEquipmentUpdated?: () => void
 }) {
   const [formData, setFormData] = useState({
     name: distributor?.name || "",
@@ -489,6 +492,7 @@ function DistributorForm({
   const [saving, setSaving] = useState(false)
   const [scraping, setScraping] = useState(false)
   const [scrapeUrl, setScrapeUrl] = useState("")
+  const [scrapeProducts, setScrapeProducts] = useState(true)
   const [scrapeResults, setScrapeResults] = useState<{
     company?: {
       name?: string
@@ -518,32 +522,44 @@ function DistributorForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           url: scrapeUrl,
-          saveToDatabase: false, // Just preview first
-          scrapeProducts: false, // Only get company info for now
+          saveToDatabase: scrapeProducts, // Save products if enabled
+          scrapeProducts: scrapeProducts, // Scrape products if enabled
+          useBrowser: true, // Use browser mode for better results
         }),
       })
 
       const data = await response.json()
 
-      if (data.success && data.company) {
-        // Auto-fill form with scraped data
-        setFormData({
-          name: data.company.name || formData.name,
-          contactName: data.company.contactName || formData.contactName,
-          email: data.company.email || formData.email,
-          phone: data.company.phone || formData.phone,
-          website: data.company.website || scrapeUrl,
-          address: data.company.address || formData.address,
-          notes: data.company.description || formData.notes,
-        })
+      if (data.success) {
+        // Auto-fill form with scraped company data if available
+        if (data.company) {
+          setFormData({
+            name: data.company.name || formData.name,
+            contactName: data.company.contactName || formData.contactName,
+            email: data.company.email || formData.email,
+            phone: data.company.phone || formData.phone,
+            website: data.company.website || scrapeUrl,
+            address: data.company.address || formData.address,
+            notes: data.company.description || formData.notes,
+          })
+        }
 
         setScrapeResults({
           company: data.company,
-          productsFound: data.productsFound || 0,
+          productsFound: data.products?.length || 0,
           productLinks: data.productLinks || [],
         })
 
-        alert(`Successfully scraped! Found ${data.productLinks?.length || 0} product links.`)
+        const productsCount = data.products?.length || data.productLinks?.length || 0
+        alert(
+          `Successfully scraped!\n` +
+          `Found ${productsCount} product${productsCount !== 1 ? 's' : ''}${scrapeProducts ? ' and saved to database' : ''}.`
+        )
+
+        // Refresh equipment list if products were saved
+        if (scrapeProducts && productsCount > 0 && onEquipmentUpdated) {
+          onEquipmentUpdated()
+        }
       } else {
         alert(`Failed to scrape: ${data.error || 'Unknown error'}`)
       }
@@ -625,9 +641,21 @@ function DistributorForm({
                   )}
                 </Button>
               </div>
-              {scrapeResults && scrapeResults.productLinks && scrapeResults.productLinks.length > 0 && (
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id="scrapeProducts"
+                  checked={scrapeProducts}
+                  onChange={(e) => setScrapeProducts(e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <label htmlFor="scrapeProducts" className="text-sm text-blue-900">
+                  Scrape and save products to database (takes longer)
+                </label>
+              </div>
+              {scrapeResults && scrapeResults.productsFound !== undefined && scrapeResults.productsFound > 0 && (
                 <div className="text-xs text-green-700 bg-green-50 p-2 rounded">
-                  ✓ Found {scrapeResults.productLinks.length} product links! Form auto-filled with company info.
+                  ✓ Found {scrapeResults.productsFound} product{scrapeResults.productsFound !== 1 ? 's' : ''}! {scrapeProducts ? 'Saved to database.' : 'Form auto-filled with company info.'}
                 </div>
               )}
             </div>
