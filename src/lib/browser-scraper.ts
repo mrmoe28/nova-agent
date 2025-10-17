@@ -60,6 +60,13 @@ export class BrowserScraper {
     const page = await this.browser!.newPage()
 
     try {
+      // Set larger viewport for lazy-loaded content (2025 best practice)
+      await page.setViewport({
+        width: 1920,
+        height: 1080,
+        deviceScaleFactor: 1,
+      })
+
       // Set realistic User-Agent
       await page.setUserAgent(
         config.userAgent ||
@@ -127,38 +134,161 @@ export class BrowserScraper {
 
   /**
    * Scroll the page to trigger lazy-loaded images
+   * Uses 2025 best practice: check if new content is loaded between scrolls
    */
   private async scrollPage(page: Page) {
-    await page.evaluate(() => {
+    await page.evaluate(async () => {
       return new Promise<void>((resolve) => {
-        const scrollHeight = document.documentElement.scrollHeight
-        const steps = 5
-        const stepSize = scrollHeight / steps
-        let scrolled = 0
+        let previousHeight = 0
+        let attempts = 0
+        const maxAttempts = 10
 
-        const interval = setInterval(() => {
-          window.scrollBy(0, stepSize)
-          scrolled += stepSize
+        const scrollInterval = setInterval(async () => {
+          const currentHeight = document.body.scrollHeight
 
-          if (scrolled >= scrollHeight) {
-            clearInterval(interval)
-            window.scrollTo(0, 0) // Scroll back to top
-            setTimeout(resolve, 500)
+          // Check if new content loaded
+          if (currentHeight === previousHeight) {
+            attempts++
+            if (attempts >= 3) {
+              // No new content after 3 attempts, we're done
+              clearInterval(scrollInterval)
+              window.scrollTo(0, 0) // Scroll back to top
+              setTimeout(resolve, 500)
+              return
+            }
+          } else {
+            attempts = 0 // Reset if new content loaded
           }
-        }, 200)
+
+          if (attempts >= maxAttempts) {
+            clearInterval(scrollInterval)
+            window.scrollTo(0, 0)
+            setTimeout(resolve, 500)
+            return
+          }
+
+          previousHeight = currentHeight
+          window.scrollTo(0, currentHeight)
+        }, 1500) // 1.5s wait between scrolls (2025 best practice)
       })
     })
   }
 
   /**
+   * Extract image URL from live DOM (2025 best practice)
+   * Uses .src property instead of getAttribute for dynamic images
+   */
+  private async extractImageUrl(page: Page): Promise<string | null> {
+    return await page.evaluate(() => {
+      // Try multiple selectors in order of priority
+      const selectors = [
+        'meta[property="og:image"]',
+        '[itemprop="image"]',
+        'img[class*="product"]',
+        'img.main-image',
+        '.product-images img',
+        '.product-image img',
+        'picture img',
+        'img[data-src]',
+        'img[src]',
+      ]
+
+      for (const selector of selectors) {
+        const element = document.querySelector(selector)
+        if (element) {
+          // For meta tags, use content attribute
+          if (selector.startsWith('meta')) {
+            const content = element.getAttribute('content')
+            if (content && content.trim()) return content
+          } else {
+            // For img tags, use .src property (live DOM value, not attribute)
+            const img = element as HTMLImageElement
+            if (img.src && !img.src.includes('data:image') && !img.src.includes('placeholder')) {
+              return img.src
+            }
+            // Fallback to data attributes
+            const dataSrc = img.getAttribute('data-src') ||
+                          img.getAttribute('data-lazy') ||
+                          img.getAttribute('data-original') ||
+                          img.getAttribute('data-image')
+            if (dataSrc) return dataSrc
+          }
+        }
+      }
+
+      return null
+    })
+  }
+
+  /**
    * Scrape a product page using remote browser
+   * Updated 2025: Extract images from live DOM before parsing static HTML
    */
   async scrapeProductPage(
     url: string,
     config: Partial<ScraperConfig> = {}
   ): Promise<ScrapedProduct> {
+    await this.init()
+    const page = await this.browser!.newPage()
+
     try {
-      const html = await this.fetchHTML(url, config)
+      // Set larger viewport for lazy-loaded content
+      await page.setViewport({
+        width: 1920,
+        height: 1080,
+        deviceScaleFactor: 1,
+      })
+
+      // Set realistic User-Agent
+      await page.setUserAgent(
+        config.userAgent ||
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+      )
+
+      // Set additional headers
+      await page.setExtraHTTPHeaders({
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+      })
+
+      // Block ads and trackers
+      await page.setRequestInterception(true)
+      page.on('request', (request) => {
+        const requestUrl = request.url()
+        if (
+          /googletagmanager|doubleclick|facebook|analytics|hotjar|segment|optimizely/i.test(requestUrl)
+        ) {
+          request.abort()
+        } else {
+          request.continue()
+        }
+      })
+
+      logger.info({ url }, 'Scraping product page with remote browser')
+
+      // Navigate to page
+      await page.goto(url, {
+        waitUntil: 'networkidle0',
+        timeout: config.timeout || 30000,
+      })
+
+      // Wait for initial content
+      await new Promise((resolve) => setTimeout(resolve, 2000))
+
+      // Scroll to trigger lazy loading
+      await this.scrollPage(page)
+
+      // Wait for lazy-loaded images
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      // CRITICAL: Extract image URL from live DOM BEFORE parsing HTML
+      const liveImageUrl = await this.extractImageUrl(page)
+      logger.debug({ liveImageUrl }, 'Extracted image URL from live DOM')
+
+      // Now get the HTML for Cheerio parsing
+      const html = await page.content()
       const $ = cheerio.load(html)
 
       // Use the same extraction logic as the regular scraper
@@ -215,46 +345,11 @@ export class BrowserScraper {
         }
       }
 
-      // Extract image (multiple strategies for lazy-loaded images)
-      if (!product.imageUrl) {
-        const imageSelectors = [
-          'meta[property="og:image"]',
-          '[itemprop="image"]',
-          'img[class*="product"]',
-          'img.main-image',
-          '.product-images img',
-          'picture img',
-          'img[data-src]',
-          'img[src]',
-        ]
-
-        for (const selector of imageSelectors) {
-          const $img = $(selector).first()
-          if ($img.length) {
-            if (selector.startsWith('meta')) {
-              product.imageUrl = $img.attr('content')
-            } else {
-              // Check all possible image attributes (lazy loading)
-              product.imageUrl =
-                $img.attr('src') ||
-                $img.attr('data-src') ||
-                $img.attr('data-lazy') ||
-                $img.attr('data-original') ||
-                $img.attr('data-image')
-            }
-            if (product.imageUrl) break
-          }
-        }
-
-        // Make absolute
-        if (product.imageUrl && !product.imageUrl.startsWith('http')) {
-          const urlObj = new URL(url)
-          if (product.imageUrl.startsWith('//')) {
-            product.imageUrl = `${urlObj.protocol}${product.imageUrl}`
-          } else {
-            product.imageUrl = new URL(product.imageUrl, urlObj.origin).href
-          }
-        }
+      // Use image URL extracted from live DOM (2025 best practice)
+      // This captures lazy-loaded images that Cheerio misses
+      if (!product.imageUrl && liveImageUrl) {
+        product.imageUrl = liveImageUrl
+        logger.debug({ liveImageUrl }, 'Using image URL from live DOM')
       }
 
       logger.info(
@@ -277,6 +372,8 @@ export class BrowserScraper {
         'Failed to scrape product with remote browser'
       )
       throw error
+    } finally {
+      await page.close()
     }
   }
 
