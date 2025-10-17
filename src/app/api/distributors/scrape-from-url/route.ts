@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { scrapeCompanyInfo, scrapeMultipleProducts, detectCategory, deepCrawlForProducts } from '@/lib/scraper'
+import { createLogger, logOperation } from '@/lib/logger'
+
+const logger = createLogger('scrape-api')
 
 /**
  * POST /api/distributors/scrape-from-url
@@ -8,6 +11,8 @@ import { scrapeCompanyInfo, scrapeMultipleProducts, detectCategory, deepCrawlFor
  * Optionally save to database
  */
 export async function POST(request: NextRequest) {
+  let crawlJobId: string | null = null
+
   try {
     const body = await request.json()
     const { url, saveToDatabase, scrapeProducts, maxProducts = 500, distributorId } = body
@@ -19,46 +24,81 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log(`Scraping distributor from URL: ${url}`)
+    logger.info({ url, saveToDatabase, scrapeProducts, maxProducts }, 'Starting scrape job')
+
+    // Create a CrawlJob record to track this scraping operation
+    const crawlJob = await prisma.crawlJob.create({
+      data: {
+        type: scrapeProducts ? 'full' : 'distributor',
+        status: 'running',
+        targetUrl: url,
+        distributorId: distributorId || null,
+        startedAt: new Date(),
+      },
+    })
+    crawlJobId = crawlJob.id
+    logger.info({ crawlJobId }, 'Created crawl job')
 
     // Step 1: Scrape company information
-    const companyInfo = await scrapeCompanyInfo(url, {
-      rateLimit: 1500,
-      timeout: 30000,
-    })
+    const companyInfo = await logOperation(
+      logger,
+      'scrape-company-info',
+      () => scrapeCompanyInfo(url, {
+        rateLimit: 1500,
+        timeout: 30000,
+      }),
+      { url }
+    )
 
-    console.log(`Found company: ${companyInfo.name}`)
+    logger.info({ companyName: companyInfo.name }, 'Found company')
 
     // Step 2: Deep crawl to find ALL product links across multiple pages
     let allProductLinks: string[] = []
     if (scrapeProducts) {
-      console.log('Starting deep crawl for products...')
-      const crawlResult = await deepCrawlForProducts(url, {
-        maxPages: 50,  // Crawl up to 50 pages (increased for better coverage)
-        maxDepth: 4,   // Go 4 levels deep (increased for nested categories)
-        config: {
-          rateLimit: 1000, // Reduced to 1 second for faster crawling
-          timeout: 30000,
-        },
-      })
+      logger.info({ url }, 'Starting deep crawl for products')
+
+      const crawlResult = await logOperation(
+        logger,
+        'deep-crawl',
+        () => deepCrawlForProducts(url, {
+          maxPages: 50,  // Crawl up to 50 pages (increased for better coverage)
+          maxDepth: 4,   // Go 4 levels deep (increased for nested categories)
+          config: {
+            rateLimit: 1000, // Reduced to 1 second for faster crawling
+            timeout: 30000,
+          },
+        }),
+        { url, maxPages: 50, maxDepth: 4 }
+      )
 
       allProductLinks = crawlResult.productLinks
-      console.log(`Deep crawl found ${allProductLinks.length} product links across ${crawlResult.pagesVisited.length} pages`)
-      console.log(`Found ${crawlResult.catalogPages.length} catalog pages`)
+      logger.info(
+        {
+          productLinks: allProductLinks.length,
+          pagesVisited: crawlResult.pagesVisited.length,
+          catalogPages: crawlResult.catalogPages.length
+        },
+        'Deep crawl completed'
+      )
     }
 
     // Step 3: Scrape products (limit to maxProducts if specified)
     let scrapedProducts: Awaited<ReturnType<typeof scrapeMultipleProducts>> = []
     if (scrapeProducts && allProductLinks.length > 0) {
       const productUrls = allProductLinks.slice(0, maxProducts)
-      console.log(`Scraping ${productUrls.length} product pages...`)
+      logger.info({ productsToScrape: productUrls.length }, 'Starting product scraping')
 
-      scrapedProducts = await scrapeMultipleProducts(productUrls, {
-        rateLimit: 1500,
-        timeout: 30000,
-      })
+      scrapedProducts = await logOperation(
+        logger,
+        'scrape-products',
+        () => scrapeMultipleProducts(productUrls, {
+          rateLimit: 1500,
+          timeout: 30000,
+        }),
+        { count: productUrls.length }
+      )
 
-      console.log(`Scraped ${scrapedProducts.length} products`)
+      logger.info({ productsScraped: scrapedProducts.length }, 'Product scraping completed')
     }
 
     // Step 4: Optionally save to database
@@ -96,7 +136,10 @@ export async function POST(request: NextRequest) {
           where: { id: distributorId },
           data: updateData,
         })
-        console.log(`Updated distributor: ${savedDistributor.name} (${savedDistributor.id})`)
+        logger.info(
+          { distributorId: savedDistributor.id, name: savedDistributor.name },
+          'Updated distributor'
+        )
       } else {
         // Create new distributor
         savedDistributor = await prisma.distributor.create({
@@ -112,13 +155,16 @@ export async function POST(request: NextRequest) {
             lastScrapedAt: new Date(),
           },
         })
-        console.log(`Created distributor: ${savedDistributor.name} (${savedDistributor.id})`)
+        logger.info(
+          { distributorId: savedDistributor.id, name: savedDistributor.name },
+          'Created new distributor'
+        )
       }
 
-      // Save products
+      // Save products with price snapshots
       for (const product of scrapedProducts) {
         if (!product.name || !product.price) {
-          console.log('Skipping product with missing name or price')
+          logger.debug({ product }, 'Skipping product with missing name or price')
           continue
         }
 
@@ -142,14 +188,29 @@ export async function POST(request: NextRequest) {
             },
           })
 
+          // Create price snapshot for tracking price history
+          await prisma.priceSnapshot.create({
+            data: {
+              equipmentId: equipment.id,
+              price: product.price,
+              currency: 'USD',
+            },
+          })
+
           savedEquipment.push(equipment)
-          console.log(`Saved equipment: ${equipment.name}`)
+          logger.debug({ equipmentId: equipment.id, name: equipment.name }, 'Saved equipment with price snapshot')
         } catch (error) {
-          console.error('Error saving equipment:', error)
+          logger.error(
+            {
+              productName: product.name,
+              error: error instanceof Error ? error.message : 'Unknown error'
+            },
+            'Failed to save equipment'
+          )
         }
       }
 
-      console.log(`Saved ${savedEquipment.length} equipment items`)
+      logger.info({ equipmentSaved: savedEquipment.length, total: scrapedProducts.length }, 'Equipment saving completed')
 
       // Create scrape history record
       try {
@@ -167,9 +228,39 @@ export async function POST(request: NextRequest) {
           },
         })
       } catch (error) {
-        console.error('Error saving scrape history:', error)
+        logger.error(
+          { error: error instanceof Error ? error.message : 'Unknown error' },
+          'Failed to save scrape history'
+        )
       }
     }
+
+    // Update CrawlJob to completed status
+    if (crawlJobId) {
+      await prisma.crawlJob.update({
+        where: { id: crawlJobId },
+        data: {
+          status: 'completed',
+          productsProcessed: scrapedProducts.length,
+          productsUpdated: savedEquipment.length,
+          completedAt: new Date(),
+          metadata: JSON.stringify({
+            totalProductLinks: allProductLinks.length,
+            companyName: companyInfo.name,
+          }),
+        },
+      })
+      logger.info({ crawlJobId, status: 'completed' }, 'Crawl job completed')
+    }
+
+    logger.info(
+      {
+        productsFound: scrapedProducts.length,
+        productsSaved: savedEquipment.length,
+        distributorId: savedDistributor?.id
+      },
+      'Scrape operation completed successfully'
+    )
 
     return NextResponse.json({
       success: true,
@@ -180,13 +271,39 @@ export async function POST(request: NextRequest) {
       products: scrapedProducts,
       distributor: savedDistributor,
       equipment: savedEquipment,
+      crawlJobId,
     })
   } catch (error) {
-    console.error('Scrape from URL error:', error)
+    logger.error(
+      {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined,
+        crawlJobId
+      },
+      'Scrape operation failed'
+    )
+
+    // Update CrawlJob to failed status
+    if (crawlJobId) {
+      try {
+        await prisma.crawlJob.update({
+          where: { id: crawlJobId },
+          data: {
+            status: 'failed',
+            errorMessage: error instanceof Error ? error.message : 'Unknown error',
+            completedAt: new Date(),
+          },
+        })
+      } catch (updateError) {
+        logger.error({ updateError }, 'Failed to update CrawlJob status')
+      }
+    }
+
     return NextResponse.json(
       {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to scrape URL',
+        crawlJobId,
       },
       { status: 500 }
     )

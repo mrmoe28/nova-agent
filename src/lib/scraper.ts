@@ -1,9 +1,16 @@
 import * as cheerio from 'cheerio'
+import { createLogger } from './logger'
+import { retry } from './retry'
+import { robotsChecker } from './robots-checker'
+
+const logger = createLogger('scraper')
 
 export interface ScraperConfig {
   rateLimit?: number // milliseconds between requests
   timeout?: number // request timeout in ms
   userAgent?: string
+  respectRobotsTxt?: boolean // Whether to check robots.txt before crawling
+  maxRetries?: number // Maximum number of retries for failed requests
 }
 
 export interface ScrapedProduct {
@@ -37,33 +44,79 @@ const DEFAULT_CONFIG: ScraperConfig = {
   rateLimit: 1000, // 1 second between requests
   timeout: 30000, // 30 seconds
   userAgent: 'NovaAgent/1.0 (+https://novaagent-kappa.vercel.app)',
+  respectRobotsTxt: true, // Always respect robots.txt
+  maxRetries: 3, // Retry failed requests up to 3 times
 }
 
 /**
- * Fetch HTML content from a URL
+ * Fetch HTML content from a URL with robots.txt compliance and retry logic
  */
 async function fetchHTML(url: string, config: ScraperConfig): Promise<string> {
-  const controller = new AbortController()
-  const timeoutId = setTimeout(() => controller.abort(), config.timeout || 30000)
+  // Check robots.txt if enabled
+  if (config.respectRobotsTxt) {
+    const robotsCheck = await robotsChecker.canCrawl(url, 'novaagent')
 
-  try {
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': config.userAgent || DEFAULT_CONFIG.userAgent!,
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
-      },
-      signal: controller.signal,
-    })
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`)
+    if (!robotsCheck.allowed) {
+      logger.warn(
+        { url, matchedRule: robotsCheck.matchedRule },
+        'URL blocked by robots.txt'
+      )
+      throw new Error(`Blocked by robots.txt: ${robotsCheck.matchedRule}`)
     }
 
-    return await response.text()
-  } finally {
-    clearTimeout(timeoutId)
+    // Respect crawl-delay if specified
+    if (robotsCheck.crawlDelay) {
+      const delay = Math.max(robotsCheck.crawlDelay, config.rateLimit || 0)
+      logger.debug({ url, crawlDelay: delay }, 'Applying crawl-delay from robots.txt')
+      await new Promise(resolve => setTimeout(resolve, delay))
+    }
   }
+
+  // Use retry logic for the fetch operation
+  return await retry(
+    async () => {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), config.timeout || 30000)
+
+      try {
+        logger.debug({ url }, 'Fetching HTML')
+
+        const response = await fetch(url, {
+          headers: {
+            'User-Agent': config.userAgent || DEFAULT_CONFIG.userAgent!,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+          },
+          signal: controller.signal,
+        })
+
+        if (!response.ok) {
+          const error = new Error(`HTTP ${response.status}: ${response.statusText}`) as Error & { status: number }
+          // Attach status code for retry logic
+          error.status = response.status
+          throw error
+        }
+
+        const html = await response.text()
+        logger.debug({ url, size: html.length }, 'Successfully fetched HTML')
+        return html
+      } finally {
+        clearTimeout(timeoutId)
+      }
+    },
+    {
+      maxRetries: config.maxRetries || 3,
+      baseDelay: 1000,
+      maxDelay: 10000,
+      factor: 2,
+      onRetry: (error, attempt) => {
+        logger.warn(
+          { url, error: error.message, attempt },
+          'Retrying fetch after error'
+        )
+      },
+    }
+  )
 }
 
 /**
@@ -268,13 +321,26 @@ export async function scrapeProductPage(
   const finalConfig = { ...DEFAULT_CONFIG, ...config }
 
   try {
+    logger.info({ url }, 'Scraping product page')
     const html = await fetchHTML(url, finalConfig)
     const $ = cheerio.load(html)
     const product = extractProductData($, url)
 
+    logger.info(
+      { url, hasName: !!product.name, hasPrice: !!product.price, hasImage: !!product.imageUrl },
+      'Product page scraped successfully'
+    )
+
     return product
   } catch (error) {
-    console.error('Scraper error:', error)
+    logger.error(
+      {
+        url,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      },
+      'Failed to scrape product page'
+    )
     throw new Error(`Failed to scrape ${url}: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
@@ -289,8 +355,11 @@ export async function scrapeMultipleProducts(
   const finalConfig = { ...DEFAULT_CONFIG, ...config }
   const results: ScrapedProduct[] = []
 
+  logger.info({ totalUrls: urls.length }, 'Starting batch scraping')
+
   for (let i = 0; i < urls.length; i++) {
     try {
+      logger.debug({ url: urls[i], progress: `${i + 1}/${urls.length}` }, 'Scraping product')
       const product = await scrapeProductPage(urls[i], finalConfig)
       results.push(product)
 
@@ -299,10 +368,22 @@ export async function scrapeMultipleProducts(
         await new Promise(resolve => setTimeout(resolve, finalConfig.rateLimit))
       }
     } catch (error) {
-      console.error(`Failed to scrape ${urls[i]}:`, error)
+      logger.error(
+        {
+          url: urls[i],
+          error: error instanceof Error ? error.message : 'Unknown error',
+          progress: `${i + 1}/${urls.length}`
+        },
+        'Failed to scrape product in batch'
+      )
       results.push({ name: `Error: ${urls[i]}` })
     }
   }
+
+  logger.info(
+    { totalUrls: urls.length, successCount: results.filter(r => !r.name?.startsWith('Error:')).length },
+    'Batch scraping completed'
+  )
 
   return results
 }
@@ -471,9 +552,26 @@ export async function scrapeCompanyInfo(
       }
     }
 
+    logger.info(
+      {
+        url,
+        hasName: !!company.name,
+        hasEmail: !!company.email,
+        productLinksFound: company.productLinks?.length || 0
+      },
+      'Company info scraped successfully'
+    )
+
     return company
   } catch (error) {
-    console.error('Error scraping company info:', error)
+    logger.error(
+      {
+        url,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack : undefined
+      },
+      'Failed to scrape company info'
+    )
     throw new Error(`Failed to scrape company info from ${url}: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
@@ -515,7 +613,7 @@ export async function deepCrawlForProducts(
   ]
   const paginationKeywords = ['page', 'p=', 'pg', 'offset', 'start', 'limit']
 
-  console.log(`Starting deep crawl from: ${startUrl}`)
+  logger.info({ startUrl, maxPages, maxDepth }, 'Starting deep crawl')
 
   while (urlQueue.length > 0 && visitedUrls.size < maxPages) {
     const { url, depth } = urlQueue.shift()!
@@ -525,7 +623,10 @@ export async function deepCrawlForProducts(
     }
 
     try {
-      console.log(`Crawling: ${url} (depth: ${depth}, visited: ${visitedUrls.size}/${maxPages})`)
+      logger.debug(
+        { url, depth, visited: visitedUrls.size, maxPages },
+        'Crawling page'
+      )
       visitedUrls.add(url)
 
       // Add rate limiting
@@ -619,11 +720,26 @@ export async function deepCrawlForProducts(
       })
 
     } catch (error) {
-      console.error(`Error crawling ${url}:`, error)
+      logger.error(
+        {
+          url,
+          error: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined
+        },
+        'Error during page crawl'
+      )
     }
   }
 
-  console.log(`Deep crawl complete: ${visitedUrls.size} pages visited, ${productLinks.size} products found`)
+  logger.info(
+    {
+      pagesVisited: visitedUrls.size,
+      productsFound: productLinks.size,
+      catalogPagesFound: catalogPages.size,
+      startUrl
+    },
+    'Deep crawl completed'
+  )
 
   return {
     productLinks: Array.from(productLinks),

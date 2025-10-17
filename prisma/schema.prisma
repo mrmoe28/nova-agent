@@ -156,11 +156,47 @@ model Equipment {
   updatedAt       DateTime    @updatedAt
 
   distributor     Distributor @relation(fields: [distributorId], references: [id], onDelete: Cascade)
+  priceSnapshots  PriceSnapshot[]
 
   @@index([distributorId])
   @@index([category])
   @@index([modelNumber])
   @@index([manufacturer])
+}
+
+// Track price history for equipment over time
+model PriceSnapshot {
+  id          String      @id @default(cuid())
+  equipmentId String
+  price       Float
+  currency    String      @default("USD")
+  capturedAt  DateTime    @default(now())
+
+  equipment   Equipment   @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+
+  @@index([equipmentId])
+  @@index([capturedAt])
+}
+
+// Track crawl job execution and status
+model CrawlJob {
+  id                String    @id @default(cuid())
+  type              String    // 'full' | 'category' | 'product' | 'distributor'
+  status            String    @default("pending") // 'pending' | 'running' | 'completed' | 'failed'
+  targetUrl         String?
+  distributorId     String?
+  productsProcessed Int       @default(0)
+  productsUpdated   Int       @default(0)
+  errorMessage      String?
+  metadata          String?   // JSON string for additional data
+  startedAt         DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime  @default(now())
+
+  @@index([type])
+  @@index([status])
+  @@index([distributorId])
+  @@index([startedAt])
 }
 
 // Track scraping history for auditing and debugging
