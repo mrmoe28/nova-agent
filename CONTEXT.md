@@ -485,3 +485,87 @@ for (const product of scrapedProducts) {
 - Added proper ESM imports for all modules
 - Implemented upsert patterns for all database writes where duplicates possible
 - Added logging to track update vs create operations
+
+---
+
+## Error Fix: 2025-10-17 - Build Failure Causing 405 API Errors
+
+### Error
+```
+Failed to compile.
+
+./check-scrape-history.ts:11:7
+Type error: Type '{ distributor: { select: { name: true; }; }; }' is not assignable to type 'never'.
+
+HTTP 405 (Method Not Allowed) on /api/upload
+Error uploading file: SyntaxError: Unexpected end of JSON input
+```
+
+### Root Cause
+1. **Build Failure**: The `check-scrape-history.ts` file in the project root was being included in the Next.js build
+2. **Missing Prisma Relation**: The `CrawlJob` model had a `distributorId` field but no relation to the `Distributor` model
+3. **TypeScript Error**: Prisma query tried to include a non-existent relation, causing TypeScript compilation to fail
+4. **API Route Impact**: When the build fails, API routes don't get compiled properly, causing 405 errors
+
+### Solution
+
+**1. Fixed Prisma Schema** - Added missing CrawlJob ↔ Distributor relation:
+
+`prisma/schema.prisma`:
+```prisma
+model CrawlJob {
+  // ... existing fields
+  distributor       Distributor? @relation(fields: [distributorId], references: [id], onDelete: SetNull)
+}
+
+model Distributor {
+  // ... existing fields
+  crawlJobs       CrawlJob[]
+}
+```
+
+**2. Excluded Script from Build** - Moved utility script and updated TypeScript config:
+
+```bash
+# Move script to scripts folder
+mkdir -p scripts
+mv check-scrape-history.ts scripts/
+```
+
+`tsconfig.json`:
+```json
+{
+  "exclude": ["node_modules", "scripts"]
+}
+```
+
+**3. Regenerated Prisma Client**:
+```bash
+npx prisma generate
+npm run build
+```
+
+### Verification
+- ✅ Build succeeds without errors
+- ✅ All API routes compiled successfully (`/api/upload` visible in build output)
+- ✅ TypeScript type checking passes
+- ✅ ESLint passes
+- ✅ Dev server starts successfully
+
+### Prevention
+1. **Always exclude utility scripts** from TypeScript compilation by placing in `scripts/` folder
+2. **Define all Prisma relations** explicitly when fields reference other models
+3. **Run `npm run build`** before deploying to catch compilation errors early
+4. **Check build output** to verify API routes are compiled
+
+### Files Modified
+- `prisma/schema.prisma` - Added CrawlJob-Distributor relation
+- `tsconfig.json` - Excluded scripts folder from compilation
+- Moved `check-scrape-history.ts` → `scripts/check-scrape-history.ts`
+
+### Result
+- API upload endpoint now works correctly
+- No more 405 errors
+- Build completes successfully
+- All API routes functional
+

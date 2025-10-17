@@ -55,6 +55,10 @@ export function isProductPageUrl(url: string): boolean {
     const categoryPatterns = [
       /^\/(shop|products|catalog|store|category|collection|batteries|solar-panels|inverters|all-products|browse)$/,
       /^\/(shop|products|catalog|batteries|solar-panels|inverters|all-products)\/(new|featured|best-sellers|clearance)$/,
+      /^\/(all-products|products|shop)\/.+\/$/, // Category subdirectories with trailing slash
+      /^\/(kits-bundles|kits|bundles)\//,  // Kit/bundle category pages
+      /^\/(all-products|products|kits-bundles|shop)\/(kits|bundles|batteries|panels|inverters|chargers|cables)/,  // Common category paths
+      /\/(complete-off-grid|complete-hybrid|complete-grid-tie|new-arrivals)\//,  // Specific category paths
       /^\/[^\/]+\/(wall-mount|server-rack|stackable|free-standing|12-volt|24-volt|48-volt)$/,
       /page[\/=]\d+/,  // Pagination
       /_bc_fsnf=/,      // BigCommerce filter
@@ -873,7 +877,8 @@ export async function deepCrawlForProducts(
           const linkClasses = $(link).attr('class') || ''
           const hasProductClass = linkClasses.match(/product|item|card/i)
 
-          if (isProductLink || hasProductClass) {
+          // Use the proper isProductPageUrl() function to filter out category pages
+          if ((isProductLink || hasProductClass) && isProductPageUrl(absoluteUrl)) {
             productLinks.add(absoluteUrl)
           }
 

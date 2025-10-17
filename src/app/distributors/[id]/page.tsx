@@ -6,6 +6,16 @@ import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   ArrowLeft,
   Mail,
@@ -61,6 +71,8 @@ export default function DistributorDetailPage() {
   const [loading, setLoading] = useState(true)
   const [scraping, setScraping] = useState(false)
   const [useBrowser, setUseBrowser] = useState(true) // Default to true for image extraction
+  const [showAddUrlDialog, setShowAddUrlDialog] = useState(false)
+  const [newUrl, setNewUrl] = useState("")
 
   const fetchDistributor = useCallback(async () => {
     try {
@@ -116,6 +128,50 @@ export default function DistributorDetailPage() {
     } catch (error) {
       console.error("Error rescraping:", error)
       alert("Failed to rescrape distributor")
+    } finally {
+      setScraping(false)
+    }
+  }
+
+  const handleAddUrl = async () => {
+    if (!newUrl.trim()) {
+      alert("Please enter a URL")
+      return
+    }
+
+    if (!distributor) return
+
+    setScraping(true)
+    setShowAddUrlDialog(false)
+
+    try {
+      const response = await fetch("/api/distributors/scrape-from-url", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          url: newUrl,
+          saveToDatabase: true,
+          scrapeProducts: true,
+          distributorId: distributor.id,
+          maxProducts: 500,
+          useBrowser,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        alert(`Successfully scraped new URL! Found ${data.productsFound} products. Refreshing...`)
+        setNewUrl("") // Clear the input
+        setTimeout(() => {
+          fetchDistributor()
+        }, 1000)
+      } else {
+        alert(`Scrape failed: ${data.error}`)
+      }
+    } catch (error) {
+      console.error("Error scraping new URL:", error)
+      alert("Failed to scrape new URL")
     } finally {
       setScraping(false)
     }
@@ -210,9 +266,13 @@ export default function DistributorDetailPage() {
               </label>
             )}
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => router.push(`/distributors`)}>
+              <Button
+                variant="outline"
+                onClick={() => setShowAddUrlDialog(true)}
+                disabled={scraping}
+              >
                 <Pencil className="mr-2 h-4 w-4" />
-                Edit
+                Add URL
               </Button>
               {distributor.website && (
                 <Button
@@ -446,6 +506,48 @@ export default function DistributorDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Add URL Dialog */}
+      <Dialog open={showAddUrlDialog} onOpenChange={setShowAddUrlDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New URL to Scrape</DialogTitle>
+            <DialogDescription>
+              Enter a product page or category URL from {distributor?.name} to scrape additional products.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="newUrl">URL</Label>
+              <Input
+                id="newUrl"
+                placeholder="https://example.com/products/solar-panels"
+                value={newUrl}
+                onChange={(e) => setNewUrl(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleAddUrl()
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowAddUrlDialog(false)
+                setNewUrl("")
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleAddUrl} disabled={!newUrl.trim()}>
+              Scrape URL
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

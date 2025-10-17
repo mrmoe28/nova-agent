@@ -127,6 +127,7 @@ model Distributor {
 
   equipment       Equipment[]
   scrapeHistory   ScrapeHistory[]
+  crawlJobs       CrawlJob[]
 
   @@index([name])
   @@index([website])
@@ -180,18 +181,20 @@ model PriceSnapshot {
 
 // Track crawl job execution and status
 model CrawlJob {
-  id                String    @id @default(cuid())
-  type              String    // 'full' | 'category' | 'product' | 'distributor'
-  status            String    @default("pending") // 'pending' | 'running' | 'completed' | 'failed'
+  id                String       @id @default(cuid())
+  type              String       // 'full' | 'category' | 'product' | 'distributor'
+  status            String       @default("pending") // 'pending' | 'running' | 'completed' | 'failed'
   targetUrl         String?
   distributorId     String?
-  productsProcessed Int       @default(0)
-  productsUpdated   Int       @default(0)
+  productsProcessed Int          @default(0)
+  productsUpdated   Int          @default(0)
   errorMessage      String?
-  metadata          String?   // JSON string for additional data
+  metadata          String?      // JSON string for additional data
   startedAt         DateTime?
   completedAt       DateTime?
-  createdAt         DateTime  @default(now())
+  createdAt         DateTime     @default(now())
+
+  distributor       Distributor? @relation(fields: [distributorId], references: [id], onDelete: SetNull)
 
   @@index([type])
   @@index([status])

@@ -66,35 +66,73 @@ export default function FileUpload({ projectId, onUploadComplete }: FileUploadPr
         formData.append("file", file)
         formData.append("projectId", projectId)
 
-        const response = await fetch("/api/upload", {
-          method: "POST",
-          body: formData,
+        // Show loading toast for long-running OCR
+        toast.loading(`Uploading ${file.name}...`, {
+          description: "OCR processing may take up to 1 minute for PDFs",
+          id: `upload-${file.name}`,
         })
 
-        const data = await response.json()
+        // OCR processing can take 60+ seconds, so use a generous timeout
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 120000) // 2 minute timeout
 
-        if (data.success) {
-          uploaded.push(data.bill)
+        try {
+          const response = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+            signal: controller.signal,
+          })
 
-          // Show appropriate toast based on upload status
-          if (data.warning) {
-            toast.warning(`${file.name} uploaded with issues`, {
-              description: data.warning,
-              duration: 6000,
-            })
-          } else if (data.bill.ocrProcessed) {
-            toast.success(`${file.name} uploaded successfully`, {
-              description: "OCR processing completed",
-            })
+          clearTimeout(timeoutId)
+
+          if (!response.ok) {
+            throw new Error(`Upload failed with status ${response.status}`)
+          }
+
+          const data = await response.json()
+
+          // Dismiss loading toast
+          toast.dismiss(`upload-${file.name}`)
+
+          if (data.success) {
+            uploaded.push(data.bill)
+
+            // Show appropriate toast based on upload status
+            if (data.warning) {
+              toast.warning(`${file.name} uploaded with issues`, {
+                description: data.warning,
+                duration: 6000,
+              })
+            } else if (data.bill.ocrProcessed) {
+              toast.success(`${file.name} uploaded successfully`, {
+                description: "OCR processing completed",
+              })
+            } else {
+              toast.success(`${file.name} uploaded`, {
+                description: "File saved successfully",
+              })
+            }
           } else {
-            toast.success(`${file.name} uploaded`, {
-              description: "File saved successfully",
+            toast.error(`Failed to upload ${file.name}`, {
+              description: data.error,
             })
           }
-        } else {
-          toast.error(`Failed to upload ${file.name}`, {
-            description: data.error,
-          })
+        } catch (uploadError) {
+          clearTimeout(timeoutId)
+
+          // Dismiss loading toast
+          toast.dismiss(`upload-${file.name}`)
+
+          if (uploadError instanceof Error && uploadError.name === 'AbortError') {
+            toast.error(`Upload timeout for ${file.name}`, {
+              description: "OCR processing is taking longer than expected. Please try again.",
+              duration: 6000,
+            })
+          } else {
+            toast.error(`Failed to upload ${file.name}`, {
+              description: uploadError instanceof Error ? uploadError.message : "Unknown error occurred",
+            })
+          }
         }
       }
 
