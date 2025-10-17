@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { scrapeCompanyInfo, scrapeMultipleProducts, detectCategory, deepCrawlForProducts } from '@/lib/scraper'
+import { scrapeCompanyInfo, scrapeMultipleProducts, detectCategory, deepCrawlForProducts, isProductPageUrl } from '@/lib/scraper'
 import { getBrowserScraper, closeBrowserScraper } from '@/lib/browser-scraper-bql'
 import { createLogger, logOperation } from '@/lib/logger'
 
@@ -68,36 +68,46 @@ export async function POST(request: NextRequest) {
 
     logger.info({ companyName: companyInfo.name }, 'Found company')
 
-    // Step 2: Deep crawl to find ALL product links across multiple pages
+    // Step 2: Detect if URL is a product page or category page
     let allProductLinks: string[] = []
     if (scrapeProducts) {
-      logger.info({ url }, 'Starting deep crawl for products')
+      const isProductPage = isProductPageUrl(url)
+      logger.info({ url, isProductPage }, 'Analyzing URL type')
 
-      const crawlResult = await logOperation(
-        logger,
-        'deep-crawl',
-        () => deepCrawlForProducts(url, {
-          maxPages: 3,   // Ultra-fast mode for Vercel Hobby (10s limit)
-          maxDepth: 1,   // Shallow crawl to stay under timeout
-          config: {
-            rateLimit: 300, // Very fast for UI preview
-            timeout: 8000,  // Must complete in under 10 seconds total
-            respectRobotsTxt: true,
-            maxRetries: 1,  // Minimal retries
+      if (isProductPage) {
+        // URL is already a product page - scrape it directly
+        logger.info({ url }, 'Detected product page - scraping directly')
+        allProductLinks = [url]
+      } else {
+        // URL is a category page - deep crawl to find products
+        logger.info({ url }, 'Detected category page - starting deep crawl for products')
+
+        const crawlResult = await logOperation(
+          logger,
+          'deep-crawl',
+          () => deepCrawlForProducts(url, {
+            maxPages: 10,   // Increased from 3 to find more products
+            maxDepth: 2,    // Increased from 1 to explore deeper
+            config: {
+              rateLimit: 300,
+              timeout: 8000,
+              respectRobotsTxt: true,
+              maxRetries: 1,
+            },
+          }),
+          { url, maxPages: 10, maxDepth: 2 }
+        )
+
+        allProductLinks = crawlResult.productLinks
+        logger.info(
+          {
+            productLinks: allProductLinks.length,
+            pagesVisited: crawlResult.pagesVisited.length,
+            catalogPages: crawlResult.catalogPages.length
           },
-        }),
-        { url, maxPages: 3, maxDepth: 1 }
-      )
-
-      allProductLinks = crawlResult.productLinks
-      logger.info(
-        {
-          productLinks: allProductLinks.length,
-          pagesVisited: crawlResult.pagesVisited.length,
-          catalogPages: crawlResult.catalogPages.length
-        },
-        'Deep crawl completed'
-      )
+          'Deep crawl completed'
+        )
+      }
     }
 
     // Step 3: Scrape products (limit to maxProducts if specified)

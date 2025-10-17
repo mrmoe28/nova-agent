@@ -4,14 +4,15 @@ const logLevel = (process.env.LOG_LEVEL as 'info' | 'debug' | 'warn' | 'error') 
 
 export const logger = pino({
   level: logLevel,
-  transport: process.env.NODE_ENV === 'development' ? {
-    target: 'pino-pretty',
-    options: {
-      colorize: true,
-      translateTime: 'SYS:standard',
-      ignore: 'pid,hostname',
-    },
-  } : undefined,
+  // Temporarily disable pino-pretty to avoid worker thread issues with Turbopack
+  // transport: process.env.NODE_ENV === 'development' ? {
+  //   target: 'pino-pretty',
+  //   options: {
+  //     colorize: true,
+  //     translateTime: 'SYS:standard',
+  //     ignore: 'pid,hostname',
+  //   },
+  // } : undefined,
   formatters: {
     level: (label) => ({ level: label }),
   },

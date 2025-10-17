@@ -58,99 +58,105 @@ export class BrowserScraperBQL {
   ): Promise<{ html: string; imageUrl: string | null }> {
     logger.info({ url }, 'Fetching page with BrowserQL')
 
-    const query = `
-      mutation FetchPage($url: String!, $waitTime: Int!) {
+    // Step 1: Navigate and get HTML
+    const gotoQuery = `
+      mutation GotoPage($url: String!) {
         goto(url: $url, waitUntil: networkidle0) {
           status
         }
-
-        # Wait for initial content
-        wait(timeout: $waitTime)
-
-        # Scroll to trigger lazy loading
-        evaluate(expression: "
-          async function scrollAndExtract() {
-            // Scroll to trigger lazy loading
-            let previousHeight = 0;
-            let attempts = 0;
-            const maxAttempts = 5;
-
-            while (attempts < maxAttempts) {
-              const currentHeight = document.body.scrollHeight;
-
-              if (currentHeight === previousHeight) {
-                attempts++;
-                if (attempts >= 3) break;
-              } else {
-                attempts = 0;
-              }
-
-              previousHeight = currentHeight;
-              window.scrollTo(0, currentHeight);
-              await new Promise(r => setTimeout(r, 1500));
-            }
-
-            // Scroll back to top
-            window.scrollTo(0, 0);
-            await new Promise(r => setTimeout(r, 500));
-
-            // Extract image URL from live DOM
-            const selectors = [
-              'meta[property=\\"og:image\\"]',
-              '[itemprop=\\"image\\"]',
-              'img[class*=\\"product\\"]',
-              'img.main-image',
-              '.product-images img',
-              '.product-image img',
-              'picture img',
-              'img[data-src]',
-              'img[src]'
-            ];
-
-            for (const selector of selectors) {
-              const element = document.querySelector(selector);
-              if (element) {
-                if (selector.startsWith('meta')) {
-                  const content = element.getAttribute('content');
-                  if (content && content.trim()) return content;
-                } else {
-                  const img = element;
-                  if (img.src && !img.src.includes('data:image') && !img.src.includes('placeholder')) {
-                    return img.src;
-                  }
-                  const dataSrc = img.getAttribute('data-src') ||
-                                img.getAttribute('data-lazy') ||
-                                img.getAttribute('data-original') ||
-                                img.getAttribute('data-image');
-                  if (dataSrc) return dataSrc;
-                }
-              }
-            }
-
-            return null;
-          }
-
-          scrollAndExtract();
-        ") {
-          value
-        }
-
+        wait(timeout: 2000)
         html {
           content
         }
       }
     `
 
-    const data = await this.executeBQL(query, {
-      url,
-      waitTime: 2000,
-    }) as {
+    const gotoData = await this.executeBQL(gotoQuery, { url }) as {
       html: { content: string }
+    }
+
+    const html = gotoData.html.content
+
+    // Step 2: Execute JavaScript to extract image URL (separate mutation)
+    // Use proper JavaScript as a variable to avoid quote escaping issues
+    const imageExtractionScript = `
+      (async function scrollAndExtract() {
+        // Scroll to trigger lazy loading
+        let previousHeight = 0;
+        let attempts = 0;
+        const maxAttempts = 5;
+
+        while (attempts < maxAttempts) {
+          const currentHeight = document.body.scrollHeight;
+
+          if (currentHeight === previousHeight) {
+            attempts++;
+            if (attempts >= 3) break;
+          } else {
+            attempts = 0;
+          }
+
+          previousHeight = currentHeight;
+          window.scrollTo(0, currentHeight);
+          await new Promise(r => setTimeout(r, 1500));
+        }
+
+        // Scroll back to top
+        window.scrollTo(0, 0);
+        await new Promise(r => setTimeout(r, 500));
+
+        // Extract image URL from live DOM
+        const selectors = [
+          'meta[property="og:image"]',
+          '[itemprop="image"]',
+          'img[class*="product"]',
+          'img.main-image',
+          '.product-images img',
+          '.product-image img',
+          'picture img',
+          'img[data-src]',
+          'img[src]'
+        ];
+
+        for (const selector of selectors) {
+          const element = document.querySelector(selector);
+          if (element) {
+            if (selector.startsWith('meta')) {
+              const content = element.getAttribute('content');
+              if (content && content.trim()) return content;
+            } else {
+              const img = element;
+              if (img.src && !img.src.includes('data:image') && !img.src.includes('placeholder')) {
+                return img.src;
+              }
+              const dataSrc = img.getAttribute('data-src') ||
+                            img.getAttribute('data-lazy') ||
+                            img.getAttribute('data-original') ||
+                            img.getAttribute('data-image');
+              if (dataSrc) return dataSrc;
+            }
+          }
+        }
+
+        return null;
+      })()
+    `
+
+    const evaluateQuery = `
+      mutation EvaluateScript($script: String!) {
+        evaluate(expression: $script) {
+          value
+        }
+      }
+    `
+
+    const evaluateData = await this.executeBQL(evaluateQuery, {
+      script: imageExtractionScript,
+    }) as {
       evaluate?: { value: string }
     }
 
-    const html = data.html.content
-    const imageUrl = data.evaluate?.value || null
+    const imageUrl = evaluateData.evaluate?.value || null
 
     logger.info(
       {

@@ -38,6 +38,56 @@ function getRandomUserAgent(): string {
 }
 
 /**
+ * Detect if a URL is likely a product page vs a category/listing page
+ * Product pages have longer, more specific paths with dashes
+ * Category pages have shorter, generic paths
+ */
+export function isProductPageUrl(url: string): boolean {
+  try {
+    const urlObj = new URL(url)
+    const pathname = urlObj.pathname.toLowerCase()
+
+    // Remove trailing slash for consistent matching
+    const cleanPath = pathname.replace(/\/$/, '')
+
+    // Category page indicators (shorter, generic paths)
+    const categoryPatterns = [
+      /^\/(shop|products|catalog|store|category|collection|batteries|solar-panels|inverters|all-products|browse)$/,
+      /^\/(shop|products|catalog|batteries|solar-panels|inverters|all-products)\/(new|featured|best-sellers|clearance)$/,
+      /^\/[^\/]+\/(wall-mount|server-rack|stackable|free-standing|12-volt|24-volt|48-volt)$/,
+      /page[\/=]\d+/,  // Pagination
+      /_bc_fsnf=/,      // BigCommerce filter
+      /\?.*brand=/,     // Brand filters
+    ]
+
+    // If it matches category patterns, it's NOT a product page
+    if (categoryPatterns.some(pattern => pattern.test(pathname) || pattern.test(url))) {
+      return false
+    }
+
+    // Product page indicators (longer, specific paths with multiple dashes)
+    const productPatterns = [
+      /\/[a-z0-9]+-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+/,  // 4+ segments with dashes (eg4-ll-s-lithium-battery)
+      /\/(product|item|detail|p|pd|dp|gp|itm)\//,
+      /-\d{2,}ah|-\d{2,}v|-\d+kw/,  // Contains specs like -100ah, -48v, -5kw
+      /\/(eg4|bigbattery|canadian-solar|pytes|enphase)-[a-z0-9-]+$/,  // Brand-specific products
+    ]
+
+    // If it matches product patterns, it's a product page
+    if (productPatterns.some(pattern => pattern.test(pathname))) {
+      return true
+    }
+
+    // Default: paths with 3+ dashes are likely products
+    const dashCount = (cleanPath.match(/-/g) || []).length
+    return dashCount >= 3
+
+  } catch {
+    return false
+  }
+}
+
+/**
  * Get realistic browser headers to mimic human traffic
  */
 function getRealisticHeaders(userAgent: string): Record<string, string> {
