@@ -5,8 +5,110 @@ import { robotsChecker } from './robots-checker'
 
 const logger = createLogger('scraper')
 
+/**
+ * Pool of realistic User-Agent strings for rotation (2025)
+ * Mix of Chrome, Firefox, Safari, and Edge on Windows, macOS, and Linux
+ */
+const USER_AGENTS = [
+  // Chrome on Windows
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+  // Chrome on macOS
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+  // Firefox on Windows
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:132.0) Gecko/20100101 Firefox/132.0',
+  // Firefox on macOS
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 14.7; rv:133.0) Gecko/20100101 Firefox/133.0',
+  // Safari on macOS
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_2) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.2 Safari/605.1.15',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15',
+  // Edge on Windows
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36 Edg/131.0.0.0',
+  // Chrome on Linux
+  'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+]
+
+/**
+ * Get a random User-Agent string from the pool
+ */
+function getRandomUserAgent(): string {
+  return USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)]
+}
+
+/**
+ * Get realistic browser headers to mimic human traffic
+ */
+function getRealisticHeaders(userAgent: string): Record<string, string> {
+  return {
+    'User-Agent': userAgent,
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/png,image/svg+xml,*/*;q=0.8',
+    'Accept-Language': 'en-US,en;q=0.9',
+    'Accept-Encoding': 'gzip, deflate, br, zstd',
+    'DNT': '1', // Do Not Track
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'none',
+    'Sec-Fetch-User': '?1',
+    'Cache-Control': 'max-age=0',
+    'TE': 'trailers',
+  }
+}
+
+/**
+ * Add random delay to mimic human behavior
+ * Returns a delay between min and max milliseconds
+ */
+function getRandomDelay(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+/**
+ * Sleep for a specified duration
+ */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+/**
+ * Check if a link is a honeypot (hidden trap for bots)
+ * Honeypots use CSS to hide links that humans can't see but bots might follow
+ */
+function isHoneypotLink($link: cheerio.Cheerio): boolean {
+  const style = $link.attr('style') || ''
+  const cssClass = $link.attr('class') || ''
+
+  // Check for display: none
+  if (style.includes('display:none') || style.includes('display: none')) {
+    return true
+  }
+
+  // Check for visibility: hidden
+  if (style.includes('visibility:hidden') || style.includes('visibility: hidden')) {
+    return true
+  }
+
+  // Check for off-screen positioning
+  if (style.includes('left:-9999') || style.includes('left: -9999') ||
+      style.includes('top:-9999') || style.includes('top: -9999')) {
+    return true
+  }
+
+  // Check for common honeypot class names
+  const honeypotClasses = ['honeypot', 'hidden', 'hide', 'invisible', 'sr-only']
+  if (honeypotClasses.some(cls => cssClass.includes(cls))) {
+    return true
+  }
+
+  return false
+}
+
 export interface ScraperConfig {
-  rateLimit?: number // milliseconds between requests
+  rateLimit?: number // milliseconds between requests (used as base for random delays)
+  randomDelay?: boolean // Add random delays between requests (10-20s recommended for production)
   timeout?: number // request timeout in ms
   userAgent?: string
   respectRobotsTxt?: boolean // Whether to check robots.txt before crawling
@@ -42,7 +144,8 @@ export interface ScrapedCompany {
 }
 
 const DEFAULT_CONFIG: ScraperConfig = {
-  rateLimit: 1000, // 1 second between requests
+  rateLimit: 1000, // 1 second base delay (increased if randomDelay is true)
+  randomDelay: false, // Set to true for production to avoid detection
   timeout: 30000, // 30 seconds
   userAgent: 'NovaAgent/1.0 (+https://novaagent-kappa.vercel.app)',
   respectRobotsTxt: true, // Always respect robots.txt
@@ -80,14 +183,14 @@ async function fetchHTML(url: string, config: ScraperConfig): Promise<string> {
       const timeoutId = setTimeout(() => controller.abort(), config.timeout || 30000)
 
       try {
-        logger.debug({ url }, 'Fetching HTML')
+        // Use random User-Agent rotation for better anti-bot evasion
+        const userAgent = config.userAgent || getRandomUserAgent()
+        const headers = getRealisticHeaders(userAgent)
+
+        logger.debug({ url, userAgent }, 'Fetching HTML with rotated User-Agent')
 
         const response = await fetch(url, {
-          headers: {
-            'User-Agent': config.userAgent || DEFAULT_CONFIG.userAgent!,
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-          },
+          headers,
           signal: controller.signal,
         })
 
@@ -367,9 +470,14 @@ export async function scrapeMultipleProducts(
       const product = await scrapeProductPage(urls[i], finalConfig)
       results.push(product)
 
-      // Rate limiting
+      // Rate limiting with optional random delays to mimic human behavior
       if (i < urls.length - 1 && finalConfig.rateLimit) {
-        await new Promise(resolve => setTimeout(resolve, finalConfig.rateLimit))
+        const delay = finalConfig.randomDelay
+          ? getRandomDelay(finalConfig.rateLimit, finalConfig.rateLimit * 2)
+          : finalConfig.rateLimit
+
+        logger.debug({ delay, randomized: finalConfig.randomDelay }, 'Applying rate limit delay')
+        await sleep(delay)
       }
     } catch (error) {
       logger.error(
@@ -633,9 +741,14 @@ export async function deepCrawlForProducts(
       )
       visitedUrls.add(url)
 
-      // Add rate limiting
+      // Add rate limiting with optional random delays
       if (visitedUrls.size > 1 && finalConfig.rateLimit) {
-        await new Promise(resolve => setTimeout(resolve, finalConfig.rateLimit))
+        const delay = finalConfig.randomDelay
+          ? getRandomDelay(finalConfig.rateLimit, finalConfig.rateLimit * 2)
+          : finalConfig.rateLimit
+
+        logger.debug({ delay, randomized: finalConfig.randomDelay }, 'Applying crawl delay')
+        await sleep(delay)
       }
 
       const html = await fetchHTML(url, finalConfig)
@@ -654,8 +767,15 @@ export async function deepCrawlForProducts(
 
       // Extract all links from this page
       $('a[href]').each((_, link) => {
-        const href = $(link).attr('href')
+        const $link = $(link)
+        const href = $link.attr('href')
         if (!href) return
+
+        // Skip honeypot links (hidden traps for bots)
+        if (isHoneypotLink($link)) {
+          logger.debug({ url, href }, 'Skipping honeypot link')
+          return
+        }
 
         try {
           // Make URL absolute
