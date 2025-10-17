@@ -10,6 +10,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum EquipmentCategory {
+  SOLAR_PANEL
+  BATTERY
+  INVERTER
+  CHARGE_CONTROLLER
+  MOUNTING
+  WIRING
+  ELECTRICAL
+  MONITORING
+  ACCESSORIES
+  OTHER
+}
+
 model Project {
   id          String   @id @default(cuid())
   clientName  String
@@ -134,9 +147,9 @@ model Distributor {
 }
 
 model Equipment {
-  id              String      @id @default(cuid())
+  id              String              @id @default(cuid())
   distributorId   String
-  category        String      // solar, battery, inverter, mounting, electrical, other
+  category        EquipmentCategory   @default(OTHER)
   name            String
   manufacturer    String?
   modelNumber     String

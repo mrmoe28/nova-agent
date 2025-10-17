@@ -3,6 +3,8 @@ import { createLogger } from "./logger";
 import { retry } from "./retry";
 import { robotsChecker } from "./robots-checker";
 import { SCRAPER_CONFIG } from "./config";
+import { categorizeProduct } from "./categorize-product";
+import type { EquipmentCategory } from "@prisma/client";
 
 const logger = createLogger("scraper");
 
@@ -627,43 +629,8 @@ export async function scrapeMultipleProducts(
 /**
  * Detect category from product data
  */
-export function detectCategory(product: ScrapedProduct): string {
-  const text = `${product.name} ${product.description}`.toLowerCase();
-
-  if (
-    text.includes("solar panel") ||
-    text.includes("photovoltaic") ||
-    text.includes("pv module")
-  ) {
-    return "solar";
-  }
-  if (
-    text.includes("battery") ||
-    text.includes("energy storage") ||
-    text.includes("lithium")
-  ) {
-    return "battery";
-  }
-  if (text.includes("inverter") || text.includes("power converter")) {
-    return "inverter";
-  }
-  if (
-    text.includes("mounting") ||
-    text.includes("rack") ||
-    text.includes("bracket")
-  ) {
-    return "mounting";
-  }
-  if (
-    text.includes("wire") ||
-    text.includes("cable") ||
-    text.includes("breaker") ||
-    text.includes("disconnect")
-  ) {
-    return "electrical";
-  }
-
-  return "other";
+export function detectCategory(product: ScrapedProduct): EquipmentCategory {
+  return categorizeProduct(product.name ?? "Unknown Product", product.description ?? null);
 }
 
 /**

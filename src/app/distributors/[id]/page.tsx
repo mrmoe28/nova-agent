@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,16 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
+import { getAllCategories, getCategoryDisplayName } from "@/lib/categorize-product";
+import type { EquipmentCategory } from "@prisma/client";
 import {
   Dialog,
   DialogContent,
@@ -49,7 +59,7 @@ interface Distributor {
 
 interface Equipment {
   id: string;
-  category: string;
+  category: EquipmentCategory;
   name: string;
   manufacturer?: string;
   modelNumber: string;
@@ -74,6 +84,18 @@ export default function DistributorDetailPage() {
   const [useAI, setUseAI] = useState(false); // AI Agent mode available if needed
   const [showAddUrlDialog, setShowAddUrlDialog] = useState(false);
   const [newUrl, setNewUrl] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [scrapingProgress, setScrapingProgress] = useState(0);
+  const [scrapingStatus, setScrapingStatus] = useState("");
+
+  // Filter equipment by category
+  const filteredEquipment = useMemo(() => {
+    if (!distributor?.equipment) return [];
+    if (selectedCategory === "all") return distributor.equipment;
+    return distributor.equipment.filter(
+      (item) => item.category === selectedCategory
+    );
+  }, [distributor?.equipment, selectedCategory]);
 
   const fetchDistributor = useCallback(async () => {
     try {
@@ -101,7 +123,19 @@ export default function DistributorDetailPage() {
     }
 
     setScraping(true);
+    setScrapingProgress(0);
+    setScrapingStatus("Initializing scraper...");
+
+    // Simulate progress updates
+    const progressInterval = setInterval(() => {
+      setScrapingProgress((prev) => {
+        if (prev >= 90) return prev; // Cap at 90% until complete
+        return prev + 5;
+      });
+    }, 2000);
+
     try {
+      setScrapingStatus("Connecting to distributor website...");
       const response = await fetch("/api/distributors/scrape-from-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -133,7 +167,15 @@ export default function DistributorDetailPage() {
       console.error("Error rescraping:", error);
       alert("Failed to rescrape distributor");
     } finally {
+      clearInterval(progressInterval);
+      setScrapingProgress(100);
+      setScrapingStatus("Complete!");
       setScraping(false);
+      // Reset progress after a delay
+      setTimeout(() => {
+        setScrapingProgress(0);
+        setScrapingStatus("");
+      }, 2000);
     }
   };
 
@@ -312,6 +354,21 @@ export default function DistributorDetailPage() {
             </div>
           </div>
         </div>
+
+        {/* Scraping Progress Bar */}
+        {scraping && (
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground font-medium">
+                {scrapingStatus}
+              </span>
+              <span className="text-muted-foreground">
+                {scrapingProgress}%
+              </span>
+            </div>
+            <Progress value={scrapingProgress} className="h-2" />
+          </div>
+        )}
       </div>
 
       {/* Contact Info */}
@@ -393,11 +450,36 @@ export default function DistributorDetailPage() {
 
       {/* Equipment Catalog */}
       <div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 gap-4">
           <h2 className="text-2xl font-bold flex items-center gap-2">
             <Package className="h-6 w-6" />
             Equipment Catalog ({distributor.equipment.length})
           </h2>
+
+          {/* Category Filter */}
+          {distributor.equipment.length > 0 && (
+            <div className="flex items-center gap-2">
+              <Label htmlFor="category-filter" className="text-sm whitespace-nowrap">
+                Filter by:
+              </Label>
+              <Select
+                value={selectedCategory}
+                onValueChange={setSelectedCategory}
+              >
+                <SelectTrigger id="category-filter" className="w-[200px]">
+                  <SelectValue placeholder="All Categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Categories</SelectItem>
+                  {getAllCategories().map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
         {distributor.equipment.length === 0 ? (
@@ -406,9 +488,15 @@ export default function DistributorDetailPage() {
               No equipment found. Try scraping the website to import products.
             </p>
           </Card>
+        ) : filteredEquipment.length === 0 ? (
+          <Card className="p-8 text-center">
+            <p className="text-muted-foreground">
+              No equipment found in this category.
+            </p>
+          </Card>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {distributor.equipment.map((item) => (
+            {filteredEquipment.map((item) => (
               <Card
                 key={item.id}
                 className="group p-0 bg-white border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-blue-300 cursor-pointer"
@@ -462,7 +550,7 @@ export default function DistributorDetailPage() {
                       variant="secondary"
                       className="text-xs bg-white/90 backdrop-blur-sm"
                     >
-                      {item.category}
+                      {getCategoryDisplayName(item.category)}
                     </Badge>
                   </div>
                 </div>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import type { EquipmentCategory } from "@prisma/client";
 
 /**
  * GET /api/equipment - List equipment with filters
@@ -12,12 +13,12 @@ export async function GET(request: NextRequest) {
 
     const where: {
       distributorId?: string;
-      category?: string;
+      category?: EquipmentCategory;
       isActive?: boolean;
     } = {};
 
     if (distributorId) where.distributorId = distributorId;
-    if (category) where.category = category;
+    if (category) where.category = category as EquipmentCategory;
     where.isActive = true;
 
     const equipment = await prisma.equipment.findMany({
