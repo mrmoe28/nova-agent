@@ -201,6 +201,7 @@ export async function POST(request: NextRequest) {
               specifications: product.specifications ? JSON.stringify(product.specifications) : null,
               unitPrice: product.price,
               imageUrl: product.imageUrl || null,
+              sourceUrl: product.sourceUrl || null,
               dataSheetUrl: product.dataSheetUrl || null,
               inStock: product.inStock !== false,
               lastScrapedAt: new Date(),

@@ -20,6 +20,7 @@ export interface ScrapedProduct {
   description?: string
   price?: number
   imageUrl?: string
+  sourceUrl?: string // Original product page URL
   specifications?: Record<string, string>
   category?: string
   inStock?: boolean
@@ -124,6 +125,9 @@ async function fetchHTML(url: string, config: ScraperConfig): Promise<string> {
  */
 function extractProductData($: cheerio.Root, url: string): ScrapedProduct {
   const product: ScrapedProduct = {}
+
+  // Store the source URL
+  product.sourceUrl = url
 
   // First, try to extract from schema.org JSON-LD (most reliable)
   $('script[type="application/ld+json"]').each((_, script) => {

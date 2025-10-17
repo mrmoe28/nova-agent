@@ -46,6 +46,7 @@ interface Equipment {
   description?: string
   unitPrice: number
   imageUrl?: string
+  sourceUrl?: string
   inStock: boolean
   rating?: number
   reviewCount?: number
@@ -398,6 +399,21 @@ export default function DistributorDetailPage() {
                       ${item.unitPrice.toLocaleString()}
                     </span>
                   </div>
+
+                  {/* Product URL Link */}
+                  {item.sourceUrl && (
+                    <div className="mt-3">
+                      <a
+                        href={item.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        View Product Page <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
+                  )}
                 </div>
               </Card>
             ))}
