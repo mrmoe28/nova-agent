@@ -1,6 +1,8 @@
 import { readFile } from 'fs/promises'
-import { extractText, getDocumentProxy } from 'unpdf'
+import { createRequire } from 'module'
+import Anthropic from '@anthropic-ai/sdk'
 // Dynamic import for Tesseract to avoid serverless environment issues
+// pdf-parse needs to be loaded via CommonJS require
 
 export interface OCRResult {
   text: string
@@ -9,27 +11,86 @@ export interface OCRResult {
 }
 
 /**
- * Extract text from PDF file using unpdf (serverless-compatible)
+ * Extract text and structured data from PDF using Claude AI
+ * This provides the most accurate extraction with intelligent parsing
+ */
+export async function extractTextWithClaude(filePath: string): Promise<OCRResult> {
+  try {
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    })
+
+    // Read PDF file as buffer
+    const pdfBuffer = await readFile(filePath)
+    const base64Pdf = pdfBuffer.toString('base64')
+
+    console.log('Using Claude AI for PDF extraction...')
+
+    const message = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 4096,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'document',
+              source: {
+                type: 'base64',
+                media_type: 'application/pdf',
+                data: base64Pdf,
+              },
+            },
+            {
+              type: 'text',
+              text: 'Please extract ALL text content from this utility bill PDF. Return the complete text exactly as it appears in the document, preserving formatting, numbers, and structure. Do not summarize or interpret - just extract the raw text.',
+            },
+          ],
+        },
+      ],
+    })
+
+    const extractedText = message.content
+      .filter((block) => block.type === 'text')
+      .map((block) => (block as { type: 'text'; text: string }).text)
+      .join('\n')
+
+    console.log(`Claude extraction complete: ${extractedText.length} characters`)
+
+    return {
+      text: extractedText,
+      confidence: 0.98, // Claude's accuracy is very high
+      pageCount: 1,
+    }
+  } catch (error) {
+    console.error('Claude PDF extraction failed:', error)
+    throw new Error(`Claude extraction failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
+}
+
+/**
+ * Extract text from PDF file using pdf-parse (most reliable fallback)
+ * Fallback method if Claude is unavailable
  */
 export async function extractTextFromPDF(filePath: string): Promise<OCRResult> {
   try {
     const dataBuffer = await readFile(filePath)
 
-    // Get document proxy to count pages
-    const pdf = await getDocumentProxy(dataBuffer)
-    const pageCount = pdf.numPages
+    // Use CommonJS require for pdf-parse (ESM compatibility)
+    const require = createRequire(import.meta.url)
+    const pdfParse = require('pdf-parse')
 
-    // Extract all text from the PDF
-    const { text } = await extractText(dataBuffer, { mergePages: true })
+    // Parse PDF using pdf-parse
+    const pdfData = await pdfParse(dataBuffer)
 
     return {
-      text,
-      pageCount,
+      text: pdfData.text,
+      pageCount: pdfData.numpages,
       confidence: 0.95, // PDF text extraction is usually highly accurate
     }
   } catch (error) {
     console.error('Error extracting text from PDF:', error)
-    throw new Error('Failed to extract text from PDF')
+    throw new Error(`Failed to extract text from PDF: ${error instanceof Error ? error.message : 'Unknown error'}`)
   }
 }
 
@@ -77,13 +138,27 @@ export async function extractTextFromImage(filePath: string): Promise<OCRResult>
 
 /**
  * Main OCR function that handles different file types
+ * Uses Claude AI for PDFs when available, falls back to traditional OCR
  */
 export async function performOCR(
   filePath: string,
   fileType: 'pdf' | 'image' | 'csv'
 ): Promise<OCRResult> {
   if (fileType === 'pdf') {
-    return extractTextFromPDF(filePath)
+    // Try Claude AI extraction first (most accurate)
+    if (process.env.ANTHROPIC_API_KEY) {
+      try {
+        console.log('Attempting Claude AI PDF extraction...')
+        return await extractTextWithClaude(filePath)
+      } catch (claudeError) {
+        console.warn('Claude extraction failed, falling back to unpdf:', claudeError)
+        // Fall back to traditional PDF extraction
+        return extractTextFromPDF(filePath)
+      }
+    } else {
+      console.log('No ANTHROPIC_API_KEY found, using unpdf for PDF extraction')
+      return extractTextFromPDF(filePath)
+    }
   } else if (fileType === 'image') {
     return extractTextFromImage(filePath)
   } else if (fileType === 'csv') {
@@ -130,11 +205,13 @@ export function parseBillText(text: string): ParsedBillData {
   const patterns = {
     // kWh usage patterns - multiple variations
     kwh: [
+      /total\s*kwh\s*used[:\s]*(\d+(?:,\d+)?(?:\.\d+)?)/gi,  // Georgia Power: "Total kWh Used"
       /total\s*(?:usage|consumption|kwh)[:\s]*(\d+(?:,\d+)?(?:\.\d+)?)\s*kWh/gi,
       /(\d+(?:,\d+)?(?:\.\d+)?)\s*kWh\s*(?:used|consumed|total)/gi,
       /(?:current|this\s*month)\s*(?:usage|consumption)[:\s]*(\d+(?:,\d+)?(?:\.\d+)?)\s*kWh/gi,
       /electric\s*usage[:\s]*(\d+(?:,\d+)?(?:\.\d+)?)\s*kWh/gi,
       /kWh\s*delivered[:\s]*(\d+(?:,\d+)?(?:\.\d+)?)/gi,
+      /usage\s*information[\s\S]*?total\s*used[:\s]*(\d+(?:,\d+)?(?:\.\d+)?)\s*kWh/gi, // Georgia Power usage section
       /(\d+(?:,\d+)?(?:\.\d+)?)\s*kWh/gi, // Fallback: any kWh value
     ],
 
@@ -147,9 +224,11 @@ export function parseBillText(text: string): ParsedBillData {
 
     // Cost patterns - total amount due
     totalAmount: [
-      /(?:total\s*amount|amount\s*due|total\s*due|balance\s*due|total\s*current\s*charges)[:\s]*\$?\s*(\d+(?:,\d+)?(?:\.\d+)?)/gi,
+      /total\s*due[:\s]*\$\s*(\d+(?:,\d+)?(?:\.\d+)?)/gi, // Georgia Power: "Total Due $ 144.00"
+      /(?:total\s*amount|amount\s*due|balance\s*due|total\s*current\s*charges)[:\s]*\$?\s*(\d+(?:,\d+)?(?:\.\d+)?)/gi,
       /(?:new\s*charges|current\s*charges)[:\s]*\$?\s*(\d+(?:,\d+)?(?:\.\d+)?)/gi,
       /please\s*pay[:\s]*\$?\s*(\d+(?:,\d+)?(?:\.\d+)?)/gi,
+      /current\s*(?:actual|electric\s*service)\s*amount[:\s]*\$?\s*(\d+(?:,\d+)?(?:\.\d+)?)/gi, // Georgia Power actual amount
     ],
 
     // Energy charge
@@ -166,6 +245,7 @@ export function parseBillText(text: string): ParsedBillData {
 
     // Account info - more flexible
     accountNumber: [
+      /account\s*number[:\s]*(\d{5}-\d{5})/gi, // Georgia Power: "02608-44013"
       /account\s*(?:number|no|#)[:\s]*([A-Z0-9-]+)/gi,
       /acct[:\s]*([A-Z0-9-]+)/gi,
       /customer\s*(?:number|id)[:\s]*([A-Z0-9-]+)/gi,
@@ -173,6 +253,7 @@ export function parseBillText(text: string): ParsedBillData {
 
     // Billing period - multiple date formats
     billingPeriod: [
+      /service\s*period[:\s]*((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},?\s+\d{4})\s*-\s*((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},?\s+\d{4})/gi, // Georgia Power: "Aug 29, 2025 - Sept 30, 2025"
       /(?:billing|service)\s*period[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*(?:to|through|-|–)\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/gi,
       /(?:from|start)[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*(?:to|through|-|–)\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/gi,
       /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*(?:to|through|-|–)\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/gi,
