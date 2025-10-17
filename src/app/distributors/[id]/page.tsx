@@ -71,6 +71,7 @@ export default function DistributorDetailPage() {
   const [loading, setLoading] = useState(true)
   const [scraping, setScraping] = useState(false)
   const [useBrowser, setUseBrowser] = useState(true) // Default to true for image extraction
+  const [useAI, setUseAI] = useState(false) // AI Agent mode for intelligent scraping
   const [showAddUrlDialog, setShowAddUrlDialog] = useState(false)
   const [newUrl, setNewUrl] = useState("")
 
@@ -111,6 +112,7 @@ export default function DistributorDetailPage() {
           distributorId: distributor.id,
           maxProducts: 500,
           useBrowser, // Use browser mode if enabled
+          useAI, // Use AI Agent mode if enabled
         }),
       })
 
@@ -155,6 +157,7 @@ export default function DistributorDetailPage() {
           distributorId: distributor.id,
           maxProducts: 500,
           useBrowser,
+          useAI,
         }),
       })
 
@@ -252,18 +255,32 @@ export default function DistributorDetailPage() {
 
           <div className="flex flex-col gap-2 items-end">
             {distributor.website && (
-              <label className="flex items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={useBrowser}
-                  onChange={(e) => setUseBrowser(e.target.checked)}
-                  className="w-4 h-4"
-                  disabled={scraping}
-                />
-                <span className="text-muted-foreground">
-                  Browser Mode (extracts product images, slower but more accurate)
-                </span>
-              </label>
+              <div className="flex flex-col gap-2">
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={useBrowser}
+                    onChange={(e) => setUseBrowser(e.target.checked)}
+                    className="w-4 h-4"
+                    disabled={scraping}
+                  />
+                  <span className="text-muted-foreground">
+                    Browser Mode (extracts product images, slower but more accurate)
+                  </span>
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={useAI}
+                    onChange={(e) => setUseAI(e.target.checked)}
+                    className="w-4 h-4"
+                    disabled={scraping}
+                  />
+                  <span className="text-muted-foreground">
+                    🤖 AI Agent Mode (intelligent scraping with self-correction)
+                  </span>
+                </label>
+              </div>
             )}
             <div className="flex gap-2">
               <Button
