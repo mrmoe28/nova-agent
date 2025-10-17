@@ -95,7 +95,7 @@ export default function DistributorDetailPage() {
           saveToDatabase: true,
           scrapeProducts: true,
           distributorId: distributor.id,
-          maxProducts: 50,
+          maxProducts: 500,
         }),
       })
 
