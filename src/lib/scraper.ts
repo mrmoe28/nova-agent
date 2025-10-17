@@ -72,39 +72,123 @@ async function fetchHTML(url: string, config: ScraperConfig): Promise<string> {
 function extractProductData($: cheerio.Root, url: string): ScrapedProduct {
   const product: ScrapedProduct = {}
 
-  // Try to extract product name
-  product.name =
-    $('h1[itemprop="name"]').first().text().trim() ||
-    $('h1.product-title').first().text().trim() ||
-    $('h1.product-name').first().text().trim() ||
-    $('meta[property="og:title"]').attr('content') ||
-    $('title').text().split('|')[0].trim()
+  // First, try to extract from schema.org JSON-LD (most reliable)
+  $('script[type="application/ld+json"]').each((_, script) => {
+    try {
+      const data = JSON.parse($(script).html() || '{}')
+      // Check if it's a Product schema
+      if (data['@type'] === 'Product' || data['@context']?.includes('schema.org')) {
+        if (data.name) product.name = data.name
+        if (data.image) {
+          // Handle both string and array formats
+          product.imageUrl = Array.isArray(data.image) ? data.image[0] : data.image
+        }
+        if (data.offers) {
+          const offers = Array.isArray(data.offers) ? data.offers[0] : data.offers
+          if (offers.price) product.price = parseFloat(offers.price)
+          if (offers.priceCurrency) product.specifications = { ...product.specifications, currency: offers.priceCurrency }
+          if (offers.availability) {
+            product.inStock = offers.availability.includes('InStock') || offers.availability.includes('Available')
+          }
+        }
+        if (data.description) product.description = data.description
+        if (data.sku) product.modelNumber = data.sku
+        if (data.brand) product.manufacturer = typeof data.brand === 'string' ? data.brand : data.brand.name
+        if (data.aggregateRating) {
+          const rating = data.aggregateRating
+          if (rating.ratingValue) product.inStock = true // Usually means popular/available
+        }
+      }
+    } catch {
+      // Invalid JSON, skip
+    }
+  })
 
-  // Try to extract price
-  const priceText =
-    $('[itemprop="price"]').first().attr('content') ||
-    $('.price').first().text() ||
-    $('[class*="price"]').first().text() ||
-    $('meta[property="og:price:amount"]').attr('content')
+  // If not found in schema.org, fall back to HTML extraction
+  if (!product.name) {
+    product.name =
+      $('h1[itemprop="name"]').first().text().trim() ||
+      $('h1.product-title').first().text().trim() ||
+      $('h1.product-name').first().text().trim() ||
+      $('meta[property="og:title"]').attr('content') ||
+      $('title').text().split('|')[0].trim()
+  }
 
-  if (priceText) {
-    const priceMatch = priceText.replace(/[,$]/g, '').match(/(\d+\.?\d*)/)
-    if (priceMatch) {
-      product.price = parseFloat(priceMatch[1])
+  // Try to extract price (if not found in schema.org)
+  if (!product.price) {
+    const priceText =
+      $('[itemprop="price"]').first().attr('content') ||
+      $('.price').first().text() ||
+      $('[class*="price"]').first().text() ||
+      $('meta[property="og:price:amount"]').attr('content')
+
+    if (priceText) {
+      const priceMatch = priceText.replace(/[,$]/g, '').match(/(\d+\.?\d*)/)
+      if (priceMatch) {
+        product.price = parseFloat(priceMatch[1])
+      }
     }
   }
 
-  // Try to extract image
-  product.imageUrl =
-    $('meta[property="og:image"]').attr('content') ||
-    $('[itemprop="image"]').first().attr('src') ||
-    $('img[class*="product"]').first().attr('src') ||
-    $('img.main-image').first().attr('src')
+  // Try to extract image (if not found in schema.org) - check multiple attributes for lazy loading support
+  if (!product.imageUrl) {
+    const extractImageUrl = ($el: cheerio.Cheerio) => {
+      // Priority order: data-src (lazy), src, data-lazy, data-original, srcset, data-srcset
+      return (
+        $el.attr('data-src') ||
+        $el.attr('src') ||
+        $el.attr('data-lazy') ||
+        $el.attr('data-original') ||
+        $el.attr('data-image') ||
+        $el.attr('srcset')?.split(',')[0]?.trim().split(' ')[0] ||
+        $el.attr('data-srcset')?.split(',')[0]?.trim().split(' ')[0]
+      )
+    }
+
+    // Try multiple selectors in priority order
+    const imageSelectors = [
+      'meta[property="og:image"]',
+      '[itemprop="image"]',
+      'img[class*="product"]',
+      'img.main-image',
+      'img.product-image',
+      '.product-images img',
+      '.product-gallery img',
+      'img[alt*="product"]',
+      'img[alt*="Product"]',
+      '.woocommerce-product-gallery img',
+      'img[data-src]',
+      'picture img',
+    ]
+
+    for (const selector of imageSelectors) {
+      const $img = $(selector).first()
+      if ($img.length) {
+        // For meta tags, use content attribute
+        if (selector.startsWith('meta')) {
+          product.imageUrl = $img.attr('content')
+        } else {
+          product.imageUrl = extractImageUrl($img)
+        }
+        if (product.imageUrl) break
+      }
+    }
+  }
 
   // Make image URL absolute
   if (product.imageUrl && !product.imageUrl.startsWith('http')) {
-    const urlObj = new URL(url)
-    product.imageUrl = new URL(product.imageUrl, urlObj.origin).href
+    try {
+      const urlObj = new URL(url)
+      // Handle protocol-relative URLs
+      if (product.imageUrl.startsWith('//')) {
+        product.imageUrl = `${urlObj.protocol}${product.imageUrl}`
+      } else {
+        product.imageUrl = new URL(product.imageUrl, urlObj.origin).href
+      }
+    } catch {
+      // Invalid URL, set to undefined
+      product.imageUrl = undefined
+    }
   }
 
   // Try to extract description
