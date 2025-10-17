@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       url,
       saveToDatabase,
       scrapeProducts,
-      maxProducts = 5,
+      maxProducts = 999, // Default to unlimited (high number)
       distributorId,
       useBrowser = false,
       useAI = false,
@@ -142,8 +142,8 @@ export async function POST(request: NextRequest) {
           "deep-crawl",
           () =>
             deepCrawlForProducts(url, {
-              maxPages: 3, // Quick preview - only visit 3 pages for speed
-              maxDepth: 1, // Shallow crawl for speed
+              maxPages: 100, // Crawl up to 100 pages to find all products
+              maxDepth: 2, // Increased depth to find products in subcategories
               config: {
                 rateLimit: 200, // Fast rate limit
                 timeout: 5000, // 5 second timeout
@@ -151,7 +151,7 @@ export async function POST(request: NextRequest) {
                 maxRetries: 1,
               },
             }),
-          { url, maxPages: 3, maxDepth: 1 },
+          { url, maxPages: 100, maxDepth: 2 },
         );
 
         allProductLinks = crawlResult.productLinks;

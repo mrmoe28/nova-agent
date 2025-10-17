@@ -788,7 +788,7 @@ export async function scrapeCompanyInfo(
       }
     });
 
-    company.productLinks = Array.from(productLinks).slice(0, 100); // Increased to 100 product links
+    company.productLinks = Array.from(productLinks); // No limit - get all product links
     company.totalPagesFound = productLinks.size;
 
     // Extract logo
