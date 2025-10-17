@@ -86,43 +86,18 @@ export async function POST(request: NextRequest) {
     let extractedData: string | null = null;
     let ocrConfidence = 0;
 
-    try {
-      console.log(`Processing OCR for ${fileName}...`);
-      const ocrResult = await performOCR(filePath, fileType);
-      ocrText = ocrResult.text;
-      ocrConfidence = ocrResult.confidence || 0;
+    console.log(`Processing OCR for ${fileName}...`);
+    const ocrResult = await performOCR(filePath, fileType);
+    ocrText = ocrResult.text;
+    ocrConfidence = ocrResult.confidence || 0;
 
-      // Parse bill data
-      const parsedData = parseBillText(ocrText);
-      extractedData = JSON.stringify(parsedData);
+    // Parse bill data
+    const parsedData = parseBillText(ocrText);
+    extractedData = JSON.stringify(parsedData);
 
-      console.log(
-        `OCR completed with ${ocrConfidence} confidence, extracted ${Object.keys(parsedData).length} fields`,
-      );
-    } catch (ocrError) {
-      console.error("OCR processing failed:", ocrError);
-      console.error(
-        "Error details:",
-        ocrError instanceof Error ? ocrError.message : String(ocrError),
-      );
-
-      // Provide demo/fallback data so analysis can still proceed
-      console.log("Using fallback demo data for analysis");
-      const fallbackData = {
-        utilityCompany: "Demo Utility Company",
-        usage: {
-          kwh: 1000,
-          kw: 5.0,
-        },
-        charges: {
-          total: 150.0,
-          energyCharge: 100.0,
-          demandCharge: 50.0,
-        },
-      };
-      extractedData = JSON.stringify(fallbackData);
-      ocrText = "OCR processing unavailable - using demo data for analysis";
-    }
+    console.log(
+      `OCR completed with ${ocrConfidence} confidence, extracted ${Object.keys(parsedData).length} fields`,
+    );
 
     // Save to database with OCR data
     const bill = await prisma.bill.create({
@@ -138,22 +113,15 @@ export async function POST(request: NextRequest) {
 
     console.log(`Bill record created: ${bill.id}`);
 
-    const isFallbackData =
-      ocrText === "OCR processing unavailable - using demo data for analysis";
-
     return NextResponse.json({
       success: true,
-      warning: isFallbackData
-        ? "OCR processing unavailable. Using demo data for analysis. For accurate results, please ensure your bill is a clear PDF."
-        : undefined,
       bill: {
         id: bill.id,
         fileName: bill.fileName,
         fileType: bill.fileType,
         uploadedAt: bill.uploadedAt,
-        ocrProcessed: !!ocrText && !isFallbackData,
+        ocrProcessed: !!ocrText,
         extractedData: extractedData ? JSON.parse(extractedData) : null,
-        usingFallbackData: isFallbackData,
       },
     });
   } catch (error) {

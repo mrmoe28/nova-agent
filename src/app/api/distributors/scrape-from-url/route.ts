@@ -80,8 +80,8 @@ export async function POST(request: NextRequest) {
       "scrape-company-info",
       () =>
         scrapeCompanyInfo(url, {
-          rateLimit: 300,
-          timeout: 8000,
+          rateLimit: 200, // Fast rate limit
+          timeout: 5000, // 5 second timeout
           respectRobotsTxt: true,
           maxRetries: 1,
         }),
@@ -107,8 +107,8 @@ export async function POST(request: NextRequest) {
           "ai-agent-scrape",
           () =>
             aiScraper.scrape(url, {
-              rateLimit: 300,
-              timeout: 8000,
+              rateLimit: 200,
+              timeout: 5000,
               respectRobotsTxt: true,
               maxRetries: 1,
             }),
@@ -150,16 +150,16 @@ export async function POST(request: NextRequest) {
           "deep-crawl",
           () =>
             deepCrawlForProducts(url, {
-              maxPages: 10, // Increased from 3 to find more products
-              maxDepth: 2, // Increased from 1 to explore deeper
+              maxPages: 3, // Quick preview - only visit 3 pages for speed
+              maxDepth: 1, // Shallow crawl for speed
               config: {
-                rateLimit: 300,
-                timeout: 8000,
+                rateLimit: 200, // Fast rate limit
+                timeout: 5000, // 5 second timeout
                 respectRobotsTxt: true,
                 maxRetries: 1,
               },
             }),
-          { url, maxPages: 10, maxDepth: 2 },
+          { url, maxPages: 3, maxDepth: 1 },
         );
 
         allProductLinks = crawlResult.productLinks;
@@ -188,54 +188,20 @@ export async function POST(request: NextRequest) {
 
       // Use browser scraper if requested (bypasses bot detection)
       if (useBrowser) {
-        try {
-          // Check if BROWSERLESS_TOKEN is configured before attempting browser mode
-          if (!process.env.BROWSERLESS_TOKEN) {
-            logger.warn(
-              { useBrowser },
-              "Browser mode requested but BROWSERLESS_TOKEN not configured, falling back to regular scraping",
-            );
-            throw new Error("BROWSERLESS_TOKEN not configured");
-          }
+        const browserScraper = await getBrowserScraper();
+        scrapedProducts = await logOperation(
+          logger,
+          "scrape-products-browser",
+          () =>
+            browserScraper.scrapeMultipleProducts(productUrls, {
+              rateLimit: 1000,
+              timeout: 10000,
+            }),
+          { count: productUrls.length, method: "browser" },
+        );
 
-          const browserScraper = await getBrowserScraper();
-          scrapedProducts = await logOperation(
-            logger,
-            "scrape-products-browser",
-            () =>
-              browserScraper.scrapeMultipleProducts(productUrls, {
-                rateLimit: 2000, // Slower for browser mode
-                timeout: 30000,
-              }),
-            { count: productUrls.length, method: "browser" },
-          );
-
-          // Clean up browser
-          await closeBrowserScraper();
-        } catch (browserError) {
-          logger.warn(
-            {
-              error:
-                browserError instanceof Error
-                  ? browserError.message
-                  : "Unknown error",
-            },
-            "Browser scraping failed, falling back to regular scraping",
-          );
-          // Fallback to regular scraping
-          scrapedProducts = await logOperation(
-            logger,
-            "scrape-products",
-            () =>
-              scrapeMultipleProducts(productUrls, {
-                rateLimit: 300,
-                timeout: 8000,
-                respectRobotsTxt: true,
-                maxRetries: 1,
-              }),
-            { count: productUrls.length, method: "fetch-fallback" },
-          );
-        }
+        // Clean up browser
+        await closeBrowserScraper();
       } else {
         // Regular fetch-based scraping (fast)
         scrapedProducts = await logOperation(
@@ -243,8 +209,8 @@ export async function POST(request: NextRequest) {
           "scrape-products",
           () =>
             scrapeMultipleProducts(productUrls, {
-              rateLimit: 300, // Ultra-fast for quick preview
-              timeout: 8000,
+              rateLimit: 200,
+              timeout: 5000,
               respectRobotsTxt: true,
               maxRetries: 1,
             }),

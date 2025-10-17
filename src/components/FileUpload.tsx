@@ -6,7 +6,6 @@ import {
   FileText,
   X,
   Loader2,
-  AlertCircle,
   CheckCircle,
   Clock,
 } from "lucide-react";
@@ -24,7 +23,6 @@ interface UploadedFile {
   fileType: string;
   uploadedAt: Date;
   ocrProcessed?: boolean;
-  usingFallbackData?: boolean;
 }
 
 interface FileUploadProps {
@@ -120,13 +118,8 @@ export default function FileUpload({
           if (data.success) {
             uploaded.push(data.bill);
 
-            // Show appropriate toast based on upload status
-            if (data.warning) {
-              toast.warning(`${file.name} uploaded with issues`, {
-                description: data.warning,
-                duration: 6000,
-              });
-            } else if (data.bill.ocrProcessed) {
+            // Show success toast
+            if (data.bill.ocrProcessed) {
               toast.success(`${file.name} uploaded successfully`, {
                 description: "OCR processing completed",
               });
@@ -326,11 +319,7 @@ export default function FileUpload({
                 key={file.id}
                 className="group hover:shadow-md transition-all duration-200 border-l-4"
                 style={{
-                  borderLeftColor: file.ocrProcessed
-                    ? "#10b981"
-                    : file.usingFallbackData
-                      ? "#f59e0b"
-                      : "#6b7280",
+                  borderLeftColor: file.ocrProcessed ? "#10b981" : "#6b7280",
                 }}
               >
                 <CardContent className="p-4">
@@ -357,13 +346,6 @@ export default function FileUpload({
                           <Badge className="text-xs bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20">
                             <CheckCircle className="h-3 w-3 mr-1" />
                             OCR Success
-                          </Badge>
-                        )}
-
-                        {file.usingFallbackData && (
-                          <Badge className="text-xs bg-amber-500/10 text-amber-700 dark:text-amber-400 border-amber-500/20">
-                            <AlertCircle className="h-3 w-3 mr-1" />
-                            Demo Data
                           </Badge>
                         )}
                       </div>
