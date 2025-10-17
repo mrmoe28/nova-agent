@@ -1,5 +1,4 @@
 import puppeteer, { Browser, Page } from 'puppeteer-core'
-import chromium from '@sparticuz/chromium'
 import * as cheerio from 'cheerio'
 import { createLogger } from './logger'
 import { ScrapedProduct, ScraperConfig } from './scraper'
@@ -7,54 +6,53 @@ import { ScrapedProduct, ScraperConfig } from './scraper'
 const logger = createLogger('browser-scraper')
 
 /**
- * Browser-based scraper using Puppeteer for JavaScript-heavy sites
- * Compatible with Vercel serverless functions using @sparticuz/chromium
+ * Browser-based scraper using Puppeteer with remote managed browser
+ * Compatible with Browserless, Browserbase, Bright Data, and other managed browser services
+ * Connects via WebSocket - no local Chrome binary required
  */
 export class BrowserScraper {
   private browser: Browser | null = null
 
   /**
-   * Initialize the headless browser (serverless-compatible)
+   * Initialize connection to remote managed browser
    */
   async init() {
     if (this.browser) return
 
-    logger.info('Launching headless browser for serverless environment')
+    const endpoint = process.env.BROWSER_WS_ENDPOINT
+    if (!endpoint) {
+      throw new Error(
+        'BROWSER_WS_ENDPOINT not configured. Please set it to your managed browser WebSocket URL (Browserless, Browserbase, etc.)'
+      )
+    }
+
+    logger.info({ endpoint: endpoint.split('?')[0] }, 'Connecting to remote managed browser')
 
     try {
-      // Set minimal args for better compatibility
-      chromium.setGraphicsMode = false
-
-      this.browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: {
-          width: 1920,
-          height: 1080,
-        },
-        executablePath: await chromium.executablePath(),
-        headless: true,
+      this.browser = await puppeteer.connect({
+        browserWSEndpoint: endpoint,
       })
 
-      logger.info('Browser launched successfully')
+      logger.info('Successfully connected to remote browser')
     } catch (error) {
-      logger.error({ error }, 'Failed to launch browser')
+      logger.error({ error }, 'Failed to connect to remote browser')
       throw error
     }
   }
 
   /**
-   * Close the browser
+   * Close the browser connection
    */
   async close() {
     if (this.browser) {
-      await this.browser.close()
+      await this.browser.disconnect()
       this.browser = null
-      logger.info('Browser closed')
+      logger.info('Browser disconnected')
     }
   }
 
   /**
-   * Fetch HTML using a real browser (bypasses most bot detection)
+   * Fetch HTML using remote browser (bypasses bot detection)
    */
   async fetchHTML(url: string, config: Partial<ScraperConfig> = {}): Promise<string> {
     await this.init()
@@ -76,11 +74,25 @@ export class BrowserScraper {
           'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
       })
 
-      logger.info({ url }, 'Fetching page with browser')
+      // Optional: block unnecessary resources for faster loading
+      await page.setRequestInterception(true)
+      page.on('request', (request) => {
+        // Block ads, analytics, and other tracking to reduce fingerprint
+        const url = request.url()
+        if (
+          /googletagmanager|doubleclick|facebook|analytics|hotjar|segment|optimizely/i.test(url)
+        ) {
+          request.abort()
+        } else {
+          request.continue()
+        }
+      })
+
+      logger.info({ url }, 'Fetching page with remote browser')
 
       // Navigate with timeout
       await page.goto(url, {
-        waitUntil: 'domcontentloaded',
+        waitUntil: 'networkidle0',
         timeout: config.timeout || 30000,
       })
 
@@ -96,7 +108,7 @@ export class BrowserScraper {
       // Get the fully rendered HTML
       const html = await page.content()
 
-      logger.info({ url, htmlLength: html.length }, 'Successfully fetched HTML with browser')
+      logger.info({ url, htmlLength: html.length }, 'Successfully fetched HTML with remote browser')
 
       return html
     } catch (error) {
@@ -105,7 +117,7 @@ export class BrowserScraper {
           url,
           error: error instanceof Error ? error.message : 'Unknown error',
         },
-        'Failed to fetch HTML with browser'
+        'Failed to fetch HTML with remote browser'
       )
       throw error
     } finally {
@@ -139,7 +151,7 @@ export class BrowserScraper {
   }
 
   /**
-   * Scrape a product page using browser
+   * Scrape a product page using remote browser
    */
   async scrapeProductPage(
     url: string,
@@ -252,7 +264,7 @@ export class BrowserScraper {
           hasPrice: !!product.price,
           hasImage: !!product.imageUrl,
         },
-        'Product scraped with browser'
+        'Product scraped with remote browser'
       )
 
       return product
@@ -262,7 +274,7 @@ export class BrowserScraper {
           url,
           error: error instanceof Error ? error.message : 'Unknown error',
         },
-        'Failed to scrape product with browser'
+        'Failed to scrape product with remote browser'
       )
       throw error
     }
@@ -277,7 +289,7 @@ export class BrowserScraper {
   ): Promise<ScrapedProduct[]> {
     const results: ScrapedProduct[] = []
 
-    logger.info({ totalUrls: urls.length }, 'Starting browser-based batch scraping')
+    logger.info({ totalUrls: urls.length }, 'Starting remote browser batch scraping')
 
     for (let i = 0; i < urls.length; i++) {
       try {
@@ -305,7 +317,7 @@ export class BrowserScraper {
         totalUrls: urls.length,
         successCount: results.filter((r) => !r.name?.startsWith('Error:')).length,
       },
-      'Browser batch scraping completed'
+      'Remote browser batch scraping completed'
     )
 
     return results
