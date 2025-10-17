@@ -567,13 +567,14 @@ function DistributorForm({
           alert(
             `Successfully scraped!\n` +
             `Found ${productsCount} product${productsCount !== 1 ? 's' : ''} and saved to database.\n\n` +
-            `The page will refresh in a moment to show the new products...`
+            `The page will refresh in a moment to show the new distributor and products...`
           )
 
           setTimeout(() => {
-            onEquipmentUpdated()
-            // Close the modal after refresh so user can see the new products
-            onClose()
+            // Refresh both distributors and equipment lists
+            onSuccess() // This refreshes the distributors list
+            onEquipmentUpdated() // This refreshes equipment and switches to Equipment tab
+            // Modal will be closed by onSuccess callback
           }, 1000) // Wait 1 second for DB transaction to complete
         } else {
           alert(
