@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -56,6 +57,7 @@ interface Equipment {
 }
 
 export default function DistributorsPage() {
+  const router = useRouter()
   const [activeTab, setActiveTab] = useState<"distributors" | "equipment">("distributors")
   const [distributors, setDistributors] = useState<Distributor[]>([])
   const [equipment, setEquipment] = useState<Equipment[]>([])
@@ -217,7 +219,11 @@ export default function DistributorsPage() {
       {activeTab === "distributors" ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredDistributors.map((distributor) => (
-            <Card key={distributor.id} className="p-6 bg-white border border-slate-200 shadow-sm">
+            <Card
+              key={distributor.id}
+              className="p-6 bg-white border border-slate-200 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+              onClick={() => router.push(`/distributors/${distributor.id}`)}
+            >
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <h3 className="font-semibold text-lg text-slate-900">{distributor.name}</h3>
@@ -225,7 +231,7 @@ export default function DistributorsPage() {
                     <p className="text-sm text-slate-600 mt-1">{distributor.contactName}</p>
                   )}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                   <Button
                     size="sm"
                     variant="outline"
@@ -256,6 +262,7 @@ export default function DistributorsPage() {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 flex items-center gap-1"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     Website <ExternalLink className="h-3 w-3" />
                   </a>
