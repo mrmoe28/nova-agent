@@ -5,9 +5,20 @@ import { createLogger, logOperation } from '@/lib/logger'
 
 const logger = createLogger('scrape-api')
 
+// Allow up to 60 seconds for scraping operations (Pro tier)
+// Hobby tier is limited to 10 seconds
+export const maxDuration = 60
+
 /**
  * POST /api/distributors/scrape-from-url
  * Scrape company information and products from a distributor's website
+ *
+ * NOTE: This endpoint is optimized for quick UI-triggered rescrapes.
+ * Settings: 10 pages, depth 2, 20 products, 500ms rate limit
+ *
+ * For comprehensive scraping, use the scheduled cron job which has:
+ * Settings: 30 pages, depth 3, 100 products, 1000ms rate limit
+ *
  * Optionally save to database
  */
 export async function POST(request: NextRequest) {
@@ -15,7 +26,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { url, saveToDatabase, scrapeProducts, maxProducts = 500, distributorId } = body
+    const { url, saveToDatabase, scrapeProducts, maxProducts = 20, distributorId } = body
 
     if (!url) {
       return NextResponse.json(
@@ -44,8 +55,10 @@ export async function POST(request: NextRequest) {
       logger,
       'scrape-company-info',
       () => scrapeCompanyInfo(url, {
-        rateLimit: 1500,
-        timeout: 30000,
+        rateLimit: 500,
+        timeout: 15000,
+        respectRobotsTxt: true,
+        maxRetries: 2,
       }),
       { url }
     )
@@ -61,14 +74,16 @@ export async function POST(request: NextRequest) {
         logger,
         'deep-crawl',
         () => deepCrawlForProducts(url, {
-          maxPages: 50,  // Crawl up to 50 pages (increased for better coverage)
-          maxDepth: 4,   // Go 4 levels deep (increased for nested categories)
+          maxPages: 10,  // Reduced for UI-triggered rescrapes to avoid timeout
+          maxDepth: 2,   // Reduced depth to complete within serverless limits
           config: {
-            rateLimit: 1000, // Reduced to 1 second for faster crawling
-            timeout: 30000,
+            rateLimit: 500, // Faster for quick rescrapes (still respectful)
+            timeout: 15000, // Reduced timeout to prevent hanging
+            respectRobotsTxt: true,
+            maxRetries: 2, // Fewer retries for speed
           },
         }),
-        { url, maxPages: 50, maxDepth: 4 }
+        { url, maxPages: 10, maxDepth: 2 }
       )
 
       allProductLinks = crawlResult.productLinks
@@ -92,8 +107,10 @@ export async function POST(request: NextRequest) {
         logger,
         'scrape-products',
         () => scrapeMultipleProducts(productUrls, {
-          rateLimit: 1500,
-          timeout: 30000,
+          rateLimit: 500, // Faster for UI rescrapes
+          timeout: 15000,
+          respectRobotsTxt: true,
+          maxRetries: 2,
         }),
         { count: productUrls.length }
       )

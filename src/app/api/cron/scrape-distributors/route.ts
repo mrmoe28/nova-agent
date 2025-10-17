@@ -5,6 +5,10 @@ import { createLogger } from '@/lib/logger'
 
 const logger = createLogger('cron-scraper')
 
+// Allow up to 5 minutes for cron jobs (max on Vercel Pro)
+// This gives enough time for comprehensive scraping
+export const maxDuration = 300
+
 /**
  * GET /api/cron/scrape-distributors
  * Scheduled cron job to automatically rescrape all active distributors
