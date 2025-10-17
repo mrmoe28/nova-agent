@@ -19,6 +19,17 @@ export interface ScrapedProduct {
   dataSheetUrl?: string
 }
 
+export interface ScrapedCompany {
+  name?: string
+  contactName?: string
+  email?: string
+  phone?: string
+  website?: string
+  address?: string
+  description?: string
+  productLinks?: string[]
+}
+
 const DEFAULT_CONFIG: ScraperConfig = {
   rateLimit: 1000, // 1 second between requests
   timeout: 30000, // 30 seconds
@@ -232,4 +243,134 @@ export function detectCategory(product: ScrapedProduct): string {
   }
 
   return 'other'
+}
+
+/**
+ * Extract company information from a website
+ * Uses schema.org Organization markup first, then falls back to common selectors
+ */
+export async function scrapeCompanyInfo(
+  url: string,
+  config: Partial<ScraperConfig> = {}
+): Promise<ScrapedCompany> {
+  const finalConfig = { ...DEFAULT_CONFIG, ...config }
+  const company: ScrapedCompany = {}
+
+  try {
+    const html = await fetchHTML(url, finalConfig)
+    const $ = cheerio.load(html)
+    const urlObj = new URL(url)
+    company.website = `${urlObj.protocol}//${urlObj.hostname}`
+
+    // Try to extract from schema.org Organization markup (JSON-LD)
+    $('script[type="application/ld+json"]').each((_, script) => {
+      try {
+        const data = JSON.parse($(script).html() || '{}')
+        if (data['@type'] === 'Organization' || data['@context']?.includes('schema.org')) {
+          if (data.name) company.name = data.name
+          if (data.email) company.email = data.email
+          if (data.telephone) company.phone = data.telephone
+          if (data.address) {
+            if (typeof data.address === 'string') {
+              company.address = data.address
+            } else if (data.address.streetAddress || data.address.addressLocality) {
+              const parts = [
+                data.address.streetAddress,
+                data.address.addressLocality,
+                data.address.addressRegion,
+                data.address.postalCode,
+                data.address.addressCountry
+              ].filter(Boolean)
+              company.address = parts.join(', ')
+            }
+          }
+          if (data.description) company.description = data.description
+        }
+      } catch {
+        // Invalid JSON, skip
+      }
+    })
+
+    // Fallback: Extract company name from common locations
+    if (!company.name) {
+      company.name =
+        $('[itemtype*="Organization"] [itemprop="name"]').first().text().trim() ||
+        $('meta[property="og:site_name"]').attr('content') ||
+        $('.company-name, .brand-name, .site-title').first().text().trim() ||
+        $('title').text().split('|')[0].split('-')[0].trim()
+    }
+
+    // Extract email from contact pages or footer
+    if (!company.email) {
+      const emailRegex = /([a-zA-Z0-9._-]+@[a-zA-Z0-9._-]+\.[a-zA-Z0-9_-]+)/
+      const contactText = $('footer, .contact, .footer, [class*="contact"]').text()
+      const emailMatch = contactText.match(emailRegex)
+      if (emailMatch) {
+        company.email = emailMatch[1]
+      }
+    }
+
+    // Extract phone number
+    if (!company.phone) {
+      const phoneRegex = /(\+?1?\s*\(?[2-9]\d{2}\)?[\s.-]?\d{3}[\s.-]?\d{4})/
+      const contactText = $('footer, .contact, .footer, [class*="contact"], [class*="phone"]').text()
+      const phoneMatch = contactText.match(phoneRegex)
+      if (phoneMatch) {
+        company.phone = phoneMatch[1].trim()
+      }
+    }
+
+    // Extract address
+    if (!company.address) {
+      company.address =
+        $('[itemtype*="PostalAddress"]').text().trim() ||
+        $('.address, .company-address, [class*="address"]').first().text().trim().substring(0, 200)
+    }
+
+    // Extract description
+    if (!company.description) {
+      company.description =
+        $('meta[name="description"]').attr('content') ||
+        $('meta[property="og:description"]').attr('content') ||
+        $('.company-description, .about, [class*="about"]').first().text().trim().substring(0, 500)
+    }
+
+    // Find product links on the page
+    const productLinks: Set<string> = new Set()
+    const productKeywords = ['product', 'shop', 'store', 'catalog', 'equipment', 'item']
+
+    $('a[href]').each((_, link) => {
+      const href = $(link).attr('href')
+      if (!href) return
+
+      const linkText = $(link).text().toLowerCase()
+      const linkHref = href.toLowerCase()
+
+      // Check if link seems to be a product page
+      const isProductLink = productKeywords.some(
+        keyword => linkText.includes(keyword) || linkHref.includes(keyword)
+      )
+
+      if (isProductLink && !linkHref.includes('#') && !linkHref.includes('javascript')) {
+        try {
+          // Make URL absolute
+          const absoluteUrl = href.startsWith('http') ? href : new URL(href, company.website).href
+
+          // Only include URLs from the same domain
+          if (new URL(absoluteUrl).hostname === urlObj.hostname) {
+            productLinks.add(absoluteUrl)
+          }
+        } catch {
+          // Invalid URL, skip
+        }
+      }
+    })
+
+    company.productLinks = Array.from(productLinks).slice(0, 50) // Limit to 50 product links
+
+    return company
+  } catch (error) {
+    console.error('Error scraping company info:', error)
+    throw new Error(`Failed to scrape company info from ${url}: ${error instanceof Error ? error.message : 'Unknown error'}`)
+  }
 }

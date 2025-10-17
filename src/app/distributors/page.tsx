@@ -23,6 +23,8 @@ import {
   Package,
   Search,
   ExternalLink,
+  Globe,
+  Loader2,
 } from "lucide-react"
 
 interface Distributor {
@@ -392,6 +394,73 @@ function DistributorForm({
     notes: distributor?.notes || "",
   })
   const [saving, setSaving] = useState(false)
+  const [scraping, setScraping] = useState(false)
+  const [scrapeUrl, setScrapeUrl] = useState("")
+  const [scrapeResults, setScrapeResults] = useState<{
+    company?: {
+      name?: string
+      contactName?: string
+      email?: string
+      phone?: string
+      website?: string
+      address?: string
+      description?: string
+    }
+    productsFound?: number
+    productLinks?: string[]
+  } | null>(null)
+
+  const handleScrapeUrl = async () => {
+    if (!scrapeUrl || !scrapeUrl.startsWith('http')) {
+      alert('Please enter a valid URL starting with http:// or https://')
+      return
+    }
+
+    setScraping(true)
+    setScrapeResults(null)
+
+    try {
+      const response = await fetch('/api/distributors/scrape-from-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: scrapeUrl,
+          saveToDatabase: false, // Just preview first
+          scrapeProducts: false, // Only get company info for now
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.success && data.company) {
+        // Auto-fill form with scraped data
+        setFormData({
+          name: data.company.name || formData.name,
+          contactName: data.company.contactName || formData.contactName,
+          email: data.company.email || formData.email,
+          phone: data.company.phone || formData.phone,
+          website: data.company.website || scrapeUrl,
+          address: data.company.address || formData.address,
+          notes: data.company.description || formData.notes,
+        })
+
+        setScrapeResults({
+          company: data.company,
+          productsFound: data.productsFound || 0,
+          productLinks: data.productLinks || [],
+        })
+
+        alert(`Successfully scraped! Found ${data.productLinks?.length || 0} product links.`)
+      } else {
+        alert(`Failed to scrape: ${data.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error scraping URL:', error)
+      alert('Failed to scrape URL. Please check the URL and try again.')
+    } finally {
+      setScraping(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -429,6 +498,48 @@ function DistributorForm({
           {distributor ? "Edit" : "Add"} Distributor
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Auto-Scrape from URL Section */}
+          {!distributor && (
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-3">
+              <div className="flex items-center gap-2 text-blue-900 font-medium">
+                <Globe className="h-4 w-4" />
+                <span>Auto-Fill from Website</span>
+              </div>
+              <p className="text-xs text-blue-700">
+                Paste a distributor&apos;s website URL to automatically extract company info and find products
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="https://example.com"
+                  value={scrapeUrl}
+                  onChange={(e) => setScrapeUrl(e.target.value)}
+                  disabled={scraping}
+                  className="flex-1 bg-white"
+                />
+                <Button
+                  type="button"
+                  onClick={handleScrapeUrl}
+                  disabled={scraping || !scrapeUrl}
+                  className="bg-blue-600 text-white"
+                >
+                  {scraping ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Scraping...
+                    </>
+                  ) : (
+                    'Scrape'
+                  )}
+                </Button>
+              </div>
+              {scrapeResults && scrapeResults.productLinks && scrapeResults.productLinks.length > 0 && (
+                <div className="text-xs text-green-700 bg-green-50 p-2 rounded">
+                  ✓ Found {scrapeResults.productLinks.length} product links! Form auto-filled with company info.
+                </div>
+              )}
+            </div>
+          )}
+
           <div>
             <Label htmlFor="name" className="text-slate-700 font-medium">Name *</Label>
             <Input
