@@ -74,6 +74,7 @@ export default function SizingPage() {
                   backupDurationHrs: parseInt(e.target.value),
                 })
               }
+              className="text-black"
             />
             <p className="text-xs text-muted-foreground">
               Recommended: 24h (1 day), 48h (2 days), or 72h (3 days)
@@ -97,6 +98,7 @@ export default function SizingPage() {
                   criticalLoadKw: parseFloat(e.target.value),
                 })
               }
+              className="text-black"
             />
             <p className="text-xs text-muted-foreground">
               Essential circuits to keep powered during outage (refrigerator,
