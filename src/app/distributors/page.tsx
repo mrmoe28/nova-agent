@@ -298,10 +298,15 @@ export default function DistributorsPage() {
                     className="object-contain p-4 group-hover:scale-105 transition-transform duration-300"
                     onError={(e) => {
                       const target = e.target as HTMLImageElement
+                      console.error('Image failed to load:', {
+                        url: item.imageUrl,
+                        name: item.name,
+                        error: e
+                      })
                       target.style.display = 'none'
                       const parent = target.parentElement
                       if (parent) {
-                        parent.innerHTML = '<div class="flex items-center justify-center h-full text-slate-400"><svg class="h-16 w-16" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg></div>'
+                        parent.innerHTML = '<div class="flex items-center justify-center h-full text-slate-400"><svg class="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg><p class="text-xs mt-2">Image unavailable</p></div>'
                       }
                     }}
                   />

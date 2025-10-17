@@ -236,6 +236,43 @@ Potential enhancements:
 
 **Result**: Users can now re-scrape distributors to extract product images using the browser-based scraper with live DOM inspection.
 
+#### Image Display Debugging Fix (2025-10-17 Evening)
+**Problem**: User reported "images still not showing after refresh" despite browser mode fix.
+
+**Root Cause** (5-Why Analysis):
+1. Why aren't images showing? → Only 3/130 equipment items have imageUrl populated
+2. Why do only 3 have imageUrl? → RES Supply (126 items) was scraped without browser mode
+3. Why was it scraped without browser mode? → It was scraped at 2:34 PM before browser mode default was enabled
+4. Why did user think refresh would fix it? → Misunderstanding - page refresh doesn't rescrape
+5. Why couldn't we diagnose faster? → Image onError handler was silently hiding failures
+
+**Solution Implemented**:
+1. ✅ Added console.error logging to image onError handlers to expose failures
+2. ✅ Improved error message from JSX (broken) to proper HTML/SVG
+3. ✅ Added "Image unavailable" text to failed image placeholders
+4. ✅ Documented exact steps users must take to get images
+
+**Files Modified**:
+- `src/app/distributors/[id]/page.tsx` - Added error logging and fixed placeholder HTML
+- `src/app/distributors/page.tsx` - Added error logging and fixed placeholder HTML
+
+**How to Fix "No Images" Issue**:
+1. Visit `/distributors` page
+2. Find the distributor with missing images (e.g., "RES Supply")
+3. Click on the distributor card to open detail page
+4. Ensure "Browser Mode" checkbox is **checked** (now default)
+5. Click "Rescrape" button and wait (may take 1-2 minutes for large catalogs)
+6. Refresh page after scraping completes
+7. Product images will now be populated from live DOM
+
+**Why Page Refresh Doesn't Work**:
+- Refreshing only reloads data from database
+- Image URLs must be extracted during scraping process
+- Rescraping triggers browser automation to extract live DOM image URLs
+- Database updates happen during rescrape, not during page refresh
+
+**Result**: Better error visibility and clear user guidance for obtaining product images.
+
 ## Notes for Future Development
 
 - **No demo mode**: Real bill uploads with OCR extraction required
