@@ -239,7 +239,7 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      // Save products with price snapshots
+      // Save products with price snapshots (UPSERT logic to avoid duplicates)
       for (const product of scrapedProducts) {
         if (!product.name || !product.price) {
           logger.debug({ product }, 'Skipping product with missing name or price')
@@ -249,23 +249,60 @@ export async function POST(request: NextRequest) {
         try {
           const category = detectCategory(product)
 
-          const equipment = await prisma.equipment.create({
-            data: {
+          // Try to find existing equipment by sourceUrl (most reliable) or modelNumber
+          const whereConditions = [
+            product.sourceUrl ? { sourceUrl: product.sourceUrl } : null,
+            { modelNumber: product.modelNumber || product.name.substring(0, 50) }
+          ].filter((condition): condition is { sourceUrl: string } | { modelNumber: string } => condition !== null)
+
+          const existingEquipment = await prisma.equipment.findFirst({
+            where: {
               distributorId: savedDistributor.id,
-              category,
-              name: product.name,
-              manufacturer: product.manufacturer || null,
-              modelNumber: product.modelNumber || product.name.substring(0, 50),
-              description: product.description || null,
-              specifications: product.specifications ? JSON.stringify(product.specifications) : null,
-              unitPrice: product.price,
-              imageUrl: product.imageUrl || null,
-              sourceUrl: product.sourceUrl || null,
-              dataSheetUrl: product.dataSheetUrl || null,
-              inStock: product.inStock !== false,
-              lastScrapedAt: new Date(),
-            },
+              OR: whereConditions,
+            }
           })
+
+          let equipment
+          if (existingEquipment) {
+            // UPDATE existing equipment (preserve old image if new scrape has none)
+            equipment = await prisma.equipment.update({
+              where: { id: existingEquipment.id },
+              data: {
+                category,
+                name: product.name,
+                manufacturer: product.manufacturer || null,
+                description: product.description || null,
+                specifications: product.specifications ? JSON.stringify(product.specifications) : null,
+                unitPrice: product.price,
+                imageUrl: product.imageUrl || existingEquipment.imageUrl, // Keep old image if new scrape has none
+                sourceUrl: product.sourceUrl || existingEquipment.sourceUrl,
+                dataSheetUrl: product.dataSheetUrl || null,
+                inStock: product.inStock !== false,
+                lastScrapedAt: new Date(),
+              },
+            })
+            logger.debug({ equipmentId: equipment.id, name: equipment.name }, 'Updated existing equipment')
+          } else {
+            // CREATE new equipment
+            equipment = await prisma.equipment.create({
+              data: {
+                distributorId: savedDistributor.id,
+                category,
+                name: product.name,
+                manufacturer: product.manufacturer || null,
+                modelNumber: product.modelNumber || product.name.substring(0, 50),
+                description: product.description || null,
+                specifications: product.specifications ? JSON.stringify(product.specifications) : null,
+                unitPrice: product.price,
+                imageUrl: product.imageUrl || null,
+                sourceUrl: product.sourceUrl || null,
+                dataSheetUrl: product.dataSheetUrl || null,
+                inStock: product.inStock !== false,
+                lastScrapedAt: new Date(),
+              },
+            })
+            logger.debug({ equipmentId: equipment.id, name: equipment.name }, 'Created new equipment')
+          }
 
           // Create price snapshot for tracking price history
           await prisma.priceSnapshot.create({
@@ -277,7 +314,6 @@ export async function POST(request: NextRequest) {
           })
 
           savedEquipment.push(equipment)
-          logger.debug({ equipmentId: equipment.id, name: equipment.name }, 'Saved equipment with price snapshot')
         } catch (error) {
           logger.error(
             {
