@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { SYSTEM_SIZING } from '@/lib/config'
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,24 +29,24 @@ export async function POST(request: NextRequest) {
     // Calculate system sizing
     const monthlyUsageKwh = analysis.monthlyUsageKwh
     const dailyUsageKwh = monthlyUsageKwh / 30
-    const solarSizingFactor = 1.2 // 120% to account for losses
+    const solarSizingFactor = SYSTEM_SIZING.SOLAR_SIZING_FACTOR
 
-    const totalSolarKw = (dailyUsageKwh / 4) * solarSizingFactor // Assuming 4 peak sun hours
-    const solarPanelWattage = 400 // Standard 400W panels
+    const totalSolarKw = (dailyUsageKwh / SYSTEM_SIZING.PEAK_SUN_HOURS) * solarSizingFactor
+    const solarPanelWattage = SYSTEM_SIZING.SOLAR_PANEL_WATTAGE
     const solarPanelCount = Math.ceil((totalSolarKw * 1000) / solarPanelWattage)
 
     // Battery sizing
     const backupHrs = backupDurationHrs || 24
     const criticalLoad = criticalLoadKw || 3
-    const batteryKwh = criticalLoad * backupHrs * 1.2 // 20% overhead
+    const batteryKwh = criticalLoad * backupHrs * SYSTEM_SIZING.BATTERY_OVERHEAD
 
-    const inverterKw = Math.max(analysis.peakDemandKw || 5, criticalLoad) * 1.25
+    const inverterKw = Math.max(analysis.peakDemandKw || 5, criticalLoad) * SYSTEM_SIZING.INVERTER_MULTIPLIER
 
     // Cost estimation
-    const solarCostPerWatt = 2.5
-    const batteryCostPerKwh = 800
-    const inverterCostPerKw = 1200
-    const installationCost = 5000
+    const solarCostPerWatt = SYSTEM_SIZING.SOLAR_COST_PER_WATT
+    const batteryCostPerKwh = SYSTEM_SIZING.BATTERY_COST_PER_KWH
+    const inverterCostPerKw = SYSTEM_SIZING.INVERTER_COST_PER_KW
+    const installationCost = SYSTEM_SIZING.INSTALLATION_BASE_COST
 
     const estimatedCostUsd =
       totalSolarKw * 1000 * solarCostPerWatt +

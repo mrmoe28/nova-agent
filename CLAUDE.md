@@ -211,36 +211,100 @@ curl -X POST /api/distributors/scrape-from-url \
 - Lightning bolt logo at `/public/novaagent-logo.svg`
 - NovaAgent ⚡ branding throughout
 
-## Environment Variables
+## Environment Variables & Configuration
 
-Required in `.env.local` and Vercel:
+### Centralized Configuration System
+
+All configurable values are managed through `src/lib/config.ts`, which provides environment variable overrides with sensible defaults. This allows deployment-specific configuration without code changes.
+
+**Configuration Categories**:
+1. **System Sizing** - Solar/battery calculation parameters
+2. **Web Scraping** - Rate limits, timeouts, retry strategies
+3. **Browser Automation** - Viewport, scroll timing, endpoint URLs
+4. **AI Agent** - Claude model, tokens, analysis parameters
+5. **File Upload** - Size limits, allowed file types
+6. **OCR** - Confidence thresholds, validation limits
+7. **Caching** - Timeout durations
+8. **API Routes** - Function execution limits
+
+### Required Environment Variables
 
 ```bash
-# Database
+# Database (REQUIRED)
 DATABASE_URL="postgresql://user:password@host/database"
+```
 
-# Optional: Web Scraping
+### Optional Environment Variables
+
+```bash
+# Web Scraping
 BROWSERLESS_TOKEN=""        # For BrowserQL scraper (product images)
+BROWSERLESS_ENDPOINT=""     # Custom Browserless instance URL
 ANTHROPIC_API_KEY=""        # For AI Agent scraper (intelligent scraping)
 
-# Optional: Cron Jobs
+# Cron Jobs
 CRON_SECRET=""              # Secret for scheduled scraping
 
-# Optional: Logging
+# Logging
 LOG_LEVEL="info"            # info | debug | warn | error
+
+# System Sizing Defaults
+SOLAR_SIZING_FACTOR="1.2"        # Solar oversizing (120%)
+PEAK_SUN_HOURS="4"               # Average peak sun hours
+SOLAR_PANEL_WATTAGE="400"        # Standard panel wattage
+SOLAR_COST_PER_WATT="2.5"        # Cost per watt ($)
+BATTERY_COST_PER_KWH="800"       # Cost per kWh ($)
+INVERTER_COST_PER_KW="1200"      # Cost per kW ($)
+INSTALLATION_BASE_COST="5000"    # Base installation cost ($)
+
+# Scraper Configuration
+SCRAPER_RATE_LIMIT="1000"        # Rate limit (ms)
+SCRAPER_TIMEOUT="30000"          # Request timeout (ms)
+SCRAPER_MAX_RETRIES="3"          # Max retry attempts
+SCRAPER_BASE_DELAY="1000"        # Backoff base delay (ms)
+SCRAPER_MAX_DELAY="10000"        # Backoff max delay (ms)
+
+# Browser Configuration
+BROWSER_WIDTH="1920"             # Viewport width
+BROWSER_HEIGHT="1080"            # Viewport height
+BROWSER_NAV_TIMEOUT="30000"      # Navigation timeout (ms)
+BROWSER_MAX_SCROLLS="10"         # Max scroll attempts
+BROWSER_SCROLL_INTERVAL="1500"   # Scroll interval (ms)
+
+# AI Configuration
+CLAUDE_MODEL="claude-3-5-sonnet-20241022"  # Claude model ID
+CLAUDE_MAX_TOKENS="2000"                   # Max response tokens
+AI_MAX_ATTEMPTS="3"                        # Self-correction attempts
+AI_MAX_LINK_SAMPLES="50"                   # Links to analyze
 ```
 
-**Setup**:
+### Configuration Usage
+
+All configuration is accessed through `src/lib/config.ts`:
+
+```typescript
+import { SYSTEM_SIZING, SCRAPER_CONFIG, AI_CONFIG } from '@/lib/config'
+
+// Use in your code
+const solarKw = (dailyKwh / SYSTEM_SIZING.PEAK_SUN_HOURS) * SYSTEM_SIZING.SOLAR_SIZING_FACTOR
+const html = await fetchHTML(url, { timeout: SCRAPER_CONFIG.DEFAULT_TIMEOUT })
+const response = await anthropic.messages.create({ model: AI_CONFIG.MODEL })
+```
+
+### Environment Setup
+
 ```bash
-# Copy template
+# Copy template with all configuration options
 cp .env.example .env.local
 
-# Pull from Vercel
+# Pull from Vercel (production values)
 vercel env pull .env.local
 
-# Push to Vercel
+# Push to Vercel (update production)
 vercel env push .env.local
 ```
+
+**See `.env.example` for complete configuration documentation.**
 
 ## File Upload Important Notes
 

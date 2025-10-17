@@ -2,6 +2,7 @@ import * as cheerio from 'cheerio'
 import { createLogger } from './logger'
 import { retry } from './retry'
 import { robotsChecker } from './robots-checker'
+import { SCRAPER_CONFIG } from './config'
 
 const logger = createLogger('scraper')
 
@@ -194,12 +195,12 @@ export interface ScrapedCompany {
 }
 
 const DEFAULT_CONFIG: ScraperConfig = {
-  rateLimit: 1000, // 1 second base delay (increased if randomDelay is true)
+  rateLimit: SCRAPER_CONFIG.DEFAULT_RATE_LIMIT,
   randomDelay: false, // Set to true for production to avoid detection
-  timeout: 30000, // 30 seconds
-  userAgent: 'NovaAgent/1.0 (+https://novaagent-kappa.vercel.app)',
+  timeout: SCRAPER_CONFIG.DEFAULT_TIMEOUT,
+  userAgent: SCRAPER_CONFIG.USER_AGENT_ID,
   respectRobotsTxt: true, // Always respect robots.txt
-  maxRetries: 3, // Retry failed requests up to 3 times
+  maxRetries: SCRAPER_CONFIG.MAX_RETRIES,
 }
 
 /**
@@ -259,10 +260,10 @@ export async function fetchHTML(url: string, config: ScraperConfig): Promise<str
       }
     },
     {
-      maxRetries: config.maxRetries || 3,
-      baseDelay: 1000,
-      maxDelay: 10000,
-      factor: 2,
+      maxRetries: config.maxRetries || SCRAPER_CONFIG.MAX_RETRIES,
+      baseDelay: SCRAPER_CONFIG.BASE_DELAY,
+      maxDelay: SCRAPER_CONFIG.MAX_DELAY,
+      factor: SCRAPER_CONFIG.BACKOFF_FACTOR,
       onRetry: (error, attempt) => {
         logger.warn(
           { url, error: error.message, attempt },

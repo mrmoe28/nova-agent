@@ -444,7 +444,11 @@ export default function DistributorsPage() {
             setEditingDistributor(null)
             fetchDistributors()
           }}
-          onEquipmentUpdated={fetchEquipment}
+          onEquipmentUpdated={() => {
+            fetchEquipment()
+            // Switch to Equipment tab so user can see new products
+            setActiveTab("equipment")
+          }}
         />
       )}
 
@@ -551,14 +555,26 @@ function DistributorForm({
         })
 
         const productsCount = data.products?.length || data.productLinks?.length || 0
-        alert(
-          `Successfully scraped!\n` +
-          `Found ${productsCount} product${productsCount !== 1 ? 's' : ''}${scrapeProducts ? ' and saved to database' : ''}.`
-        )
 
         // Refresh equipment list if products were saved
+        // Add delay to ensure database transaction commits before fetching
         if (scrapeProducts && productsCount > 0 && onEquipmentUpdated) {
-          onEquipmentUpdated()
+          alert(
+            `Successfully scraped!\n` +
+            `Found ${productsCount} product${productsCount !== 1 ? 's' : ''} and saved to database.\n\n` +
+            `The page will refresh in a moment to show the new products...`
+          )
+
+          setTimeout(() => {
+            onEquipmentUpdated()
+            // Close the modal after refresh so user can see the new products
+            onClose()
+          }, 1000) // Wait 1 second for DB transaction to complete
+        } else {
+          alert(
+            `Successfully scraped!\n` +
+            `Found ${productsCount} product${productsCount !== 1 ? 's' : ''}.`
+          )
         }
       } else {
         alert(`Failed to scrape: ${data.error || 'Unknown error'}`)

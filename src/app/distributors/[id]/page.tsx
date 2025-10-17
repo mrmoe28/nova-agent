@@ -105,8 +105,11 @@ export default function DistributorDetailPage() {
       const data = await response.json()
 
       if (data.success) {
-        alert(`Successfully rescraped! Found ${data.productsFound} products.`)
-        fetchDistributor()
+        alert(`Successfully rescraped! Found ${data.productsFound} products. Refreshing...`)
+        // Add delay to ensure database transaction commits before fetching
+        setTimeout(() => {
+          fetchDistributor()
+        }, 1000) // Wait 1 second for DB transaction to complete
       } else {
         alert(`Rescrape failed: ${data.error}`)
       }

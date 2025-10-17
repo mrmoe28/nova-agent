@@ -14,6 +14,7 @@ import { createLogger } from './logger'
 import { scrapeMultipleProducts, fetchHTML, isProductPageUrl } from './scraper'
 import { getBrowserScraper, closeBrowserScraper } from './browser-scraper-bql'
 import type { ScrapedProduct, ScraperConfig } from './scraper'
+import { AI_CONFIG } from './config'
 
 const logger = createLogger('ai-agent-scraper')
 
@@ -68,7 +69,7 @@ export interface Diagnosis {
  */
 export class AIAgentScraper {
   private attempts = 0
-  private maxAttempts = 3
+  private maxAttempts = AI_CONFIG.MAX_ATTEMPTS
   private history: string[] = []
 
   /**
@@ -109,8 +110,8 @@ export class AIAgentScraper {
 
     // Fetch HTML (use simple HTTP for analysis to save time)
     const html = await fetchHTML(url, {
-      rateLimit: 0,
-      timeout: 8000,
+      rateLimit: AI_CONFIG.ANALYSIS_RATE_LIMIT,
+      timeout: AI_CONFIG.ANALYSIS_TIMEOUT,
       respectRobotsTxt: true,
       maxRetries: 1,
     })
@@ -121,12 +122,12 @@ export class AIAgentScraper {
     const metaDescription = $('meta[name="description"]').attr('content') || ''
     const h1 = $('h1').first().text()
 
-    // Get sample links (limited to first 50 to save tokens)
+    // Get sample links (limited to save tokens)
     const links = $('a[href]')
-      .slice(0, 50)
+      .slice(0, AI_CONFIG.MAX_LINK_SAMPLES)
       .map((_, el) => ({
         href: $(el).attr('href'),
-        text: $(el).text().trim().substring(0, 100),
+        text: $(el).text().trim().substring(0, AI_CONFIG.LINK_TEXT_MAX_LENGTH),
         class: $(el).attr('class') || '',
       }))
       .get()
@@ -177,8 +178,8 @@ Respond in JSON format:
 }`
 
     const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 2000,
+      model: AI_CONFIG.MODEL,
+      max_tokens: AI_CONFIG.MAX_TOKENS,
       messages: [
         {
           role: 'user',
@@ -408,8 +409,8 @@ Respond in JSON:
 }`
 
     const response = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 1500,
+      model: AI_CONFIG.MODEL,
+      max_tokens: AI_CONFIG.MAX_DIAGNOSIS_TOKENS,
       messages: [
         {
           role: 'user',

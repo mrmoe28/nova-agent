@@ -1,6 +1,7 @@
 import * as cheerio from 'cheerio'
 import { createLogger } from './logger'
 import { ScrapedProduct, ScraperConfig } from './scraper'
+import { BROWSER_CONFIG } from './config'
 
 const logger = createLogger('browser-scraper-bql')
 
@@ -21,7 +22,7 @@ export class BrowserScraperBQL {
       )
     }
 
-    this.endpoint = 'https://production-sfo.browserless.io/chromium/bql'
+    this.endpoint = BROWSER_CONFIG.BROWSERLESS_ENDPOINT
     this.token = token
   }
 
@@ -64,7 +65,7 @@ export class BrowserScraperBQL {
         goto(url: $url, waitUntil: networkidle0) {
           status
         }
-        wait(timeout: 2000)
+        wait(timeout: ${BROWSER_CONFIG.BQL_WAIT_TIMEOUT})
         html {
           content
         }
@@ -84,7 +85,7 @@ export class BrowserScraperBQL {
         // Scroll to trigger lazy loading
         let previousHeight = 0;
         let attempts = 0;
-        const maxAttempts = 5;
+        const maxAttempts = ${BROWSER_CONFIG.MAX_SCROLL_ATTEMPTS};
 
         while (attempts < maxAttempts) {
           const currentHeight = document.body.scrollHeight;
@@ -98,12 +99,12 @@ export class BrowserScraperBQL {
 
           previousHeight = currentHeight;
           window.scrollTo(0, currentHeight);
-          await new Promise(r => setTimeout(r, 1500));
+          await new Promise(r => setTimeout(r, ${BROWSER_CONFIG.SCROLL_INTERVAL}));
         }
 
         // Scroll back to top
         window.scrollTo(0, 0);
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, ${BROWSER_CONFIG.POST_SCROLL_WAIT}));
 
         // Extract image URL from live DOM
         const selectors = [
