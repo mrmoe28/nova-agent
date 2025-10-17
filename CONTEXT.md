@@ -211,6 +211,31 @@ Potential enhancements:
 
 **Result**: Users now have clear visibility into upload status and are guided toward using PDF files for optimal OCR results.
 
+#### Product Image Extraction Fix
+**Problem**: All 126 equipment items showing placeholder icons instead of product images.
+
+**Root Cause**:
+1. Products scraped with `useBrowser=false` (default) which can't extract JS-rendered images
+2. Browser scraper with sophisticated image extraction exists but wasn't used
+3. All equipment `imageUrl` fields are `null` in database
+
+**Solution Implemented**:
+1. ✅ Changed `useBrowser` default from `false` to `true` on distributor detail page
+2. ✅ Updated checkbox label to "Browser Mode (extracts product images, slower but more accurate)"
+3. ✅ Browser mode now pre-checked by default for re-scraping
+
+**Files Modified**:
+- `src/app/distributors/[id]/page.tsx` - Default browser mode to true, update label
+
+**How to Get Product Images**:
+1. Visit any distributor detail page: `/distributors/[id]`
+2. Ensure "Browser Mode" checkbox is checked (now default)
+3. Click "Rescrape" button
+4. Wait for browser scraping to complete (slower but extracts images)
+5. Product images will populate in equipment catalog
+
+**Result**: Users can now re-scrape distributors to extract product images using the browser-based scraper with live DOM inspection.
+
 ## Notes for Future Development
 
 - **No demo mode**: Real bill uploads with OCR extraction required
