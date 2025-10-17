@@ -11,7 +11,7 @@
 import Anthropic from '@anthropic-ai/sdk'
 import * as cheerio from 'cheerio'
 import { createLogger } from './logger'
-import { scrapeProductPage, scrapeMultipleProducts, fetchHTML, isProductPageUrl } from './scraper'
+import { scrapeMultipleProducts, fetchHTML, isProductPageUrl } from './scraper'
 import { getBrowserScraper, closeBrowserScraper } from './browser-scraper-bql'
 import type { ScrapedProduct, ScraperConfig } from './scraper'
 

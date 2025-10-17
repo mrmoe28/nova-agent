@@ -205,7 +205,7 @@ const DEFAULT_CONFIG: ScraperConfig = {
 /**
  * Fetch HTML content from a URL with robots.txt compliance and retry logic
  */
-async function fetchHTML(url: string, config: ScraperConfig): Promise<string> {
+export async function fetchHTML(url: string, config: ScraperConfig): Promise<string> {
   // Check robots.txt if enabled
   if (config.respectRobotsTxt) {
     const robotsCheck = await robotsChecker.canCrawl(url, 'novaagent')
