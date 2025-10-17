@@ -100,32 +100,24 @@ export async function POST(request: NextRequest) {
         "🤖 AI Agent mode enabled - using intelligent scraping",
       );
 
-      try {
-        const aiScraper = getAIScraper();
-        scrapedProducts = await logOperation(
-          logger,
-          "ai-agent-scrape",
-          () =>
-            aiScraper.scrape(url, {
-              rateLimit: 200,
-              timeout: 5000,
-              respectRobotsTxt: true,
-              maxRetries: 1,
-            }),
-          { url, mode: "AI-powered" },
-        );
+      const aiScraper = getAIScraper();
+      scrapedProducts = await logOperation(
+        logger,
+        "ai-agent-scrape",
+        () =>
+          aiScraper.scrape(url, {
+            rateLimit: 200,
+            timeout: 5000,
+            respectRobotsTxt: true,
+            maxRetries: 1,
+          }),
+        { url, mode: "AI-powered" },
+      );
 
-        logger.info(
-          { productsFound: scrapedProducts.length },
-          "🤖 AI Agent scraping completed",
-        );
-      } catch (error) {
-        logger.error(
-          { error },
-          "🤖 AI Agent scraping failed, falling back to traditional method",
-        );
-        // Fall through to traditional scraping
-      }
+      logger.info(
+        { productsFound: scrapedProducts.length },
+        "🤖 AI Agent scraping completed",
+      );
     }
 
     // Step 2: Traditional scraping (skip if AI already succeeded)

@@ -565,7 +565,7 @@ function DistributorForm({
           url: scrapeUrl,
           saveToDatabase: scrapeProducts, // Save products if enabled
           scrapeProducts: scrapeProducts, // Scrape products if enabled
-          useBrowser: true, // Use browser mode by default for better image extraction
+          useBrowser: false, // Browser mode disabled - requires valid Browserless token
         }),
       });
 

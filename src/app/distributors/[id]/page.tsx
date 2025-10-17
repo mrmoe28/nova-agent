@@ -70,7 +70,7 @@ export default function DistributorDetailPage() {
   const [distributor, setDistributor] = useState<Distributor | null>(null);
   const [loading, setLoading] = useState(true);
   const [scraping, setScraping] = useState(false);
-  const [useBrowser, setUseBrowser] = useState(true); // Default to true for image extraction
+  const [useBrowser, setUseBrowser] = useState(false); // Browser mode - requires valid Browserless token
   const [useAI, setUseAI] = useState(false); // AI Agent mode available if needed
   const [showAddUrlDialog, setShowAddUrlDialog] = useState(false);
   const [newUrl, setNewUrl] = useState("");
