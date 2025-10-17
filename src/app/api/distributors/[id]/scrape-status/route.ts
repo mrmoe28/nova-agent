@@ -7,10 +7,10 @@ import { prisma } from '@/lib/prisma';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const distributorId = params.id;
+    const { id: distributorId } = await params;
 
     // Get the most recent crawl job for this distributor
     const latestJob = await prisma.crawlJob.findFirst({
