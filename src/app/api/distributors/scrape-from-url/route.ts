@@ -68,20 +68,33 @@ export async function POST(request: NextRequest) {
     if (saveToDatabase) {
       // Create or update distributor
       if (distributorId) {
-        // Update existing distributor
+        // Update existing distributor - only include fields that have values
+        const updateData: {
+          name?: string
+          contactName?: string
+          email?: string
+          phone?: string
+          website?: string
+          address?: string
+          notes?: string
+          logoUrl?: string
+          lastScrapedAt: Date
+        } = {
+          lastScrapedAt: new Date(),
+        }
+
+        if (companyInfo.name) updateData.name = companyInfo.name
+        if (companyInfo.contactName) updateData.contactName = companyInfo.contactName
+        if (companyInfo.email) updateData.email = companyInfo.email
+        if (companyInfo.phone) updateData.phone = companyInfo.phone
+        if (companyInfo.website || url) updateData.website = companyInfo.website || url
+        if (companyInfo.address) updateData.address = companyInfo.address
+        if (companyInfo.description) updateData.notes = companyInfo.description
+        if (companyInfo.logoUrl) updateData.logoUrl = companyInfo.logoUrl
+
         savedDistributor = await prisma.distributor.update({
           where: { id: distributorId },
-          data: {
-            name: companyInfo.name || undefined,
-            contactName: companyInfo.contactName || undefined,
-            email: companyInfo.email || undefined,
-            phone: companyInfo.phone || undefined,
-            website: companyInfo.website || url,
-            address: companyInfo.address || undefined,
-            notes: companyInfo.description || undefined,
-            logoUrl: companyInfo.logoUrl || undefined,
-            lastScrapedAt: new Date(),
-          },
+          data: updateData,
         })
         console.log(`Updated distributor: ${savedDistributor.name} (${savedDistributor.id})`)
       } else {
