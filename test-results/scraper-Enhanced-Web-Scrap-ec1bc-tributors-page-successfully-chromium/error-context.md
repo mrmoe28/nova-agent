@@ -1,0 +1,74 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "NovaAgent logo NovaAgent ⚡ AI Energy Planner for Solar & Battery Systems" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img "NovaAgent logo" [ref=e6]
+        - generic [ref=e7]:
+          - generic [ref=e8]: NovaAgent ⚡
+          - generic [ref=e9]: AI Energy Planner for Solar & Battery Systems
+      - generic [ref=e10]:
+        - link "Distributors" [ref=e11] [cursor=pointer]:
+          - /url: /distributors
+          - img
+          - text: Distributors
+        - link "New Project" [ref=e12] [cursor=pointer]:
+          - /url: /wizard/new
+          - img
+          - text: New Project
+        - link "Projects" [ref=e13] [cursor=pointer]:
+          - /url: /projects
+          - img
+          - text: Projects
+  - main [ref=e14]:
+    - generic [ref=e15]:
+      - generic [ref=e16]:
+        - heading "Distributors & Equipment" [level=1] [ref=e17]
+        - paragraph [ref=e18]: Manage your distributor network and equipment catalog
+      - generic [ref=e20]:
+        - button "Distributors (2)" [ref=e21]:
+          - img [ref=e22]
+          - text: Distributors (2)
+        - button "Equipment (0)" [ref=e26]:
+          - img [ref=e27]
+          - text: Equipment (0)
+      - generic [ref=e31]:
+        - generic [ref=e32]:
+          - img [ref=e33]
+          - textbox "Search distributors..." [ref=e36]
+        - button "Add Distributor" [ref=e37]:
+          - img
+          - text: Add Distributor
+      - generic [ref=e38]:
+        - generic [ref=e39] [cursor=pointer]:
+          - generic [ref=e40]:
+            - 'heading "RES Supply: Renewable Energy Systems for Less." [level=3] [ref=e42]'
+            - generic [ref=e43]:
+              - button [ref=e44]:
+                - img
+              - button [ref=e45]:
+                - img
+          - link "Website" [ref=e47]:
+            - /url: https://ressupply.com
+            - text: Website
+            - img [ref=e48]
+        - generic [ref=e52] [cursor=pointer]:
+          - generic [ref=e53]:
+            - heading "Signature Solar" [level=3] [ref=e55]
+            - generic [ref=e56]:
+              - button [ref=e57]:
+                - img
+              - button [ref=e58]:
+                - img
+          - generic [ref=e59]:
+            - paragraph [ref=e60]: support@signaturesolar.com
+            - paragraph [ref=e61]: 903-441-2090
+            - link "Website" [ref=e62]:
+              - /url: https://signaturesolar.com
+              - text: Website
+              - img [ref=e63]
+  - alert [ref=e67]
+```
