@@ -1,4 +1,5 @@
-import { chromium, Browser, Page } from '@playwright/test'
+import puppeteer, { Browser, Page } from 'puppeteer-core'
+import chromium from '@sparticuz/chromium'
 import * as cheerio from 'cheerio'
 import { createLogger } from './logger'
 import { ScrapedProduct, ScraperConfig } from './scraper'
@@ -6,28 +7,39 @@ import { ScrapedProduct, ScraperConfig } from './scraper'
 const logger = createLogger('browser-scraper')
 
 /**
- * Browser-based scraper using Playwright for JavaScript-heavy sites
- * Use this when regular fetch-based scraping fails (403, bot detection, etc.)
+ * Browser-based scraper using Puppeteer for JavaScript-heavy sites
+ * Compatible with Vercel serverless functions using @sparticuz/chromium
  */
 export class BrowserScraper {
   private browser: Browser | null = null
 
   /**
-   * Initialize the headless browser
+   * Initialize the headless browser (serverless-compatible)
    */
   async init() {
     if (this.browser) return
 
-    logger.info('Launching headless browser')
-    this.browser = await chromium.launch({
-      headless: true,
-      args: [
-        '--disable-blink-features=AutomationControlled',
-        '--disable-dev-shm-usage',
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-      ],
-    })
+    logger.info('Launching headless browser for serverless environment')
+
+    try {
+      // Set minimal args for better compatibility
+      chromium.setGraphicsMode = false
+
+      this.browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: {
+          width: 1920,
+          height: 1080,
+        },
+        executablePath: await chromium.executablePath(),
+        headless: true,
+      })
+
+      logger.info('Browser launched successfully')
+    } catch (error) {
+      logger.error({ error }, 'Failed to launch browser')
+      throw error
+    }
   }
 
   /**
@@ -47,20 +59,23 @@ export class BrowserScraper {
   async fetchHTML(url: string, config: Partial<ScraperConfig> = {}): Promise<string> {
     await this.init()
 
-    const context = await this.browser!.newContext({
-      userAgent: config.userAgent || 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-      viewport: { width: 1920, height: 1080 },
-      locale: 'en-US',
-      timezoneId: 'America/New_York',
-      permissions: [],
-      hasTouch: false,
-      isMobile: false,
-      javaScriptEnabled: true,
-    })
-
-    const page = await context.newPage()
+    const page = await this.browser!.newPage()
 
     try {
+      // Set realistic User-Agent
+      await page.setUserAgent(
+        config.userAgent ||
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36'
+      )
+
+      // Set additional headers to mimic real browser
+      await page.setExtraHTTPHeaders({
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        Accept:
+          'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+      })
+
       logger.info({ url }, 'Fetching page with browser')
 
       // Navigate with timeout
@@ -70,13 +85,13 @@ export class BrowserScraper {
       })
 
       // Wait for images to load
-      await page.waitForTimeout(2000)
+      await new Promise((resolve) => setTimeout(resolve, 2000))
 
       // Scroll to trigger lazy loading
       await this.scrollPage(page)
 
       // Wait for lazy-loaded images
-      await page.waitForTimeout(1000)
+      await new Promise((resolve) => setTimeout(resolve, 1000))
 
       // Get the fully rendered HTML
       const html = await page.content()
@@ -94,7 +109,7 @@ export class BrowserScraper {
       )
       throw error
     } finally {
-      await context.close()
+      await page.close()
     }
   }
 
@@ -103,12 +118,12 @@ export class BrowserScraper {
    */
   private async scrollPage(page: Page) {
     await page.evaluate(() => {
-      const scrollHeight = document.documentElement.scrollHeight
-      const steps = 5
-      const stepSize = scrollHeight / steps
-
       return new Promise<void>((resolve) => {
+        const scrollHeight = document.documentElement.scrollHeight
+        const steps = 5
+        const stepSize = scrollHeight / steps
         let scrolled = 0
+
         const interval = setInterval(() => {
           window.scrollBy(0, stepSize)
           scrolled += stepSize
@@ -188,7 +203,7 @@ export class BrowserScraper {
         }
       }
 
-      // Extract image (multiple strategies)
+      // Extract image (multiple strategies for lazy-loaded images)
       if (!product.imageUrl) {
         const imageSelectors = [
           'meta[property="og:image"]',
@@ -197,6 +212,8 @@ export class BrowserScraper {
           'img.main-image',
           '.product-images img',
           'picture img',
+          'img[data-src]',
+          'img[src]',
         ]
 
         for (const selector of imageSelectors) {
@@ -205,11 +222,13 @@ export class BrowserScraper {
             if (selector.startsWith('meta')) {
               product.imageUrl = $img.attr('content')
             } else {
+              // Check all possible image attributes (lazy loading)
               product.imageUrl =
                 $img.attr('src') ||
                 $img.attr('data-src') ||
                 $img.attr('data-lazy') ||
-                $img.attr('data-original')
+                $img.attr('data-original') ||
+                $img.attr('data-image')
             }
             if (product.imageUrl) break
           }
@@ -267,7 +286,7 @@ export class BrowserScraper {
 
         // Rate limiting
         if (i < urls.length - 1 && config.rateLimit) {
-          await new Promise(resolve => setTimeout(resolve, config.rateLimit))
+          await new Promise((resolve) => setTimeout(resolve, config.rateLimit))
         }
       } catch (error) {
         logger.error(
@@ -281,7 +300,13 @@ export class BrowserScraper {
       }
     }
 
-    logger.info({ totalUrls: urls.length, successCount: results.filter(r => !r.name?.startsWith('Error:')).length }, 'Browser batch scraping completed')
+    logger.info(
+      {
+        totalUrls: urls.length,
+        successCount: results.filter((r) => !r.name?.startsWith('Error:')).length,
+      },
+      'Browser batch scraping completed'
+    )
 
     return results
   }
