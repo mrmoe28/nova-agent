@@ -142,7 +142,7 @@ export default function ReviewPage() {
         batteryType: "lithium",
         inverterType: "Hybrid String Inverter",
         criticalLoadKw:
-          project.system?.criticalLoadKw ?? Math.max(editedSystem.inverterKw || 0, 0),
+          project.system?.criticalLoadKw ?? Math.max(project.system?.inverterKw || 0, 0),
       };
 
       const response = await fetch(`/api/projects/${projectId}/system`, {
