@@ -1,6 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // Mark pdf-parse as external for Server Components
+  experimental: {
+    serverComponentsExternalPackages: ['pdf-parse'],
+  },
+
   images: {
     remotePatterns: [
       {
