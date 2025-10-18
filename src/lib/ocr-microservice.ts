@@ -56,7 +56,7 @@ export async function extractWithMicroservice(
   wantTables = true
 ): Promise<OCRResult> {
   const ocrServiceUrl =
-    process.env.OCR_SERVICE_URL || "http://localhost:8001";
+    process.env.OCR_SERVICE_URL || "http://localhost:8002";
 
   try {
     // Read the file
@@ -126,7 +126,7 @@ export async function extractWithMicroservice(
  */
 export async function checkMicroserviceHealth(): Promise<boolean> {
   const ocrServiceUrl =
-    process.env.OCR_SERVICE_URL || "http://localhost:8001";
+    process.env.OCR_SERVICE_URL || "http://localhost:8002";
 
   try {
     const response = await fetch(`${ocrServiceUrl}/health`, {

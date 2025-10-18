@@ -46,7 +46,7 @@ export default function OCRPage() {
       fd.append("want_tables", "true");
 
       // Call OCR microservice directly
-      const r = await fetch("http://localhost:8001/extract", { method: "POST", body: fd });
+      const r = await fetch("http://localhost:8002/extract", { method: "POST", body: fd });
       if (!r.ok) {
         const d = await r.json().catch(() => ({}));
         throw new Error(d?.detail || d?.error || `HTTP ${r.status}`);
