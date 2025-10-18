@@ -141,8 +141,7 @@ export default function ReviewPage() {
         estimatedCostUsd: estimatedCost,
         batteryType: "lithium",
         inverterType: "Hybrid String Inverter",
-        criticalLoadKw:
-          project.system?.criticalLoadKw ?? Math.max(project.system?.inverterKw || 0, 0),
+        criticalLoadKw: Math.max(project.system?.inverterKw || 0, 0),
       };
 
       const response = await fetch(`/api/projects/${projectId}/system`, {
