@@ -60,6 +60,7 @@ interface System {
   inverterType: string;
   backupDurationHrs: number;
   estimatedCostUsd: number;
+  criticalLoadKw: number;
   distributorId?: string;
 }
 
@@ -259,36 +260,46 @@ export default function ProjectsPage() {
         }
 
         // Perform the API call
-        fetch('/api/size', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        fetch("/api/size/recalculate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            projectId: projectId,
+            projectId,
             backupDurationHrs: project.system.backupDurationHrs,
-            criticalLoadKw: project.system.totalSolarKw,
-            distributorId: selectedDistributor
+            criticalLoadKw:
+              project.system.criticalLoadKw || project.system.totalSolarKw,
+            distributorId: selectedDistributor,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              setProjects((prev) =>
+                prev.map((p) =>
+                  p.id === projectId
+                    ? {
+                        ...p,
+                        system: {
+                          ...p.system!,
+                          ...data.system,
+                          distributorId: selectedDistributor,
+                        },
+                      }
+                    : p,
+                ),
+              );
+            }
           })
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            setProjects(prev => prev.map(p => 
-              p.id === projectId 
-                ? { ...p, system: { ...p.system!, ...data.system } }
-                : p
-            ));
-          }
-        })
-        .catch(error => {
-          console.error("Error recalculating cost:", error);
-        })
-        .finally(() => {
-          setRecalculatingCosts(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(projectId);
-            return newSet;
+          .catch((error) => {
+            console.error("Error recalculating cost:", error);
+          })
+          .finally(() => {
+            setRecalculatingCosts((prev) => {
+              const newSet = new Set(prev);
+              newSet.delete(projectId);
+              return newSet;
+            });
           });
-        });
 
         return currentProjects; // Return unchanged for this immediate call
       });

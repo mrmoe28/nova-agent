@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { refreshBomAndPlan, SizingError } from "@/lib/system-sizing";
 
 export async function PATCH(
   request: NextRequest,
@@ -19,6 +20,7 @@ export async function PATCH(
       estimatedCostUsd,
       batteryType = "lithium",
       inverterType = "Hybrid String Inverter",
+      criticalLoadKw,
     } = body;
 
     // Validate required fields
@@ -41,6 +43,10 @@ export async function PATCH(
       );
     }
 
+    const existingSystem = await prisma.system.findUnique({
+      where: { projectId },
+    });
+
     // Update or create system
     const systemData = {
       solarPanelCount: parseInt(solarPanelCount) || 0,
@@ -51,7 +57,10 @@ export async function PATCH(
       inverterKw: parseFloat(inverterKw) || 0,
       inverterType,
       backupDurationHrs: parseInt(backupDurationHrs) || 0,
-      criticalLoadKw: parseFloat(inverterKw) || 0, // Default critical load to inverter capacity
+      criticalLoadKw:
+        criticalLoadKw !== undefined
+          ? parseFloat(criticalLoadKw) || 0
+          : ((existingSystem?.criticalLoadKw ?? parseFloat(inverterKw)) || 0),
       estimatedCostUsd: parseFloat(estimatedCostUsd) || 0,
     };
 
@@ -64,14 +73,12 @@ export async function PATCH(
       update: systemData,
     });
 
-    // Update project status if needed
     await prisma.project.update({
       where: { id: projectId },
-      data: { 
-        status: "sizing",
-        updatedAt: new Date(),
-      },
+      data: { updatedAt: new Date() },
     });
+
+    await refreshBomAndPlan(projectId, true);
 
     return NextResponse.json({
       success: true,
@@ -80,6 +87,12 @@ export async function PATCH(
     });
   } catch (error) {
     console.error("Error updating system:", error);
+    if (error instanceof SizingError) {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: error.status },
+      );
+    }
     return NextResponse.json(
       { success: false, error: "Failed to update system" },
       { status: 500 }

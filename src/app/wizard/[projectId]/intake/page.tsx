@@ -19,7 +19,8 @@ export default function IntakePage() {
       id: string;
       fileName: string;
       fileType: string;
-      uploadedAt: Date;
+      uploadedAt: string;
+      ocrProcessed?: boolean;
     }[],
   ) => {
     setHasFiles(bills.length > 0);

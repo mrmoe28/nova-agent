@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Upload,
   FileText,
@@ -21,7 +21,7 @@ interface UploadedFile {
   id: string;
   fileName: string;
   fileType: string;
-  uploadedAt: Date;
+  uploadedAt: string;
   ocrProcessed?: boolean;
 }
 
@@ -39,6 +39,37 @@ export default function FileUpload({
   const [dragActive, setDragActive] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [currentFile, setCurrentFile] = useState<string>("");
+  const [removingId, setRemovingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadExistingBills = async () => {
+      try {
+        const response = await fetch(`/api/upload?projectId=${projectId}`);
+        const data = await response.json();
+
+        if (data.success && Array.isArray(data.bills)) {
+          const mappedBills: UploadedFile[] = data.bills.map((bill: any) => ({
+            id: bill.id,
+            fileName: bill.fileName,
+            fileType: bill.fileType,
+            uploadedAt: new Date(bill.uploadedAt).toISOString(),
+            ocrProcessed: !!bill.ocrText,
+          }));
+
+          setUploadedFiles(mappedBills);
+          onUploadComplete?.(mappedBills);
+        }
+      } catch (error) {
+        console.error("Error loading bills:", error);
+        toast.error("Failed to load existing bills", {
+          description: "Please refresh and try again.",
+        });
+      }
+    };
+
+    loadExistingBills();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -116,10 +147,18 @@ export default function FileUpload({
           const data = await response.json();
 
           if (data.success) {
-            uploaded.push(data.bill);
+            const normalizedBill: UploadedFile = {
+              id: data.bill.id,
+              fileName: data.bill.fileName,
+              fileType: data.bill.fileType,
+              uploadedAt: new Date(data.bill.uploadedAt).toISOString(),
+              ocrProcessed: data.bill.ocrProcessed,
+            };
+
+            uploaded.push(normalizedBill);
 
             // Show success toast
-            if (data.bill.ocrProcessed) {
+            if (normalizedBill.ocrProcessed) {
               toast.success(`${file.name} uploaded successfully`, {
                 description: "OCR processing completed",
               });
@@ -171,10 +210,31 @@ export default function FileUpload({
     }
   };
 
-  const removeFile = (id: string) => {
-    const newFiles = uploadedFiles.filter((f) => f.id !== id);
-    setUploadedFiles(newFiles);
-    onUploadComplete?.(newFiles);
+  const removeFile = async (id: string) => {
+    try {
+      setRemovingId(id);
+      const response = await fetch(`/api/bills/${id}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        throw new Error(data.error || "Failed to delete bill");
+      }
+
+      const newFiles = uploadedFiles.filter((f) => f.id !== id);
+      setUploadedFiles(newFiles);
+      onUploadComplete?.(newFiles);
+      toast.success("Bill removed");
+    } catch (error) {
+      console.error("Error removing bill:", error);
+      toast.error("Failed to remove bill", {
+        description:
+          error instanceof Error ? error.message : "Unknown error occurred",
+      });
+    } finally {
+      setRemovingId(null);
+    }
   };
 
   return (
@@ -356,9 +416,14 @@ export default function FileUpload({
                       variant="ghost"
                       size="icon"
                       onClick={() => removeFile(file.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-400"
+                      disabled={removingId === file.id}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-100 hover:text-red-600 dark:hover:bg-red-950 dark:hover:text-red-400 disabled:opacity-50"
                     >
-                      <X className="h-4 w-4" />
+                      {removingId === file.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <X className="h-4 w-4" />
+                      )}
                     </Button>
                   </div>
                 </CardContent>
