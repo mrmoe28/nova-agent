@@ -375,13 +375,13 @@ export function validateDistributorData(distributor: Record<string, string | num
   let score = 0;
 
   // Required fields
-  if (!distributor.name || distributor.name.trim().length === 0) {
+  if (!distributor.name || typeof distributor.name !== 'string' || distributor.name.trim().length === 0) {
     issues.push('Missing company name');
   } else {
     score += 0.3;
   }
 
-  if (!distributor.website || !distributor.website.startsWith('http')) {
+  if (!distributor.website || typeof distributor.website !== 'string' || !distributor.website.startsWith('http')) {
     issues.push('Missing or invalid website URL');
   } else {
     score += 0.3;
@@ -389,7 +389,7 @@ export function validateDistributorData(distributor: Record<string, string | num
 
   // Optional but important fields
   if (distributor.email) {
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(distributor.email)) {
+    if (typeof distributor.email === 'string' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(distributor.email)) {
       issues.push('Invalid email format');
     } else {
       score += 0.1;
@@ -417,7 +417,7 @@ export function validateDistributorData(distributor: Record<string, string | num
   }
 
   // Product/equipment validation
-  if (distributor.equipment && distributor.equipment.length > 0) {
+  if (distributor.equipment && Array.isArray(distributor.equipment) && distributor.equipment.length > 0) {
     score += 0.1;
   } else {
     suggestions.push('Add equipment/product information to improve searchability');

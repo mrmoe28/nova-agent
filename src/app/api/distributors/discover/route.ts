@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { scrapeCompanyInfo, deepCrawlForProducts } from "@/lib/scraper";
+import { scrapeCompanyInfo, deepCrawlForProducts, type ScrapedCompany } from "@/lib/scraper";
 import { categorizeProduct } from "@/lib/categorize-product";
 import { createLogger } from "@/lib/logger";
 import { AIAgentScraper } from "@/lib/ai-agent-scraper";
@@ -98,7 +98,11 @@ export async function POST(request: NextRequest) {
         }
 
         // Step 3: Enhanced analysis based on mode
-        let productAnalysis = { productTypes: [], productCount: 0, confidence: 0.5 };
+        let productAnalysis: { productTypes: string[]; productCount: number; confidence: number } = { 
+          productTypes: [], 
+          productCount: 0, 
+          confidence: 0.5 
+        };
         
         if (!analysisOnly) {
           if (useAI && process.env.ANTHROPIC_API_KEY) {
@@ -265,7 +269,7 @@ export async function POST(request: NextRequest) {
 /**
  * Analyze solar/battery industry relevance based on company information
  */
-function analyzeSolarRelevance(companyInfo: Record<string, string | string[] | undefined>): { score: number; reasons: string[] } {
+function analyzeSolarRelevance(companyInfo: ScrapedCompany): { score: number; reasons: string[] } {
   const reasons: string[] = [];
   let score = 0;
 
@@ -346,7 +350,7 @@ function analyzeSolarRelevance(companyInfo: Record<string, string | string[] | u
 /**
  * Analyze products using AI agent
  */
-async function analyzeWithAI(url: string, _companyInfo: Record<string, string | string[] | undefined>) {
+async function analyzeWithAI(url: string, _companyInfo: ScrapedCompany) {
   try {
     const aiScraper = new AIAgentScraper();
     const products = await aiScraper.scrape(url, {
@@ -464,7 +468,7 @@ async function analyzeWithCrawler(url: string) {
 function calculateConfidence(
   solarRelevance: number,
   productConfidence: number,
-  companyInfo: Record<string, string | string[] | undefined>,
+  companyInfo: ScrapedCompany,
   productCount: number
 ): number {
   let confidence = 0;
