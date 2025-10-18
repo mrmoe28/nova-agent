@@ -1,7 +1,10 @@
 import { readFile } from "fs/promises";
+import { createRequire } from "module";
 import Anthropic from "@anthropic-ai/sdk";
-import { PDFParse } from "pdf-parse";
-// Dynamic import for Tesseract to avoid serverless environment issues
+// Dynamic import for pdf-parse and Tesseract to avoid serverless environment issues
+
+// Create require function for CommonJS modules
+const require = createRequire(import.meta.url);
 
 export interface OCRResult {
   text: string;
@@ -81,18 +84,15 @@ export async function extractTextFromPDF(filePath: string): Promise<OCRResult> {
   try {
     const dataBuffer = await readFile(filePath);
 
-    // Create PDFParse instance with buffer data
-    const parser = new PDFParse({ data: dataBuffer });
+    // Import pdf-parse using require (CommonJS module)
+    const pdfParse = require("pdf-parse");
 
-    // Extract text from all pages
-    const textResult = await parser.getText();
-
-    // Clean up
-    await parser.destroy();
+    // Use pdf-parse to extract text from PDF buffer
+    const pdfData = await pdfParse(dataBuffer);
 
     return {
-      text: textResult.text,
-      pageCount: textResult.total,
+      text: pdfData.text,
+      pageCount: pdfData.numpages,
       confidence: 0.95, // PDF text extraction is usually highly accurate
     };
   } catch (error) {
