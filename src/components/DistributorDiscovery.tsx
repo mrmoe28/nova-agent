@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,14 +24,9 @@ import { Progress } from "@/components/ui/progress";
 import {
   Globe,
   Search,
-  Zap,
   Upload,
   Download,
-  Eye,
-  Save,
-  AlertCircle,
   CheckCircle,
-  Clock,
   ExternalLink,
   Loader2,
 } from "lucide-react";
@@ -86,8 +81,8 @@ export default function DistributorDiscovery({ onSuccess }: DistributorDiscovery
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<{
     candidates: DistributorCandidate[];
-    savedDistributors: any[];
-    summary: any;
+  savedDistributors: Array<Record<string, unknown>>;
+  summary: Record<string, number>;
   } | null>(null);
   const [bulkOptions, setBulkOptions] = useState<BulkImportOptions | null>(null);
   const [progress, setProgress] = useState(0);

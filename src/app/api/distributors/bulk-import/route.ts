@@ -128,7 +128,7 @@ async function extractFromDirectory(directoryUrl: string): Promise<string[]> {
 /**
  * Import from structured data (CSV/JSON format)
  */
-async function importFromData(data: any[], saveToDatabase: boolean) {
+async function importFromData(data: Array<Record<string, string | undefined>>, saveToDatabase: boolean) {
   const results = [];
 
   for (const item of data) {

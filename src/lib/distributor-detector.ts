@@ -217,7 +217,7 @@ export function analyzeSolarRelevance(companyData: {
         if (linkLower.includes('charge') || linkLower.includes('controller')) {
           specialties.add('CHARGE_CONTROLLER');
         }
-        if (linkLower.includes('wire') || linkSlower.includes('cable')) {
+        if (linkLower.includes('wire') || linkLower.includes('cable')) {
           specialties.add('WIRING');
         }
         if (linkLower.includes('electrical')) {
@@ -238,7 +238,7 @@ export function analyzeSolarRelevance(companyData: {
     } else if (searchText.includes('retail') || searchText.includes('store') || searchText.includes('shop')) {
       tier = 'retailer';
       reasoning.push('Company description suggests retailer');
-    } else if (searchText.includes('install') || searchTest.includes('contractor')) {
+    } else if (searchText.includes('install') || searchText.includes('contractor')) {
       tier = 'installer';
       reasoning.push('Company description suggests installer');
     }
@@ -364,7 +364,7 @@ export async function extractFromSolarDirectory(directoryUrl: string): Promise<s
 /**
  * Validate distributor data quality
  */
-export function validateDistributorData(distributor: any): {
+export function validateDistributorData(distributor: Record<string, string | number | boolean | undefined>): {
   isValid: boolean;
   score: number;
   issues: string[];

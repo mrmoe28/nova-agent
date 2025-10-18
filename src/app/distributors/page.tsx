@@ -1172,10 +1172,11 @@ function EquipmentForm({
             {/* Image Preview */}
             {imagePreview && (
               <div className="relative w-full h-48 border-2 border-slate-200 rounded-lg overflow-hidden bg-slate-50">
-                <img
+                <Image
                   src={imagePreview}
                   alt="Product preview"
-                  className="w-full h-full object-contain"
+                  fill
+                  className="object-contain"
                 />
               </div>
             )}

@@ -265,7 +265,7 @@ export async function POST(request: NextRequest) {
 /**
  * Analyze solar/battery industry relevance based on company information
  */
-function analyzeSolarRelevance(companyInfo: any): { score: number; reasons: string[] } {
+function analyzeSolarRelevance(companyInfo: Record<string, string | string[] | undefined>): { score: number; reasons: string[] } {
   const reasons: string[] = [];
   let score = 0;
 
@@ -346,7 +346,7 @@ function analyzeSolarRelevance(companyInfo: any): { score: number; reasons: stri
 /**
  * Analyze products using AI agent
  */
-async function analyzeWithAI(url: string, companyInfo: any) {
+async function analyzeWithAI(url: string, _companyInfo: Record<string, string | string[] | undefined>) {
   try {
     const aiScraper = new AIAgentScraper();
     const products = await aiScraper.scrape(url, {
@@ -464,7 +464,7 @@ async function analyzeWithCrawler(url: string) {
 function calculateConfidence(
   solarRelevance: number,
   productConfidence: number,
-  companyInfo: any,
+  companyInfo: Record<string, string | string[] | undefined>,
   productCount: number
 ): number {
   let confidence = 0;
