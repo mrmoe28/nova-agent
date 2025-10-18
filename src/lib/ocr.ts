@@ -1,10 +1,6 @@
 import { readFile } from "fs/promises";
-import { createRequire } from "module";
 import Anthropic from "@anthropic-ai/sdk";
 // Dynamic import for pdf-parse and Tesseract to avoid serverless environment issues
-
-// Create require function for CommonJS modules
-const require = createRequire(import.meta.url);
 
 export interface OCRResult {
   text: string;
@@ -70,9 +66,8 @@ export async function extractTextWithClaude(
     };
   } catch (error) {
     console.error("Claude PDF extraction failed:", error);
-    throw new Error(
-      `Claude extraction failed: ${error instanceof Error ? error.message : "Unknown error"}`,
-    );
+    // Don't throw here - let the caller handle the fallback
+    throw error;
   }
 }
 
@@ -80,19 +75,33 @@ export async function extractTextWithClaude(
  * Extract text from PDF file using pdf-parse (most reliable fallback)
  * Fallback method if Claude is unavailable
  */
+// Type definition for pdf-parse module (CommonJS)
+interface PdfParseModule {
+  default: (dataBuffer: Buffer) => Promise<{
+    text: string;
+    numpages: number;
+  }>;
+}
+
 export async function extractTextFromPDF(filePath: string): Promise<OCRResult> {
   try {
     const dataBuffer = await readFile(filePath);
 
-    // Import pdf-parse using require (CommonJS module)
-    const pdfParse = require("pdf-parse");
+    // Dynamic import of pdf-parse (proper way to handle CommonJS in Next.js)
+    const pdfParseModule = await import("pdf-parse") as unknown as PdfParseModule;
+    // pdf-parse exports the function as default
+    const pdfParse = pdfParseModule.default;
 
+    console.log("Using pdf-parse for text extraction...");
+    
     // Use pdf-parse to extract text from PDF buffer
     const pdfData = await pdfParse(dataBuffer);
 
+    console.log(`PDF parsed successfully: ${pdfData.text.length} characters, ${pdfData.numpages} pages`);
+
     return {
-      text: pdfData.text,
-      pageCount: pdfData.numpages,
+      text: pdfData.text || "",
+      pageCount: pdfData.numpages || 1,
       confidence: 0.95, // PDF text extraction is usually highly accurate
     };
   } catch (error) {
@@ -119,10 +128,7 @@ export async function extractTextFromImage(
       console.warn(
         "OCR disabled in serverless environment - canvas/DOMMatrix not available",
       );
-      return {
-        text: "OCR unavailable in serverless environment. Please use PDF files or implement external OCR API.",
-        confidence: 0,
-      };
+      throw new Error("Image OCR is not available in serverless environments. Please use PDF files instead.");
     }
 
     // Dynamic import to avoid loading Tesseract in serverless environments
@@ -142,17 +148,14 @@ export async function extractTextFromImage(
     };
   } catch (error) {
     console.error("Error extracting text from image:", error);
-    // Return empty result instead of throwing to prevent endpoint crash
-    return {
-      text: `OCR failed: ${error instanceof Error ? error.message : "Unknown error"}. Please use PDF files for better results.`,
-      confidence: 0,
-    };
+    // Throw error - do not return fake data, let caller handle the failure
+    throw new Error(`Image OCR processing failed: ${error instanceof Error ? error.message : "Unknown error"}`);
   }
 }
 
 /**
  * Main OCR function that handles different file types
- * Uses Claude AI for PDFs when available, falls back to traditional OCR
+ * Uses Claude AI for PDFs when available, falls back to pdf-parse
  */
 export async function performOCR(
   filePath: string,
@@ -166,14 +169,20 @@ export async function performOCR(
         return await extractTextWithClaude(filePath);
       } catch (claudeError) {
         console.warn(
-          "Claude extraction failed, falling back to unpdf:",
-          claudeError,
+          "Claude extraction failed, falling back to pdf-parse:",
+          claudeError instanceof Error ? claudeError.message : "Unknown error",
         );
-        // Fall back to traditional PDF extraction
-        return extractTextFromPDF(filePath);
+        // Fall back to pdf-parse extraction
+        try {
+          return await extractTextFromPDF(filePath);
+        } catch (pdfError) {
+          console.error("Both Claude AI and pdf-parse failed:", pdfError);
+          // Throw error - do not return fake data, let caller handle the failure
+          throw new Error(`OCR processing failed for both Claude AI and pdf-parse: ${pdfError instanceof Error ? pdfError.message : "Unknown error"}`);
+        }
       }
     } else {
-      console.log("No ANTHROPIC_API_KEY found, using unpdf for PDF extraction");
+      console.log("No ANTHROPIC_API_KEY found, using pdf-parse for PDF extraction");
       return extractTextFromPDF(filePath);
     }
   } else if (fileType === "image") {

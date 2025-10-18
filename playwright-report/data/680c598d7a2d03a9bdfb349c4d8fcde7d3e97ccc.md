@@ -1,0 +1,59 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "NovaAgent AI Solar & Battery Energy Planner" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img [ref=e6]
+        - generic [ref=e8]:
+          - generic [ref=e9]:
+            - text: NovaAgent
+            - generic [ref=e10]: AI
+          - generic [ref=e11]: Solar & Battery Energy Planner
+      - navigation [ref=e12]:
+        - link "Distributors" [ref=e13] [cursor=pointer]:
+          - /url: /distributors
+          - img [ref=e14]
+          - text: Distributors
+        - link "Projects" [ref=e18] [cursor=pointer]:
+          - /url: /projects
+          - img [ref=e19]
+          - text: Projects
+        - link "New ProjectNew" [ref=e21] [cursor=pointer]:
+          - /url: /wizard/new
+          - img [ref=e22]
+          - text: New ProjectNew
+  - main [ref=e23]:
+    - generic [ref=e24]:
+      - generic [ref=e25]:
+        - heading "Start New Energy Plan" [level=1] [ref=e26]
+        - paragraph [ref=e27]: Enter client information to begin the NovaAgent workflow
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - generic [ref=e31]: Client Name *
+          - textbox "Client Name *" [ref=e32]:
+            - /placeholder: John Smith
+            - text: test
+        - generic [ref=e33]:
+          - text: Address
+          - textbox "Address" [ref=e34]:
+            - /placeholder: 123 Main St, City, State 12345
+            - text: 123 maiin st
+        - generic [ref=e35]:
+          - generic [ref=e36]:
+            - text: Phone
+            - textbox "Phone" [active] [ref=e37]:
+              - /placeholder: (555) 123-4567
+              - text: "404551"
+          - generic [ref=e38]:
+            - text: Email
+            - textbox "Email" [ref=e39]:
+              - /placeholder: client@example.com
+              - text: Test Client - Playwright
+        - generic [ref=e40]:
+          - button "Cancel" [ref=e41]
+          - button "Create Project & Continue" [ref=e42]
+  - region "Notifications alt+T"
+```

@@ -1,0 +1,58 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "NovaAgent AI Solar & Battery Energy Planner" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img [ref=e6]
+        - generic [ref=e8]:
+          - generic [ref=e9]:
+            - text: NovaAgent
+            - generic [ref=e10]: AI
+          - generic [ref=e11]: Solar & Battery Energy Planner
+      - navigation [ref=e12]:
+        - link "Distributors" [ref=e13] [cursor=pointer]:
+          - /url: /distributors
+          - img
+          - generic [ref=e14]: Distributors
+        - link "Projects" [ref=e15] [cursor=pointer]:
+          - /url: /projects
+          - img
+          - generic [ref=e16]: Projects
+        - link "New Project" [active] [ref=e17] [cursor=pointer]:
+          - /url: /wizard/new
+          - img
+          - generic [ref=e18]: New Project
+  - main [ref=e19]:
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - heading "Start New Energy Plan" [level=1] [ref=e22]
+        - paragraph [ref=e23]: Enter client information to begin the NovaAgent workflow
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - generic [ref=e27]: Client Name *
+          - textbox "Client Name *" [ref=e28]:
+            - /placeholder: John Smith
+        - generic [ref=e29]:
+          - text: Address
+          - textbox "Address" [ref=e30]:
+            - /placeholder: 123 Main St, City, State 12345
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - text: Phone
+            - textbox "Phone" [ref=e33]:
+              - /placeholder: (555) 123-4567
+          - generic [ref=e34]:
+            - text: Email
+            - textbox "Email" [ref=e35]:
+              - /placeholder: client@example.com
+        - generic [ref=e36]:
+          - button "Cancel" [ref=e37]
+          - button "Create Project & Continue" [ref=e38]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e44] [cursor=pointer]:
+    - img [ref=e45]
+  - alert [ref=e48]
+```

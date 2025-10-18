@@ -87,17 +87,28 @@ export async function POST(request: NextRequest) {
     let ocrConfidence = 0;
 
     console.log(`Processing OCR for ${fileName}...`);
-    const ocrResult = await performOCR(filePath, fileType);
-    ocrText = ocrResult.text;
-    ocrConfidence = ocrResult.confidence || 0;
+    try {
+      const ocrResult = await performOCR(filePath, fileType);
+      ocrText = ocrResult.text;
+      ocrConfidence = ocrResult.confidence || 0;
 
-    // Parse bill data
-    const parsedData = parseBillText(ocrText);
-    extractedData = JSON.stringify(parsedData);
-
-    console.log(
-      `OCR completed with ${ocrConfidence} confidence, extracted ${Object.keys(parsedData).length} fields`,
-    );
+      // Only parse bill data if we have actual OCR text
+      if (ocrText && ocrText.trim().length > 0) {
+        const parsedData = parseBillText(ocrText);
+        extractedData = JSON.stringify(parsedData);
+        
+        console.log(
+          `OCR completed with ${ocrConfidence} confidence, extracted ${Object.keys(parsedData).length} fields`,
+        );
+      } else {
+        console.log("OCR returned empty text, no data to parse");
+      }
+    } catch (ocrError) {
+      console.error("OCR processing failed:", ocrError);
+      // Do not set fake data - leave ocrText and extractedData as null
+      // File will still be saved but without OCR data
+      console.log("File will be saved without OCR data due to processing failure");
+    }
 
     // Save to database with OCR data
     const bill = await prisma.bill.create({
