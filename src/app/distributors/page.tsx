@@ -28,7 +28,9 @@ import {
   Loader2,
   Star,
   Upload,
+  Zap,
 } from "lucide-react";
+import DistributorDiscovery from "@/components/DistributorDiscovery";
 
 interface Distributor {
   id: string;
@@ -62,7 +64,7 @@ interface Equipment {
 
 export default function DistributorsPage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"distributors" | "equipment">(
+  const [activeTab, setActiveTab] = useState<"distributors" | "equipment" | "discovery">(
     "distributors",
   );
   const [distributors, setDistributors] = useState<Distributor[]>([]);
@@ -201,39 +203,59 @@ export default function DistributorsPage() {
             <Package className="inline-block mr-2 h-4 w-4" />
             Equipment ({equipment.length})
           </button>
+          <button
+            onClick={() => setActiveTab("discovery")}
+            className={`pb-4 text-sm font-semibold border-b-2 ${
+              activeTab === "discovery"
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-slate-600"
+            }`}
+          >
+            <Zap className="inline-block mr-2 h-4 w-4" />
+            Discover New
+          </button>
         </div>
       </div>
 
-      {/* Search and Add */}
-      <div className="mb-8 flex gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input
-            placeholder={`Search ${activeTab}...`}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-white border-slate-200"
-          />
+      {/* Search and Add - Hide for discovery tab */}
+      {activeTab !== "discovery" && (
+        <div className="mb-8 flex gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder={`Search ${activeTab}...`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 bg-white border-slate-200"
+            />
+          </div>
+          <Button
+            onClick={() => {
+              if (activeTab === "distributors") {
+                setEditingDistributor(null);
+                setShowAddDistributor(true);
+              } else {
+                setEditingEquipment(null);
+                setShowAddEquipment(true);
+              }
+            }}
+            className="bg-blue-600 text-white"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            Add {activeTab === "distributors" ? "Distributor" : "Equipment"}
+          </Button>
         </div>
-        <Button
-          onClick={() => {
-            if (activeTab === "distributors") {
-              setEditingDistributor(null);
-              setShowAddDistributor(true);
-            } else {
-              setEditingEquipment(null);
-              setShowAddEquipment(true);
-            }
-          }}
-          className="bg-blue-600 text-white"
-        >
-          <Plus className="mr-2 h-4 w-4" />
-          Add {activeTab === "distributors" ? "Distributor" : "Equipment"}
-        </Button>
-      </div>
+      )}
 
       {/* Content */}
-      {activeTab === "distributors" ? (
+      {activeTab === "discovery" ? (
+        <DistributorDiscovery
+          onSuccess={() => {
+            fetchDistributors();
+            setActiveTab("distributors");
+          }}
+        />
+      ) : activeTab === "distributors" ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredDistributors.map((distributor) => (
             <Card
@@ -1166,6 +1188,7 @@ function EquipmentForm({
                 accept="image/*"
                 onChange={handleImageSelect}
                 className="hidden"
+                aria-label="Select equipment image file"
               />
               <Button
                 type="button"
