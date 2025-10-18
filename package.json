@@ -10,7 +10,10 @@
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
-    "test:report": "playwright show-report"
+    "test:report": "playwright show-report",
+    "parse-pdf": "node utils/parsePDF.js",
+    "ocr:start": "python3 server/ocr_service.py",
+    "ocr:check": "curl -s http://localhost:8001/health | jq ."
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.67.0",

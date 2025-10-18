@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { prisma } from "@/lib/prisma";
-import { performOCR, parseBillText } from "@/lib/ocr";
+import { performOCR } from "@/lib/ocr-microservice";
+import { parseBillText } from "@/lib/ocr";
 
 // Required for file uploads in Next.js 15
 export const runtime = "nodejs";
