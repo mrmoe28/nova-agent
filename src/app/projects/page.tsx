@@ -1,21 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Loader2, FolderOpen, ChevronDown, ChevronRight, FileText, Zap, ClipboardList, Calculator, Trash2, Grid3X3, Table, LayoutGrid, Building2 } from "lucide-react";
+import { Plus, Loader2, FolderOpen, ChevronDown, ChevronRight, FileText, Zap, Trash2, Grid3X3, Table, LayoutGrid, Building2 } from "lucide-react";
 
 interface Bill {
   id: string;
   fileName: string;
   fileType: string;
   ocrText?: string;
-  extractedData?: any;
+  extractedData?: Record<string, unknown>;
   uploadedAt: string;
 }
 
@@ -110,18 +110,13 @@ export default function ProjectsPage() {
     });
   };
 
-  const parseExtractedData = (extractedData: any) => {
+  const parseExtractedData = (extractedData: Record<string, unknown> | null | undefined) => {
     if (!extractedData) return null;
     try {
       return typeof extractedData === 'string' ? JSON.parse(extractedData) : extractedData;
     } catch {
       return null;
     }
-  };
-
-  const getBOMTotal = (bomItems?: BOMItem[]) => {
-    if (!bomItems) return 0;
-    return bomItems.reduce((sum, item) => sum + item.totalPriceUsd, 0);
   };
 
   const formatCurrency = (amount: number) => {
@@ -191,7 +186,7 @@ export default function ProjectsPage() {
     setProjectToDelete(null);
   };
 
-  const recalculateProjectCost = async (projectId: string) => {
+  const recalculateProjectCost = useCallback(async (projectId: string) => {
     if (!selectedDistributor) return;
     
     setRecalculatingCosts(prev => new Set(prev).add(projectId));
@@ -230,7 +225,7 @@ export default function ProjectsPage() {
         return newSet;
       });
     }
-  };
+  }, [selectedDistributor, projects]);
 
   const fetchProjects = async () => {
     try {
@@ -272,14 +267,13 @@ export default function ProjectsPage() {
         }
       });
     }
-  }, [selectedDistributor]);
+  }, [selectedDistributor, projects, recalculateProjectCost]);
 
   // Render functions for different views
   const renderProjectCard = (project: Project, isCompact: boolean = false) => {
     const isExpanded = expandedProjects.has(project.id);
-    const bomTotal = getBOMTotal(project.bomItems);
     const isRecalculating = recalculatingCosts.has(project.id);
-    
+
     return (
       <Card key={project.id} className={`overflow-hidden shadow-md hover:shadow-lg transition-shadow ${isCompact ? 'h-80' : ''}`}>
         <Collapsible open={isExpanded && !isCompact} onOpenChange={() => !isCompact && toggleProjectExpanded(project.id)}>
@@ -627,12 +621,12 @@ export default function ProjectsPage() {
             </Button>
           </div>
 
-          <Button asChild>
-            <Link href="/wizard/new">
-              <Plus className="mr-2 h-4 w-4" />
-              New Project
-            </Link>
-          </Button>
+        <Button asChild>
+          <Link href="/wizard/new">
+            <Plus className="mr-2 h-4 w-4" />
+            New Project
+          </Link>
+        </Button>
         </div>
       </div>
 
@@ -689,7 +683,7 @@ export default function ProjectsPage() {
                   Delete Project
                 </>
               )}
-            </Button>
+              </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
