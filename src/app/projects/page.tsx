@@ -110,6 +110,7 @@ export default function ProjectsPage() {
   };
 
   const getBOMTotal = (bomItems: BOMItem[]) => {
+    if (!bomItems || bomItems.length === 0) return 0;
     return bomItems.reduce((total, item) => total + item.totalPriceUsd, 0);
   };
 
@@ -207,7 +208,7 @@ export default function ProjectsPage() {
                   <CollapsibleTrigger asChild>
                     <div className="p-5 hover:bg-gray-50 cursor-pointer">
                       <div className="flex items-center justify-between">
-                        <div className="flex-1">
+                <div className="flex-1">
                           <div className="flex items-center gap-3">
                             {isExpanded ? (
                               <ChevronDown className="h-5 w-5 text-muted-foreground" />
@@ -216,15 +217,15 @@ export default function ProjectsPage() {
                             )}
                             <div>
                               <h3 className="font-semibold text-lg">
-                                {project.clientName}
-                              </h3>
-                              {project.address && (
+                    {project.clientName}
+                  </h3>
+                  {project.address && (
                                 <p className="text-sm text-muted-foreground">
-                                  {project.address}
-                                </p>
-                              )}
-                            </div>
-                          </div>
+                      {project.address}
+                    </p>
+                  )}
+                </div>
+              </div>
                         </div>
                         <div className="flex items-center gap-3">
                           {getStatusBadge(project.status)}
@@ -252,7 +253,7 @@ export default function ProjectsPage() {
                     <div className="border-t bg-gray-50/50 p-5 space-y-6">
                       
                       {/* Bills and OCR Data */}
-                      {project.bills.length > 0 && (
+                      {project.bills && project.bills.length > 0 && (
                         <div>
                           <div className="flex items-center gap-2 mb-3">
                             <FileText className="h-4 w-4 text-blue-600" />
@@ -369,7 +370,7 @@ export default function ProjectsPage() {
                       )}
 
                       {/* BOM Items */}
-                      {project.bomItems.length > 0 && (
+                      {project.bomItems && project.bomItems.length > 0 && (
                         <div>
                           <div className="flex items-center gap-2 mb-3">
                             <ClipboardList className="h-4 w-4 text-orange-600" />
@@ -424,16 +425,16 @@ export default function ProjectsPage() {
                               </table>
                             </div>
                           </div>
-                        </div>
+              </div>
                       )}
 
                       {/* Action Buttons */}
                       <div className="flex gap-3 pt-4 border-t">
                         <Button asChild size="sm">
-                          <Link href={`/wizard/${project.id}/intake`}>
-                            {project.status === "complete" ? "View Project" : "Continue"}
-                          </Link>
-                        </Button>
+                <Link href={`/wizard/${project.id}/intake`}>
+                  {project.status === "complete" ? "View Project" : "Continue"}
+                </Link>
+              </Button>
                         {project.status === "complete" && (
                           <Button variant="outline" size="sm" asChild>
                             <Link href={`/wizard/${project.id}/review`}>
@@ -445,7 +446,7 @@ export default function ProjectsPage() {
                     </div>
                   </CollapsibleContent>
                 </Collapsible>
-              </Card>
+            </Card>
             );
           })}
         </div>
