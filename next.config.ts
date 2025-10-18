@@ -1,8 +1,12 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   // Mark pdf-parse as external for Server Components
   serverExternalPackages: ['pdf-parse'],
+  
+  // Set output file tracing root to silence workspace warning
+  outputFileTracingRoot: path.join(__dirname),
 
   images: {
     remotePatterns: [
