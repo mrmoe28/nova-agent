@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Plus, Loader2, FolderOpen, ChevronDown, ChevronRight, FileText, Zap, ClipboardList, Calculator } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Plus, Loader2, FolderOpen, ChevronDown, ChevronRight, FileText, Zap, ClipboardList, Calculator, Trash2 } from "lucide-react";
 import { formatDate, formatCurrency } from "@/lib/utils";
 
 interface Bill {
@@ -85,6 +86,9 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<Project[]>([]);
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
+  const [deletingProject, setDeletingProject] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
 
   useEffect(() => {
     fetchProjects();
@@ -112,6 +116,51 @@ export default function ProjectsPage() {
   const getBOMTotal = (bomItems: BOMItem[]) => {
     if (!bomItems || bomItems.length === 0) return 0;
     return bomItems.reduce((total, item) => total + item.totalPriceUsd, 0);
+  };
+
+  const handleDeleteClick = (project: Project) => {
+    setProjectToDelete(project);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!projectToDelete) return;
+
+    setDeletingProject(projectToDelete.id);
+    try {
+      const response = await fetch(`/api/projects/${projectToDelete.id}`, {
+        method: 'DELETE',
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Remove the deleted project from the list
+        setProjects(prevProjects => 
+          prevProjects.filter(p => p.id !== projectToDelete.id)
+        );
+        // Remove from expanded projects if expanded
+        setExpandedProjects(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(projectToDelete.id);
+          return newSet;
+        });
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      alert("Failed to delete project");
+    } finally {
+      setDeletingProject(null);
+      setDeleteDialogOpen(false);
+      setProjectToDelete(null);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setProjectToDelete(null);
   };
 
   const fetchProjects = async () => {
@@ -265,22 +314,22 @@ export default function ProjectsPage() {
                               return (
                                 <div key={bill.id} className="bg-white p-3 rounded-lg border">
                                   <div className="flex items-center justify-between mb-2">
-                                    <span className="font-medium text-sm">{bill.fileName}</span>
+                                    <span className="font-medium text-sm text-gray-900">{bill.fileName}</span>
                                     <Badge variant="outline">{bill.fileType.toUpperCase()}</Badge>
                                   </div>
                                   {extractedData && (
-                                    <div className="text-xs text-muted-foreground grid grid-cols-2 gap-2">
+                                    <div className="text-xs text-gray-600 grid grid-cols-2 gap-2">
                                       {extractedData.monthlyUsageKwh && (
-                                        <div>Usage: {extractedData.monthlyUsageKwh} kWh/month</div>
+                                        <div className="text-gray-700">Usage: {extractedData.monthlyUsageKwh} kWh/month</div>
                                       )}
                                       {extractedData.totalCost && (
-                                        <div>Cost: {formatCurrency(extractedData.totalCost)}</div>
+                                        <div className="text-gray-700">Cost: {formatCurrency(extractedData.totalCost)}</div>
                                       )}
                                       {extractedData.billingPeriod && (
-                                        <div>Period: {extractedData.billingPeriod}</div>
+                                        <div className="text-gray-700">Period: {extractedData.billingPeriod}</div>
                                       )}
                                       {extractedData.accountNumber && (
-                                        <div>Account: {extractedData.accountNumber}</div>
+                                        <div className="text-gray-700">Account: {extractedData.accountNumber}</div>
                                       )}
                                     </div>
                                   )}
@@ -301,20 +350,20 @@ export default function ProjectsPage() {
                           <div className="bg-white p-3 rounded-lg border">
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                               <div>
-                                <span className="text-muted-foreground">Monthly Usage</span>
-                                <div className="font-semibold">{Math.round(project.analysis.monthlyUsageKwh)} kWh</div>
+                                <span className="text-gray-600">Monthly Usage</span>
+                                <div className="font-semibold text-gray-900">{Math.round(project.analysis.monthlyUsageKwh)} kWh</div>
                               </div>
                               <div>
-                                <span className="text-muted-foreground">Peak Demand</span>
-                                <div className="font-semibold">{project.analysis.peakDemandKw.toFixed(1)} kW</div>
+                                <span className="text-gray-600">Peak Demand</span>
+                                <div className="font-semibold text-gray-900">{project.analysis.peakDemandKw.toFixed(1)} kW</div>
                               </div>
                               <div>
-                                <span className="text-muted-foreground">Avg Cost/kWh</span>
-                                <div className="font-semibold">{formatCurrency(project.analysis.averageCostPerKwh)}</div>
+                                <span className="text-gray-600">Avg Cost/kWh</span>
+                                <div className="font-semibold text-gray-900">{formatCurrency(project.analysis.averageCostPerKwh)}</div>
                               </div>
                               <div>
-                                <span className="text-muted-foreground">Annual Cost</span>
-                                <div className="font-semibold">{formatCurrency(project.analysis.annualCostUsd)}</div>
+                                <span className="text-gray-600">Annual Cost</span>
+                                <div className="font-semibold text-gray-900">{formatCurrency(project.analysis.annualCostUsd)}</div>
                               </div>
                             </div>
                           </div>
@@ -331,35 +380,35 @@ export default function ProjectsPage() {
                           <div className="bg-white p-3 rounded-lg border">
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                               <div>
-                                <span className="text-muted-foreground">Solar Array</span>
-                                <div className="font-semibold">
+                                <span className="text-gray-600">Solar Array</span>
+                                <div className="font-semibold text-gray-900">
                                   {project.system.solarPanelCount} × {project.system.solarPanelWattage}W
                                 </div>
-                                <div className="text-xs text-muted-foreground">
+                                <div className="text-xs text-gray-500">
                                   {project.system.totalSolarKw.toFixed(2)} kW total
                                 </div>
                               </div>
                               <div>
-                                <span className="text-muted-foreground">Battery</span>
-                                <div className="font-semibold">{project.system.batteryKwh.toFixed(1)} kWh</div>
-                                <div className="text-xs text-muted-foreground">{project.system.batteryType}</div>
+                                <span className="text-gray-600">Battery</span>
+                                <div className="font-semibold text-gray-900">{project.system.batteryKwh.toFixed(1)} kWh</div>
+                                <div className="text-xs text-gray-500">{project.system.batteryType}</div>
                               </div>
                               <div>
-                                <span className="text-muted-foreground">Inverter</span>
-                                <div className="font-semibold">{project.system.inverterKw.toFixed(1)} kW</div>
-                                <div className="text-xs text-muted-foreground">{project.system.inverterType}</div>
+                                <span className="text-gray-600">Inverter</span>
+                                <div className="font-semibold text-gray-900">{project.system.inverterKw.toFixed(1)} kW</div>
+                                <div className="text-xs text-gray-500">{project.system.inverterType}</div>
                               </div>
                               <div>
-                                <span className="text-muted-foreground">Backup Duration</span>
-                                <div className="font-semibold">{project.system.backupDurationHrs}h</div>
-                                <div className="text-xs text-muted-foreground">
+                                <span className="text-gray-600">Backup Duration</span>
+                                <div className="font-semibold text-gray-900">{project.system.backupDurationHrs}h</div>
+                                <div className="text-xs text-gray-500">
                                   {project.system.criticalLoadKw}kW critical load
                                 </div>
                               </div>
                             </div>
                             <div className="mt-3 pt-3 border-t">
                               <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Estimated System Cost</span>
+                                <span className="text-gray-600">Estimated System Cost</span>
                                 <span className="text-lg font-bold text-green-600">
                                   {formatCurrency(project.system.estimatedCostUsd)}
                                 </span>
@@ -397,18 +446,18 @@ export default function ProjectsPage() {
                                         </Badge>
                                       </td>
                                       <td className="px-3 py-2">
-                                        <div className="font-medium">{item.itemName}</div>
+                                        <div className="font-medium text-gray-900">{item.itemName}</div>
                                         {item.manufacturer && (
-                                          <div className="text-xs text-muted-foreground">
+                                          <div className="text-xs text-gray-600">
                                             {item.manufacturer} - {item.modelNumber}
                                           </div>
                                         )}
                                       </td>
-                                      <td className="px-3 py-2 text-center">{item.quantity}</td>
-                                      <td className="px-3 py-2 text-right">
+                                      <td className="px-3 py-2 text-center text-gray-900">{item.quantity}</td>
+                                      <td className="px-3 py-2 text-right text-gray-900">
                                         {formatCurrency(item.unitPriceUsd)}
                                       </td>
-                                      <td className="px-3 py-2 text-right font-semibold">
+                                      <td className="px-3 py-2 text-right font-semibold text-gray-900">
                                         {formatCurrency(item.totalPriceUsd)}
                                       </td>
                                     </tr>
@@ -442,6 +491,24 @@ export default function ProjectsPage() {
                             </Link>
                           </Button>
                         )}
+                        <Button 
+                          variant="destructive" 
+                          size="sm"
+                          onClick={() => handleDeleteClick(project)}
+                          disabled={deletingProject === project.id}
+                        >
+                          {deletingProject === project.id ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Deleting...
+                            </>
+                          ) : (
+                            <>
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </>
+                          )}
+                        </Button>
                       </div>
                     </div>
                   </CollapsibleContent>
@@ -451,6 +518,42 @@ export default function ProjectsPage() {
           })}
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Project</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete the project for "{projectToDelete?.clientName}"? 
+              This action cannot be undone and will permanently remove all project data, bills, 
+              analysis, BOM items, and related information.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleDeleteCancel}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteConfirm}
+              disabled={deletingProject !== null}
+            >
+              {deletingProject ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Project
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

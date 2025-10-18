@@ -109,27 +109,27 @@ export default function BOMPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b">
-                <th className="pb-3 text-left font-semibold">Category</th>
-                <th className="pb-3 text-left font-semibold">Item</th>
-                <th className="pb-3 text-left font-semibold">Model</th>
-                <th className="pb-3 text-right font-semibold">Qty</th>
-                <th className="pb-3 text-right font-semibold">Unit Price</th>
-                <th className="pb-3 text-right font-semibold">Total</th>
+                <th className="pb-3 text-left font-semibold text-gray-900">Category</th>
+                <th className="pb-3 text-left font-semibold text-gray-900">Item</th>
+                <th className="pb-3 text-left font-semibold text-gray-900">Model</th>
+                <th className="pb-3 text-right font-semibold text-gray-900">Qty</th>
+                <th className="pb-3 text-right font-semibold text-gray-900">Unit Price</th>
+                <th className="pb-3 text-right font-semibold text-gray-900">Total</th>
               </tr>
             </thead>
             <tbody>
               {bomItems.map((item) => (
                 <tr key={item.id} className="border-b last:border-0">
-                  <td className="py-3 text-sm capitalize">{item.category}</td>
-                  <td className="py-3 text-sm">{item.itemName}</td>
-                  <td className="py-3 text-sm font-mono text-xs">
+                  <td className="py-3 text-sm capitalize text-gray-900">{item.category}</td>
+                  <td className="py-3 text-sm text-gray-900">{item.itemName}</td>
+                  <td className="py-3 text-xs font-mono text-gray-600">
                     {item.modelNumber}
                   </td>
-                  <td className="py-3 text-sm text-right">{item.quantity}</td>
-                  <td className="py-3 text-sm text-right">
+                  <td className="py-3 text-sm text-right text-gray-900">{item.quantity}</td>
+                  <td className="py-3 text-sm text-right text-gray-900">
                     {formatCurrency(item.unitPriceUsd)}
                   </td>
-                  <td className="py-3 text-sm text-right font-semibold">
+                  <td className="py-3 text-sm text-right font-semibold text-gray-900">
                     {formatCurrency(item.totalPriceUsd)}
                   </td>
                 </tr>
@@ -137,10 +137,10 @@ export default function BOMPage() {
             </tbody>
             <tfoot>
               <tr className="border-t-2">
-                <td colSpan={5} className="pt-4 text-right font-semibold">
+                <td colSpan={5} className="pt-4 text-right font-semibold text-gray-900">
                   Total Equipment Cost:
                 </td>
-                <td className="pt-4 text-right text-lg font-bold">
+                <td className="pt-4 text-right text-lg font-bold text-gray-900">
                   {formatCurrency(totalCost)}
                 </td>
               </tr>

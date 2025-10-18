@@ -12,6 +12,7 @@
   --color-secondary: #e0e7eb;
   --color-accent: #6ee7f9;
   --color-muted: #f5f7fa;
+  --color-muted-foreground: #6b7280;
   --color-border: #e5e7eb;
   --radius-lg: 1rem;
 }

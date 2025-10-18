@@ -206,12 +206,12 @@ export default function OCRPage() {
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder="Search text…"
-                  style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", width: 240 }}
+                  style={{ padding: "8px 10px", borderRadius: 8, border: "1px solid #ddd", width: 240, color: "#000000", backgroundColor: "#ffffff" }}
                 />
                 <button
                   type="button"
                   onClick={() => copyText(filteredText || resp.text || "")}
-                  style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #ddd", background: "#fafafa", cursor: "pointer" }}
+                  style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #ddd", background: "#fafafa", cursor: "pointer", color: "#000000" }}
                 >
                   Copy
                 </button>
@@ -229,6 +229,7 @@ export default function OCRPage() {
                 maxHeight: 420,
                 overflow: "auto",
                 marginTop: 8,
+                color: "#000000",
               }}
             >
 {filteredText || "(no text)"}
