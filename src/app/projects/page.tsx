@@ -246,38 +246,61 @@ export default function ProjectsPage() {
     setRecalculatingCosts(prev => new Set(prev).add(projectId));
     
     try {
-      const project = projects.find(p => p.id === projectId);
-      if (!project?.system) return;
+      // Get current project data from state at the time of execution
+      setProjects(currentProjects => {
+        const project = currentProjects.find(p => p.id === projectId);
+        if (!project?.system) {
+          setRecalculatingCosts(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(projectId);
+            return newSet;
+          });
+          return currentProjects;
+        }
 
-      const response = await fetch('/api/size', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          projectId: projectId,
-          backupDurationHrs: project.system.backupDurationHrs,
-          criticalLoadKw: project.system.totalSolarKw,
-          distributorId: selectedDistributor
+        // Perform the API call
+        fetch('/api/size', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            projectId: projectId,
+            backupDurationHrs: project.system.backupDurationHrs,
+            criticalLoadKw: project.system.totalSolarKw,
+            distributorId: selectedDistributor
+          })
         })
-      });
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            setProjects(prev => prev.map(p => 
+              p.id === projectId 
+                ? { ...p, system: { ...p.system!, ...data.system } }
+                : p
+            ));
+          }
+        })
+        .catch(error => {
+          console.error("Error recalculating cost:", error);
+        })
+        .finally(() => {
+          setRecalculatingCosts(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(projectId);
+            return newSet;
+          });
+        });
 
-      const data = await response.json();
-      if (data.success) {
-        setProjects(prev => prev.map(p => 
-          p.id === projectId 
-            ? { ...p, system: { ...p.system!, ...data.system } }
-            : p
-        ));
-      }
+        return currentProjects; // Return unchanged for this immediate call
+      });
     } catch (error) {
       console.error("Error recalculating cost:", error);
-    } finally {
       setRecalculatingCosts(prev => {
         const newSet = new Set(prev);
         newSet.delete(projectId);
         return newSet;
       });
     }
-  }, [selectedDistributor, projects]);
+  }, [selectedDistributor]); // Remove projects from dependencies
 
   const fetchProjects = async () => {
     try {
@@ -318,7 +341,7 @@ export default function ProjectsPage() {
         }
       });
     }
-  }, [selectedDistributor, projects, recalculateProjectCost]);
+  }, [selectedDistributor]); // Remove projects and recalculateProjectCost from dependencies
 
   const renderModernCard = (project: Project) => {
     const isExpanded = expandedProjects.has(project.id);
