@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Plus, Loader2, FolderOpen, ChevronDown, ChevronRight, FileText, Zap, Package, ClipboardList, Calculator, DollarSign } from "lucide-react";
+import { Plus, Loader2, FolderOpen, ChevronDown, ChevronRight, FileText, Zap, ClipboardList, Calculator } from "lucide-react";
 import { formatDate, formatCurrency } from "@/lib/utils";
 
 interface Bill {

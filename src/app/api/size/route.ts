@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
     let solarCostPerWatt = SYSTEM_SIZING.SOLAR_COST_PER_WATT;
     let batteryCostPerKwh = SYSTEM_SIZING.BATTERY_COST_PER_KWH;
     let inverterCostPerKw = SYSTEM_SIZING.INVERTER_COST_PER_KW;
-    let installationCost = SYSTEM_SIZING.INSTALLATION_BASE_COST;
+    const installationCost = SYSTEM_SIZING.INSTALLATION_BASE_COST;
 
     if (distributorId) {
       try {
