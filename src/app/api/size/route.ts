@@ -65,9 +65,9 @@ export async function POST(request: NextRequest) {
           },
         });
 
-        // Find solar panels (look for SOLAR category equipment)
+        // Find solar panels (look for SOLAR_PANEL category equipment)
         const solarPanels = equipment.filter(
-          (item) => item.category === "SOLAR" || 
+          (item) => item.category === "SOLAR_PANEL" || 
                    item.name.toLowerCase().includes("solar") ||
                    item.name.toLowerCase().includes("panel")
         );
