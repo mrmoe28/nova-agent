@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { Toaster } from "@/components/ui/toaster";
+import { toast } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { Loader2, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
@@ -25,7 +25,6 @@ export default function BOMPage() {
   const router = useRouter();
   const params = useParams();
   const projectId = params.projectId as string;
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [bomItems, setBomItems] = useState<BOMItem[]>([]);
@@ -51,24 +50,19 @@ export default function BOMPage() {
         setBomItems(data.bomItems);
         setTotalCost(data.totalCost);
         if (data.message) {
-          toast({
-            title: "BOM Generated",
+          toast.success("BOM Generated", {
             description: data.message,
           });
         }
       } else {
-        toast({
-          title: "Error",
+        toast.error("Error", {
           description: data.error,
-          variant: "destructive",
         });
       }
     } catch (error) {
       console.error("Error generating BOM:", error);
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to generate BOM",
-        variant: "destructive",
       });
     } finally {
       setGenerating(false);
@@ -88,8 +82,7 @@ export default function BOMPage() {
         const newTotal = bomItems.filter(item => item.id !== itemId)
           .reduce((sum, item) => sum + item.totalPriceUsd, 0);
         setTotalCost(newTotal);
-        toast({
-          title: "Item Removed",
+        toast.success("Item Removed", {
           description: "BOM item has been removed successfully.",
         });
       } else {
@@ -97,10 +90,8 @@ export default function BOMPage() {
       }
     } catch (error) {
       console.error("Error deleting item:", error);
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: "Failed to remove BOM item.",
-        variant: "destructive",
       });
     }
   };
