@@ -48,11 +48,11 @@ export default function FileUpload({
         const data = await response.json();
 
         if (data.success && Array.isArray(data.bills)) {
-          const mappedBills: UploadedFile[] = data.bills.map((bill: any) => ({
-            id: bill.id,
-            fileName: bill.fileName,
-            fileType: bill.fileType,
-            uploadedAt: new Date(bill.uploadedAt).toISOString(),
+          const mappedBills: UploadedFile[] = data.bills.map((bill: Record<string, unknown>) => ({
+            id: bill.id as string,
+            fileName: bill.fileName as string,
+            fileType: bill.fileType as string,
+            uploadedAt: new Date(bill.uploadedAt as string).toISOString(),
             ocrProcessed: !!bill.ocrText,
           }));
 
