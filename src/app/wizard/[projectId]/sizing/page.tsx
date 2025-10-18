@@ -1,22 +1,51 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
+
+interface Distributor {
+  id: string;
+  name: string;
+  equipment?: { id: string; category: string }[];
+}
 
 export default function SizingPage() {
   const router = useRouter();
   const params = useParams();
   const projectId = params.projectId as string;
   const [loading, setLoading] = useState(false);
+  const [distributors, setDistributors] = useState<Distributor[]>([]);
+  const [loadingDistributors, setLoadingDistributors] = useState(true);
   const [formData, setFormData] = useState({
     backupDurationHrs: 24,
     criticalLoadKw: 3,
+    distributorId: "",
   });
+
+  // Fetch distributors on component mount
+  useEffect(() => {
+    const fetchDistributors = async () => {
+      try {
+        const response = await fetch("/api/distributors");
+        const data = await response.json();
+        if (data.success) {
+          setDistributors(data.distributors);
+        }
+      } catch (error) {
+        console.error("Error fetching distributors:", error);
+      } finally {
+        setLoadingDistributors(false);
+      }
+    };
+
+    fetchDistributors();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +88,35 @@ export default function SizingPage() {
       <Card className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
+            <Label htmlFor="distributorId">Equipment Distributor</Label>
+            <Select
+              value={formData.distributorId}
+              onValueChange={(value) =>
+                setFormData({ ...formData, distributorId: value })
+              }
+            >
+              <SelectTrigger className="bg-white !text-black">
+                <SelectValue placeholder={loadingDistributors ? "Loading distributors..." : "Select a distributor for pricing"} />
+              </SelectTrigger>
+              <SelectContent>
+                {distributors.map((distributor) => (
+                  <SelectItem key={distributor.id} value={distributor.id}>
+                    {distributor.name}
+                    {distributor.equipment && distributor.equipment.length > 0 && (
+                      <span className="text-muted-foreground ml-2">
+                        ({distributor.equipment.length} products)
+                      </span>
+                    )}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Choose your preferred distributor to get accurate equipment pricing
+            </p>
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="backupDurationHrs">Backup Duration (hours)</Label>
             <Input
               id="backupDurationHrs"
@@ -72,7 +130,7 @@ export default function SizingPage() {
                   backupDurationHrs: parseInt(e.target.value),
                 })
               }
-              className="bg-white text-black"
+              className="bg-white !text-black"
               style={{ color: "#000000" }}
             />
             <p className="text-xs text-muted-foreground">
@@ -95,7 +153,7 @@ export default function SizingPage() {
                   criticalLoadKw: parseFloat(e.target.value),
                 })
               }
-              className="bg-white text-black"
+              className="bg-white !text-black"
               style={{ color: "#000000" }}
             />
             <p className="text-xs text-muted-foreground">
@@ -122,7 +180,11 @@ export default function SizingPage() {
             >
               Back
             </Button>
-            <Button type="submit" disabled={loading} className="flex-1">
+            <Button 
+              type="submit" 
+              disabled={loading || !formData.distributorId || loadingDistributors} 
+              className="flex-1"
+            >
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

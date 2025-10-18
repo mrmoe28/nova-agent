@@ -6,6 +6,22 @@ export async function GET() {
     const projects = await prisma.project.findMany({
       orderBy: { updatedAt: "desc" },
       include: {
+        bills: {
+          select: {
+            id: true,
+            fileName: true,
+            fileType: true,
+            ocrText: true,
+            extractedData: true,
+            uploadedAt: true,
+          },
+        },
+        analysis: true,
+        system: true,
+        bomItems: {
+          orderBy: { category: "asc" },
+        },
+        plan: true,
         _count: {
           select: { bills: true, bomItems: true },
         },
