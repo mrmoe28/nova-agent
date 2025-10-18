@@ -51,6 +51,7 @@ export async function PATCH(
       inverterKw: parseFloat(inverterKw) || 0,
       inverterType,
       backupDurationHrs: parseInt(backupDurationHrs) || 0,
+      criticalLoadKw: parseFloat(inverterKw) || 0, // Default critical load to inverter capacity
       estimatedCostUsd: parseFloat(estimatedCostUsd) || 0,
     };
 
