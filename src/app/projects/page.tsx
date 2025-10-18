@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Loader2, FolderOpen, ChevronDown, ChevronRight, FileText, Zap, ClipboardList, Calculator, Trash2 } from "lucide-react";
 import { formatDate, formatCurrency } from "@/lib/utils";
 
@@ -525,7 +525,7 @@ export default function ProjectsPage() {
           <DialogHeader>
             <DialogTitle>Delete Project</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the project for "{projectToDelete?.clientName}"? 
+              Are you sure you want to delete the project for {projectToDelete?.clientName}? 
               This action cannot be undone and will permanently remove all project data, bills, 
               analysis, BOM items, and related information.
             </DialogDescription>
