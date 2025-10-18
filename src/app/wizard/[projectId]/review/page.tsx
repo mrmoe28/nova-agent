@@ -40,7 +40,13 @@ export default function ReviewPage() {
   const [project, setProject] = useState<ProjectData | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [editedSystem, setEditedSystem] = useState<any>(null);
+  const [editedSystem, setEditedSystem] = useState<{
+    solarPanelCount: number;
+    solarPanelWattage: number;
+    batteryKwh: number;
+    inverterKw: number;
+    backupDurationHrs: number;
+  } | null>(null);
 
   useEffect(() => {
     fetchProject();
@@ -83,7 +89,12 @@ export default function ReviewPage() {
     setEditedSystem(null);
   };
 
-  const calculateCost = (system: any) => {
+  const calculateCost = (system: {
+    solarPanelCount?: number;
+    solarPanelWattage?: number;
+    batteryKwh?: number;
+    inverterKw?: number;
+  }) => {
     // Simplified cost calculation - in real app, this should match your sizing API logic
     const solarCost = (system.solarPanelCount || 0) * (system.solarPanelWattage || 0) * 1.5; // $1.5 per watt
     const batteryCost = (system.batteryKwh || 0) * 800; // $800 per kWh
