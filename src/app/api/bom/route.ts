@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { projectId } = body;
+    const { projectId, forceRegenerate = false } = body;
 
     if (!projectId) {
       return NextResponse.json(
@@ -25,10 +25,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Clear existing BOM items
-    await prisma.bOMItem.deleteMany({
+    // Check for existing BOM items
+    const existingItems = await prisma.bOMItem.findMany({
       where: { projectId },
     });
+
+    // If items exist and not forcing regeneration, return existing items
+    if (existingItems.length > 0 && !forceRegenerate) {
+      const totalCost = existingItems.reduce((sum, item) => sum + item.totalPriceUsd, 0);
+      return NextResponse.json({
+        success: true,
+        bomItems: existingItems,
+        totalCost,
+        message: "Using existing BOM items. Use forceRegenerate=true to recreate.",
+      });
+    }
+
+    // Clear existing BOM items only if regenerating
+    if (existingItems.length > 0) {
+      await prisma.bOMItem.deleteMany({
+        where: { projectId },
+      });
+    }
 
     // Generate BOM items based on system design
     const bomItems = [
@@ -79,13 +97,13 @@ export async function POST(request: NextRequest) {
       {
         projectId,
         category: "electrical" as const,
-        itemName: "Electrical BOS Components",
+        itemName: "Basic Electrical Components",
         manufacturer: "Various",
-        modelNumber: "BOS-COMPLETE",
+        modelNumber: "BASIC-ELEC",
         quantity: 1,
-        unitPriceUsd: 2000,
-        totalPriceUsd: 2000,
-        notes: "DC/AC disconnects, combiner box, conduit, wire",
+        unitPriceUsd: 500,
+        totalPriceUsd: 500,
+        notes: "Basic wiring and safety equipment only",
       },
     ];
 

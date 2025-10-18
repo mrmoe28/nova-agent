@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     ];
 
     const laborHoursEst =
-      system.solarPanelCount * 0.5 + system.batteryKwh * 2 + 16;
+      system.solarPanelCount * 0.25 + system.batteryKwh * 0.5 + 8;
 
     // Save installation plan
     const plan = await prisma.plan.upsert({

@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
+import { Loader2, Trash2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
 interface BOMItem {
@@ -23,6 +25,7 @@ export default function BOMPage() {
   const router = useRouter();
   const params = useParams();
   const projectId = params.projectId as string;
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [bomItems, setBomItems] = useState<BOMItem[]>([]);
@@ -33,13 +36,13 @@ export default function BOMPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const generateBOM = async () => {
+  const generateBOM = async (forceRegenerate = false) => {
     setGenerating(true);
     try {
       const response = await fetch("/api/bom", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId }),
+        body: JSON.stringify({ projectId, forceRegenerate }),
       });
 
       const data = await response.json();
@@ -47,14 +50,58 @@ export default function BOMPage() {
       if (data.success) {
         setBomItems(data.bomItems);
         setTotalCost(data.totalCost);
+        if (data.message) {
+          toast({
+            title: "BOM Generated",
+            description: data.message,
+          });
+        }
       } else {
-        alert(`Error: ${data.error}`);
+        toast({
+          title: "Error",
+          description: data.error,
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error("Error generating BOM:", error);
-      alert("Failed to generate BOM");
+      toast({
+        title: "Error",
+        description: "Failed to generate BOM",
+        variant: "destructive",
+      });
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleDeleteItem = async (itemId: string) => {
+    try {
+      const response = await fetch(`/api/bom/${itemId}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setBomItems(prev => prev.filter(item => item.id !== itemId));
+        // Recalculate total
+        const newTotal = bomItems.filter(item => item.id !== itemId)
+          .reduce((sum, item) => sum + item.totalPriceUsd, 0);
+        setTotalCost(newTotal);
+        toast({
+          title: "Item Removed",
+          description: "BOM item has been removed successfully.",
+        });
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove BOM item.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -108,39 +155,50 @@ export default function BOMPage() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b">
-                <th className="pb-3 text-left font-semibold text-gray-900">Category</th>
-                <th className="pb-3 text-left font-semibold text-gray-900">Item</th>
-                <th className="pb-3 text-left font-semibold text-gray-900">Model</th>
-                <th className="pb-3 text-right font-semibold text-gray-900">Qty</th>
-                <th className="pb-3 text-right font-semibold text-gray-900">Unit Price</th>
-                <th className="pb-3 text-right font-semibold text-gray-900">Total</th>
+              <tr className="border-b border-border">
+                <th className="pb-3 text-left font-semibold text-foreground">Category</th>
+                <th className="pb-3 text-left font-semibold text-foreground">Item</th>
+                <th className="pb-3 text-left font-semibold text-foreground">Model</th>
+                <th className="pb-3 text-right font-semibold text-foreground">Qty</th>
+                <th className="pb-3 text-right font-semibold text-foreground">Unit Price</th>
+                <th className="pb-3 text-right font-semibold text-foreground">Total</th>
+                <th className="pb-3 text-center font-semibold text-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
               {bomItems.map((item) => (
-                <tr key={item.id} className="border-b last:border-0">
-                  <td className="py-3 text-sm capitalize text-gray-900">{item.category}</td>
-                  <td className="py-3 text-sm text-gray-900">{item.itemName}</td>
-                  <td className="py-3 text-xs font-mono text-gray-600">
+                <tr key={item.id} className="border-b border-border last:border-0">
+                  <td className="py-3 text-sm capitalize text-foreground">{item.category}</td>
+                  <td className="py-3 text-sm text-foreground">{item.itemName}</td>
+                  <td className="py-3 text-xs font-mono text-muted-foreground">
                     {item.modelNumber}
                   </td>
-                  <td className="py-3 text-sm text-right text-gray-900">{item.quantity}</td>
-                  <td className="py-3 text-sm text-right text-gray-900">
+                  <td className="py-3 text-sm text-right text-foreground">{item.quantity}</td>
+                  <td className="py-3 text-sm text-right text-foreground">
                     {formatCurrency(item.unitPriceUsd)}
                   </td>
-                  <td className="py-3 text-sm text-right font-semibold text-gray-900">
+                  <td className="py-3 text-sm text-right font-semibold text-foreground">
                     {formatCurrency(item.totalPriceUsd)}
+                  </td>
+                  <td className="py-3 text-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteItem(item.id)}
+                      className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </td>
                 </tr>
               ))}
             </tbody>
             <tfoot>
-              <tr className="border-t-2">
-                <td colSpan={5} className="pt-4 text-right font-semibold text-gray-900">
+              <tr className="border-t-2 border-border">
+                <td colSpan={6} className="pt-4 text-right font-semibold text-foreground">
                   Total Equipment Cost:
                 </td>
-                <td className="pt-4 text-right text-lg font-bold text-gray-900">
+                <td className="pt-4 text-right text-lg font-bold text-foreground">
                   {formatCurrency(totalCost)}
                 </td>
               </tr>
@@ -172,6 +230,7 @@ export default function BOMPage() {
           </Button>
         </div>
       </Card>
+      <Toaster />
     </div>
   );
 }
