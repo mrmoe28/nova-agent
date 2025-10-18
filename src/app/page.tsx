@@ -97,7 +97,7 @@ export default function Page() {
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-600/20 rounded-full blur-[100px]" />
 
-        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
+        <div className="relative mx-auto max-w-full px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-8 items-center">
             {/* Left Column - Hero Content */}
             <div className="space-y-8">
@@ -175,13 +175,13 @@ export default function Page() {
 
             {/* Right Column - Quick Start Card */}
             <div className="relative">
-              <Card className="bg-white/5 backdrop-blur-sm border-white/10 shadow-2xl">
+              <Card className="bg-white border-gray-200 shadow-2xl">
                 <CardHeader>
-                  <CardTitle className="text-white flex items-center gap-2">
-                    <Zap className="h-5 w-5 text-cyan-400" />
+                  <CardTitle className="text-gray-900 flex items-center gap-2">
+                    <Zap className="h-5 w-5 text-cyan-600" />
                     Quick Start Guide
                   </CardTitle>
-                  <CardDescription className="text-gray-300">
+                  <CardDescription className="text-gray-600">
                     Get your first solar system designed in 4 simple steps
                   </CardDescription>
                 </CardHeader>
@@ -189,7 +189,7 @@ export default function Page() {
                   {steps.map((step, index) => (
                     <div
                       key={step.number}
-                      className="flex gap-4 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors duration-200"
+                      className="flex gap-4 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
                     >
                       <div className="flex-shrink-0">
                         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-bold">
@@ -197,10 +197,10 @@ export default function Page() {
                         </div>
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-semibold text-white">
+                        <h4 className="font-semibold text-gray-900">
                           {step.title}
                         </h4>
-                        <p className="text-sm text-gray-400">
+                        <p className="text-sm text-gray-600">
                           {step.description}
                         </p>
                       </div>

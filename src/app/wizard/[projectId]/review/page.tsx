@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, Download, CheckCircle2, AlertTriangle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loader2, Download, CheckCircle2, AlertTriangle, Edit3, Save, X } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
 interface ProjectData {
@@ -36,6 +38,9 @@ export default function ReviewPage() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [project, setProject] = useState<ProjectData | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [editedSystem, setEditedSystem] = useState<any>(null);
 
   useEffect(() => {
     fetchProject();
@@ -57,6 +62,101 @@ export default function ReviewPage() {
       alert("Failed to load project");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleEditSystem = () => {
+    if (project?.system) {
+      setEditedSystem({
+        solarPanelCount: project.system.solarPanelCount,
+        solarPanelWattage: project.system.solarPanelWattage,
+        batteryKwh: project.system.batteryKwh,
+        inverterKw: project.system.inverterKw,
+        backupDurationHrs: project.system.backupDurationHrs,
+      });
+      setEditing(true);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditing(false);
+    setEditedSystem(null);
+  };
+
+  const calculateCost = (system: any) => {
+    // Simplified cost calculation - in real app, this should match your sizing API logic
+    const solarCost = (system.solarPanelCount || 0) * (system.solarPanelWattage || 0) * 1.5; // $1.5 per watt
+    const batteryCost = (system.batteryKwh || 0) * 800; // $800 per kWh
+    const inverterCost = (system.inverterKw || 0) * 500; // $500 per kW
+    const installationCost = 5000; // Base installation cost
+    
+    return solarCost + batteryCost + inverterCost + installationCost;
+  };
+
+  const handleSaveSystem = async () => {
+    if (!editedSystem || !project) return;
+    
+    // Validation
+    const hasSolar = (editedSystem.solarPanelCount || 0) > 0 && (editedSystem.solarPanelWattage || 0) > 0;
+    const hasBattery = (editedSystem.batteryKwh || 0) > 0;
+    const hasInverter = (editedSystem.inverterKw || 0) > 0;
+
+    if (!hasSolar && !hasBattery) {
+      alert("System must have either solar panels or battery storage (or both).");
+      return;
+    }
+
+    if (!hasInverter) {
+      alert("System must have an inverter with capacity greater than 0 kW.");
+      return;
+    }
+
+    // For battery-only systems, suggest appropriate inverter sizing
+    if (!hasSolar && hasBattery && editedSystem.inverterKw < editedSystem.batteryKwh * 0.5) {
+      const suggestedInverter = Math.max(5, editedSystem.batteryKwh * 0.5);
+      if (!confirm(`For battery-only systems, we recommend an inverter capacity of at least ${suggestedInverter.toFixed(1)} kW. Continue with ${editedSystem.inverterKw} kW?`)) {
+        return;
+      }
+    }
+    
+    setSaving(true);
+    try {
+      const totalSolarKw = (editedSystem.solarPanelCount || 0) * (editedSystem.solarPanelWattage || 0) / 1000;
+      const estimatedCost = calculateCost(editedSystem);
+
+      const systemData = {
+        ...editedSystem,
+        totalSolarKw,
+        estimatedCostUsd: estimatedCost,
+        batteryType: "lithium",
+        inverterType: "Hybrid String Inverter",
+      };
+
+      const response = await fetch(`/api/projects/${projectId}/system`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(systemData),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        setProject({
+          ...project,
+          system: {
+            ...project.system!,
+            ...systemData,
+          }
+        });
+        setEditing(false);
+        setEditedSystem(null);
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error updating system:", error);
+      alert("Failed to update system");
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -127,33 +227,65 @@ export default function ReviewPage() {
       <div className="space-y-6">
         {/* System Summary */}
         <Card className="p-6">
-          <h2 className="text-lg font-semibold mb-4">System Summary</h2>
-          {project.system && (
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">System Summary</h2>
+            {!editing && project.system && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleEditSystem}
+                className="flex items-center gap-2"
+              >
+                <Edit3 className="h-4 w-4" />
+                Edit Equipment
+              </Button>
+            )}
+          </div>
+          
+          {project.system && !editing && (
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <p className="text-sm text-muted-foreground">Solar Array</p>
                 <p className="text-lg font-semibold">
-                  {project.system.solarPanelCount} ×{" "}
-                  {project.system.solarPanelWattage}W ={" "}
-                  {project.system.totalSolarKw.toFixed(2)} kW
+                  {project.system.solarPanelCount > 0 ? (
+                    <>
+                      {project.system.solarPanelCount} ×{" "}
+                      {project.system.solarPanelWattage}W ={" "}
+                      {project.system.totalSolarKw.toFixed(2)} kW
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground">No Solar Panels</span>
+                  )}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Battery Storage</p>
                 <p className="text-lg font-semibold">
-                  {project.system.batteryKwh.toFixed(2)} kWh
+                  {project.system.batteryKwh > 0 ? (
+                    `${project.system.batteryKwh.toFixed(2)} kWh`
+                  ) : (
+                    <span className="text-muted-foreground">No Battery Storage</span>
+                  )}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Inverter</p>
                 <p className="text-lg font-semibold">
-                  {project.system.inverterKw.toFixed(2)} kW
+                  {project.system.inverterKw > 0 ? (
+                    `${project.system.inverterKw.toFixed(2)} kW`
+                  ) : (
+                    <span className="text-muted-foreground">No Inverter</span>
+                  )}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Backup Duration</p>
                 <p className="text-lg font-semibold">
-                  {project.system.backupDurationHrs} hours
+                  {project.system.backupDurationHrs > 0 ? (
+                    `${project.system.backupDurationHrs} hours`
+                  ) : (
+                    <span className="text-muted-foreground">No Backup</span>
+                  )}
                 </p>
               </div>
               <div className="sm:col-span-2">
@@ -161,6 +293,124 @@ export default function ReviewPage() {
                 <p className="text-2xl font-bold text-primary">
                   {formatCurrency(project.system.estimatedCostUsd)}
                 </p>
+              </div>
+            </div>
+          )}
+
+          {editing && editedSystem && (
+            <div className="space-y-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="solarCount">Solar Panel Count</Label>
+                  <Input
+                    id="solarCount"
+                    type="number"
+                    min="0"
+                    value={editedSystem.solarPanelCount || 0}
+                    onChange={(e) => setEditedSystem({
+                      ...editedSystem,
+                      solarPanelCount: parseInt(e.target.value) || 0
+                    })}
+                    placeholder="Enter panel count (0 for battery-only)"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="solarWattage">Panel Wattage (W)</Label>
+                  <Input
+                    id="solarWattage"
+                    type="number"
+                    min="0"
+                    value={editedSystem.solarPanelWattage || 0}
+                    onChange={(e) => setEditedSystem({
+                      ...editedSystem,
+                      solarPanelWattage: parseInt(e.target.value) || 0
+                    })}
+                    placeholder="Enter wattage per panel"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="batteryKwh">Battery Storage (kWh)</Label>
+                  <Input
+                    id="batteryKwh"
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={editedSystem.batteryKwh || 0}
+                    onChange={(e) => setEditedSystem({
+                      ...editedSystem,
+                      batteryKwh: parseFloat(e.target.value) || 0
+                    })}
+                    placeholder="Enter battery capacity"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="inverterKw">Inverter Capacity (kW)</Label>
+                  <Input
+                    id="inverterKw"
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    value={editedSystem.inverterKw || 0}
+                    onChange={(e) => setEditedSystem({
+                      ...editedSystem,
+                      inverterKw: parseFloat(e.target.value) || 0
+                    })}
+                    placeholder="Enter inverter capacity"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="backupHours">Backup Duration (hours)</Label>
+                  <Input
+                    id="backupHours"
+                    type="number"
+                    min="0"
+                    value={editedSystem.backupDurationHrs || 0}
+                    onChange={(e) => setEditedSystem({
+                      ...editedSystem,
+                      backupDurationHrs: parseInt(e.target.value) || 0
+                    })}
+                    placeholder="Enter backup duration"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label>Estimated Cost</Label>
+                  <div className="text-2xl font-bold text-primary">
+                    {formatCurrency(calculateCost(editedSystem))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <h4 className="font-medium text-blue-900 mb-2">Project Types:</h4>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li>• <strong>Battery Only:</strong> Set solar panels to 0, keep battery and inverter</li>
+                  <li>• <strong>Solar Only:</strong> Set battery to 0, keep solar panels and inverter</li>
+                  <li>• <strong>Full System:</strong> Include all components for complete energy solution</li>
+                </ul>
+              </div>
+
+              <div className="flex gap-3">
+                <Button
+                  onClick={handleSaveSystem}
+                  disabled={saving}
+                  className="flex items-center gap-2"
+                >
+                  {saving ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4" />
+                  )}
+                  Save Changes
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleCancelEdit}
+                  disabled={saving}
+                  className="flex items-center gap-2"
+                >
+                  <X className="h-4 w-4" />
+                  Cancel
+                </Button>
               </div>
             </div>
           )}
