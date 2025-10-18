@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -110,6 +111,7 @@ interface Distributor {
 type ViewMode = "cards" | "grid" | "table";
 
 export default function ProjectsPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<Project[]>([]);
   const [distributors, setDistributors] = useState<Distributor[]>([]);
@@ -364,6 +366,20 @@ export default function ProjectsPage() {
           <CollapsibleTrigger asChild>
             <div className="cursor-pointer">
               <CardHeader className="pb-4">
+                <div className="absolute top-4 right-4 z-10">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/projects/${project.id}`);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-blue-100"
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    View Details
+                  </Button>
+                </div>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3 flex-1">
                     <Avatar className="h-12 w-12 bg-gradient-to-br from-blue-500 to-purple-600">
@@ -373,7 +389,13 @@ export default function ProjectsPage() {
                     </Avatar>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <CardTitle className="text-lg font-semibold text-gray-900 truncate">
+                        <CardTitle 
+                          className="text-lg font-semibold text-gray-900 truncate hover:text-blue-600 transition-colors cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/projects/${project.id}`);
+                          }}
+                        >
                           {project.clientName}
                         </CardTitle>
                         {isExpanded ? (

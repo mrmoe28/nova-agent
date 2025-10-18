@@ -2,56 +2,170 @@
 
 ## Current State
 
-NovaAgent is a fully functional Next.js 14 production-ready web application for solar energy planning and system design. The application has been scaffolded and implemented with all core features working.
+NovaAgent is a fully functional Next.js 15 production-ready web application for solar energy planning and system design. The application has been enhanced with advanced accuracy features for bill analysis, tariff modeling, production estimation, and precision system sizing.
 
 ## Project Overview
 
 **NovaAgent** is an AI Energy Planner for Solar & Battery Systems that helps solar professionals:
-- Analyze power bills and usage patterns
-- Design solar + battery storage systems
-- Generate bills of materials (BOM) with pricing
-- Perform NEC compliance checks
-- Create professional PDF reports
+- **Enhanced Bill Analysis**: Multi-method OCR with confidence scoring and validation
+- **Precision System Sizing**: PVWatts/SAM integration with hourly load profiles
+- **Tariff Intelligence**: Real-time rate lookup via UtilityAPI, Genability, and OpenEI
+- **Equipment Optimization**: Catalog-based selection with NEC compliance
+- **Financial Analysis**: Comprehensive ROI and NPV calculations
+- **Quality Assurance**: Built-in validation and monitoring with test fixtures
 
 ## Technology Stack
 
+### Core Framework
 - **Framework**: Next.js 15 with App Router + TypeScript
 - **Styling**: TailwindCSS v4 + shadcn/ui components
-- **Database**: PostgreSQL (Neon) with Prisma ORM
-- **PDF Generation**: pdfkit
-- **OCR**: pdf-parse (PDF text extraction) + tesseract.js (image OCR)
-- **Forms**: react-hook-form + zod validation
-- **UI Components**: shadcn/ui (button, card, input, label, select, textarea)
+- **Database**: PostgreSQL with Prisma ORM (enhanced schema)
+- **Validation**: Zod schemas with runtime type checking
 
-## Architecture
+### Enhanced Analysis Services
+- **OCR Processing**: Multi-method (Anthropic Claude, Tesseract, Azure Form Recognizer)
+- **Tariff APIs**: OpenEI Rate Database, Genability, UtilityAPI integration
+- **Production Modeling**: NREL PVWatts API, SAM integration, NSRDB data
+- **Equipment Catalogs**: Real-time distributor data with NEC compliance validation
+- **Monitoring**: Structured logging with correlation IDs and confidence tracking
 
-### Database Schema
-- **Project**: Main entity (client info, status tracking)
-- **Bill**: Power bill uploads (PDF/image/CSV)
-- **Analysis**: Usage analysis results
-- **System**: Solar/battery system design specs
-- **BOMItem**: Bill of materials line items
-- **Plan**: Installation plan with NEC checks
+### UI & Integration
+- **Components**: Enhanced shadcn/ui with theme-aware colors
+- **Forms**: react-hook-form + zod validation with error handling
+- **Testing**: Playwright integration tests with gold-standard fixtures
+- **Deployment**: Vercel with enhanced environment configuration
 
-### API Endpoints
-- `POST /api/projects` - Create new project
-- `GET /api/projects` - List all projects
-- `GET /api/projects/[id]` - Get project details
-- `PATCH /api/projects/[id]` - Update project
-- `DELETE /api/projects/[id]` - Delete project
-- `POST /api/upload` - Upload bill files (PDF/image/CSV)
-- `POST /api/ocr` - Process single bill with OCR
-- `GET /api/ocr?projectId=X` - Batch process all bills for project
-- `POST /api/analyze` - Analyze bills and generate usage data (uses OCR data when available)
-- `POST /api/size` - Calculate system sizing
-- `POST /api/bom` - Generate bill of materials
-- `POST /api/plan` - Create installation plan with NEC checks
-- `POST /api/pdf` - Generate and download PDF report
+## Enhanced Architecture
+
+### Database Schema (Enhanced)
+
+#### Core Entities
+- **Project**: Main entity with comprehensive relationship tracking
+- **Bill**: Original bill uploads with enhanced metadata
+- **Analysis**: Legacy analysis results (maintained for compatibility)
+
+#### Enhanced Analysis Entities
+- **EnhancedBill**: Advanced bill parsing with OCR confidence and validation
+- **Tariff**: Rate schedule data from multiple sources (OpenEI, Genability)
+- **LoadProfile**: Detailed usage patterns (monthly, hourly, 15-minute)
+- **SolarResource**: Location-specific irradiance data (NSRDB, PVWatts)
+- **ProductionEstimate**: Detailed production modeling with degradation
+- **EquipmentCatalog**: Comprehensive equipment database with NEC compliance
+- **SizingRecommendation**: Optimized system recommendations with alternatives
+
+#### Quality & Monitoring
+- **ProjectMetrics**: Accuracy tracking and confidence scoring
+- **SystemAlert**: Automated issue detection and resolution guidance
+- **ValidationFixture**: Gold-standard test cases for regression testing
+- **CriticalLoadProfile**: Backup power requirements and circuit analysis
+
+### API Architecture (Enhanced)
+
+#### Legacy Endpoints (Maintained)
+- `POST /api/analyze` - Basic bill analysis with enhanced fallback
+- `POST /api/size` - System sizing with improved algorithms
+- `POST /api/bom` - BOM generation with equipment catalog integration
+- `POST /api/plan` - Installation planning with enhanced NEC checks
+
+#### Enhanced Analysis Endpoints
+- `POST /api/analyze/enhanced` - Comprehensive bill analysis pipeline
+- `GET /api/tariffs/search` - Real-time tariff lookup and matching
+- `POST /api/production/estimate` - Advanced production modeling
+- `POST /api/sizing/optimize` - Multi-objective system optimization
+- `GET /api/equipment/catalog` - Equipment search with availability
+
+#### Monitoring & Validation
+- `GET /api/metrics/project/[id]` - Project quality metrics
+- `GET /api/alerts/[projectId]` - Active system alerts
+- `POST /api/validation/run` - Execute validation fixtures
+- `GET /api/health/analysis` - System health and API status
 
 ### UI Pages
 - `/` - Landing page with hero/dashboard
 - `/wizard/new` - Create new project (client intake form)
 - `/wizard/[projectId]/intake` - Bill upload page (demo mode available)
+- `/wizard/[projectId]/sizing` - System sizing with enhanced recommendations
+- `/wizard/[projectId]/review` - Equipment selection and editing
+- `/wizard/[projectId]/bom` - Bill of materials with item management
+- `/projects` - Project dashboard with detailed cards
+- `/projects/[id]` - **NEW** Comprehensive project details view
+- `/distributors` - Equipment distributor management
+
+## Enhanced Accuracy Features
+
+### Bill Analysis Accuracy
+- **Multi-Method OCR**: Anthropic Claude, Tesseract, Azure Form Recognizer with confidence scoring
+- **Structured Parsing**: 12+ months bill normalization with line-item extraction
+- **Validation Pipeline**: Confidence thresholds, variance checking, anomaly detection
+- **Tariff Integration**: Real-time rate lookup with utility matching and validation
+
+### Production Modeling Precision
+- **PVWatts Integration**: NREL API with location-specific irradiance data
+- **NSRDB Solar Resource**: 4km resolution weather data with multi-year averages
+- **Advanced Configuration**: Tilt optimization, shading analysis, system losses
+- **Degradation Modeling**: 25-year production profiles with realistic degradation curves
+
+### System Sizing Optimization
+- **Load Profile Analysis**: Monthly/hourly patterns from bill disaggregation
+- **Equipment Catalogs**: Real equipment with NEC compliance and availability
+- **Multi-Objective Goals**: Net-zero, ROI optimization, backup power, bill reduction
+- **Financial Analysis**: NPV, payback period, utility escalation, tax credit integration
+
+### Quality Assurance
+- **Validation Fixtures**: Gold-standard test cases with known results
+- **Confidence Tracking**: Per-component accuracy metrics and overall scoring
+- **System Alerts**: Automated issue detection with resolution guidance
+- **Regression Testing**: Cross-validation against PVWatts and industry benchmarks
+
+## Environment Variables (Enhanced)
+
+### Core Application
+```env
+DATABASE_URL="your_neon_postgres_url"
+NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+```
+
+### Enhanced Analysis APIs
+```env
+# NREL APIs for production modeling
+NREL_API_KEY="your_nrel_api_key"
+
+# Tariff data sources
+OPENEI_API_KEY="your_openei_api_key"
+GENABILITY_API_KEY="your_genability_api_key"
+GENABILITY_APP_ID="your_genability_app_id"
+UTILITY_API_KEY="your_utility_api_key"
+
+# OCR services
+ANTHROPIC_API_KEY="your_anthropic_api_key"
+AZURE_FORM_RECOGNIZER_KEY="your_azure_key"
+AZURE_FORM_RECOGNIZER_ENDPOINT="your_azure_endpoint"
+
+# Browser automation for scraping
+BROWSERLESS_TOKEN="your_browserless_token"
+```
+
+## Development Procedures
+
+### Enhanced Analysis Pipeline
+1. **Bill Processing**: Upload → OCR → Parse → Validate → Store
+2. **Tariff Lookup**: Extract utility → Search APIs → Match → Validate
+3. **Load Profiling**: Bills → Normalize → Patterns → Extrapolate
+4. **Production Modeling**: Location → Solar resource → Configuration → PVWatts
+5. **System Sizing**: Goals → Optimize → Equipment → Financial analysis
+
+### Testing & Validation
+- **Unit Tests**: Individual service testing with mocks
+- **Integration Tests**: End-to-end pipeline with real fixtures
+- **Validation Fixtures**: Gold-standard cases with known results
+- **Cross-Validation**: Compare against PVWatts, Aurora, industry tools
+- **Regression Testing**: Automated accuracy checks on deployment
+
+### Monitoring & Observability
+- **Structured Logging**: Correlation IDs, confidence scores, processing times
+- **Error Tracking**: Recoverable vs non-recoverable errors with guidance
+- **System Alerts**: Automated issue detection and resolution paths
+- **Performance Metrics**: API response times, accuracy trends, system health
 - `/wizard/[projectId]/sizing` - System sizing configuration
 - `/wizard/[projectId]/bom` - Bill of materials review
 - `/wizard/[projectId]/review` - Final review and PDF generation
