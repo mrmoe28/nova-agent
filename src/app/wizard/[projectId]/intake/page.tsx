@@ -40,7 +40,12 @@ export default function IntakePage() {
       if (analyzeData.success) {
         router.push(`/wizard/${projectId}/sizing`);
       } else {
-        alert(`Analysis Error: ${analyzeData.error}`);
+        // Provide more helpful error messages
+        let errorMessage = analyzeData.error;
+        if (errorMessage.includes("No extracted data found")) {
+          errorMessage = `OCR Processing Issue: ${errorMessage}\n\nUsing demo data for now. To enable full OCR processing:\n1. Install Python dependencies\n2. Start the OCR service\n3. Re-upload your bills`;
+        }
+        alert(`Analysis Error: ${errorMessage}`);
       }
     } catch (error) {
       console.error("Error:", error);

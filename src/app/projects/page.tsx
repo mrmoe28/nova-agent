@@ -343,9 +343,9 @@ export default function ProjectsPage() {
                           {project.clientName}
                         </CardTitle>
                         {isExpanded ? (
-                          <ChevronDown className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                          <ChevronDown className="h-4 w-4 text-gray-600 flex-shrink-0" />
                         ) : (
-                          <ChevronRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                          <ChevronRight className="h-4 w-4 text-gray-600 flex-shrink-0" />
                         )}
                       </div>
                       {project.address && (
@@ -355,8 +355,8 @@ export default function ProjectsPage() {
                       )}
                       <div className="flex items-center gap-2 mt-2">
                         {getStatusBadge(project.status)}
-                        <div className="flex items-center gap-1 text-xs text-gray-500">
-                          <Calendar className="h-3 w-3" />
+                        <div className="flex items-center gap-1 text-xs text-gray-600">
+                          <Calendar className="h-3 w-3 text-gray-600" />
                           {formatDate(project.createdAt)}
                         </div>
                       </div>
@@ -533,9 +533,9 @@ export default function ProjectsPage() {
             <div className="flex items-center gap-4">
               {/* Distributor Selection */}
               <div className="flex items-center gap-3">
-                <Building2 className="h-5 w-5 text-gray-400" />
+                <Building2 className="h-5 w-5 text-gray-600" />
                 <Select value={selectedDistributor} onValueChange={setSelectedDistributor}>
-                  <SelectTrigger className="w-64 bg-white border-gray-200">
+                  <SelectTrigger className="w-64 bg-white border-gray-300 text-gray-900">
                     <SelectValue placeholder="Select distributor for pricing" />
                   </SelectTrigger>
                   <SelectContent>
@@ -555,39 +555,36 @@ export default function ProjectsPage() {
               </div>
 
               {/* View Toggle */}
-              <div className="flex items-center bg-gray-100 rounded-lg p-1">
+              <div className="flex items-center bg-gray-200 rounded-lg p-1 gap-1">
                 <Button
-                  variant={viewMode === "cards" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("cards")}
-                  className={`h-8 px-3 ${
+                  className={`h-8 px-3 border-0 ${
                     viewMode === "cards" 
-                      ? "bg-white shadow-sm" 
-                      : "hover:bg-gray-200"
+                      ? "bg-blue-600 text-white shadow-sm" 
+                      : "bg-white text-gray-700 shadow-sm"
                   }`}
                 >
                   <LayoutGrid className="h-4 w-4" />
                 </Button>
                 <Button
-                  variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("grid")}
-                  className={`h-8 px-3 ${
+                  className={`h-8 px-3 border-0 ${
                     viewMode === "grid" 
-                      ? "bg-white shadow-sm" 
-                      : "hover:bg-gray-200"
+                      ? "bg-blue-600 text-white shadow-sm" 
+                      : "bg-white text-gray-700 shadow-sm"
                   }`}
                 >
                   <Grid3X3 className="h-4 w-4" />
                 </Button>
                 <Button
-                  variant={viewMode === "table" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("table")}
-                  className={`h-8 px-3 ${
+                  className={`h-8 px-3 border-0 ${
                     viewMode === "table" 
-                      ? "bg-white shadow-sm" 
-                      : "hover:bg-gray-200"
+                      ? "bg-blue-600 text-white shadow-sm" 
+                      : "bg-white text-gray-700 shadow-sm"
                   }`}
                 >
                   <Table className="h-4 w-4" />
@@ -595,9 +592,9 @@ export default function ProjectsPage() {
               </div>
             </div>
 
-            <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-sm">
+            <Button asChild className="bg-blue-600 text-white shadow-sm border-0">
               <Link href="/wizard/new">
-                <Plus className="mr-2 h-4 w-4" />
+                <Plus className="mr-2 h-4 w-4 text-white" />
                 New Project
               </Link>
             </Button>
