@@ -76,7 +76,9 @@ export async function POST(request: NextRequest) {
           // Use average price of available solar panels
           const avgSolarPrice = solarPanels.reduce((sum, panel) => sum + panel.unitPrice, 0) / solarPanels.length;
           // Convert to cost per watt (assuming panels are ~400W)
-          solarCostPerWatt = avgSolarPrice / solarPanelWattage;
+          const calculatedSolarCostPerWatt = avgSolarPrice / solarPanelWattage;
+          // Cap at reasonable maximum to prevent inflated pricing
+          solarCostPerWatt = Math.min(calculatedSolarCostPerWatt, 4.0);
         }
 
         // Find batteries
@@ -89,7 +91,9 @@ export async function POST(request: NextRequest) {
         if (batteries.length > 0) {
           // Use average battery price - assuming typical 5kWh battery for cost/kWh calculation
           const avgBatteryPrice = batteries.reduce((sum, battery) => sum + battery.unitPrice, 0) / batteries.length;
-          batteryCostPerKwh = avgBatteryPrice / 5; // Assume 5kWh per battery unit
+          const calculatedBatteryCostPerKwh = avgBatteryPrice / 5; // Assume 5kWh per battery unit
+          // Cap at reasonable maximum to prevent inflated pricing (max $600/kWh)
+          batteryCostPerKwh = Math.min(calculatedBatteryCostPerKwh, 600);
         }
 
         // Find inverters
@@ -102,7 +106,9 @@ export async function POST(request: NextRequest) {
         if (inverters.length > 0) {
           // Use average inverter price - assuming typical 5kW inverter for cost/kW calculation
           const avgInverterPrice = inverters.reduce((sum, inv) => sum + inv.unitPrice, 0) / inverters.length;
-          inverterCostPerKw = avgInverterPrice / 5; // Assume 5kW per inverter unit
+          const calculatedInverterCostPerKw = avgInverterPrice / 5; // Assume 5kW per inverter unit
+          // Cap at reasonable maximum to prevent inflated pricing (max $1500/kW)
+          inverterCostPerKw = Math.min(calculatedInverterCostPerKw, 1500);
         }
 
       } catch (error) {

@@ -30,17 +30,17 @@ export const SYSTEM_SIZING = {
   INVERTER_MULTIPLIER: parseFloat(process.env.INVERTER_MULTIPLIER || "1.25"),
 
   /** Solar installation cost per watt (USD) */
-  SOLAR_COST_PER_WATT: parseFloat(process.env.SOLAR_COST_PER_WATT || "2.5"),
+  SOLAR_COST_PER_WATT: parseFloat(process.env.SOLAR_COST_PER_WATT || "2.20"),
 
-  /** Battery cost per kWh (USD) */
-  BATTERY_COST_PER_KWH: parseFloat(process.env.BATTERY_COST_PER_KWH || "800"),
+  /** Battery cost per kWh (USD) - Updated to realistic market pricing */
+  BATTERY_COST_PER_KWH: parseFloat(process.env.BATTERY_COST_PER_KWH || "350"),
 
   /** Inverter cost per kW (USD) */
-  INVERTER_COST_PER_KW: parseFloat(process.env.INVERTER_COST_PER_KW || "1200"),
+  INVERTER_COST_PER_KW: parseFloat(process.env.INVERTER_COST_PER_KW || "800"),
 
   /** Base installation labor cost (USD) */
   INSTALLATION_BASE_COST: parseFloat(
-    process.env.INSTALLATION_BASE_COST || "5000",
+    process.env.INSTALLATION_BASE_COST || "8000",
   ),
 } as const;
 

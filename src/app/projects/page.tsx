@@ -3,12 +3,34 @@
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Plus, Loader2, FolderOpen, ChevronDown, ChevronRight, FileText, Zap, Trash2, Grid3X3, Table, LayoutGrid, Building2 } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { 
+  Plus, 
+  Loader2, 
+  FolderOpen, 
+  ChevronDown, 
+  ChevronRight, 
+  FileText, 
+  Zap, 
+  Trash2, 
+  Grid3X3, 
+  Table, 
+  LayoutGrid, 
+  Building2,
+  Calendar,
+  DollarSign,
+  Eye,
+  Target,
+  Battery,
+  Sun,
+  Archive
+} from "lucide-react";
 
 interface Bill {
   id: string;
@@ -110,15 +132,6 @@ export default function ProjectsPage() {
     });
   };
 
-  const parseExtractedData = (extractedData: Record<string, unknown> | null | undefined) => {
-    if (!extractedData) return null;
-    try {
-      return typeof extractedData === 'string' ? JSON.parse(extractedData) : extractedData;
-    } catch {
-      return null;
-    }
-  };
-
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -134,18 +147,59 @@ export default function ProjectsPage() {
     });
   };
 
-  const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      intake: { variant: "secondary" as const, label: "Intake" },
-      analysis: { variant: "outline" as const, label: "Analysis" },
-      sizing: { variant: "outline" as const, label: "Sizing" },
-      bom: { variant: "outline" as const, label: "BOM" },
-      review: { variant: "outline" as const, label: "Review" },
-      complete: { variant: "default" as const, label: "Complete" },
+  const getStatusConfig = (status: string) => {
+    const configs = {
+      intake: { 
+        variant: "secondary" as const, 
+        label: "Intake", 
+        color: "bg-blue-100 text-blue-800 border-blue-200",
+        icon: FileText
+      },
+      analysis: { 
+        variant: "outline" as const, 
+        label: "Analysis", 
+        color: "bg-yellow-100 text-yellow-800 border-yellow-200",
+        icon: Target
+      },
+      sizing: { 
+        variant: "outline" as const, 
+        label: "Sizing", 
+        color: "bg-purple-100 text-purple-800 border-purple-200",
+        icon: Zap
+      },
+      bom: { 
+        variant: "outline" as const, 
+        label: "BOM", 
+        color: "bg-orange-100 text-orange-800 border-orange-200",
+        icon: Archive
+      },
+      review: { 
+        variant: "outline" as const, 
+        label: "Review", 
+        color: "bg-indigo-100 text-indigo-800 border-indigo-200",
+        icon: Eye
+      },
+      complete: { 
+        variant: "default" as const, 
+        label: "Complete", 
+        color: "bg-green-100 text-green-800 border-green-200",
+        icon: Target
+      },
     };
     
-    const config = statusConfig[status as keyof typeof statusConfig] || statusConfig.intake;
-    return <Badge variant={config.variant}>{config.label}</Badge>;
+    return configs[status as keyof typeof configs] || configs.intake;
+  };
+
+  const getStatusBadge = (status: string) => {
+    const config = getStatusConfig(status);
+    const IconComponent = config.icon;
+    
+    return (
+      <Badge className={`${config.color} font-medium px-3 py-1 flex items-center gap-1.5`}>
+        <IconComponent className="w-3 h-3" />
+        {config.label}
+      </Badge>
+    );
   };
 
   const handleDeleteClick = (project: Project) => {
@@ -195,21 +249,19 @@ export default function ProjectsPage() {
       const project = projects.find(p => p.id === projectId);
       if (!project?.system) return;
 
-      // Call the sizing API with distributor to recalculate
       const response = await fetch('/api/size', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           projectId: projectId,
           backupDurationHrs: project.system.backupDurationHrs,
-          criticalLoadKw: project.system.totalSolarKw, // Using total solar as proxy
+          criticalLoadKw: project.system.totalSolarKw,
           distributorId: selectedDistributor
         })
       });
 
       const data = await response.json();
       if (data.success) {
-        // Update the project in state
         setProjects(prev => prev.map(p => 
           p.id === projectId 
             ? { ...p, system: { ...p.system!, ...data.system } }
@@ -259,7 +311,6 @@ export default function ProjectsPage() {
   }, []);
 
   useEffect(() => {
-    // Auto-recalculate costs when distributor changes
     if (selectedDistributor && selectedDistributor !== "default" && projects.length > 0) {
       projects.forEach(project => {
         if (project.system && project.system.distributorId !== selectedDistributor) {
@@ -269,438 +320,350 @@ export default function ProjectsPage() {
     }
   }, [selectedDistributor, projects, recalculateProjectCost]);
 
-  // Render functions for different views
-  const renderProjectCard = (project: Project, isCompact: boolean = false) => {
+  const renderModernCard = (project: Project) => {
     const isExpanded = expandedProjects.has(project.id);
     const isRecalculating = recalculatingCosts.has(project.id);
-
+    
     return (
-      <Card key={project.id} className={`overflow-hidden shadow-md hover:shadow-lg transition-shadow ${isCompact ? 'h-80' : ''}`}>
-        <Collapsible open={isExpanded && !isCompact} onOpenChange={() => !isCompact && toggleProjectExpanded(project.id)}>
-          <CollapsibleTrigger asChild disabled={isCompact}>
-            <div className="p-4 hover:bg-gray-50 cursor-pointer">
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    {!isCompact && (isExpanded ? (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                    ))}
-                    <div className="min-w-0 flex-1">
-                      <h3 className="font-semibold text-sm truncate">
-                        {project.clientName}
-                      </h3>
+      <Card key={project.id} className="group relative overflow-hidden border-0 bg-white shadow-sm ring-1 ring-gray-950/5 transition-all duration-300 hover:shadow-lg hover:ring-gray-950/10">
+        <Collapsible open={isExpanded} onOpenChange={() => toggleProjectExpanded(project.id)}>
+          <CollapsibleTrigger asChild>
+            <div className="cursor-pointer">
+              <CardHeader className="pb-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3 flex-1">
+                    <Avatar className="h-12 w-12 bg-gradient-to-br from-blue-500 to-purple-600">
+                      <AvatarFallback className="text-white font-semibold">
+                        {project.clientName.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <CardTitle className="text-lg font-semibold text-gray-900 truncate">
+                          {project.clientName}
+                        </CardTitle>
+                        {isExpanded ? (
+                          <ChevronDown className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                        ) : (
+                          <ChevronRight className="h-4 w-4 text-gray-400 flex-shrink-0" />
+                        )}
+                      </div>
                       {project.address && (
-                        <p className="text-xs text-muted-foreground truncate">
+                        <CardDescription className="text-sm text-gray-600 truncate">
                           {project.address}
-                        </p>
+                        </CardDescription>
                       )}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex flex-col items-end gap-2">
-                  {getStatusBadge(project.status)}
-                  <div className="text-xs text-muted-foreground text-right">
-                    <div>{project._count.bills} bills</div>
-                    <div>{project._count.bomItems} items</div>
-                  </div>
-                </div>
-              </div>
-              
-              {project.system && (
-                <div className="mt-3 pt-3 border-t">
-                  <div className="flex justify-between items-center">
-                    <div className="text-xs text-muted-foreground">
-                      {project.system.totalSolarKw}kW Solar • {project.system.batteryKwh}kWh Battery
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {isRecalculating && (
-                        <Loader2 className="h-3 w-3 animate-spin text-blue-600" />
-                      )}
-                      <div className="text-sm font-semibold text-green-600">
-                        {formatCurrency(project.system.estimatedCostUsd)}
+                      <div className="flex items-center gap-2 mt-2">
+                        {getStatusBadge(project.status)}
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <Calendar className="h-3 w-3" />
+                          {formatDate(project.createdAt)}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              )}
+              </CardHeader>
 
-              <div className="mt-2 flex justify-between items-center">
-                <span className="text-xs text-muted-foreground">
-                  {formatDate(project.createdAt)}
-                </span>
-                <div className="flex gap-1">
-                  <Button 
-                    size="sm" 
-                    variant="outline" 
-                    className="h-6 px-2 text-xs border-gray-300 text-gray-700 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700"
-                    asChild
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Link href={`/wizard/${project.id}/intake`}>View</Link>
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="destructive" 
-                    className="h-6 px-2 text-xs bg-red-500 text-white hover:bg-red-600 hover:text-white"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteClick(project);
-                    }}
-                    disabled={deletingProject === project.id}
-                  >
-                    {deletingProject === project.id ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : (
-                      <Trash2 className="h-3 w-3" />
-                    )}
-                  </Button>
+              <CardContent className="pt-0">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                  <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
+                    <FileText className="h-4 w-4 text-blue-600" />
+                    <div>
+                      <div className="text-lg font-semibold text-gray-900">{project._count.bills}</div>
+                      <div className="text-xs text-gray-600">Bills</div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg">
+                    <Archive className="h-4 w-4 text-orange-600" />
+                    <div>
+                      <div className="text-lg font-semibold text-gray-900">{project._count.bomItems}</div>
+                      <div className="text-xs text-gray-600">BOM Items</div>
+                    </div>
+                  </div>
+                  {project.system && (
+                    <>
+                      <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-lg">
+                        <Sun className="h-4 w-4 text-yellow-600" />
+                        <div>
+                          <div className="text-lg font-semibold text-gray-900">{project.system.totalSolarKw}kW</div>
+                          <div className="text-xs text-gray-600">Solar</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
+                        <Battery className="h-4 w-4 text-green-600" />
+                        <div>
+                          <div className="text-lg font-semibold text-gray-900">{project.system.batteryKwh}kWh</div>
+                          <div className="text-xs text-gray-600">Battery</div>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
-              </div>
+
+                {project.system && (
+                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-100">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-5 w-5 text-green-600" />
+                      <span className="text-sm font-medium text-gray-700">Estimated Cost</span>
+                      {isRecalculating && (
+                        <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                      )}
+                    </div>
+                    <div className="text-2xl font-bold text-green-700">
+                      {formatCurrency(project.system.estimatedCostUsd)}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
             </div>
           </CollapsibleTrigger>
           
-          {!isCompact && (
-            <CollapsibleContent>
-              <div className="border-t bg-gray-50/50 p-4 space-y-4">
-                {/* Bills and OCR Data */}
-                {project.bills && project.bills.length > 0 && (
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <FileText className="h-4 w-4 text-blue-600" />
-                      <h4 className="font-semibold text-sm">Uploaded Bills</h4>
-                    </div>
-                    <div className="grid gap-2">
-                      {project.bills.slice(0, 2).map((bill) => {
-                        const extractedData = parseExtractedData(bill.extractedData);
-                        return (
-                          <div key={bill.id} className="bg-white p-2 rounded border text-xs">
-                            <div className="flex justify-between items-center">
-                              <span className="font-medium text-gray-900">{bill.fileName}</span>
-                              <Badge variant="outline" className="text-xs">{bill.fileType.toUpperCase()}</Badge>
-                            </div>
-                            {extractedData && (
-                              <div className="mt-1 text-gray-600 grid grid-cols-2 gap-1">
-                                {extractedData.monthlyUsageKwh && (
-                                  <div>Usage: {extractedData.monthlyUsageKwh} kWh</div>
-                                )}
-                                {extractedData.totalCost && (
-                                  <div>Cost: {formatCurrency(extractedData.totalCost)}</div>
-                                )}
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })}
-                      {project.bills.length > 2 && (
-                        <div className="text-xs text-gray-500">+{project.bills.length - 2} more bills</div>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* System Design Summary */}
-                {project.system && (
-                  <div>
-                    <div className="flex items-center gap-2 mb-2">
-                      <Zap className="h-4 w-4 text-yellow-600" />
-                      <h4 className="font-semibold text-sm">System Design</h4>
-                    </div>
-                    <div className="bg-white p-2 rounded border text-xs">
-                      <div className="grid grid-cols-3 gap-2 text-center">
-                        <div>
-                          <div className="font-semibold text-gray-900">{project.system.solarPanelCount}</div>
-                          <div className="text-gray-600">Panels</div>
+          <CollapsibleContent>
+            <div className="border-t bg-gray-50/50">
+              <CardContent className="pt-6">
+                <div className="space-y-6">
+                  {/* Analysis Data */}
+                  {project.analysis && (
+                    <div>
+                      <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                        <Target className="h-4 w-4 text-purple-600" />
+                        Energy Analysis
+                      </h4>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="bg-white p-4 rounded-lg border border-gray-100">
+                          <div className="text-2xl font-bold text-gray-900">{project.analysis.monthlyUsageKwh.toLocaleString()}</div>
+                          <div className="text-xs text-gray-600">kWh/month</div>
                         </div>
-                        <div>
-                          <div className="font-semibold text-gray-900">{project.system.batteryKwh} kWh</div>
-                          <div className="text-gray-600">Battery</div>
+                        <div className="bg-white p-4 rounded-lg border border-gray-100">
+                          <div className="text-2xl font-bold text-gray-900">{project.analysis.peakDemandKw}</div>
+                          <div className="text-xs text-gray-600">Peak kW</div>
                         </div>
-                        <div>
-                          <div className="font-semibold text-gray-900">{project.system.backupDurationHrs}h</div>
-                          <div className="text-gray-600">Backup</div>
+                        <div className="bg-white p-4 rounded-lg border border-gray-100">
+                          <div className="text-2xl font-bold text-gray-900">{formatCurrency(project.analysis.averageCostPerKwh)}</div>
+                          <div className="text-xs text-gray-600">Avg $/kWh</div>
+                        </div>
+                        <div className="bg-white p-4 rounded-lg border border-gray-100">
+                          <div className="text-2xl font-bold text-gray-900">{formatCurrency(project.analysis.annualCostUsd)}</div>
+                          <div className="text-xs text-gray-600">Annual Cost</div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                <div className="flex gap-2 pt-2 border-t">
-                  <Button asChild size="sm" className="flex-1 bg-blue-600 text-white hover:bg-blue-700 hover:text-white">
-                    <Link href={`/wizard/${project.id}/intake`}>
-                      {project.status === "complete" ? "View Project" : "Continue"}
-                    </Link>
-                  </Button>
-                  {project.status === "complete" && (
-                    <Button variant="outline" size="sm" className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-800" asChild>
-                      <Link href={`/wizard/${project.id}/review`}>Report</Link>
-                    </Button>
                   )}
+
+                  <Separator />
+
+                  {/* Action Buttons */}
+                  <div className="flex flex-wrap gap-3">
+                    <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
+                      <Link href={`/wizard/${project.id}/intake`}>
+                        <Eye className="mr-2 h-4 w-4" />
+                        {project.status === "complete" ? "View Project" : "Continue"}
+                      </Link>
+                    </Button>
+                    {project.status === "complete" && (
+                      <Button variant="outline" asChild>
+                        <Link href={`/wizard/${project.id}/review`}>
+                          <FileText className="mr-2 h-4 w-4" />
+                          Download Report
+                        </Link>
+                      </Button>
+                    )}
+                    <Button 
+                      variant="outline" 
+                      onClick={() => handleDeleteClick(project)}
+                      disabled={deletingProject === project.id}
+                      className="text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+                    >
+                      {deletingProject === project.id ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Deleting...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </CollapsibleContent>
-          )}
+              </CardContent>
+            </div>
+          </CollapsibleContent>
         </Collapsible>
       </Card>
     );
   };
 
-  const renderCardsView = () => (
-    <div className="space-y-4">
-      {projects.map((project) => renderProjectCard(project, false))}
-    </div>
-  );
-
-  const renderGridView = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {projects.map((project) => renderProjectCard(project, true))}
-    </div>
-  );
-
-  const renderTableView = () => (
-    <div className="bg-white rounded-lg border overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="min-w-full">
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-900">Client</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-900">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-900">System</th>
-              <th className="px-4 py-3 text-right text-xs font-semibold text-gray-900">Estimated Cost</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-900">Created</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-gray-900">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            {projects.map((project) => {
-              const isRecalculating = recalculatingCosts.has(project.id);
-              return (
-                <tr key={project.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <div>
-                      <div className="font-medium text-sm text-gray-900">{project.clientName}</div>
-                      {project.address && (
-                        <div className="text-xs text-gray-600 truncate max-w-xs">{project.address}</div>
-                      )}
-                      <div className="text-xs text-gray-500">
-                        {project._count.bills} bills • {project._count.bomItems} BOM items
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    {getStatusBadge(project.status)}
-                  </td>
-                  <td className="px-4 py-3">
-                    {project.system ? (
-                      <div className="text-sm">
-                        <div className="text-gray-900">{project.system.totalSolarKw}kW Solar</div>
-                        <div className="text-xs text-gray-600">
-                          {project.system.batteryKwh}kWh • {project.system.backupDurationHrs}h backup
-                        </div>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-gray-500">No system designed</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {project.system ? (
-                      <div className="flex items-center justify-end gap-2">
-                        {isRecalculating && (
-                          <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                        )}
-                        <span className="font-semibold text-green-600">
-                          {formatCurrency(project.system.estimatedCostUsd)}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="text-xs text-gray-500">—</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-gray-600">
-                    {formatDate(project.createdAt)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-center gap-2">
-                      <Button size="sm" variant="outline" className="border-gray-300 text-gray-700 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700" asChild>
-                        <Link href={`/wizard/${project.id}/intake`}>View</Link>
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="destructive"
-                        className="bg-red-500 text-white hover:bg-red-600 hover:text-white"
-                        onClick={() => handleDeleteClick(project)}
-                        disabled={deletingProject === project.id}
-                      >
-                        {deletingProject === project.id ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2 className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary" />
-          <p className="mt-4 text-muted-foreground">Loading projects...</p>
+          <div className="relative">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4 mx-auto">
+              <Loader2 className="h-8 w-8 animate-spin text-white" />
+            </div>
+            <div className="absolute inset-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full animate-pulse opacity-50 mx-auto"></div>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading Projects</h3>
+          <p className="text-gray-600">Please wait while we fetch your data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-7xl">
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Projects</h1>
-          <p className="mt-2 text-muted-foreground">
-            Manage your NovaAgent energy planning projects
-          </p>
-        </div>
-        <div className="flex items-center gap-4">
-          {/* Distributor Selection */}
-          <div className="flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-muted-foreground" />
-            <Select value={selectedDistributor} onValueChange={setSelectedDistributor}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Select distributor for pricing" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="default">Default Pricing</SelectItem>
-                {distributors.map((distributor) => (
-                  <SelectItem key={distributor.id} value={distributor.id}>
-                    {distributor.name}
-                    {distributor.equipment && distributor.equipment.length > 0 && (
-                      <span className="text-muted-foreground ml-2">
-                        ({distributor.equipment.length} products)
-                      </span>
-                    )}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+    <div className="min-h-screen bg-gray-50">
+      <div className="mx-auto max-w-7xl px-6 py-8">
+        {/* Modern Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
+              <p className="mt-2 text-gray-600">
+                Manage your energy planning projects with intelligent insights
+              </p>
+            </div>
           </div>
 
-          {/* View Toggle */}
-          <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
-            <Button
-              variant={viewMode === "cards" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("cards")}
-              className={`h-8 px-3 ${
-                viewMode === "cards" 
-                  ? "bg-blue-600 text-white hover:bg-blue-700" 
-                  : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-              }`}
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("grid")}
-              className={`h-8 px-3 ${
-                viewMode === "grid" 
-                  ? "bg-blue-600 text-white hover:bg-blue-700" 
-                  : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-              }`}
-            >
-              <Grid3X3 className="h-4 w-4" />
-            </Button>
-            <Button
-              variant={viewMode === "table" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("table")}
-              className={`h-8 px-3 ${
-                viewMode === "table" 
-                  ? "bg-blue-600 text-white hover:bg-blue-700" 
-                  : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-              }`}
-            >
-              <Table className="h-4 w-4" />
+          {/* Controls Bar */}
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm ring-1 ring-gray-950/5">
+            <div className="flex items-center gap-4">
+              {/* Distributor Selection */}
+              <div className="flex items-center gap-3">
+                <Building2 className="h-5 w-5 text-gray-400" />
+                <Select value={selectedDistributor} onValueChange={setSelectedDistributor}>
+                  <SelectTrigger className="w-64 bg-white border-gray-200">
+                    <SelectValue placeholder="Select distributor for pricing" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="default">Default Pricing</SelectItem>
+                    {distributors.map((distributor) => (
+                      <SelectItem key={distributor.id} value={distributor.id}>
+                        {distributor.name}
+                        {distributor.equipment && distributor.equipment.length > 0 && (
+                          <span className="text-muted-foreground ml-2">
+                            ({distributor.equipment.length} products)
+                          </span>
+                        )}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* View Toggle */}
+              <div className="flex items-center bg-gray-100 rounded-lg p-1">
+                <Button
+                  variant={viewMode === "cards" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("cards")}
+                  className={`h-8 px-3 ${
+                    viewMode === "cards" 
+                      ? "bg-white shadow-sm" 
+                      : "hover:bg-gray-200"
+                  }`}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("grid")}
+                  className={`h-8 px-3 ${
+                    viewMode === "grid" 
+                      ? "bg-white shadow-sm" 
+                      : "hover:bg-gray-200"
+                  }`}
+                >
+                  <Grid3X3 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "table" ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => setViewMode("table")}
+                  className={`h-8 px-3 ${
+                    viewMode === "table" 
+                      ? "bg-white shadow-sm" 
+                      : "hover:bg-gray-200"
+                  }`}
+                >
+                  <Table className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-sm">
+              <Link href="/wizard/new">
+                <Plus className="mr-2 h-4 w-4" />
+                New Project
+              </Link>
             </Button>
           </div>
-
-        <Button asChild className="bg-green-600 text-white hover:bg-green-700 hover:text-white">
-          <Link href="/wizard/new">
-            <Plus className="mr-2 h-4 w-4" />
-            New Project
-          </Link>
-        </Button>
         </div>
-      </div>
 
-      {projects.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 text-center">
-          <FolderOpen className="h-12 w-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No projects yet</h3>
-          <p className="text-muted-foreground mb-6 max-w-sm">
-            Get started by creating your first energy planning project
-          </p>
-          <Button asChild className="bg-green-600 text-white hover:bg-green-700 hover:text-white">
-            <Link href="/wizard/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Create Project
-            </Link>
-          </Button>
-        </div>
-      ) : (
-        <>
-          {viewMode === "cards" && renderCardsView()}
-          {viewMode === "grid" && renderGridView()}
-          {viewMode === "table" && renderTableView()}
-        </>
-      )}
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete Project</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete the project for {projectToDelete?.clientName}?
-              This action cannot be undone and will permanently remove all project data, bills,
-              analysis, BOM items, and related information.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={handleDeleteCancel} className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-800">
-              Cancel
+        {/* Projects Content */}
+        {projects.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-xl shadow-sm ring-1 ring-gray-950/5">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
+              <FolderOpen className="h-8 w-8 text-white" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No projects yet</h3>
+            <p className="text-gray-600 mb-8 max-w-md">
+              Get started by creating your first energy planning project and unlock intelligent insights for your clients
+            </p>
+            <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+              <Link href="/wizard/new">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Your First Project
+              </Link>
             </Button>
-            <Button
-              variant="destructive"
-              onClick={handleDeleteConfirm}
-              disabled={deletingProject !== null}
-              className="bg-red-500 text-white hover:bg-red-600 hover:text-white"
-            >
-              {deletingProject ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Deleting...
-                </>
-              ) : (
-                <>
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete Project
-                </>
-              )}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {projects.map((project) => renderModernCard(project))}
+          </div>
+        )}
+
+        {/* Delete Confirmation Dialog */}
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent className="bg-white">
+            <DialogHeader>
+              <DialogTitle className="text-gray-900">Delete Project</DialogTitle>
+              <DialogDescription className="text-gray-600">
+                Are you sure you want to delete the project for <span className="font-semibold">{projectToDelete?.clientName}</span>?
+                This action cannot be undone and will permanently remove all project data, bills,
+                analysis, BOM items, and related information.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button variant="outline" onClick={handleDeleteCancel}>
+                Cancel
               </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+              <Button
+                variant="destructive"
+                onClick={handleDeleteConfirm}
+                disabled={deletingProject !== null}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {deletingProject ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Project
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }
