@@ -90,7 +90,7 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<Project[]>([]);
   const [distributors, setDistributors] = useState<Distributor[]>([]);
-  const [selectedDistributor, setSelectedDistributor] = useState<string>("");
+  const [selectedDistributor, setSelectedDistributor] = useState<string>("default");
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set());
   const [deletingProject, setDeletingProject] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -187,7 +187,7 @@ export default function ProjectsPage() {
   };
 
   const recalculateProjectCost = useCallback(async (projectId: string) => {
-    if (!selectedDistributor) return;
+    if (!selectedDistributor || selectedDistributor === "default") return;
     
     setRecalculatingCosts(prev => new Set(prev).add(projectId));
     
@@ -260,7 +260,7 @@ export default function ProjectsPage() {
 
   useEffect(() => {
     // Auto-recalculate costs when distributor changes
-    if (selectedDistributor && projects.length > 0) {
+    if (selectedDistributor && selectedDistributor !== "default" && projects.length > 0) {
       projects.forEach(project => {
         if (project.system && project.system.distributorId !== selectedDistributor) {
           recalculateProjectCost(project.id);
@@ -334,7 +334,7 @@ export default function ProjectsPage() {
                   <Button 
                     size="sm" 
                     variant="outline" 
-                    className="h-6 px-2 text-xs"
+                    className="h-6 px-2 text-xs border-gray-300 text-gray-700 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700"
                     asChild
                     onClick={(e) => e.stopPropagation()}
                   >
@@ -343,7 +343,7 @@ export default function ProjectsPage() {
                   <Button 
                     size="sm" 
                     variant="destructive" 
-                    className="h-6 px-2 text-xs"
+                    className="h-6 px-2 text-xs bg-red-500 text-white hover:bg-red-600 hover:text-white"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDeleteClick(project);
@@ -428,13 +428,13 @@ export default function ProjectsPage() {
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 pt-2 border-t">
-                  <Button asChild size="sm" className="flex-1">
+                  <Button asChild size="sm" className="flex-1 bg-blue-600 text-white hover:bg-blue-700 hover:text-white">
                     <Link href={`/wizard/${project.id}/intake`}>
                       {project.status === "complete" ? "View Project" : "Continue"}
                     </Link>
                   </Button>
                   {project.status === "complete" && (
-                    <Button variant="outline" size="sm" className="flex-1" asChild>
+                    <Button variant="outline" size="sm" className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-800" asChild>
                       <Link href={`/wizard/${project.id}/review`}>Report</Link>
                     </Button>
                   )}
@@ -523,12 +523,13 @@ export default function ProjectsPage() {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-center gap-2">
-                      <Button size="sm" variant="outline" asChild>
+                      <Button size="sm" variant="outline" className="border-gray-300 text-gray-700 hover:bg-blue-50 hover:border-blue-400 hover:text-blue-700" asChild>
                         <Link href={`/wizard/${project.id}/intake`}>View</Link>
                       </Button>
                       <Button 
                         size="sm" 
                         variant="destructive"
+                        className="bg-red-500 text-white hover:bg-red-600 hover:text-white"
                         onClick={() => handleDeleteClick(project)}
                         disabled={deletingProject === project.id}
                       >
@@ -578,7 +579,7 @@ export default function ProjectsPage() {
                 <SelectValue placeholder="Select distributor for pricing" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Default Pricing</SelectItem>
+                <SelectItem value="default">Default Pricing</SelectItem>
                 {distributors.map((distributor) => (
                   <SelectItem key={distributor.id} value={distributor.id}>
                     {distributor.name}
@@ -599,7 +600,11 @@ export default function ProjectsPage() {
               variant={viewMode === "cards" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("cards")}
-              className="h-8 px-3"
+              className={`h-8 px-3 ${
+                viewMode === "cards" 
+                  ? "bg-blue-600 text-white hover:bg-blue-700" 
+                  : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+              }`}
             >
               <LayoutGrid className="h-4 w-4" />
             </Button>
@@ -607,7 +612,11 @@ export default function ProjectsPage() {
               variant={viewMode === "grid" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("grid")}
-              className="h-8 px-3"
+              className={`h-8 px-3 ${
+                viewMode === "grid" 
+                  ? "bg-blue-600 text-white hover:bg-blue-700" 
+                  : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+              }`}
             >
               <Grid3X3 className="h-4 w-4" />
             </Button>
@@ -615,13 +624,17 @@ export default function ProjectsPage() {
               variant={viewMode === "table" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("table")}
-              className="h-8 px-3"
+              className={`h-8 px-3 ${
+                viewMode === "table" 
+                  ? "bg-blue-600 text-white hover:bg-blue-700" 
+                  : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+              }`}
             >
               <Table className="h-4 w-4" />
             </Button>
           </div>
 
-        <Button asChild>
+        <Button asChild className="bg-green-600 text-white hover:bg-green-700 hover:text-white">
           <Link href="/wizard/new">
             <Plus className="mr-2 h-4 w-4" />
             New Project
@@ -637,7 +650,7 @@ export default function ProjectsPage() {
           <p className="text-muted-foreground mb-6 max-w-sm">
             Get started by creating your first energy planning project
           </p>
-          <Button asChild>
+          <Button asChild className="bg-green-600 text-white hover:bg-green-700 hover:text-white">
             <Link href="/wizard/new">
               <Plus className="mr-2 h-4 w-4" />
               Create Project
@@ -664,13 +677,14 @@ export default function ProjectsPage() {
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={handleDeleteCancel}>
+            <Button variant="outline" onClick={handleDeleteCancel} className="border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 hover:text-gray-800">
               Cancel
             </Button>
             <Button
               variant="destructive"
               onClick={handleDeleteConfirm}
               disabled={deletingProject !== null}
+              className="bg-red-500 text-white hover:bg-red-600 hover:text-white"
             >
               {deletingProject ? (
                 <>
