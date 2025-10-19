@@ -119,6 +119,10 @@ npx prisma generate    # Generate client
 npx prisma migrate dev # Run migrations
 ```
 
+## Contributor Guide
+
+New to NovaAgent? Start with [AGENTS.md](AGENTS.md) for project structure, coding conventions, and workflow guidelines.
+
 ## Branding
 
 - **Colors**: Deep Navy (#0A0F1C), Electric Cyan (#22D3EE)
