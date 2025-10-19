@@ -41,7 +41,7 @@ interface System {
   batteryKwh: number;
   inverterKw: number;
   backupDurationHrs: number;
-  criticalLoadKw: number;
+  criticalLoadKw?: number;
   estimatedCostUsd: number;
   batteryType?: string;
   inverterType?: string;
