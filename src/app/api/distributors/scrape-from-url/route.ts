@@ -217,8 +217,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Step 4: Optionally save to database
-    let savedDistributor = null;
-    const savedEquipment = [];
+    let savedDistributor: Awaited<ReturnType<typeof prisma.distributor.create>> | null = null;
+    const savedEquipment: Awaited<ReturnType<typeof prisma.equipment.create>>[] = [];
 
     if (saveToDatabase) {
       // Create or update distributor
@@ -278,109 +278,133 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Save products with price snapshots (UPSERT logic to avoid duplicates)
-      for (const product of scrapedProducts) {
-        if (!product.name || !product.price) {
-          logger.debug(
-            { product },
-            "Skipping product with missing name or price",
-          );
-          continue;
+      // Save products with price snapshots (OPTIMIZED: batch processing)
+      // Step 1: Filter valid products
+      const validProducts = scrapedProducts.filter(
+        (p) => p.name && p.price,
+      );
+
+      logger.info(
+        { total: scrapedProducts.length, valid: validProducts.length },
+        "Processing products for database",
+      );
+
+      if (validProducts.length === 0) {
+        logger.warn("No valid products to save");
+      } else if (!savedDistributor) {
+        logger.error("Cannot save products: distributor not created");
+      } else {
+        // TypeScript type narrowing: savedDistributor is non-null here
+        const distributor = savedDistributor;
+
+        // Step 2: Batch check for existing equipment
+        const sourceUrls = validProducts
+          .map((p) => p.sourceUrl)
+          .filter(Boolean) as string[];
+
+        const existingBySourceUrl = await prisma.equipment.findMany({
+          where: {
+            distributorId: distributor.id,
+            sourceUrl: { in: sourceUrls },
+          },
+        });
+
+        const existingMap = new Map(
+          existingBySourceUrl.map((e) => [e.sourceUrl, e]),
+        );
+
+        logger.debug(
+          { existing: existingMap.size, new: validProducts.length - existingMap.size },
+          "Checked existing equipment",
+        );
+
+        // Step 3: Separate into new and existing products
+        const toCreate: typeof validProducts = [];
+        const toUpdate: Array<{ product: typeof validProducts[0]; existing: typeof existingBySourceUrl[0] }> = [];
+
+        for (const product of validProducts) {
+          const existing = product.sourceUrl
+            ? existingMap.get(product.sourceUrl)
+            : null;
+
+          if (existing) {
+            toUpdate.push({ product, existing });
+          } else {
+            toCreate.push(product);
+          }
         }
 
-        try {
-          const category = detectCategory(product);
+        logger.info(
+          { toCreate: toCreate.length, toUpdate: toUpdate.length },
+          "Separated products for batch processing",
+        );
 
-          // Try to find existing equipment by sourceUrl (most reliable) or modelNumber
-          const whereConditions = [
-            product.sourceUrl ? { sourceUrl: product.sourceUrl } : null,
-            {
-              modelNumber: product.modelNumber || product.name.substring(0, 50),
-            },
-          ].filter(
-            (
-              condition,
-            ): condition is { sourceUrl: string } | { modelNumber: string } =>
-              condition !== null,
+        // Step 4: Batch create new equipment
+        if (toCreate.length > 0) {
+          const createdEquipment = await prisma.equipment.createManyAndReturn({
+            data: toCreate.map((product) => ({
+              distributorId: distributor.id,
+              category: detectCategory(product),
+              name: product.name!,
+              manufacturer: product.manufacturer || null,
+              modelNumber: product.modelNumber || product.name!.substring(0, 50),
+              description: product.description || null,
+              specifications: product.specifications
+                ? JSON.stringify(product.specifications)
+                : null,
+              unitPrice: product.price!,
+              imageUrl: product.imageUrl || null,
+              sourceUrl: product.sourceUrl || null,
+              dataSheetUrl: product.dataSheetUrl || null,
+              inStock: product.inStock !== false,
+              lastScrapedAt: new Date(),
+            })),
+          });
+
+          savedEquipment.push(...createdEquipment);
+          logger.info({ count: createdEquipment.length }, "Batch created new equipment");
+        }
+
+        // Step 5: Parallel update existing equipment
+        if (toUpdate.length > 0) {
+          const updatePromises = toUpdate.map(({ product, existing }) =>
+            prisma.equipment.update({
+              where: { id: existing.id },
+              data: {
+                category: detectCategory(product),
+                name: product.name!,
+                manufacturer: product.manufacturer || null,
+                description: product.description || null,
+                specifications: product.specifications
+                  ? JSON.stringify(product.specifications)
+                  : null,
+                unitPrice: product.price!,
+                imageUrl: product.imageUrl || existing.imageUrl, // Preserve old image if new scrape has none
+                sourceUrl: product.sourceUrl || existing.sourceUrl,
+                dataSheetUrl: product.dataSheetUrl || null,
+                inStock: product.inStock !== false,
+                lastScrapedAt: new Date(),
+              },
+            }),
           );
 
-          const existingEquipment = await prisma.equipment.findFirst({
-            where: {
-              distributorId: savedDistributor.id,
-              OR: whereConditions,
-            },
-          });
+          const updatedEquipment = await Promise.all(updatePromises);
+          savedEquipment.push(...updatedEquipment);
+          logger.info({ count: updatedEquipment.length }, "Parallel updated existing equipment");
+        }
 
-          let equipment;
-          if (existingEquipment) {
-            // UPDATE existing equipment (preserve old image if new scrape has none)
-            equipment = await prisma.equipment.update({
-              where: { id: existingEquipment.id },
-              data: {
-                category,
-                name: product.name,
-                manufacturer: product.manufacturer || null,
-                description: product.description || null,
-                specifications: product.specifications
-                  ? JSON.stringify(product.specifications)
-                  : null,
-                unitPrice: product.price,
-                imageUrl: product.imageUrl || existingEquipment.imageUrl, // Keep old image if new scrape has none
-                sourceUrl: product.sourceUrl || existingEquipment.sourceUrl,
-                dataSheetUrl: product.dataSheetUrl || null,
-                inStock: product.inStock !== false,
-                lastScrapedAt: new Date(),
-              },
-            });
-            logger.debug(
-              { equipmentId: equipment.id, name: equipment.name },
-              "Updated existing equipment",
-            );
-          } else {
-            // CREATE new equipment
-            equipment = await prisma.equipment.create({
-              data: {
-                distributorId: savedDistributor.id,
-                category,
-                name: product.name,
-                manufacturer: product.manufacturer || null,
-                modelNumber:
-                  product.modelNumber || product.name.substring(0, 50),
-                description: product.description || null,
-                specifications: product.specifications
-                  ? JSON.stringify(product.specifications)
-                  : null,
-                unitPrice: product.price,
-                imageUrl: product.imageUrl || null,
-                sourceUrl: product.sourceUrl || null,
-                dataSheetUrl: product.dataSheetUrl || null,
-                inStock: product.inStock !== false,
-                lastScrapedAt: new Date(),
-              },
-            });
-            logger.debug(
-              { equipmentId: equipment.id, name: equipment.name },
-              "Created new equipment",
-            );
-          }
-
-          // Create price snapshot for tracking price history
-          await prisma.priceSnapshot.create({
-            data: {
+        // Step 6: Batch create price snapshots
+        if (savedEquipment.length > 0) {
+          await prisma.priceSnapshot.createMany({
+            data: savedEquipment.map((equipment) => ({
               equipmentId: equipment.id,
-              price: product.price,
+              price: equipment.unitPrice,
               currency: "USD",
-            },
+            })),
           });
-
-          savedEquipment.push(equipment);
-        } catch (error) {
-          logger.error(
-            {
-              productName: product.name,
-              error: error instanceof Error ? error.message : "Unknown error",
-            },
-            "Failed to save equipment",
+          logger.info(
+            { count: savedEquipment.length },
+            "Batch created price snapshots",
           );
         }
       }

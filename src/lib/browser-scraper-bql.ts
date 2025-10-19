@@ -281,6 +281,7 @@ export class BrowserScraperBQL {
 
   /**
    * Scrape multiple product pages
+   * Now uses parallel processing for improved performance (3 concurrent)
    */
   async scrapeMultipleProducts(
     urls: string[],
@@ -288,39 +289,70 @@ export class BrowserScraperBQL {
   ): Promise<ScrapedProduct[]> {
     const results: ScrapedProduct[] = [];
 
+    // Parallel processing: scrape 3 products concurrently (BrowserQL free tier limit)
+    const batchSize = 3;
+
     logger.info(
-      { totalUrls: urls.length },
-      "Starting BrowserQL batch scraping",
+      { totalUrls: urls.length, batchSize, parallel: true },
+      "Starting parallel BrowserQL batch scraping",
     );
 
-    for (let i = 0; i < urls.length; i++) {
-      try {
-        const product = await this.scrapeProductPage(urls[i]);
-        results.push(product);
+    for (let i = 0; i < urls.length; i += batchSize) {
+      const batch = urls.slice(i, i + batchSize);
+      const batchNumber = Math.floor(i / batchSize) + 1;
+      const totalBatches = Math.ceil(urls.length / batchSize);
 
-        // Rate limiting
-        if (i < urls.length - 1 && config.rateLimit) {
-          await new Promise((resolve) => setTimeout(resolve, config.rateLimit));
-        }
-      } catch (error) {
-        logger.error(
-          {
-            url: urls[i],
-            error: error instanceof Error ? error.message : "Unknown error",
-          },
-          "Failed to scrape product in batch",
+      logger.debug(
+        {
+          batch: `${batchNumber}/${totalBatches}`,
+          urls: batch.length,
+          progress: `${Math.min(i + batchSize, urls.length)}/${urls.length}`,
+        },
+        "Processing BrowserQL batch",
+      );
+
+      // Process batch in parallel
+      const batchResults = await Promise.all(
+        batch.map(async (url) => {
+          try {
+            return await this.scrapeProductPage(url);
+          } catch (error) {
+            logger.error(
+              {
+                url,
+                error: error instanceof Error ? error.message : "Unknown error",
+              },
+              "Failed to scrape product in parallel BrowserQL batch",
+            );
+            return { name: `Error: ${url}`, sourceUrl: url };
+          }
+        }),
+      );
+
+      results.push(...batchResults);
+
+      // Rate limiting between batches
+      if (i + batchSize < urls.length && config.rateLimit) {
+        logger.debug(
+          { delay: config.rateLimit, nextBatch: batchNumber + 1 },
+          "Applying rate limit delay between BrowserQL batches",
         );
-        results.push({ name: `Error: ${urls[i]}`, sourceUrl: urls[i] });
+        await new Promise((resolve) => setTimeout(resolve, config.rateLimit));
       }
     }
+
+    const successCount = results.filter((r) => !r.name?.startsWith("Error:"))
+      .length;
+    const failureCount = urls.length - successCount;
 
     logger.info(
       {
         totalUrls: urls.length,
-        successCount: results.filter((r) => !r.name?.startsWith("Error:"))
-          .length,
+        successCount,
+        failureCount,
+        batches: Math.ceil(urls.length / batchSize),
       },
-      "BrowserQL batch scraping completed",
+      "Parallel BrowserQL batch scraping completed",
     );
 
     return results;
