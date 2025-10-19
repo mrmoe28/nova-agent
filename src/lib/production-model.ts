@@ -812,8 +812,7 @@ export class ProductionModelingService {
 
     } catch (error) {
       logger.error({
-        error: error instanceof Error ? error.message : 'Unknown error',
-        estimateId: estimate.id
+        error: error instanceof Error ? error.message : 'Unknown error'
       }, 'Production estimate validation failed');
 
       return {
