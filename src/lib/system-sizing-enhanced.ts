@@ -18,6 +18,7 @@ import {
 } from '@/types/energy';
 import { logger } from './logger';
 import { prisma } from './prisma';
+import { Prisma } from '@prisma/client';
 import { productionModelingService } from './production-model';
 import { tariffService } from './tariff-service';
 import { v4 as uuidv4 } from 'uuid';
@@ -291,8 +292,8 @@ class EquipmentSelector {
       }
 
       // Filter for hybrid inverters if battery backup needed
-      let suitableInverters = batteryBackup 
-        ? inverters.filter(inv => this.isHybridInverter(inv.specifications))
+      let suitableInverters = batteryBackup
+        ? inverters.filter(inv => inv.specifications && this.isHybridInverter(inv.specifications as Record<string, unknown>))
         : inverters;
 
       if (suitableInverters.length === 0) {
@@ -303,16 +304,16 @@ class EquipmentSelector {
       const targetInverterSize = systemSizeKw / 1.25; // Account for DC/AC ratio
       
       const selectedInverter = suitableInverters.reduce((best, current) => {
-        const bestSize = this.extractInverterSize(best.specifications);
-        const currentSize = this.extractInverterSize(current.specifications);
-        
+        const bestSize = this.extractInverterSize(best.specifications as Record<string, unknown>);
+        const currentSize = this.extractInverterSize(current.specifications as Record<string, unknown>);
+
         const bestDiff = Math.abs(bestSize - targetInverterSize);
         const currentDiff = Math.abs(currentSize - targetInverterSize);
-        
+
         return currentDiff < bestDiff ? current : best;
       });
 
-      const inverterSize = this.extractInverterSize(selectedInverter.specifications);
+      const inverterSize = this.extractInverterSize(selectedInverter.specifications as Record<string, unknown>);
       const inverterCount = Math.ceil(targetInverterSize / inverterSize);
       const actualInverterSizeKw = inverterCount * inverterSize;
 
@@ -370,16 +371,16 @@ class EquipmentSelector {
 
       // Find battery with appropriate capacity
       const selectedBattery = batteries.reduce((best, current) => {
-        const bestCapacity = this.extractBatteryCapacity(best.specifications);
-        const currentCapacity = this.extractBatteryCapacity(current.specifications);
-        
+        const bestCapacity = this.extractBatteryCapacity(best.specifications as Record<string, unknown>);
+        const currentCapacity = this.extractBatteryCapacity(current.specifications as Record<string, unknown>);
+
         const bestDiff = Math.abs(bestCapacity - batterySizeKwh);
         const currentDiff = Math.abs(currentCapacity - batterySizeKwh);
-        
+
         return currentDiff < bestDiff ? current : best;
       });
 
-      const batteryCapacity = this.extractBatteryCapacity(selectedBattery.specifications);
+      const batteryCapacity = this.extractBatteryCapacity(selectedBattery.specifications as Record<string, unknown>);
       const batteryCount = Math.ceil(batterySizeKwh / batteryCapacity);
       const actualBatterySizeKwh = batteryCount * batteryCapacity;
 
@@ -648,11 +649,12 @@ export class EnhancedSystemSizingService {
       if (!tariff && inputs.billHistory.length > 0) {
         const firstBill = inputs.billHistory[0];
         if (firstBill.utilityName) {
-          tariff = await tariffService.findTariffBySchedule(
+          const foundTariff = await tariffService.findTariffBySchedule(
             firstBill.utilityName,
             firstBill.rateSchedule || '',
             inputs.location?.address
           );
+          tariff = foundTariff || undefined;
         }
       }
 
@@ -734,7 +736,6 @@ export class EnhancedSystemSizingService {
 
       // Step 9: Create sizing recommendation
       const recommendation: SizingRecommendation = {
-        id: uuidv4(),
         projectId: inputs.projectId,
         solarSizeKw: solarSelection.actualSystemSizeKw,
         batterySizeKwh: batterySelection?.actualBatterySizeKwh || 0,
@@ -745,26 +746,21 @@ export class EnhancedSystemSizingService {
           batteries: batterySelection?.equipment,
           mounting: await this.selectMountingSystem(solarSelection.actualSystemSizeKw)
         },
-        productionEstimateId: productionEstimate.id,
-        batteryPerformanceModelId: batteryPerformanceModel?.id,
+        productionEstimate,
+        // Battery performance model is stored separately, not included in recommendation
         systemCost,
         annualSavings: financialMetrics.annualSavings,
         paybackPeriod: financialMetrics.paybackPeriod,
         roi25Year: financialMetrics.roi25Year,
         netPresentValue: financialMetrics.netPresentValue,
-        utilityAnalysis: {
-          currentAnnualCost: loadProfile.annualKwh * 0.12,
-          newBillProjection: Array(12).fill(50), // Simplified
-          gridExportKwh: Math.max(0, productionEstimate.annualProduction - loadProfile.annualKwh),
-          selfConsumptionRate: Math.min(1, loadProfile.annualKwh / productionEstimate.annualProduction),
-          utilityBillReduction: financialMetrics.utilityBillReduction
-        },
+        newBillProjection: Array(12).fill(50), // Simplified
+        gridExportKwh: Math.max(0, productionEstimate.annualProduction - loadProfile.annualKwh),
+        selfConsumptionRate: Math.min(1, loadProfile.annualKwh / productionEstimate.annualProduction),
         backupCapability,
         confidence: this.calculateSizingConfidence(loadProfile, productionEstimate, inputs),
         alternativeOptions: await this.generateAlternativeOptions(inputs, loadProfile),
         methodology: 'Enhanced PV+Storage sizing with load profile analysis and equipment optimization',
-        createdAt: new Date(),
-        updatedAt: new Date()
+        createdAt: new Date()
       };
 
       // Save to database
@@ -772,7 +768,6 @@ export class EnhancedSystemSizingService {
 
       logger.info({
         projectId: inputs.projectId,
-        recommendationId: saved.id,
         solarSizeKw: saved.solarSizeKw,
         batterySizeKwh: saved.batterySizeKwh,
         systemCost: saved.systemCost,
@@ -891,7 +886,7 @@ export class EnhancedSystemSizingService {
       data: {
         projectId,
         equipmentCatalogId: batteryEquipment.id,
-        batterySpecs: batterySpecs as unknown as Record<string, unknown>,
+        batterySpecs: batterySpecs as unknown as Prisma.InputJsonValue,
         dispatchMode: 'self_consumption',
         dailyCycles: 1,
         seasonalEfficiency: [0.95, 0.94, 0.95, 0.96, 0.97, 0.96, 0.95, 0.95, 0.96, 0.95, 0.94, 0.93],
@@ -1065,23 +1060,28 @@ export class EnhancedSystemSizingService {
         solarSizeKw: recommendation.solarSizeKw,
         batterySizeKwh: recommendation.batterySizeKwh,
         inverterSizeKw: recommendation.inverterSizeKw,
-        selectedEquipment: recommendation.selectedEquipment as unknown as Record<string, unknown>,
-        productionEstimateId: recommendation.productionEstimateId,
-        batteryPerformanceModelId: recommendation.batteryPerformanceModelId,
+        selectedEquipment: recommendation.selectedEquipment as unknown as Prisma.InputJsonValue,
         systemCost: recommendation.systemCost,
         annualSavings: recommendation.annualSavings,
         paybackPeriod: recommendation.paybackPeriod,
         roi25Year: recommendation.roi25Year,
         netPresentValue: recommendation.netPresentValue,
-        utilityAnalysis: recommendation.utilityAnalysis as unknown as Record<string, unknown>,
-        backupCapability: recommendation.backupCapability as unknown as Record<string, unknown>,
+        utilityAnalysis: {
+          newBillProjection: recommendation.newBillProjection,
+          gridExportKwh: recommendation.gridExportKwh,
+          selfConsumptionRate: recommendation.selfConsumptionRate
+        } as unknown as Prisma.InputJsonValue,
+        backupCapability: recommendation.backupCapability as unknown as Prisma.InputJsonValue,
         confidence: recommendation.confidence,
-        alternativeOptions: recommendation.alternativeOptions as unknown as Record<string, unknown>,
+        alternativeOptions: recommendation.alternativeOptions as unknown as Prisma.InputJsonValue,
         methodology: recommendation.methodology
       }
     });
 
-    return { ...saved, id: saved.id } as SizingRecommendation;
+    return {
+      ...recommendation,
+      createdAt: saved.createdAt
+    };
   }
 }
 

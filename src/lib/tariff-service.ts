@@ -12,6 +12,7 @@ import {
 import { logger } from './logger';
 import { retry } from './retry';
 import { prisma } from './prisma';
+import { Prisma } from '@prisma/client';
 
 // Configuration
 const OPENEI_BASE_URL = 'https://api.openei.org/utility_rates';
@@ -118,19 +119,19 @@ class OpenEIService {
 
       const data: OpenEIResponse = await response.json();
       
-      logger.info('OpenEI search completed', {
+      logger.info({
         count: data.count,
         utilityName: params.utilityName,
         zipCode: params.zipCode
-      });
+      }, 'OpenEI search completed');
 
       return this.transformOpenEITariffs(data.items);
 
     } catch (error) {
-      logger.error('OpenEI tariff search failed', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         params
-      });
+      }, 'OpenEI tariff search failed');
       
       if (error instanceof TariffLookupError) {
         throw error;
@@ -169,10 +170,10 @@ class OpenEIService {
         tariffs.push(tariff);
 
       } catch (error) {
-        logger.warn('Failed to transform OpenEI tariff', {
+        logger.warn({
           item: item.label,
           error: error instanceof Error ? error.message : 'Unknown error'
-        });
+        }, 'Failed to transform OpenEI tariff');
       }
     }
 
@@ -282,18 +283,18 @@ class GenabilityService {
 
       const data: GenabilityResponse = await response.json();
       
-      logger.info('Genability search completed', {
+      logger.info({
         count: data.count,
         zipCode: params.zipCode
-      });
+      }, 'Genability search completed');
 
       return this.transformGenabilityTariffs(data.results);
 
     } catch (error) {
-      logger.error('Genability tariff search failed', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         params
-      });
+      }, 'Genability tariff search failed');
       
       throw new TariffLookupError(
         'Failed to search Genability tariffs',
@@ -363,7 +364,7 @@ class UtilityAPIService {
 
   async searchTariffs(params: TariffSearchParams): Promise<Tariff[]> {
     // Placeholder - would implement actual UtilityAPI integration
-    logger.info('UtilityAPI search requested', { params });
+    logger.info({ params }, 'UtilityAPI search requested');
     return [];
   }
 }
@@ -387,12 +388,12 @@ export class TariffService {
    */
   async findTariffs(params: TariffSearchParams): Promise<Tariff[]> {
     try {
-      logger.info('Starting tariff search', { params });
+      logger.info({ params }, 'Starting tariff search');
 
       // First, check cache
       const cachedTariffs = await this.searchCachedTariffs(params);
       if (cachedTariffs.length > 0) {
-        logger.info('Returning cached tariffs', { count: cachedTariffs.length });
+        logger.info({ count: cachedTariffs.length }, 'Returning cached tariffs');
         return cachedTariffs;
       }
 
@@ -411,9 +412,9 @@ export class TariffService {
         if (result.status === 'fulfilled') {
           allTariffs.push(...result.value);
         } else {
-          logger.warn('Tariff source failed', { 
+          logger.warn({
             error: result.reason instanceof Error ? result.reason.message : 'Unknown error'
-          });
+          }, 'Tariff source failed');
         }
       }
 
@@ -424,19 +425,19 @@ export class TariffService {
       // Cache results for future use
       await this.cacheTariffs(rankedTariffs, params);
 
-      logger.info('Tariff search completed', {
+      logger.info({
         totalFound: allTariffs.length,
         uniqueCount: uniqueTariffs.length,
         returnedCount: rankedTariffs.length
-      });
+      }, 'Tariff search completed');
 
       return rankedTariffs;
 
     } catch (error) {
-      logger.error('Tariff search failed', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         params
-      });
+      }, 'Tariff search failed');
       
       throw new TariffLookupError(
         'Failed to find tariffs',
@@ -473,11 +474,11 @@ export class TariffService {
       );
 
       if (exactMatch) {
-        logger.info('Found exact tariff match', {
+        logger.info({
           utilityName,
           rateSchedule,
           tariffId: exactMatch.id
-        });
+        }, 'Found exact tariff match');
         return exactMatch;
       }
 
@@ -485,11 +486,11 @@ export class TariffService {
       return tariffs.length > 0 ? tariffs[0] : null;
 
     } catch (error) {
-      logger.error('Failed to find tariff by schedule', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         utilityName,
         rateSchedule
-      });
+      }, 'Failed to find tariff by schedule');
       
       return null; // Return null instead of throwing for specific searches
     }
@@ -511,14 +512,14 @@ export class TariffService {
 
       // If not cached or stale, would fetch from external API
       // This is a simplified implementation
-      logger.info('Tariff not found in cache', { tariffId });
+      logger.info({ tariffId }, 'Tariff not found in cache');
       return null;
 
     } catch (error) {
-      logger.error('Failed to get tariff by ID', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         tariffId
-      });
+      }, 'Failed to get tariff by ID');
       return null;
     }
   }
@@ -584,13 +585,13 @@ export class TariffService {
     const finalConfidence = total > 0 ? confidence / total : 0;
     const isMatch = finalConfidence > 0.7 && matches >= total * 0.5;
 
-    logger.info('Tariff validation completed', {
+    logger.info({
       tariffId: tariff.id,
       isMatch,
       confidence: finalConfidence,
       matches,
       total
-    });
+    }, 'Tariff validation completed');
 
     return {
       isMatch,
@@ -631,10 +632,10 @@ export class TariffService {
       return cachedTariffs.map(this.transformDbTariff);
 
     } catch (error) {
-      logger.warn('Failed to search cached tariffs', {
+      logger.warn({
         error: error instanceof Error ? error.message : 'Unknown error',
         params
-      });
+      }, 'Failed to search cached tariffs');
       return [];
     }
   }
@@ -656,25 +657,25 @@ export class TariffService {
             sector: tariff.sector,
             voltage: tariff.voltage,
             phaseWiring: tariff.phaseWiring,
-            rateStructure: tariff.rates as unknown as Record<string, unknown>,
+            rateStructure: tariff.rates as unknown as Prisma.InputJsonValue,
             source: tariff.source,
             sourceId: tariff.sourceId,
             lastUpdated: new Date(),
-            serviceTerritory: tariff.serviceTerritory as unknown as Record<string, unknown>,
+            serviceTerritory: tariff.serviceTerritory as unknown as Prisma.InputJsonValue,
           },
           update: {
-            rateStructure: tariff.rates as unknown as Record<string, unknown>,
+            rateStructure: tariff.rates as unknown as Prisma.InputJsonValue,
             lastUpdated: new Date(),
           }
         });
       }
 
-      logger.info('Cached tariffs', { count: Math.min(tariffs.length, 5) });
+      logger.info({ count: Math.min(tariffs.length, 5) }, 'Cached tariffs');
 
     } catch (error) {
-      logger.warn('Failed to cache tariffs', {
+      logger.warn({
         error: error instanceof Error ? error.message : 'Unknown error'
-      });
+      }, 'Failed to cache tariffs');
     }
   }
 
@@ -708,11 +709,11 @@ export class TariffService {
     sourceName: string
   ): Promise<T> {
     return retry(searchFn, {
-      retries: 2,
-      minTimeout: 1000,
-      maxTimeout: 3000,
+      maxRetries: 2,
+      baseDelay: 1000,
+      maxDelay: 3000,
       onRetry: (error, attempt) => {
-        logger.warn(`${sourceName} search retry`, { attempt, error: error.message });
+        logger.warn({ attempt, error: error.message }, `${sourceName} search retry`);
       }
     });
   }

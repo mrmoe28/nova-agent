@@ -15,6 +15,7 @@ import { Prisma } from '@prisma/client';
 import { logger } from './logger';
 import { retry } from './retry';
 import { prisma } from './prisma';
+import { v4 as uuidv4 } from 'uuid';
 
 // API Configuration
 const PVWATTS_BASE_URL = 'https://developer.nrel.gov/api/pvwatts/v8';
@@ -189,6 +190,7 @@ class PVWattsService {
 
       // Create production estimate
       const productionEstimate: ProductionEstimate = {
+        id: uuidv4(),
         projectId: '', // Will be set by caller
         systemSizeKw,
         configuration,

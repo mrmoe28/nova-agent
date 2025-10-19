@@ -243,6 +243,7 @@ export interface SystemConfiguration {
 }
 
 export interface ProductionEstimate {
+  id: string;
   projectId: string;
   systemSizeKw: number;
   configuration: SystemConfiguration;
