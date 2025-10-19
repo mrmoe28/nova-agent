@@ -443,15 +443,15 @@ export default function ProjectsPage() {
                       <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-lg">
                         <Sun className="h-4 w-4 text-yellow-600" />
                         <div>
-                          <div className="text-lg font-semibold text-gray-900">{project.system.totalSolarKw}kW</div>
-                          <div className="text-xs text-gray-600">Solar</div>
+                          <div className="text-lg font-semibold text-gray-900">{project.system.totalSolarKw.toFixed(1)}kW</div>
+                          <div className="text-xs text-gray-600">{project.system.solarPanelCount} Panels</div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 p-3 bg-green-50 rounded-lg">
                         <Battery className="h-4 w-4 text-green-600" />
                         <div>
-                          <div className="text-lg font-semibold text-gray-900">{project.system.batteryKwh}kWh</div>
-                          <div className="text-xs text-gray-600">Battery</div>
+                          <div className="text-lg font-semibold text-gray-900">{project.system.batteryKwh.toFixed(1)}kWh</div>
+                          <div className="text-xs text-gray-600">{project.system.backupDurationHrs}hr Backup</div>
                         </div>
                       </div>
                     </>
@@ -491,18 +491,22 @@ export default function ProjectsPage() {
                         <div className="bg-white p-4 rounded-lg border border-gray-100">
                           <div className="text-2xl font-bold text-gray-900">{project.analysis.monthlyUsageKwh.toLocaleString()}</div>
                           <div className="text-xs text-gray-600">kWh/month</div>
+                          <div className="text-xs text-gray-500 mt-1">{(project.analysis.monthlyUsageKwh / 30).toFixed(0)} kWh/day</div>
                         </div>
                         <div className="bg-white p-4 rounded-lg border border-gray-100">
                           <div className="text-2xl font-bold text-gray-900">{project.analysis.peakDemandKw}</div>
                           <div className="text-xs text-gray-600">Peak kW</div>
+                          <div className="text-xs text-gray-500 mt-1">Max demand</div>
                         </div>
                         <div className="bg-white p-4 rounded-lg border border-gray-100">
                           <div className="text-2xl font-bold text-gray-900">{formatCurrency(project.analysis.averageCostPerKwh)}</div>
                           <div className="text-xs text-gray-600">Avg $/kWh</div>
+                          <div className="text-xs text-gray-500 mt-1">{formatCurrency(project.analysis.annualCostUsd / 12)}/mo</div>
                         </div>
                         <div className="bg-white p-4 rounded-lg border border-gray-100">
                           <div className="text-2xl font-bold text-gray-900">{formatCurrency(project.analysis.annualCostUsd)}</div>
                           <div className="text-xs text-gray-600">Annual Cost</div>
+                          <div className="text-xs text-gray-500 mt-1">{(project.analysis.monthlyUsageKwh * 12).toLocaleString()} kWh/yr</div>
                         </div>
                       </div>
                     </div>
