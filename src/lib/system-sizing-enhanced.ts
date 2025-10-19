@@ -94,11 +94,11 @@ class LoadProfileAnalyzer {
       return loadProfile;
 
     } catch (error) {
-      logger.error('Failed to create load profile from bills', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         projectId,
         billCount: bills.length
-      });
+      }, 'Failed to create load profile from bills');
       throw error;
     }
   }
