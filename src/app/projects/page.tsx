@@ -537,10 +537,10 @@ export default function ProjectsPage() {
                     <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
                       <Link href={`/wizard/${project.id}/intake`}>
                         <Eye className="mr-2 h-4 w-4" />
-                        {project.status === "complete" ? "View Project" : "Continue"}
+                        {project.status === "COMPLETE" ? "View Project" : "Continue"}
                       </Link>
                     </Button>
-                    {project.status === "complete" && (
+                    {project.status === "COMPLETE" && (
                       <Button variant="outline" asChild>
                         <Link href={`/wizard/${project.id}/review`}>
                           <FileText className="mr-2 h-4 w-4" />

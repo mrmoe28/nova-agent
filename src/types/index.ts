@@ -10,13 +10,13 @@ export interface ProjectData {
 }
 
 export type ProjectStatus =
-  | "intake"
-  | "analysis"
-  | "sizing"
-  | "bom"
-  | "plan"
-  | "review"
-  | "complete";
+  | "INTAKE"
+  | "ANALYSIS"
+  | "SIZING"
+  | "BOM"
+  | "PLAN"
+  | "REVIEW"
+  | "COMPLETE";
 
 export interface BillUpload {
   fileName: string;

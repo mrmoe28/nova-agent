@@ -165,7 +165,7 @@ export async function performSystemSizing({
   if (updateProjectStatus) {
     await prisma.project.update({
       where: { id: projectId },
-      data: { status: "sizing" },
+      data: { status: "SIZING" },
     });
   } else {
     await prisma.project.update({
@@ -275,7 +275,7 @@ export async function regenerateBom(
   if (!skipStatusUpdate) {
     await prisma.project.update({
       where: { id: projectId },
-      data: { status: "bom" },
+      data: { status: "BOM" },
     });
   } else {
     await prisma.project.update({
@@ -389,7 +389,7 @@ export async function regeneratePlan(
   if (!skipStatusUpdate) {
     await prisma.project.update({
       where: { id: projectId },
-      data: { status: "plan" },
+      data: { status: "PLAN" },
     });
   } else {
     await prisma.project.update({
