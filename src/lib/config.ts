@@ -51,65 +51,67 @@ export const SYSTEM_SIZING = {
 /**
  * HTTP scraper configuration
  * Used in: src/lib/scraper.ts
+ * Optimized for Greentech Renewables and similar sites with anti-bot protection
  */
 export const SCRAPER_CONFIG = {
-  /** Default rate limit between requests (milliseconds) */
-  DEFAULT_RATE_LIMIT: parseInt(process.env.SCRAPER_RATE_LIMIT || "1000"),
+  /** Default rate limit between requests (milliseconds) - Conservative for bot detection avoidance */
+  DEFAULT_RATE_LIMIT: parseInt(process.env.SCRAPER_RATE_LIMIT || "3000"),
 
-  /** Default HTTP request timeout (milliseconds) */
-  DEFAULT_TIMEOUT: parseInt(process.env.SCRAPER_TIMEOUT || "30000"),
+  /** Default HTTP request timeout (milliseconds) - Generous for slow-loading sites */
+  DEFAULT_TIMEOUT: parseInt(process.env.SCRAPER_TIMEOUT || "45000"),
 
-  /** Maximum retry attempts for failed requests */
-  MAX_RETRIES: parseInt(process.env.SCRAPER_MAX_RETRIES || "3"),
+  /** Maximum retry attempts for failed requests - Aggressive for reliability */
+  MAX_RETRIES: parseInt(process.env.SCRAPER_MAX_RETRIES || "5"),
 
-  /** Base delay for exponential backoff (milliseconds) */
-  BASE_DELAY: parseInt(process.env.SCRAPER_BASE_DELAY || "1000"),
+  /** Base delay for exponential backoff (milliseconds) - Conservative start */
+  BASE_DELAY: parseInt(process.env.SCRAPER_BASE_DELAY || "2000"),
 
-  /** Maximum delay for exponential backoff (milliseconds) */
-  MAX_DELAY: parseInt(process.env.SCRAPER_MAX_DELAY || "10000"),
+  /** Maximum delay for exponential backoff (milliseconds) - Patient max wait */
+  MAX_DELAY: parseInt(process.env.SCRAPER_MAX_DELAY || "15000"),
 
-  /** Exponential backoff multiplier */
-  BACKOFF_FACTOR: parseFloat(process.env.SCRAPER_BACKOFF_FACTOR || "2"),
+  /** Exponential backoff multiplier - Moderate progression */
+  BACKOFF_FACTOR: parseFloat(process.env.SCRAPER_BACKOFF_FACTOR || "2.5"),
 
-  /** User-Agent identifier */
+  /** User-Agent identifier - More generic to avoid blocking */
   USER_AGENT_ID:
     process.env.SCRAPER_USER_AGENT ||
-    "NovaAgent/1.0 (+https://novaagent-kappa.vercel.app)",
+    "Mozilla/5.0 (compatible; NovaAgent/1.0; +https://novaagent-kappa.vercel.app)",
 } as const;
 
 /**
  * Browser scraper configuration
  * Used in: src/lib/browser-scraper.ts, src/lib/browser-scraper-bql.ts
+ * Optimized for Greentech Renewables with patient timing for dynamic content
  */
 export const BROWSER_CONFIG = {
-  /** Browser viewport width */
+  /** Browser viewport width - Standard desktop resolution */
   VIEWPORT_WIDTH: parseInt(process.env.BROWSER_WIDTH || "1920"),
 
-  /** Browser viewport height */
+  /** Browser viewport height - Standard desktop resolution */
   VIEWPORT_HEIGHT: parseInt(process.env.BROWSER_HEIGHT || "1080"),
 
-  /** Page navigation timeout (milliseconds) */
-  NAVIGATION_TIMEOUT: parseInt(process.env.BROWSER_NAV_TIMEOUT || "30000"),
+  /** Page navigation timeout (milliseconds) - Patient for slow sites */
+  NAVIGATION_TIMEOUT: parseInt(process.env.BROWSER_NAV_TIMEOUT || "45000"),
 
-  /** Initial wait before scrolling (milliseconds) */
-  INITIAL_WAIT: parseInt(process.env.BROWSER_INITIAL_WAIT || "2000"),
+  /** Initial wait before scrolling (milliseconds) - Allow JS to load */
+  INITIAL_WAIT: parseInt(process.env.BROWSER_INITIAL_WAIT || "3000"),
 
-  /** Wait after scrolling for lazy load (milliseconds) */
-  POST_SCROLL_WAIT: parseInt(process.env.BROWSER_POST_SCROLL_WAIT || "1000"),
+  /** Wait after scrolling for lazy load (milliseconds) - Patient for dynamic loading */
+  POST_SCROLL_WAIT: parseInt(process.env.BROWSER_POST_SCROLL_WAIT || "2000"),
 
-  /** Maximum scroll attempts for pagination */
-  MAX_SCROLL_ATTEMPTS: parseInt(process.env.BROWSER_MAX_SCROLLS || "10"),
+  /** Maximum scroll attempts for pagination - Thorough coverage */
+  MAX_SCROLL_ATTEMPTS: parseInt(process.env.BROWSER_MAX_SCROLLS || "15"),
 
-  /** Scroll interval delay (milliseconds) */
-  SCROLL_INTERVAL: parseInt(process.env.BROWSER_SCROLL_INTERVAL || "1500"),
+  /** Scroll interval delay (milliseconds) - Human-like scrolling pace */
+  SCROLL_INTERVAL: parseInt(process.env.BROWSER_SCROLL_INTERVAL || "2500"),
 
-  /** BrowserQL endpoint URL */
+  /** BrowserQL endpoint URL - Browserless.io cloud service */
   BROWSERLESS_ENDPOINT:
     process.env.BROWSERLESS_ENDPOINT ||
-    "https://production-sfo.browserless.io/chromium/bql",
+    "https://chrome.browserless.io",
 
-  /** BrowserQL wait timeout (milliseconds) */
-  BQL_WAIT_TIMEOUT: parseInt(process.env.BQL_WAIT_TIMEOUT || "2000"),
+  /** BrowserQL wait timeout (milliseconds) - Patient for element loading */
+  BQL_WAIT_TIMEOUT: parseInt(process.env.BQL_WAIT_TIMEOUT || "3000"),
 } as const;
 
 // ============================================================================
@@ -119,33 +121,34 @@ export const BROWSER_CONFIG = {
 /**
  * AI-powered scraper configuration
  * Used in: src/lib/ai-agent-scraper.ts
+ * Optimized for Greentech Renewables with enhanced analysis capabilities
  */
 export const AI_CONFIG = {
-  /** Claude model ID */
+  /** Claude model ID - Latest Sonnet for best reasoning */
   MODEL: process.env.CLAUDE_MODEL || "claude-3-5-sonnet-20241022",
 
-  /** Maximum tokens for AI responses */
-  MAX_TOKENS: parseInt(process.env.CLAUDE_MAX_TOKENS || "2000"),
+  /** Maximum tokens for AI responses - Generous for detailed analysis */
+  MAX_TOKENS: parseInt(process.env.CLAUDE_MAX_TOKENS || "4000"),
 
-  /** Maximum diagnosis tokens */
+  /** Maximum diagnosis tokens - Sufficient for complex error analysis */
   MAX_DIAGNOSIS_TOKENS: parseInt(
-    process.env.CLAUDE_MAX_DIAGNOSIS_TOKENS || "1500",
+    process.env.CLAUDE_MAX_DIAGNOSIS_TOKENS || "2500",
   ),
 
-  /** Maximum self-correction attempts */
-  MAX_ATTEMPTS: parseInt(process.env.AI_MAX_ATTEMPTS || "3"),
+  /** Maximum self-correction attempts - Persistent for difficult sites */
+  MAX_ATTEMPTS: parseInt(process.env.AI_MAX_ATTEMPTS || "5"),
 
-  /** Maximum link samples for analysis */
-  MAX_LINK_SAMPLES: parseInt(process.env.AI_MAX_LINK_SAMPLES || "50"),
+  /** Maximum link samples for analysis - Thorough coverage */
+  MAX_LINK_SAMPLES: parseInt(process.env.AI_MAX_LINK_SAMPLES || "100"),
 
-  /** Link text truncation length */
-  LINK_TEXT_MAX_LENGTH: parseInt(process.env.AI_LINK_TEXT_LENGTH || "100"),
+  /** Link text truncation length - More context for decisions */
+  LINK_TEXT_MAX_LENGTH: parseInt(process.env.AI_LINK_TEXT_LENGTH || "150"),
 
-  /** Initial analysis rate limit (milliseconds) */
-  ANALYSIS_RATE_LIMIT: parseInt(process.env.AI_ANALYSIS_RATE_LIMIT || "0"),
+  /** Initial analysis rate limit (milliseconds) - Conservative for API limits */
+  ANALYSIS_RATE_LIMIT: parseInt(process.env.AI_ANALYSIS_RATE_LIMIT || "2000"),
 
-  /** Initial analysis timeout (milliseconds) */
-  ANALYSIS_TIMEOUT: parseInt(process.env.AI_ANALYSIS_TIMEOUT || "8000"),
+  /** Initial analysis timeout (milliseconds) - Patient for complex sites */
+  ANALYSIS_TIMEOUT: parseInt(process.env.AI_ANALYSIS_TIMEOUT || "15000"),
 } as const;
 
 // ============================================================================
@@ -212,13 +215,14 @@ export const CACHE_CONFIG = {
 /**
  * API route runtime limits
  * Used in: API routes with maxDuration export
+ * Optimized for Greentech with conservative rate limits
  */
 export const API_CONFIG = {
   /** Maximum function execution time (seconds) - Vercel limit */
   MAX_FUNCTION_DURATION: parseInt(process.env.MAX_FUNCTION_DURATION || "300"),
 
-  /** Cron job scraping rate limit (milliseconds) */
-  CRON_RATE_LIMIT: parseInt(process.env.CRON_RATE_LIMIT || "1500"),
+  /** Cron job scraping rate limit (milliseconds) - Conservative for bulk operations */
+  CRON_RATE_LIMIT: parseInt(process.env.CRON_RATE_LIMIT || "3000"),
 } as const;
 
 // ============================================================================
