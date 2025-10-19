@@ -8,6 +8,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Loader2, Download, CheckCircle2, AlertTriangle, Edit3, Save, X } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import dynamic from "next/dynamic";
+
+// Dynamically import the enhanced equipment editor to avoid SSR issues
+const EquipmentEditorEnhanced = dynamic(
+  () => import("@/components/equipment-editor-enhanced"),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center p-8">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+);
 
 interface ProjectData {
   id: string;
@@ -89,82 +103,6 @@ export default function ReviewPage() {
     setEditedSystem(null);
   };
 
-  const calculateCost = (system: {
-    solarPanelCount?: number;
-    solarPanelWattage?: number;
-    batteryKwh?: number;
-    inverterKw?: number;
-  }) => {
-    // Simplified cost calculation - in real app, this should match your sizing API logic
-    const solarCost = (system.solarPanelCount || 0) * (system.solarPanelWattage || 0) * 1.5; // $1.5 per watt
-    const batteryCost = (system.batteryKwh || 0) * 800; // $800 per kWh
-    const inverterCost = (system.inverterKw || 0) * 500; // $500 per kW
-    const installationCost = 5000; // Base installation cost
-    
-    return solarCost + batteryCost + inverterCost + installationCost;
-  };
-
-  const handleSaveSystem = async () => {
-    if (!editedSystem || !project) return;
-    
-    // Validation
-    const hasSolar = (editedSystem.solarPanelCount || 0) > 0 && (editedSystem.solarPanelWattage || 0) > 0;
-    const hasBattery = (editedSystem.batteryKwh || 0) > 0;
-    const hasInverter = (editedSystem.inverterKw || 0) > 0;
-
-    if (!hasSolar && !hasBattery) {
-      alert("System must have either solar panels or battery storage (or both).");
-      return;
-    }
-
-    if (!hasInverter) {
-      alert("System must have an inverter with capacity greater than 0 kW.");
-      return;
-    }
-
-    // For battery-only systems, suggest appropriate inverter sizing
-    if (!hasSolar && hasBattery && editedSystem.inverterKw < editedSystem.batteryKwh * 0.5) {
-      const suggestedInverter = Math.max(5, editedSystem.batteryKwh * 0.5);
-      if (!confirm(`For battery-only systems, we recommend an inverter capacity of at least ${suggestedInverter.toFixed(1)} kW. Continue with ${editedSystem.inverterKw} kW?`)) {
-        return;
-      }
-    }
-    
-    setSaving(true);
-    try {
-      const totalSolarKw = (editedSystem.solarPanelCount || 0) * (editedSystem.solarPanelWattage || 0) / 1000;
-      const estimatedCost = calculateCost(editedSystem);
-
-      const systemData = {
-        ...editedSystem,
-        totalSolarKw,
-        estimatedCostUsd: estimatedCost,
-        batteryType: "lithium",
-        inverterType: "Hybrid String Inverter",
-        criticalLoadKw: Math.max(project.system?.inverterKw || 0, 0),
-      };
-
-      const response = await fetch(`/api/projects/${projectId}/system`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(systemData),
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        await fetchProject();
-        setEditing(false);
-        setEditedSystem(null);
-      } else {
-        alert(`Error: ${data.error}`);
-      }
-    } catch (error) {
-      console.error("Error updating system:", error);
-      alert("Failed to update system");
-    } finally {
-      setSaving(false);
-    }
-  };
 
   const handleGeneratePDF = async () => {
     setGenerating(true);
@@ -191,11 +129,13 @@ export default function ReviewPage() {
           router.push("/projects");
         }, 1000);
       } else {
-        alert("Failed to generate PDF");
+        const errorData = await response.json();
+        console.error("PDF generation failed:", errorData);
+        alert(`Failed to generate PDF: ${errorData.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error("Error generating PDF:", error);
-      alert("Failed to generate PDF");
+      alert(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setGenerating(false);
     }
@@ -303,122 +243,51 @@ export default function ReviewPage() {
             </div>
           )}
 
-          {editing && editedSystem && (
-            <div className="space-y-6">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="solarCount">Solar Panel Count</Label>
-                  <Input
-                    id="solarCount"
-                    type="number"
-                    min="0"
-                    value={editedSystem.solarPanelCount || 0}
-                    onChange={(e) => setEditedSystem({
-                      ...editedSystem,
-                      solarPanelCount: parseInt(e.target.value) || 0
-                    })}
-                    placeholder="Enter panel count (0 for battery-only)"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="solarWattage">Panel Wattage (W)</Label>
-                  <Input
-                    id="solarWattage"
-                    type="number"
-                    min="0"
-                    value={editedSystem.solarPanelWattage || 0}
-                    onChange={(e) => setEditedSystem({
-                      ...editedSystem,
-                      solarPanelWattage: parseInt(e.target.value) || 0
-                    })}
-                    placeholder="Enter wattage per panel"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="batteryKwh">Battery Storage (kWh)</Label>
-                  <Input
-                    id="batteryKwh"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    value={editedSystem.batteryKwh || 0}
-                    onChange={(e) => setEditedSystem({
-                      ...editedSystem,
-                      batteryKwh: parseFloat(e.target.value) || 0
-                    })}
-                    placeholder="Enter battery capacity"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="inverterKw">Inverter Capacity (kW)</Label>
-                  <Input
-                    id="inverterKw"
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    value={editedSystem.inverterKw || 0}
-                    onChange={(e) => setEditedSystem({
-                      ...editedSystem,
-                      inverterKw: parseFloat(e.target.value) || 0
-                    })}
-                    placeholder="Enter inverter capacity"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="backupHours">Backup Duration (hours)</Label>
-                  <Input
-                    id="backupHours"
-                    type="number"
-                    min="0"
-                    value={editedSystem.backupDurationHrs || 0}
-                    onChange={(e) => setEditedSystem({
-                      ...editedSystem,
-                      backupDurationHrs: parseInt(e.target.value) || 0
-                    })}
-                    placeholder="Enter backup duration"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Estimated Cost</Label>
-                  <div className="text-2xl font-bold text-primary">
-                    {formatCurrency(calculateCost(editedSystem))}
-                  </div>
-                </div>
-              </div>
+          {editing && (
+            <EquipmentEditorEnhanced
+              projectId={projectId}
+              distributorId="dist-1"
+              monthlyUsageKwh={900}
+              onSave={async (systemData) => {
+                setSaving(true);
+                try {
+                  const response = await fetch(`/api/projects/${projectId}/system`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      solarPanelCount: systemData.selectedProducts?.solarPanels?.quantity || 0,
+                      solarPanelWattage: systemData.selectedProducts?.solarPanels?.product.specifications.wattage || 400,
+                      totalSolarKw: systemData.totalSolarKw,
+                      batteryKwh: systemData.batteryKwh,
+                      inverterKw: systemData.inverterKw,
+                      backupDurationHrs: systemData.backupDurationHrs,
+                      estimatedCostUsd: systemData.estimatedCostUsd,
+                      batteryType: "lithium",
+                      inverterType: "Hybrid String Inverter",
+                      criticalLoadKw: 3,
+                      selectedProducts: systemData.selectedProducts,
+                      customSpecs: systemData.customSpecs
+                    }),
+                  });
 
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <h4 className="font-medium text-blue-900 mb-2">Project Types:</h4>
-                <ul className="text-sm text-blue-800 space-y-1">
-                  <li>• <strong>Battery Only:</strong> Set solar panels to 0, keep battery and inverter</li>
-                  <li>• <strong>Solar Only:</strong> Set battery to 0, keep solar panels and inverter</li>
-                  <li>• <strong>Full System:</strong> Include all components for complete energy solution</li>
-                </ul>
-              </div>
-
-              <div className="flex gap-3">
-                <Button
-                  onClick={handleSaveSystem}
-                  disabled={saving}
-                  className="flex items-center gap-2"
-                >
-                  {saving ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Save className="h-4 w-4" />
-                  )}
-                  Save Changes
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={handleCancelEdit}
-                  disabled={saving}
-                  className="flex items-center gap-2"
-                >
-                  <X className="h-4 w-4" />
-                  Cancel
-                </Button>
-              </div>
-            </div>
+                  const data = await response.json();
+                  if (data.success) {
+                    await fetchProject();
+                    setEditing(false);
+                    setEditedSystem(null);
+                  } else {
+                    alert(`Error: ${data.error}`);
+                  }
+                } catch (error) {
+                  console.error("Error updating system:", error);
+                  alert("Failed to update system");
+                } finally {
+                  setSaving(false);
+                }
+              }}
+              onCancel={handleCancelEdit}
+              saving={saving}
+            />
           )}
         </Card>
 
