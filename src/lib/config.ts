@@ -23,8 +23,8 @@ export const SYSTEM_SIZING = {
   /** Standard solar panel wattage in watts */
   SOLAR_PANEL_WATTAGE: parseInt(process.env.SOLAR_PANEL_WATTAGE || "400"),
 
-  /** Battery capacity overhead multiplier (default: 1.2 = 20% overhead) */
-  BATTERY_OVERHEAD: parseFloat(process.env.BATTERY_OVERHEAD || "1.2"),
+  /** Battery capacity safety factor for depth of discharge and efficiency (default: 1.25 = 25% overhead for 80% DOD) */
+  BATTERY_OVERHEAD: parseFloat(process.env.BATTERY_OVERHEAD || "1.25"),
 
   /** Inverter oversizing multiplier (default: 1.25 = 25% oversizing) */
   INVERTER_MULTIPLIER: parseFloat(process.env.INVERTER_MULTIPLIER || "1.25"),

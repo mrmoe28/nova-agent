@@ -46,14 +46,29 @@ export async function performSystemSizing({
   const solarPanelWattage = SYSTEM_SIZING.SOLAR_PANEL_WATTAGE;
   const solarPanelCount = Math.ceil((totalSolarKw * 1000) / solarPanelWattage);
 
+  // Calculate battery size based on daily critical load consumption, not continuous power
+  // Typical home uses 30 kWh/day, critical loads are ~30-50% of that
   const backupHrs = backupDurationHrs || 24;
-  const criticalLoad = criticalLoadKw || 3;
-  const batteryKwh =
-    criticalLoad * backupHrs * SYSTEM_SIZING.BATTERY_OVERHEAD;
+  const criticalLoad = criticalLoadKw || 3; // Peak power demand in kW
+  
+  // Battery capacity = (Daily critical energy consumption) × (Backup days) × Safety factor
+  // Daily critical energy = (Daily total kWh × Critical load percentage)
+  // For most homes: 30 kWh/day × 0.4 = 12 kWh/day for critical loads
+  const criticalDailyKwh = Math.min(dailyUsageKwh * 0.4, 15); // Cap at 15 kWh for critical loads
+  const backupDays = backupHrs / 24;
+  
+  // Size battery based on energy needs, not continuous power output
+  // Industry standard: 10-20 kWh for average homes, 5-10 kWh for small homes
+  const calculatedBatteryKwh = criticalDailyKwh * backupDays * SYSTEM_SIZING.BATTERY_OVERHEAD;
+  
+  // Apply reasonable limits based on industry standards
+  // Min: 5 kWh (small backup), Max: 40 kWh (whole-home backup)
+  const batteryKwh = Math.max(5, Math.min(40, calculatedBatteryKwh));
 
-  const inverterKw =
-    Math.max(analysis.peakDemandKw || 5, criticalLoad) *
-    SYSTEM_SIZING.INVERTER_MULTIPLIER;
+  // Inverter sizing: Based on peak power demand, not energy consumption
+  // Typical residential peak: 5-10 kW, with 25% overhead for surge capacity
+  const peakDemand = analysis.peakDemandKw || Math.max(5, criticalLoad);
+  const inverterKw = peakDemand * SYSTEM_SIZING.INVERTER_MULTIPLIER;
 
   let solarCostPerWatt = SYSTEM_SIZING.SOLAR_COST_PER_WATT;
   let batteryCostPerKwh = SYSTEM_SIZING.BATTERY_COST_PER_KWH;
