@@ -754,7 +754,6 @@ export class ProductionModelingService {
   }> {
     try {
       logger.info({
-        estimateId: estimate.id,
         annualProduction: estimate.annualProduction,
         method: estimate.modelingMethod
       }, 'Validating production estimate');
