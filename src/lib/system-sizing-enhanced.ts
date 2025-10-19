@@ -266,7 +266,7 @@ class EquipmentSelector {
    */
   async selectInverter(
     systemSizeKw: number,
-    _batteryBackup: boolean = false
+    batteryBackup: boolean = false
   ): Promise<{
     equipment: EquipmentCatalogItem;
     inverterCount: number;
