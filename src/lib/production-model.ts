@@ -844,7 +844,7 @@ export class ProductionModelingService {
         orderBy: { createdAt: 'desc' }
       });
 
-      if (cached && this.isConfigurationSimilar(cached.configuration as SystemConfiguration, configuration)) {
+      if (cached && this.isConfigurationSimilar(cached.configuration as unknown as SystemConfiguration, configuration)) {
         return this.transformDbProductionEstimate(cached);
       }
 
