@@ -11,6 +11,7 @@ import {
   ProductionModelingError,
   ApiResponse 
 } from '@/types/energy';
+import { Prisma } from '@prisma/client';
 import { logger } from './logger';
 import { retry } from './retry';
 import { prisma } from './prisma';
