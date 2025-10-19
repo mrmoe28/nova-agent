@@ -904,8 +904,8 @@ export class ProductionModelingService {
     return {
       ...db,
       configuration: db.configuration as SystemConfiguration,
-      createdAt: db.createdAt
-    };
+      createdAt: db.createdAt as Date
+    } as ProductionEstimate;
   }
 
   /**
