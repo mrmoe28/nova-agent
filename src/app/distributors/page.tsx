@@ -378,7 +378,7 @@ export default function DistributorsPage() {
                       setEditingEquipment(item);
                       setShowAddEquipment(true);
                     }}
-                    className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm border-slate-300 shadow-md"
+                    className="h-8 w-8 p-0 bg-white border border-slate-300 shadow-md"
                   >
                     <Pencil className="h-3.5 w-3.5 text-slate-700" />
                   </Button>
@@ -389,7 +389,7 @@ export default function DistributorsPage() {
                       e.stopPropagation();
                       handleDeleteEquipment(item.id);
                     }}
-                    className="h-8 w-8 p-0 bg-white/90 backdrop-blur-sm border-red-300 shadow-md"
+                    className="h-8 w-8 p-0 bg-white border border-red-300 shadow-md"
                   >
                     <Trash2 className="h-3.5 w-3.5 text-red-600" />
                   </Button>
@@ -413,7 +413,7 @@ export default function DistributorsPage() {
                 <div className="absolute bottom-2 left-2">
                   <Badge
                     variant="secondary"
-                    className="text-xs bg-white/90 backdrop-blur-sm"
+                    className="text-xs bg-white border border-gray-200"
                   >
                     {item.category}
                   </Badge>
@@ -679,7 +679,7 @@ function DistributorForm({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 bg-white border border-slate-200 shadow-xl">
         <h2 className="text-xl font-bold mb-6 text-slate-900">
           {distributor ? "Edit" : "Add"} Distributor
@@ -988,7 +988,7 @@ function EquipmentForm({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-50">
       <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 bg-white border border-slate-200 shadow-xl">
         <h2 className="text-xl font-bold mb-6 text-slate-900">
           {equipment ? "Edit" : "Add"} Equipment

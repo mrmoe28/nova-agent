@@ -244,7 +244,7 @@ export default function FileUpload({
         className={cn(
           "relative overflow-hidden border-2 border-dashed transition-all duration-200",
           dragActive
-            ? "border-cyan-500 bg-cyan-50/50 dark:bg-cyan-950/20 shadow-lg scale-[1.02]"
+            ? "border-cyan-500 bg-cyan-50 dark:bg-cyan-950 shadow-lg scale-[1.02]"
             : "border-muted-foreground/25 hover:border-cyan-400 hover:shadow-md",
           uploading && "pointer-events-none opacity-75",
         )}
@@ -321,7 +321,7 @@ export default function FileUpload({
                 </div>
 
                 {/* Supported Formats */}
-                <Alert className="max-w-md bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900">
+                <Alert className="max-w-md bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-900">
                   <CheckCircle className="h-4 w-4 text-blue-600" />
                   <AlertDescription className="text-sm text-blue-800 dark:text-blue-300">
                     <strong>Supports:</strong> PDF, JPG, PNG, CSV (max 10MB per
@@ -403,7 +403,7 @@ export default function FileUpload({
                         </span>
 
                         {file.ocrProcessed && (
-                          <Badge className="text-xs bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20">
+                          <Badge className="text-xs bg-green-50 text-green-700 dark:text-green-400 border-green-200">
                             <CheckCircle className="h-3 w-3 mr-1" />
                             OCR Success
                           </Badge>

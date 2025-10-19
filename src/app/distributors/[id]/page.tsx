@@ -548,7 +548,7 @@ export default function DistributorDetailPage() {
                   <div className="absolute bottom-2 left-2">
                     <Badge
                       variant="secondary"
-                      className="text-xs bg-white/90 backdrop-blur-sm"
+                      className="text-xs bg-white border border-gray-200"
                     >
                       {getCategoryDisplayName(item.category)}
                     </Badge>

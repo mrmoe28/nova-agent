@@ -151,7 +151,7 @@ export function PanelManagementModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden bg-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sun className="h-5 w-5" />
@@ -165,7 +165,7 @@ export function PanelManagementModal({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden">
           {/* Panel Configuration */}
           <div className="space-y-4">
-            <Card>
+            <Card className="bg-white border border-gray-200">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Settings className="h-5 w-5" />
@@ -300,7 +300,7 @@ export function PanelManagementModal({
           {/* Performance & Cost Impact */}
           <div className="space-y-4">
             {/* Production Estimates */}
-            <Card>
+            <Card className="bg-white border border-gray-200">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <TrendingUp className="h-5 w-5" />
@@ -336,7 +336,7 @@ export function PanelManagementModal({
 
             {/* Cost Impact */}
             {system && (
-              <Card>
+              <Card className="bg-white border border-gray-200">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <Zap className="h-5 w-5" />

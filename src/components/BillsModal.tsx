@@ -149,7 +149,7 @@ export function BillsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden bg-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
@@ -184,7 +184,7 @@ export function BillsModal({
                   return (
                     <Card 
                       key={bill.id} 
-                      className={`p-4 cursor-pointer transition-all hover:shadow-md ${
+                      className={`p-4 bg-white border border-gray-200 cursor-pointer transition-all hover:shadow-md ${
                         selectedBill?.id === bill.id ? 'ring-2 ring-blue-500' : ''
                       }`}
                       onClick={() => setSelectedBill(bill)}
@@ -263,7 +263,7 @@ export function BillsModal({
             
             {selectedBill ? (
               <div className="space-y-4">
-                <Card className="p-4">
+                <Card className="p-4 bg-white border border-gray-200">
                   <div className="flex items-center gap-3 mb-3">
                     {getFileIcon(selectedBill.fileType)}
                     <div className="flex-1">
@@ -310,7 +310,7 @@ export function BillsModal({
 
                 {/* Extracted Data */}
                 {selectedBill.extractedData && (
-                  <Card className="p-4">
+                  <Card className="p-4 bg-white border border-gray-200">
                     <h5 className="font-medium mb-3">Extracted Data</h5>
                     <div className="space-y-2 text-sm">
                       {Object.entries(selectedBill.extractedData).map(([key, value]) => (
@@ -332,7 +332,7 @@ export function BillsModal({
 
                 {/* OCR Text */}
                 {selectedBill.ocrText && (
-                  <Card className="p-4">
+                  <Card className="p-4 bg-white border border-gray-200">
                     <h5 className="font-medium mb-3">OCR Text</h5>
                     <div className="text-sm text-muted-foreground max-h-32 overflow-y-auto border rounded p-2 bg-gray-50">
                       {selectedBill.ocrText}

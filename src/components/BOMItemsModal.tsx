@@ -143,7 +143,7 @@ export function BOMItemsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden bg-white">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Archive className="h-5 w-5" />
@@ -176,7 +176,7 @@ export function BOMItemsModal({
                 </div>
               ) : (
                 bomItems.map((item) => (
-                  <Card key={item.id} className="p-3">
+                  <Card key={item.id} className="p-3 bg-white border border-gray-200">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
@@ -266,7 +266,7 @@ export function BOMItemsModal({
                 </div>
               ) : (
                 filteredEquipment.map((equipment) => (
-                  <Card key={equipment.id} className="p-3 hover:shadow-md transition-shadow">
+                  <Card key={equipment.id} className="p-3 bg-white border border-gray-200 hover:shadow-md transition-shadow">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
