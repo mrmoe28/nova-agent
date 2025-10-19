@@ -424,14 +424,26 @@ export default function ProjectsPage() {
 
               <CardContent className="pt-0">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-                  <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
+                  <div 
+                    className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/projects/${project.id}?tab=bills`);
+                    }}
+                  >
                     <FileText className="h-4 w-4 text-blue-600" />
                     <div>
                       <div className="text-lg font-semibold text-gray-900">{project._count.bills}</div>
                       <div className="text-xs text-gray-600">Bills</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg">
+                  <div 
+                    className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push(`/projects/${project.id}?tab=bom`);
+                    }}
+                  >
                     <Archive className="h-4 w-4 text-orange-600" />
                     <div>
                       <div className="text-lg font-semibold text-gray-900">{project._count.bomItems}</div>
@@ -440,7 +452,13 @@ export default function ProjectsPage() {
                   </div>
                   {project.system && (
                     <>
-                      <div className="flex items-center gap-2 p-3 bg-yellow-50 rounded-lg">
+                      <div 
+                        className="flex items-center gap-2 p-3 bg-yellow-50 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/projects/${project.id}?tab=panels`);
+                        }}
+                      >
                         <Sun className="h-4 w-4 text-yellow-600" />
                         <div>
                           <div className="text-lg font-semibold text-gray-900">{project.system.totalSolarKw.toFixed(1)}kW</div>

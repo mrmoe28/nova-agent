@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,10 +16,14 @@ import {
   Calculator,
   Clock,
   TrendingUp,
-  Settings
+  Settings,
+  Archive
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { BillAnalysisCard } from "@/components/BillAnalysisCard";
+import { BOMItemsModal } from "@/components/BOMItemsModal";
+import { BillsModal } from "@/components/BillsModal";
+import { PanelManagementModal } from "@/components/PanelManagementModal";
 
 interface Project {
   id: string;
@@ -74,6 +78,7 @@ interface Plan {
 export default function ProjectDetailsPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const projectId = params.id as string;
   
   const [project, setProject] = useState<Project | null>(null);
@@ -81,6 +86,11 @@ export default function ProjectDetailsPage() {
   const [plan, setPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
+  
+  // Modal states
+  const [showBOMModal, setShowBOMModal] = useState(false);
+  const [showBillsModal, setShowBillsModal] = useState(false);
+  const [showPanelModal, setShowPanelModal] = useState(false);
 
   const fetchProjectDetails = useCallback(async () => {
     try {
@@ -127,6 +137,24 @@ export default function ProjectDetailsPage() {
   useEffect(() => {
     fetchProjectDetails();
   }, [fetchProjectDetails]);
+
+  // Handle URL tab parameter to auto-open modals
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && project) {
+      switch (tab) {
+        case 'bills':
+          setShowBillsModal(true);
+          break;
+        case 'bom':
+          setShowBOMModal(true);
+          break;
+        case 'panels':
+          setShowPanelModal(true);
+          break;
+      }
+    }
+  }, [searchParams, project]);
 
   const getSystemTypeLabel = () => {
     if (!project?.system) return "Not Configured";
@@ -210,7 +238,10 @@ export default function ProjectDetailsPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setShowBillsModal(true)}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 rounded-lg">
@@ -224,7 +255,10 @@ export default function ProjectDetailsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setShowPanelModal(true)}
+        >
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-yellow-100 rounded-lg">
@@ -234,6 +268,9 @@ export default function ProjectDetailsPage() {
                 <p className="text-sm text-muted-foreground">Solar</p>
                 <p className="text-xl font-semibold">
                   {project.system?.totalSolarKw || 0}kW
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {project.system?.solarPanelCount || 0} Panels
                 </p>
               </div>
             </div>
@@ -251,11 +288,68 @@ export default function ProjectDetailsPage() {
                 <p className="text-xl font-semibold">
                   {project.system?.batteryKwh || 0}kWh
                 </p>
+                <p className="text-xs text-muted-foreground">
+                  {project.system?.backupDurationHrs || 0}hr Backup
+                </p>
               </div>
             </div>
           </CardContent>
         </Card>
 
+        <Card 
+          className="cursor-pointer hover:shadow-md transition-shadow"
+          onClick={() => setShowBOMModal(true)}
+        >
+          <CardContent className="p-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-orange-100 rounded-lg">
+                <Archive className="h-5 w-5 text-orange-600" />
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground">BOM Items</p>
+                <p className="text-xl font-semibold">{bomItems.length}</p>
+                <p className="text-xs text-muted-foreground">
+                  {formatCurrency(bomItems.reduce((sum, item) => sum + item.totalPriceUsd, 0))} Total
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Modals */}
+      <BOMItemsModal
+        open={showBOMModal}
+        onOpenChange={setShowBOMModal}
+        projectId={projectId}
+        bomItems={bomItems}
+        onItemsChange={setBomItems}
+      />
+
+      <BillsModal
+        open={showBillsModal}
+        onOpenChange={setShowBillsModal}
+        projectId={projectId}
+        bills={project?.bills || []}
+      />
+
+      <PanelManagementModal
+        open={showPanelModal}
+        onOpenChange={setShowPanelModal}
+        projectId={projectId}
+        system={project?.system}
+        onSystemChange={(updatedSystem) => {
+          if (project) {
+            setProject({
+              ...project,
+              system: updatedSystem,
+            });
+          }
+        }}
+      />
+
+      {/* Main Content */}
+      <div className="space-y-6">
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
