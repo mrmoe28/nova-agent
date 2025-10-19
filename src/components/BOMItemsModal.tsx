@@ -84,7 +84,6 @@ export function BOMItemsModal({
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
-  const [showAddEquipment, setShowAddEquipment] = useState(false);
 
   const fetchDistributorEquipment = async () => {
     setLoading(true);
@@ -135,9 +134,46 @@ export function BOMItemsModal({
       if (data.success && onItemsChange) {
         const updatedItems = bomItems.filter(item => item.id !== itemId);
         onItemsChange(updatedItems);
+        console.log("BOM item deleted successfully");
+      } else {
+        console.error("Failed to delete BOM item:", data.error);
       }
     } catch (error) {
       console.error("Error deleting BOM item:", error);
+    }
+  };
+
+  const handleAddBOMItem = async (equipmentId: string, quantity: number = 1) => {
+    try {
+      const response = await fetch('/api/bom/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ projectId, equipmentId, quantity }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        if (data.action === 'updated') {
+          // Update existing item in the list
+          const updatedItems = bomItems.map(item => 
+            item.id === data.bomItem.id ? data.bomItem : item
+          );
+          if (onItemsChange) {
+            onItemsChange(updatedItems);
+          }
+          console.log("BOM item quantity updated");
+        } else {
+          // Add new item to the list
+          if (onItemsChange) {
+            onItemsChange([...bomItems, data.bomItem]);
+          }
+          console.log("BOM item added successfully");
+        }
+      } else {
+        console.error("Failed to add BOM item:", data.error);
+      }
+    } catch (error) {
+      console.error("Error adding BOM item:", error);
     }
   };
 
@@ -222,10 +258,11 @@ export function BOMItemsModal({
               <Button 
                 variant="outline" 
                 size="sm"
-                onClick={() => setShowAddEquipment(!showAddEquipment)}
+                disabled
+                title="Use the + buttons on individual items to add them to BOM"
               >
                 <Plus className="h-4 w-4 mr-1" />
-                Add to BOM
+                Browse Equipment
               </Button>
             </div>
 
@@ -318,6 +355,8 @@ export function BOMItemsModal({
                           size="sm"
                           className="text-green-600 hover:text-green-800"
                           disabled={!equipment.inStock}
+                          onClick={() => handleAddBOMItem(equipment.id)}
+                          title="Add to BOM"
                         >
                           <Plus className="h-4 w-4" />
                         </Button>
