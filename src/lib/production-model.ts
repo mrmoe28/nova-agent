@@ -870,7 +870,7 @@ export class ProductionModelingService {
           projectId: estimate.projectId,
           systemSizeKw: estimate.systemSizeKw,
           configuration: estimate.configuration as unknown as Prisma.InputJsonValue,
-          solarResourceId: estimate.solarResourceId,
+          solarResourceId: estimate.solarResource.id,
           annualProduction: estimate.annualProduction,
           monthlyProduction: estimate.monthlyProduction,
           hourlyProduction: estimate.hourlyProduction || [],
