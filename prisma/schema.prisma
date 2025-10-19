@@ -23,16 +23,6 @@ enum EquipmentCategory {
   OTHER
 }
 
-enum ProjectStatus {
-  INTAKE
-  ANALYSIS
-  SIZING
-  BOM
-  PLAN
-  REVIEW
-  COMPLETE
-}
-
 model Bill {
   id            String   @id @default(cuid())
   projectId     String
@@ -540,7 +530,7 @@ model Project {
   address                   String?
   phone                     String?
   email                     String?
-  status                    ProjectStatus             @default(INTAKE)
+  status                    String                    @default("intake")
   createdAt                 DateTime                  @default(now())
   updatedAt                 DateTime                  @updatedAt
 
