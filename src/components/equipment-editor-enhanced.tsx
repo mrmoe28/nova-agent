@@ -7,21 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
-import { 
-  Sun, 
-  Battery, 
-  Zap, 
-  Plus, 
+import {
+  Sun,
+  Battery,
+  Zap,
+  Plus,
   Minus,
   Calculator,
   Package,
   Settings2,
   AlertCircle,
-  CheckCircle2,
   ShoppingCart,
   Search,
   DollarSign,
@@ -87,8 +85,19 @@ interface EquipmentEditorEnhancedProps {
     inverterKw: number;
     backupDurationHrs: number;
     estimatedCostUsd: number;
-    selectedProducts: any;
-    customSpecs: any;
+    selectedProducts: {
+      solarPanels?: SelectedProduct | null;
+      battery?: SelectedProduct | null;
+      inverter?: SelectedProduct | null;
+      mounting?: SelectedProduct | null;
+      electrical?: SelectedProduct | null;
+    } | null;
+    customSpecs: {
+      panelCount?: number;
+      panelWattage?: number;
+      batteryKwh?: number;
+      inverterKw?: number;
+    } | null;
   }) => Promise<void>;
   onCancel: () => void;
   saving?: boolean;
@@ -167,7 +176,7 @@ const MOCK_PRODUCTS: DistributorProduct[] = [
 ];
 
 export default function EquipmentEditorEnhanced({
-  projectId,
+  projectId: _projectId,
   distributorId,
   monthlyUsageKwh = 900,
   onSave,
@@ -195,34 +204,34 @@ export default function EquipmentEditorEnhanced({
     useDistributorProducts: true
   });
 
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [_showAdvanced, _setShowAdvanced] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   // Load distributor products
   useEffect(() => {
+    const loadDistributorProducts = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/equipment?distributorId=${distributorId}`);
+        const data = await response.json();
+        if (data.success) {
+          setProducts(data.equipment);
+          setFilteredProducts(data.equipment);
+        }
+      } catch (error) {
+        console.error("Error loading products:", error);
+        // Use mock data as fallback
+        setProducts(MOCK_PRODUCTS);
+        setFilteredProducts(MOCK_PRODUCTS);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     if (distributorId) {
       loadDistributorProducts();
     }
   }, [distributorId]);
-
-  const loadDistributorProducts = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/equipment?distributorId=${distributorId}`);
-      const data = await response.json();
-      if (data.success) {
-        setProducts(data.equipment);
-        setFilteredProducts(data.equipment);
-      }
-    } catch (error) {
-      console.error("Error loading products:", error);
-      // Use mock data as fallback
-      setProducts(MOCK_PRODUCTS);
-      setFilteredProducts(MOCK_PRODUCTS);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Filter products based on search and category
   useEffect(() => {

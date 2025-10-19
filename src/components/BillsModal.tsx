@@ -9,14 +9,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import {
   FileText,
   Upload,
   Download,
-  ExternalLink,
   Eye,
   Calendar,
   DollarSign,
@@ -47,7 +46,7 @@ interface BillsModalProps {
 export function BillsModal({
   open,
   onOpenChange,
-  projectId,
+  projectId: _projectId,
   bills,
 }: BillsModalProps) {
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);

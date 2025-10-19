@@ -175,7 +175,7 @@ startxref
       }
 
     } catch (error) {
-      console.log('❌ Upload test failed:', error.message);
+      console.log('❌ Upload test failed:', error instanceof Error ? error.message : String(error));
       
       // Debug information
       const errorMessages = await page.locator('[role="alert"], .error, [class*="error"]').allTextContents();

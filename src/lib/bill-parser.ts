@@ -7,11 +7,10 @@
 import { 
   OCRResult, 
   ParsedBillData, 
-  BillValidationResult, 
+  BillValidationResult,
   BillLineItem,
   BillingPeriod,
-  BillParsingError,
-  EnergyAnalysisError
+  BillParsingError
 } from '@/types/energy';
 import { logger } from './logger';
 import { retry } from './retry';
@@ -121,7 +120,7 @@ export class EnhancedOCRProcessor {
   /**
    * Process document using Anthropic Claude for high accuracy
    */
-  private async processWithAnthropic(filePath: string, fileType: string): Promise<OCRResult> {
+  private async processWithAnthropic(_filePath: string, _fileType: string): Promise<OCRResult> {
     if (!this.anthropic) {
       throw new Error('Anthropic API key not configured');
     }
@@ -140,7 +139,7 @@ export class EnhancedOCRProcessor {
   /**
    * Process document using Tesseract.js
    */
-  private async processWithTesseract(filePath: string): Promise<OCRResult> {
+  private async processWithTesseract(_filePath: string): Promise<OCRResult> {
     // Mock implementation - would use actual Tesseract.js
     return {
       text: '',

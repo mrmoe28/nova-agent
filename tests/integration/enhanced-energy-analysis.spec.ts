@@ -278,8 +278,14 @@ test.describe('Enhanced Energy Analysis Integration Tests', () => {
   test.describe('End-to-End Integration', () => {
     
     test('should process complete residential analysis workflow', async () => {
+      // Skip test if no fixtures are available
+      if (validationFixtures.length === 0) {
+        test.skip();
+        return;
+      }
+
       const fixture = validationFixtures[0]; // Complete residential analysis
-      
+
       // This would be a full integration test calling the enhanced API
       const requestBody = {
         projectId: 'test_project_integration',
@@ -310,11 +316,17 @@ test.describe('Enhanced Energy Analysis Integration Tests', () => {
     });
 
     test('should handle multiple validation fixtures', async () => {
+      // Skip test if no fixtures are available
+      if (validationFixtures.length === 0) {
+        test.skip();
+        return;
+      }
+
       for (const fixture of validationFixtures) {
         // Validate fixture structure
         expect(fixture.id).toBeDefined();
-        expect(fixture.testInputs).toBeDefined();
-        expect(fixture.expectedOutputs).toBeDefined();
+        expect(fixture.billFiles).toBeDefined();
+        expect(fixture.expectedBillData).toBeDefined();
         expect(fixture.allowedVariances).toBeDefined();
         
         // Validate variance tolerances are reasonable

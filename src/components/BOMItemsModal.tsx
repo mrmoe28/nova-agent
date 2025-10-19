@@ -9,9 +9,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -20,17 +19,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Archive,
   Building2,
-  DollarSign,
   Package,
   Plus,
   Trash2,
   ExternalLink,
   Search,
-  Filter,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
@@ -186,7 +182,7 @@ export function BOMItemsModal({
             BOM Items & Available Equipment
           </DialogTitle>
           <DialogDescription>
-            Manage your project's Bill of Materials and browse available equipment from distributors
+            Manage your project&apos;s Bill of Materials and browse available equipment from distributors
           </DialogDescription>
         </DialogHeader>
 

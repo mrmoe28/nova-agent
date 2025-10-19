@@ -4,9 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Loader2, Download, CheckCircle2, AlertTriangle, Edit3, Save, X } from "lucide-react";
+import { Loader2, Download, CheckCircle2, AlertTriangle, Edit3 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import dynamic from "next/dynamic";
 
@@ -54,7 +52,7 @@ export default function ReviewPage() {
   const [project, setProject] = useState<ProjectData | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [editedSystem, setEditedSystem] = useState<{
+  const [_editedSystem, setEditedSystem] = useState<{
     solarPanelCount: number;
     solarPanelWattage: number;
     batteryKwh: number;
