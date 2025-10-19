@@ -198,8 +198,8 @@ export async function regenerateBom(
       manufacturer: "SolarTech",
       modelNumber: "ST-400W",
       quantity: system.solarPanelCount,
-      unitPriceUsd: 200,
-      totalPriceUsd: system.solarPanelCount * 200,
+      unitPriceUsd: (SYSTEM_SIZING.SOLAR_PANEL_WATTAGE * SYSTEM_SIZING.SOLAR_COST_PER_WATT) / 2,
+      totalPriceUsd: system.solarPanelCount * ((SYSTEM_SIZING.SOLAR_PANEL_WATTAGE * SYSTEM_SIZING.SOLAR_COST_PER_WATT) / 2),
       notes: "400W high-efficiency panels",
     },
     {
@@ -209,8 +209,8 @@ export async function regenerateBom(
       manufacturer: "PowerStore",
       modelNumber: `PS-${Math.ceil(system.batteryKwh)}kWh`,
       quantity: 1,
-      unitPriceUsd: system.batteryKwh * 800,
-      totalPriceUsd: system.batteryKwh * 800,
+      unitPriceUsd: system.batteryKwh * SYSTEM_SIZING.BATTERY_COST_PER_KWH,
+      totalPriceUsd: system.batteryKwh * SYSTEM_SIZING.BATTERY_COST_PER_KWH,
       notes: `${system.batteryKwh.toFixed(1)}kWh capacity`,
     },
     {
@@ -220,8 +220,8 @@ export async function regenerateBom(
       manufacturer: "InverterPro",
       modelNumber: `IP-${Math.ceil(system.inverterKw)}K`,
       quantity: 1,
-      unitPriceUsd: system.inverterKw * 1200,
-      totalPriceUsd: system.inverterKw * 1200,
+      unitPriceUsd: system.inverterKw * SYSTEM_SIZING.INVERTER_COST_PER_KW,
+      totalPriceUsd: system.inverterKw * SYSTEM_SIZING.INVERTER_COST_PER_KW,
       notes: `${system.inverterKw.toFixed(1)}kW capacity`,
     },
     {
