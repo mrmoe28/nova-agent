@@ -31,7 +31,7 @@ interface Bill {
   id: string;
   fileName: string;
   fileType: string;
-  filePath: string;
+  filePath?: string;
   uploadedAt: string;
   ocrText?: string;
   extractedData?: Record<string, unknown>;
@@ -117,6 +117,10 @@ export function BillsModal({
 
   const handleDownloadBill = async (bill: Bill) => {
     try {
+      if (!bill.filePath) {
+        console.error('No file path available for download');
+        return;
+      }
       // Create a download link for the bill file
       const link = document.createElement('a');
       link.href = bill.filePath;
@@ -130,6 +134,10 @@ export function BillsModal({
   };
 
   const handleViewBill = (bill: Bill) => {
+    if (!bill.filePath) {
+      console.error('No file path available for viewing');
+      return;
+    }
     // Open bill in new window/tab
     window.open(bill.filePath, '_blank');
   };
@@ -216,6 +224,7 @@ export function BillsModal({
                           <Button
                             variant="ghost"
                             size="sm"
+                            disabled={!bill.filePath}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleViewBill(bill);
@@ -226,6 +235,7 @@ export function BillsModal({
                           <Button
                             variant="ghost"
                             size="sm"
+                            disabled={!bill.filePath}
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDownloadBill(bill);
@@ -276,6 +286,7 @@ export function BillsModal({
                     <Button 
                       size="sm" 
                       className="flex-1"
+                      disabled={!selectedBill.filePath}
                       onClick={() => handleViewBill(selectedBill)}
                     >
                       <Eye className="h-4 w-4 mr-1" />
@@ -284,6 +295,7 @@ export function BillsModal({
                     <Button 
                       variant="outline" 
                       size="sm" 
+                      disabled={!selectedBill.filePath}
                       onClick={() => handleDownloadBill(selectedBill)}
                     >
                       <Download className="h-4 w-4" />
