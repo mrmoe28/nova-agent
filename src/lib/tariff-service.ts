@@ -4,11 +4,10 @@
  * to provide accurate tariff data for bill validation and system sizing
  */
 
-import { 
-  Tariff, 
-  TariffRate, 
+import {
+  Tariff,
+  TariffRate,
   TariffLookupError,
-  ApiResponse 
 } from '@/types/energy';
 import { logger } from './logger';
 import { retry } from './retry';
@@ -18,23 +17,6 @@ import { prisma } from './prisma';
 const OPENEI_BASE_URL = 'https://api.openei.org/utility_rates';
 const GENABILITY_BASE_URL = 'https://api.genability.com/rest/public';
 const TARIFF_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24 hours
-
-// State abbreviation mapping
-const STATE_MAPPING: Record<string, string> = {
-  'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas',
-  'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware',
-  'FL': 'Florida', 'GA': 'Georgia', 'HI': 'Hawaii', 'ID': 'Idaho',
-  'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa', 'KS': 'Kansas',
-  'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
-  'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi',
-  'MO': 'Missouri', 'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada',
-  'NH': 'New Hampshire', 'NJ': 'New Jersey', 'NM': 'New Mexico', 'NY': 'New York',
-  'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio', 'OK': 'Oklahoma',
-  'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
-  'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah',
-  'VT': 'Vermont', 'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia',
-  'WI': 'Wisconsin', 'WY': 'Wyoming', 'DC': 'District of Columbia'
-};
 
 interface TariffSearchParams {
   utilityName?: string;
@@ -622,7 +604,7 @@ export class TariffService {
    */
   private async searchCachedTariffs(params: TariffSearchParams): Promise<Tariff[]> {
     try {
-      const where: any = {};
+      const where: Record<string, unknown> = {};
 
       if (params.sector) {
         where.sector = params.sector;
@@ -660,7 +642,7 @@ export class TariffService {
   /**
    * Cache tariffs in database
    */
-  private async cacheTariffs(tariffs: Tariff[], params: TariffSearchParams): Promise<void> {
+  private async cacheTariffs(tariffs: Tariff[], _params: TariffSearchParams): Promise<void> {
     try {
       for (const tariff of tariffs.slice(0, 5)) { // Cache top 5 results
         await prisma.tariff.upsert({
@@ -674,14 +656,14 @@ export class TariffService {
             sector: tariff.sector,
             voltage: tariff.voltage,
             phaseWiring: tariff.phaseWiring,
-            rateStructure: tariff.rates as any,
+            rateStructure: tariff.rates as unknown as Record<string, unknown>,
             source: tariff.source,
             sourceId: tariff.sourceId,
             lastUpdated: new Date(),
-            serviceTerritory: tariff.serviceTerritory as any,
+            serviceTerritory: tariff.serviceTerritory as unknown as Record<string, unknown>,
           },
           update: {
-            rateStructure: tariff.rates as any,
+            rateStructure: tariff.rates as unknown as Record<string, unknown>,
             lastUpdated: new Date(),
           }
         });
@@ -699,22 +681,22 @@ export class TariffService {
   /**
    * Transform database tariff to our format
    */
-  private transformDbTariff(dbTariff: any): Tariff {
+  private transformDbTariff(dbTariff: Record<string, unknown>): Tariff {
     return {
-      id: dbTariff.id,
-      utilityId: dbTariff.utilityId,
-      utilityName: dbTariff.utility?.name || 'Unknown Utility',
-      tariffName: dbTariff.tariffName,
-      effectiveDate: dbTariff.effectiveDate,
-      endDate: dbTariff.endDate,
-      sector: dbTariff.sector,
-      voltage: dbTariff.voltage,
-      phaseWiring: dbTariff.phaseWiring,
+      id: dbTariff.id as string,
+      utilityId: dbTariff.utilityId as string,
+      utilityName: (dbTariff.utility as Record<string, unknown>)?.name as string || 'Unknown Utility',
+      tariffName: dbTariff.tariffName as string,
+      effectiveDate: dbTariff.effectiveDate as Date,
+      endDate: dbTariff.endDate as Date | undefined,
+      sector: dbTariff.sector as 'residential' | 'commercial' | 'industrial',
+      voltage: dbTariff.voltage as string | undefined,
+      phaseWiring: dbTariff.phaseWiring as 'single' | 'three' | undefined,
       rates: dbTariff.rateStructure as TariffRate,
-      source: dbTariff.source,
-      sourceId: dbTariff.sourceId,
-      lastUpdated: dbTariff.lastUpdated,
-      serviceTerritory: dbTariff.serviceTerritory,
+      source: dbTariff.source as 'openei' | 'genability' | 'utility_api' | 'manual',
+      sourceId: dbTariff.sourceId as string | undefined,
+      lastUpdated: dbTariff.lastUpdated as Date,
+      serviceTerritory: dbTariff.serviceTerritory as Tariff['serviceTerritory'],
     };
   }
 

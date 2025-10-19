@@ -354,7 +354,8 @@ export default function ProjectsPage() {
         }
       });
     }
-  }, [selectedDistributor]); // Remove projects and recalculateProjectCost from dependencies
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDistributor]); // Intentionally omitting projects and recalculateProjectCost to prevent infinite loops
 
   const renderModernCard = (project: Project) => {
     const isExpanded = expandedProjects.has(project.id);

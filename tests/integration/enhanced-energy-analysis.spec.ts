@@ -450,12 +450,14 @@ test.describe('Enhanced Energy Analysis Integration Tests', () => {
   });
 });
 
-// Helper functions for test utilities
-function validateAgainstFixture(result: any, fixture: any, tolerance: number = 0.1): boolean {
+// Helper functions for test utilities (currently unused but kept for future test expansion)
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function validateAgainstFixture(result: number, fixture: number, tolerance: number = 0.1): boolean {
   const variance = Math.abs(result - fixture) / fixture;
   return variance <= tolerance;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function calculateConfidenceScore(metrics: Record<string, number>): number {
   const weights = { accuracy: 0.4, completeness: 0.3, consistency: 0.3 };
   return Object.entries(metrics).reduce((score, [key, value]) => {

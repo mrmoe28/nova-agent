@@ -6,17 +6,19 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from 'uuid';
+import { Prisma } from '@prisma/client';
 import { billParser } from "@/lib/bill-parser";
 import { tariffService } from "@/lib/tariff-service";
 import { prisma } from "@/lib/prisma";
 import { logger } from "@/lib/logger";
-import { 
-  BillAnalysisResponse, 
+import {
+  BillAnalysisResponse,
   SystemAlert,
   EnergyAnalysisError,
   BillParsingError,
   TariffLookupError,
-  ParsedBillData
+  ParsedBillData,
+  LoadProfile
 } from "@/types/energy";
 
 interface AnalyzeRequest {
@@ -149,16 +151,16 @@ export async function POST(request: NextRequest) {
         }
 
         // Save enhanced bill data to database
-        const enhancedBill = await prisma.enhancedBill.create({
+        await prisma.enhancedBill.create({
           data: {
             projectId,
             originalBillId: billFile.fileName, // Would reference actual Bill ID
-            parsedData: parsedData as any,
-            lineItems: parsedData.lineItems as any,
-            ocrResult: ocrResult as any,
+            parsedData: parsedData as unknown as Prisma.InputJsonValue,
+            lineItems: parsedData.lineItems as unknown as Prisma.InputJsonValue,
+            ocrResult: ocrResult as unknown as Prisma.InputJsonValue,
             parseConfidence: parsedData.parseConfidence,
             totalVariance: parsedData.totalVariance,
-            validationResult: validation as any,
+            validationResult: validation as unknown as Prisma.InputJsonValue,
             rateSchedule: parsedData.rateSchedule,
             processingMethod: ocrResult.processingMethod,
             processingTime: ocrResult.processingTime,
@@ -377,7 +379,7 @@ export async function POST(request: NextRequest) {
           data: {
             projectId,
             profileType: 'monthly',
-            dataPoints: monthlyDataPoints as any,
+            dataPoints: monthlyDataPoints as unknown as Prisma.InputJsonValue,
             annualKwh: annualKwh * (12 / parsedBills.length), // Annualize
             peakKw: peakKw,
             loadFactor: Math.min(loadFactor, 1), // Cap at 1.0
@@ -437,7 +439,7 @@ export async function POST(request: NextRequest) {
         await prisma.systemAlert.createMany({
           data: systemAlerts.map(alert => ({
             ...alert,
-            details: alert.details as any
+            details: alert.details as unknown as Prisma.InputJsonValue
           }))
         });
         
@@ -493,13 +495,17 @@ export async function POST(request: NextRequest) {
           toleranceExceeded: totalVariance > 0.02,
           missingFields: [], // Would aggregate from individual bills
           anomalies: systemAlerts.map(alert => ({
-            type: alert.type as any,
-            severity: alert.severity as any,
+            type: alert.type,
+            severity: alert.severity === 'critical' ? 'error' : alert.severity as 'info' | 'warning' | 'error',
             message: alert.message,
             suggestedAction: alert.suggestedActions[0]
           }))
         },
-        loadProfile: loadProfile as any || undefined,
+        loadProfile: loadProfile ? {
+          ...loadProfile,
+          profileType: loadProfile.profileType as 'monthly' | 'hourly' | '15_minute',
+          dataPoints: loadProfile.dataPoints as unknown as LoadProfile['dataPoints']
+        } as LoadProfile : undefined,
         tariff: tariff || undefined,
         recommendations
       },

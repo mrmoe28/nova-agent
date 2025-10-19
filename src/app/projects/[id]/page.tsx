@@ -1,21 +1,20 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  ArrowLeft, 
-  FileText, 
-  Zap, 
-  Battery, 
-  DollarSign, 
+import {
+  ArrowLeft,
+  FileText,
+  Zap,
+  Battery,
+  DollarSign,
   Calculator,
   Clock,
-  Home,
   TrendingUp,
   Settings
 } from "lucide-react";
@@ -46,7 +45,7 @@ interface Project {
     fileType: string;
     uploadedAt: string;
     ocrText?: string;
-    extractedData?: any;
+    extractedData?: Record<string, unknown>;
   }>;
 }
 
@@ -64,8 +63,8 @@ interface BOMItem {
 
 interface Plan {
   id: string;
-  necChecks: any[];
-  warnings: any[];
+  necChecks: Record<string, unknown>[];
+  warnings: Record<string, unknown>[];
   installSteps: string[];
   timeline: string;
   laborHoursEst: number;
@@ -83,11 +82,7 @@ export default function ProjectDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
 
-  useEffect(() => {
-    fetchProjectDetails();
-  }, [projectId]);
-
-  const fetchProjectDetails = async () => {
+  const fetchProjectDetails = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -127,7 +122,11 @@ export default function ProjectDetailsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
+
+  useEffect(() => {
+    fetchProjectDetails();
+  }, [fetchProjectDetails]);
 
   const getSystemTypeLabel = () => {
     if (!project?.system) return "Not Configured";
@@ -487,11 +486,11 @@ export default function ProjectDetailsPage() {
                       );
                     }
 
-                    const totalUsage = billsWithUsage.reduce((sum, bill) => 
-                      sum + (bill.extractedData?.kwhUsed || 0), 0);
+                    const totalUsage = billsWithUsage.reduce((sum, bill) =>
+                      sum + (Number(bill.extractedData?.kwhUsed) || 0), 0);
                     const avgMonthlyUsage = totalUsage / billsWithUsage.length;
-                    const totalCost = billsWithUsage.reduce((sum, bill) => 
-                      sum + (bill.extractedData?.totalAmount || 0), 0);
+                    const totalCost = billsWithUsage.reduce((sum, bill) =>
+                      sum + (Number(bill.extractedData?.totalAmount) || 0), 0);
                     const avgRate = totalCost / totalUsage;
 
                     return (
@@ -662,7 +661,7 @@ export default function ProjectDetailsPage() {
                       <div className="space-y-2">
                         {plan.warnings.map((warning, index) => (
                           <div key={index} className="p-3 bg-orange-50 border border-orange-200 rounded">
-                            <p className="text-orange-800">{warning}</p>
+                            <p className="text-orange-800">{JSON.stringify(warning)}</p>
                           </div>
                         ))}
                       </div>

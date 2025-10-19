@@ -135,12 +135,12 @@ class PVWattsService {
     correlationId?: string
   ): Promise<ProductionEstimate> {
     try {
-      logger.info('Starting PVWatts production calculation', {
+      logger.info({
         systemSizeKw,
         latitude,
         longitude,
         correlationId
-      });
+      }, 'Starting PVWatts production calculation');
 
       // Prepare PVWatts request
       const request: PVWattsRequest = {
@@ -191,7 +191,7 @@ class PVWattsService {
         projectId: '', // Will be set by caller
         systemSizeKw,
         configuration,
-        solarResourceId: solarResource.id,
+        solarResource: solarResource,
         annualProduction: data.outputs.ac_annual,
         monthlyProduction: data.outputs.ac_monthly,
         specificYield: data.outputs.kwh_per_kw,
@@ -205,23 +205,23 @@ class PVWattsService {
         createdAt: new Date(),
       };
 
-      logger.info('PVWatts production calculation completed', {
+      logger.info({
         annualProduction: productionEstimate.annualProduction,
         specificYield: productionEstimate.specificYield,
         confidence: productionEstimate.confidence,
         correlationId
-      });
+      }, 'PVWatts production calculation completed');
 
       return productionEstimate;
 
     } catch (error) {
-      logger.error('PVWatts production calculation failed', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         systemSizeKw,
         latitude,
         longitude,
         correlationId
-      });
+      }, 'PVWatts production calculation failed');
 
       if (error instanceof ProductionModelingError) {
         throw error;
@@ -275,12 +275,12 @@ class PVWattsService {
       return data.outputs.ac_hourly || [];
 
     } catch (error) {
-      logger.warn('Failed to get hourly production data', {
+      logger.warn({
         error: error instanceof Error ? error.message : 'Unknown error',
         systemSizeKw,
         latitude,
         longitude
-      });
+      }, 'Failed to get hourly production data');
       return []; // Return empty array on failure
     }
   }
@@ -301,7 +301,7 @@ class PVWattsService {
       });
 
       if (cached && this.isSolarResourceFresh(cached.createdAt)) {
-        return cached;
+        return cached as SolarResource;
       }
 
       // Fetch new solar resource data from NSRDB
@@ -323,14 +323,14 @@ class PVWattsService {
         }
       });
 
-      return solarResource;
+      return solarResource as SolarResource;
 
     } catch (error) {
-      logger.error('Failed to get solar resource data', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         latitude,
         longitude
-      });
+      }, 'Failed to get solar resource data');
 
       // Create a default solar resource with typical values
       return this.createDefaultSolarResource(latitude, longitude);
@@ -350,7 +350,7 @@ class PVWattsService {
     // This would make actual NSRDB API call
     // For now, return typical values based on location
     
-    logger.info('Fetching NSRDB data', { latitude, longitude });
+    logger.info({ latitude, longitude }, 'Fetching NSRDB data');
     
     // Estimate timezone from longitude
     const timezone = this.estimateTimezone(longitude);
@@ -485,7 +485,7 @@ class PVWattsService {
    * Create default solar resource for location
    */
   private async createDefaultSolarResource(latitude: number, longitude: number): Promise<SolarResource> {
-    logger.warn('Creating default solar resource data', { latitude, longitude });
+    logger.warn({ latitude, longitude }, 'Creating default solar resource data');
 
     return await prisma.solarResource.create({
       data: {
@@ -500,7 +500,7 @@ class PVWattsService {
         dataYear: new Date().getFullYear(),
         spatialResolution: 50 // Lower resolution for estimates
       }
-    });
+    }) as unknown as SolarResource;
   }
 
   /**
@@ -611,14 +611,14 @@ export class ProductionModelingService {
     correlationId?: string
   ): Promise<ProductionEstimate> {
     try {
-      logger.info('Starting production estimation', {
+      logger.info({
         projectId,
         systemSizeKw,
         latitude,
         longitude,
         method: preferredMethod,
         correlationId
-      });
+      }, 'Starting production estimation');
 
       // Check for cached estimate first
       const cached = await this.getCachedEstimate(
@@ -630,11 +630,10 @@ export class ProductionModelingService {
       );
 
       if (cached) {
-        logger.info('Returning cached production estimate', { 
-          projectId, 
-          estimateId: cached.id,
-          correlationId 
-        });
+        logger.info({
+          projectId,
+          correlationId
+        }, 'Returning cached production estimate');
         return cached;
       }
 
@@ -662,9 +661,10 @@ export class ProductionModelingService {
             throw new Error(`Unsupported modeling method: ${preferredMethod}`);
         }
       } catch (error) {
-        logger.warn(`Primary method ${preferredMethod} failed, falling back to PVWatts`, {
+        logger.warn({
+          method: preferredMethod,
           error: error instanceof Error ? error.message : 'Unknown error'
-        });
+        }, `Primary method ${preferredMethod} failed, falling back to PVWatts`);
         
         // Fall back to PVWatts if it wasn't the primary method
         if (preferredMethod !== 'pvwatts') {
@@ -686,26 +686,26 @@ export class ProductionModelingService {
       // Save estimate to database
       const savedEstimate = await this.saveProductionEstimate(estimate);
 
-      logger.info('Production estimation completed', {
+      logger.info({
         projectId,
         estimateId: savedEstimate.id,
         annualProduction: savedEstimate.annualProduction,
         confidence: savedEstimate.confidence,
         method: savedEstimate.modelingMethod,
         correlationId
-      });
+      }, 'Production estimation completed');
 
       return savedEstimate;
 
     } catch (error) {
-      logger.error('Production estimation failed', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         projectId,
         systemSizeKw,
         latitude,
         longitude,
         correlationId
-      });
+      }, 'Production estimation failed');
 
       throw error;
     }
@@ -728,12 +728,12 @@ export class ProductionModelingService {
         longitude
       );
     } catch (error) {
-      logger.error('Failed to get hourly production profile', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         systemSizeKw,
         latitude,
         longitude
-      });
+      }, 'Failed to get hourly production profile');
       return [];
     }
   }
@@ -754,11 +754,11 @@ export class ProductionModelingService {
     }>;
   }> {
     try {
-      logger.info('Validating production estimate', {
+      logger.info({
         estimateId: estimate.id,
         annualProduction: estimate.annualProduction,
         method: estimate.modelingMethod
-      });
+      }, 'Validating production estimate');
 
       const validationResults: Array<{
         method: string;
@@ -787,9 +787,9 @@ export class ProductionModelingService {
           });
 
         } catch (error) {
-          logger.warn('PVWatts validation failed', { 
+          logger.warn({ 
             error: error instanceof Error ? error.message : 'Unknown error'
-          });
+          }, 'PVWatts validation failed');
         }
       }
 
@@ -800,11 +800,11 @@ export class ProductionModelingService {
 
       const isValid = averageVariance <= tolerancePercent;
 
-      logger.info('Production estimate validation completed', {
+      logger.info({
         isValid,
         averageVariance,
         validationCount: validationResults.length
-      });
+      }, 'Production estimate validation completed');
 
       return {
         isValid,
@@ -813,10 +813,10 @@ export class ProductionModelingService {
       };
 
     } catch (error) {
-      logger.error('Production estimate validation failed', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         estimateId: estimate.id
-      });
+      }, 'Production estimate validation failed');
 
       return {
         isValid: false,
@@ -854,10 +854,10 @@ export class ProductionModelingService {
       return null;
 
     } catch (error) {
-      logger.warn('Failed to get cached production estimate', {
+      logger.warn({
         error: error instanceof Error ? error.message : 'Unknown error',
         projectId
-      });
+      }, 'Failed to get cached production estimate');
       return null;
     }
   }
@@ -891,10 +891,10 @@ export class ProductionModelingService {
       return this.transformDbProductionEstimate(saved);
 
     } catch (error) {
-      logger.error('Failed to save production estimate', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         projectId: estimate.projectId
-      });
+      }, 'Failed to save production estimate');
       throw error;
     }
   }

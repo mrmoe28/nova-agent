@@ -89,8 +89,8 @@ export interface BillValidationResult {
   toleranceExceeded: boolean;
   missingFields: string[];
   anomalies: Array<{
-    type: 'usage_spike' | 'missing_period' | 'duplicate_period' | 'tariff_mismatch';
-    severity: 'warning' | 'error';
+    type: 'usage_spike' | 'missing_period' | 'duplicate_period' | 'tariff_mismatch' | 'bill_parsing_error' | 'ocr_low_confidence' | 'tariff_unavailable' | 'production_variance' | 'sizing_confidence_low' | 'validation_failure';
+    severity: 'info' | 'warning' | 'error';
     message: string;
     suggestedAction?: string;
   }>;
@@ -507,7 +507,7 @@ export class EnergyAnalysisError extends Error {
   constructor(
     message: string,
     public code: string,
-    public details?: Record<string, any>,
+    public details?: Record<string, unknown>,
     public recoverable: boolean = true
   ) {
     super(message);
@@ -516,19 +516,19 @@ export class EnergyAnalysisError extends Error {
 }
 
 export class BillParsingError extends EnergyAnalysisError {
-  constructor(message: string, public confidence: number, details?: Record<string, any>) {
+  constructor(message: string, public confidence: number, details?: Record<string, unknown>) {
     super(message, 'BILL_PARSING_ERROR', details, confidence > 0.5);
   }
 }
 
 export class TariffLookupError extends EnergyAnalysisError {
-  constructor(message: string, public utilityName?: string, details?: Record<string, any>) {
+  constructor(message: string, public utilityName?: string, details?: Record<string, unknown>) {
     super(message, 'TARIFF_LOOKUP_ERROR', details, true);
   }
 }
 
 export class ProductionModelingError extends EnergyAnalysisError {
-  constructor(message: string, public location?: string, details?: Record<string, any>) {
+  constructor(message: string, public location?: string, details?: Record<string, unknown>) {
     super(message, 'PRODUCTION_MODELING_ERROR', details, true);
   }
 }
@@ -552,21 +552,17 @@ export interface ApiResponse<T> {
   };
 }
 
-export interface BillAnalysisResponse extends ApiResponse<{
+export type BillAnalysisResponse = ApiResponse<{
   parsedBills: ParsedBillData[];
   validation: BillValidationResult;
   loadProfile?: LoadProfile;
   tariff?: Tariff;
   recommendations: string[];
-}> {
-  // Specialized bill analysis response
-}
+}>;
 
-export interface SizingResponse extends ApiResponse<{
+export type SizingResponse = ApiResponse<{
   recommendation: SizingRecommendation;
   alternatives: SizingRecommendation[];
   metrics: ProjectMetrics;
   alerts: SystemAlert[];
-}> {
-  // Specialized sizing response
-}
+}>;

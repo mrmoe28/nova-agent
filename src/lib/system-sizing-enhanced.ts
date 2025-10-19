@@ -4,19 +4,16 @@
  * for precision system sizing with comprehensive validation and optimization
  */
 
-import { 
+import {
   SizingInputs,
   SizingRecommendation,
   LoadProfile,
   ProductionEstimate,
   SystemConfiguration,
   EquipmentCatalogItem,
-  BatteryPerformanceModel,
   CriticalLoadProfile,
   ParsedBillData,
   Tariff,
-  SystemAlert,
-  ProjectMetrics,
   EnergyAnalysisError
 } from '@/types/energy';
 import { logger } from './logger';
@@ -26,14 +23,6 @@ import { tariffService } from './tariff-service';
 import { v4 as uuidv4 } from 'uuid';
 
 // Configuration constants
-const DEFAULT_SYSTEM_LOSSES = {
-  soiling: 2,
-  shading: 3,
-  dcLosses: 3,
-  acLosses: 2,
-  inverterEfficiency: 96
-};
-
 const SIZING_CONSTRAINTS = {
   minSystemSizeKw: 1,
   maxSystemSizeKw: 100,
@@ -277,7 +266,7 @@ class EquipmentSelector {
    */
   async selectInverter(
     systemSizeKw: number,
-    batteryBackup: boolean = false
+    _batteryBackup: boolean = false
   ): Promise<{
     equipment: EquipmentCatalogItem;
     inverterCount: number;
@@ -355,7 +344,7 @@ class EquipmentSelector {
    */
   async selectBatterySystem(
     batterySizeKwh: number,
-    inverterSizeKw: number
+    _inverterSizeKw: number
   ): Promise<{
     equipment: EquipmentCatalogItem;
     batteryCount: number;
@@ -418,8 +407,8 @@ class EquipmentSelector {
   /**
    * Extract panel wattage from specifications
    */
-  private extractPanelWattage(specs: any): number {
-    if (typeof specs === 'object' && specs.wattage) {
+  private extractPanelWattage(specs: Record<string, unknown>): number {
+    if (typeof specs === 'object' && specs && 'wattage' in specs && typeof specs.wattage === 'number') {
       return specs.wattage;
     }
     return 400; // Default 400W panel
@@ -428,8 +417,8 @@ class EquipmentSelector {
   /**
    * Extract inverter size from specifications
    */
-  private extractInverterSize(specs: any): number {
-    if (typeof specs === 'object' && specs.power_kw) {
+  private extractInverterSize(specs: Record<string, unknown>): number {
+    if (typeof specs === 'object' && specs && 'power_kw' in specs && typeof specs.power_kw === 'number') {
       return specs.power_kw;
     }
     return 7.6; // Default 7.6kW inverter
@@ -438,8 +427,8 @@ class EquipmentSelector {
   /**
    * Extract battery capacity from specifications
    */
-  private extractBatteryCapacity(specs: any): number {
-    if (typeof specs === 'object' && specs.capacity_kwh) {
+  private extractBatteryCapacity(specs: Record<string, unknown>): number {
+    if (typeof specs === 'object' && specs && 'capacity_kwh' in specs && typeof specs.capacity_kwh === 'number') {
       return specs.capacity_kwh;
     }
     return 13.5; // Default 13.5kWh battery
@@ -448,8 +437,8 @@ class EquipmentSelector {
   /**
    * Check if inverter is hybrid (supports battery)
    */
-  private isHybridInverter(specs: any): boolean {
-    if (typeof specs === 'object' && specs.type) {
+  private isHybridInverter(specs: Record<string, unknown>): boolean {
+    if (typeof specs === 'object' && specs && 'type' in specs && typeof specs.type === 'string') {
       return specs.type.toLowerCase().includes('hybrid');
     }
     return false;
@@ -874,18 +863,19 @@ export class EnhancedSystemSizingService {
   private async createBatteryPerformanceModel(
     projectId: string,
     batteryEquipment: EquipmentCatalogItem,
-    loadProfile: LoadProfile
-  ): Promise<any> {
+    _loadProfile: LoadProfile
+  ): Promise<{id: string}> {
     // Simplified battery model creation
+    const batteryCapacity = this.equipmentSelector['extractBatteryCapacity'](batteryEquipment.specifications);
     const batterySpecs = {
       manufacturer: batteryEquipment.manufacturer,
       model: batteryEquipment.model,
       chemistry: 'lithium_ion',
       nominalVoltage: 48,
-      nominalCapacityKwh: this.equipmentSelector['extractBatteryCapacity'](batteryEquipment.specifications),
-      usableCapacityKwh: this.equipmentSelector['extractBatteryCapacity'](batteryEquipment.specifications) * 0.9,
-      maxChargeRateKw: this.equipmentSelector['extractBatteryCapacity'](batteryEquipment.specifications) / 2,
-      maxDischargeRateKw: this.equipmentSelector['extractBatteryCapacity'](batteryEquipment.specifications) / 2,
+      nominalCapacityKwh: batteryCapacity,
+      usableCapacityKwh: batteryCapacity * 0.9,
+      maxChargeRateKw: batteryCapacity / 2,
+      maxDischargeRateKw: batteryCapacity / 2,
       roundTripEfficiency: 0.9,
       maxDoD: 0.9,
       cycleLife: 6000,
@@ -901,13 +891,13 @@ export class EnhancedSystemSizingService {
       data: {
         projectId,
         equipmentCatalogId: batteryEquipment.id,
-        batterySpecs: batterySpecs as any,
+        batterySpecs: batterySpecs as unknown as Record<string, unknown>,
         dispatchMode: 'self_consumption',
         dailyCycles: 1,
         seasonalEfficiency: [0.95, 0.94, 0.95, 0.96, 0.97, 0.96, 0.95, 0.95, 0.96, 0.95, 0.94, 0.93],
         temperatureEffects: true,
         warrantyYears: 10,
-        warrantyThroughput: this.equipmentSelector['extractBatteryCapacity'](batteryEquipment.specifications) * 6000,
+        warrantyThroughput: batteryCapacity * 6000,
         replacementCost: batteryEquipment.currentPrice
       }
     });
@@ -925,9 +915,9 @@ export class EnhancedSystemSizingService {
    * Calculate total system cost
    */
   private calculateSystemCost(
-    solarSelection: any,
-    inverterSelection: any,
-    batterySelection: any,
+    solarSelection: { equipment: EquipmentCatalogItem; panelCount: number; actualSystemSizeKw: number },
+    inverterSelection: { equipment: EquipmentCatalogItem; inverterCount: number; actualInverterSizeKw: number },
+    batterySelection: { equipment: EquipmentCatalogItem; batteryCount: number; actualBatterySizeKwh: number } | null,
     systemSizeKw: number
   ): number {
     let totalCost = 0;
@@ -954,10 +944,10 @@ export class EnhancedSystemSizingService {
    * Analyze backup capability
    */
   private analyzeBackupCapability(
-    batterySelection: any,
+    batterySelection: { equipment: EquipmentCatalogItem; batteryCount: number; actualBatterySizeKwh: number } | null,
     criticalLoads?: CriticalLoadProfile,
     backupDuration: number = 4
-  ): any {
+  ): { autonomyHours: number; criticalLoadsCovered: string[] } {
     if (!batterySelection) {
       return {
         autonomyHours: 0,
@@ -974,8 +964,8 @@ export class EnhancedSystemSizingService {
     if (criticalLoads) {
       autonomyHours = usableCapacity / criticalLoads.peakSimultaneousKw;
       criticalLoadsCovered = criticalLoads.circuits
-        .filter((circuit: any) => circuit.priority === 'essential')
-        .map((circuit: any) => circuit.name);
+        .filter(circuit => circuit.priority === 'essential')
+        .map(circuit => circuit.name);
     }
 
     return {
@@ -987,7 +977,7 @@ export class EnhancedSystemSizingService {
   /**
    * Select mounting system
    */
-  private async selectMountingSystem(systemSizeKw: number): Promise<EquipmentCatalogItem> {
+  private async selectMountingSystem(_systemSizeKw: number): Promise<EquipmentCatalogItem> {
     // Simplified mounting system selection
     const mounting = await prisma.equipmentCatalog.findFirst({
       where: {
@@ -1039,9 +1029,9 @@ export class EnhancedSystemSizingService {
    * Generate alternative sizing options
    */
   private async generateAlternativeOptions(
-    inputs: SizingInputs,
-    loadProfile: LoadProfile
-  ): Promise<any[]> {
+    _inputs: SizingInputs,
+    _loadProfile: LoadProfile
+  ): Promise<Array<{ description: string; sizingDifference: string; costDifference: number; performanceTrade: string }>> {
     const alternatives = [];
 
     // Conservative option (smaller system)
@@ -1075,7 +1065,7 @@ export class EnhancedSystemSizingService {
         solarSizeKw: recommendation.solarSizeKw,
         batterySizeKwh: recommendation.batterySizeKwh,
         inverterSizeKw: recommendation.inverterSizeKw,
-        selectedEquipment: recommendation.selectedEquipment as any,
+        selectedEquipment: recommendation.selectedEquipment as unknown as Record<string, unknown>,
         productionEstimateId: recommendation.productionEstimateId,
         batteryPerformanceModelId: recommendation.batteryPerformanceModelId,
         systemCost: recommendation.systemCost,
@@ -1083,10 +1073,10 @@ export class EnhancedSystemSizingService {
         paybackPeriod: recommendation.paybackPeriod,
         roi25Year: recommendation.roi25Year,
         netPresentValue: recommendation.netPresentValue,
-        utilityAnalysis: recommendation.utilityAnalysis as any,
-        backupCapability: recommendation.backupCapability as any,
+        utilityAnalysis: recommendation.utilityAnalysis as unknown as Record<string, unknown>,
+        backupCapability: recommendation.backupCapability as unknown as Record<string, unknown>,
         confidence: recommendation.confidence,
-        alternativeOptions: recommendation.alternativeOptions as any,
+        alternativeOptions: recommendation.alternativeOptions as unknown as Record<string, unknown>,
         methodology: recommendation.methodology
       }
     });

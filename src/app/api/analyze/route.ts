@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { billParser } from "@/lib/bill-parser";
-import { logger } from "@/lib/logger";
 
 export async function POST(request: NextRequest) {
   try {
