@@ -149,6 +149,7 @@ export interface Tariff {
 // ==================== LOAD PROFILING TYPES ====================
 
 export interface LoadProfile {
+  id: string;
   projectId: string;
   profileType: 'monthly' | 'hourly' | '15_minute';
   dataPoints: Array<{
@@ -158,7 +159,7 @@ export interface LoadProfile {
     temperature?: number;
     isEstimated: boolean;
   }>;
-  
+
   // Profile characteristics
   annualKwh: number;
   peakKw: number;
