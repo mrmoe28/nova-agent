@@ -197,22 +197,25 @@ export interface CriticalLoadProfile {
 // ==================== PRODUCTION MODELING TYPES ====================
 
 export interface SolarResource {
+  id: string;
   latitude: number;
   longitude: number;
   timezone: string;
-  
+
   // Irradiance data
   ghi: number[]; // Global Horizontal Irradiance (monthly averages)
   dni: number[]; // Direct Normal Irradiance
   dhi: number[]; // Diffuse Horizontal Irradiance
-  
+
   // Climate data
   temperature: number[]; // Monthly average temperatures
-  
+
   // Data source
   source: 'nsrdb' | 'pvwatts' | 'sam' | 'aurora' | 'helioscope';
   dataYear: number;
   spatialResolution?: number; // km
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface SystemConfiguration {
