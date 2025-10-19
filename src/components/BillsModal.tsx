@@ -208,13 +208,13 @@ export function BillsModal({
                               </div>
                               {summary && (
                                 <div className="flex items-center gap-4 text-xs">
-                                  {summary.totalAmount && (
+                                  {summary.totalAmount !== undefined && summary.totalAmount !== null && (
                                     <div className="flex items-center gap-1">
                                       <DollarSign className="h-3 w-3" />
                                       ${String(summary.totalAmount)}
                                     </div>
                                   )}
-                                  {summary.kwh && (
+                                  {summary.kwh !== undefined && summary.kwh !== null && (
                                     <div className="flex items-center gap-1">
                                       <Zap className="h-3 w-3" />
                                       {String(summary.kwh)} kWh
