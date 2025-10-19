@@ -688,7 +688,6 @@ export class ProductionModelingService {
 
       logger.info({
         projectId,
-        estimateId: savedEstimate.id,
         annualProduction: savedEstimate.annualProduction,
         confidence: savedEstimate.confidence,
         method: savedEstimate.modelingMethod,
@@ -847,7 +846,7 @@ export class ProductionModelingService {
         orderBy: { createdAt: 'desc' }
       });
 
-      if (cached && this.isConfigurationSimilar(cached.configuration as any, configuration)) {
+      if (cached && this.isConfigurationSimilar(cached.configuration as SystemConfiguration, configuration)) {
         return this.transformDbProductionEstimate(cached);
       }
 
@@ -871,7 +870,7 @@ export class ProductionModelingService {
         data: {
           projectId: estimate.projectId,
           systemSizeKw: estimate.systemSizeKw,
-          configuration: estimate.configuration as any,
+          configuration: estimate.configuration as unknown as Record<string, unknown>,
           solarResourceId: estimate.solarResourceId,
           annualProduction: estimate.annualProduction,
           monthlyProduction: estimate.monthlyProduction,
@@ -902,7 +901,7 @@ export class ProductionModelingService {
   /**
    * Transform database record to ProductionEstimate
    */
-  private transformDbProductionEstimate(db: any): ProductionEstimate {
+  private transformDbProductionEstimate(db: Record<string, unknown>): ProductionEstimate {
     return {
       ...db,
       configuration: db.configuration as SystemConfiguration,
