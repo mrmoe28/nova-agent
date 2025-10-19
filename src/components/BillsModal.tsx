@@ -112,6 +112,11 @@ export function BillsModal({
       utility: extractedData.utility || extractedData.company,
     };
 
+    // Only return if we have some useful data
+    if (!summary.totalAmount && !summary.kwh && !summary.billingPeriod && !summary.utility) {
+      return null;
+    }
+
     return summary;
   };
 
@@ -206,13 +211,13 @@ export function BillsModal({
                                   {summary.totalAmount && (
                                     <div className="flex items-center gap-1">
                                       <DollarSign className="h-3 w-3" />
-                                      ${summary.totalAmount}
+                                      ${String(summary.totalAmount)}
                                     </div>
                                   )}
                                   {summary.kwh && (
                                     <div className="flex items-center gap-1">
                                       <Zap className="h-3 w-3" />
-                                      {summary.kwh} kWh
+                                      {String(summary.kwh)} kWh
                                     </div>
                                   )}
                                 </div>
