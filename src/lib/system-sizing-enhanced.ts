@@ -229,13 +229,13 @@ class EquipmentSelector {
       if (preferences?.efficiency === 'premium') {
         // Find highest efficiency panel
         selectedPanel = panels.reduce((best, current) => {
-          const bestEff = this.extractPanelWattage(best.specifications);
-          const currentEff = this.extractPanelWattage(current.specifications);
+          const bestEff = this.extractPanelWattage(best.specifications as Record<string, unknown>);
+          const currentEff = this.extractPanelWattage(current.specifications as Record<string, unknown>);
           return currentEff > bestEff ? current : best;
         });
       }
 
-      const panelWattage = this.extractPanelWattage(selectedPanel.specifications);
+      const panelWattage = this.extractPanelWattage(selectedPanel.specifications as Record<string, unknown>);
       const panelCount = Math.ceil((systemSizeKw * 1000) / panelWattage);
       const actualSystemSizeKw = (panelCount * panelWattage) / 1000;
 
