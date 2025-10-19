@@ -239,12 +239,12 @@ class EquipmentSelector {
       const panelCount = Math.ceil((systemSizeKw * 1000) / panelWattage);
       const actualSystemSizeKw = (panelCount * panelWattage) / 1000;
 
-      logger.info('Solar panel selection completed', {
+      logger.info({
         selectedPanel: selectedPanel.model,
         panelCount,
         actualSystemSizeKw,
         panelWattage
-      });
+      }, 'Solar panel selection completed');
 
       return {
         equipment: selectedPanel as EquipmentCatalogItem,
@@ -253,10 +253,10 @@ class EquipmentSelector {
       };
 
     } catch (error) {
-      logger.error('Solar panel selection failed', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         systemSizeKw
-      });
+      }, 'Solar panel selection failed');
       throw error;
     }
   }
@@ -316,12 +316,12 @@ class EquipmentSelector {
       const inverterCount = Math.ceil(targetInverterSize / inverterSize);
       const actualInverterSizeKw = inverterCount * inverterSize;
 
-      logger.info('Inverter selection completed', {
+      logger.info({
         selectedInverter: selectedInverter.model,
         inverterCount,
         actualInverterSizeKw,
         batteryBackup
-      });
+      }, 'Inverter selection completed');
 
       return {
         equipment: selectedInverter as EquipmentCatalogItem,
@@ -330,11 +330,11 @@ class EquipmentSelector {
       };
 
     } catch (error) {
-      logger.error('Inverter selection failed', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         systemSizeKw,
         batteryBackup
-      });
+      }, 'Inverter selection failed');
       throw error;
     }
   }
@@ -383,11 +383,11 @@ class EquipmentSelector {
       const batteryCount = Math.ceil(batterySizeKwh / batteryCapacity);
       const actualBatterySizeKwh = batteryCount * batteryCapacity;
 
-      logger.info('Battery selection completed', {
+      logger.info({
         selectedBattery: selectedBattery.model,
         batteryCount,
         actualBatterySizeKwh
-      });
+      }, 'Battery selection completed');
 
       return {
         equipment: selectedBattery as EquipmentCatalogItem,
@@ -396,10 +396,10 @@ class EquipmentSelector {
       };
 
     } catch (error) {
-      logger.error('Battery selection failed', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         batterySizeKwh
-      });
+      }, 'Battery selection failed');
       throw error;
     }
   }
@@ -494,13 +494,13 @@ class FinancialAnalyzer {
         FINANCIAL_PARAMETERS.discountRate
       );
 
-      logger.info('Financial analysis completed', {
+      logger.info({
         systemCost,
         annualSavings,
         paybackPeriod,
         roi25Year,
         netPresentValue
-      });
+      }, 'Financial analysis completed');
 
       return {
         annualSavings,
@@ -511,11 +511,11 @@ class FinancialAnalyzer {
       };
 
     } catch (error) {
-      logger.error('Financial analysis failed', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         systemCost,
         annualProduction
-      });
+      }, 'Financial analysis failed');
       throw error;
     }
   }
@@ -619,11 +619,11 @@ export class EnhancedSystemSizingService {
     correlationId?: string
   ): Promise<SizingRecommendation> {
     try {
-      logger.info('Starting enhanced system sizing', {
+      logger.info({
         projectId: inputs.projectId,
         goals: inputs.goals,
         correlationId
-      });
+      }, 'Starting enhanced system sizing');
 
       // Step 1: Create or get load profile
       let loadProfile = inputs.loadProfile;
@@ -770,7 +770,7 @@ export class EnhancedSystemSizingService {
       // Save to database
       const saved = await this.saveSizingRecommendation(recommendation);
 
-      logger.info('Enhanced system sizing completed', {
+      logger.info({
         projectId: inputs.projectId,
         recommendationId: saved.id,
         solarSizeKw: saved.solarSizeKw,
@@ -778,16 +778,16 @@ export class EnhancedSystemSizingService {
         systemCost: saved.systemCost,
         confidence: saved.confidence,
         correlationId
-      });
+      }, 'Enhanced system sizing completed');
 
       return saved;
 
     } catch (error) {
-      logger.error('Enhanced system sizing failed', {
+      logger.error({
         error: error instanceof Error ? error.message : 'Unknown error',
         projectId: inputs.projectId,
         correlationId
-      });
+      }, 'Enhanced system sizing failed');
       throw error;
     }
   }
