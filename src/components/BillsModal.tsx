@@ -121,13 +121,14 @@ export function BillsModal({
 
   const handleDownloadBill = async (bill: Bill) => {
     try {
-      if (!bill.filePath) {
-        console.error('No file path available for download');
+      if (!bill.id) {
+        console.error('No bill ID available for download');
         return;
       }
-      // Create a download link for the bill file
+      // Use the API route to serve the file
+      const fileUrl = `/api/files/bills/${bill.id}`;
       const link = document.createElement('a');
-      link.href = bill.filePath;
+      link.href = fileUrl;
       link.download = bill.fileName;
       document.body.appendChild(link);
       link.click();
@@ -138,12 +139,13 @@ export function BillsModal({
   };
 
   const handleViewBill = (bill: Bill) => {
-    if (!bill.filePath) {
-      console.error('No file path available for viewing');
+    if (!bill.id) {
+      console.error('No bill ID available for viewing');
       return;
     }
-    // Open bill in new window/tab
-    window.open(bill.filePath, '_blank');
+    // Open bill in new window/tab using the API route
+    const fileUrl = `/api/files/bills/${bill.id}`;
+    window.open(fileUrl, '_blank');
   };
 
   return (
