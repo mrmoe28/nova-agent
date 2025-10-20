@@ -24,13 +24,13 @@ enum EquipmentCategory {
 }
 
 enum ProjectStatus {
-  INTAKE
-  ANALYSIS
-  SIZING
-  BOM
-  PLAN
-  REVIEW
-  COMPLETE
+  intake
+  analysis
+  sizing
+  bom
+  plan
+  review
+  complete
 }
 
 model Bill {
