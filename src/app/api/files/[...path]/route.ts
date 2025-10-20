@@ -10,10 +10,10 @@ import { prisma } from "@/lib/prisma";
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: Promise<{ path: string[] }> }
 ) {
   try {
-    const path = params.path;
+    const { path } = await params;
 
     // Expect format: /api/files/bills/[billId]
     if (path[0] !== "bills" || !path[1]) {
