@@ -38,6 +38,14 @@ export async function GET() {
       
       console.log("✓ Normalized existing status values");
       
+      // Drop the default first
+      await prisma.$executeRaw`
+        ALTER TABLE "Project" 
+        ALTER COLUMN "status" DROP DEFAULT;
+      `;
+      
+      console.log("✓ Dropped default value");
+      
       // Convert column to use enum
       await prisma.$executeRaw`
         ALTER TABLE "Project" 
@@ -46,6 +54,14 @@ export async function GET() {
       `;
       
       console.log("✓ Converted status column to enum type");
+      
+      // Re-add the default with enum type
+      await prisma.$executeRaw`
+        ALTER TABLE "Project" 
+        ALTER COLUMN "status" SET DEFAULT 'intake'::"ProjectStatus";
+      `;
+      
+      console.log("✓ Re-added default value with enum type");
     } else {
       console.log("Enum already exists, skipping creation");
     }
