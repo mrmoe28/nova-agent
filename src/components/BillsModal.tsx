@@ -126,7 +126,7 @@ export function BillsModal({
         return;
       }
       // Use the API route to serve the file
-      const fileUrl = `/api/files/bills/${bill.id}`;
+      const fileUrl = `/api/bills/${bill.id}/file`;
       const link = document.createElement('a');
       link.href = fileUrl;
       link.download = bill.fileName;
@@ -144,7 +144,7 @@ export function BillsModal({
       return;
     }
     // Open bill in new window/tab using the API route
-    const fileUrl = `/api/files/bills/${bill.id}`;
+    const fileUrl = `/api/bills/${bill.id}/file`;
     window.open(fileUrl, '_blank');
   };
 

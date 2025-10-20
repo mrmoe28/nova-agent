@@ -4,26 +4,14 @@ import { prisma } from "@/lib/prisma";
 
 /**
  * Serve uploaded bill files
- * This endpoint serves files from the database storage
- * 
- * URL: /api/files/bills/[billId]
+ * URL: /api/bills/[id]/file
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ path: string[] }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { path } = await params;
-
-    // Expect format: /api/files/bills/[billId]
-    if (path[0] !== "bills" || !path[1]) {
-      return NextResponse.json(
-        { success: false, error: "Invalid file path" },
-        { status: 400 }
-      );
-    }
-
-    const billId = path[1];
+    const { id: billId } = await params;
 
     // Get bill from database
     const bill = await prisma.bill.findUnique({
@@ -33,7 +21,6 @@ export async function GET(
         fileName: true,
         fileType: true,
         filePath: true,
-        projectId: true,
       },
     });
 
@@ -44,7 +31,7 @@ export async function GET(
       );
     }
 
-    // Check if file exists
+    // Try to read file
     try {
       const fileBuffer = await readFile(bill.filePath);
 
@@ -53,16 +40,17 @@ export async function GET(
       if (bill.fileType === "pdf") {
         contentType = "application/pdf";
       } else if (bill.fileType === "image") {
-        if (bill.fileName.toLowerCase().endsWith(".png")) {
+        const lower = bill.fileName.toLowerCase();
+        if (lower.endsWith(".png")) {
           contentType = "image/png";
-        } else if (bill.fileName.toLowerCase().endsWith(".jpg") || bill.fileName.toLowerCase().endsWith(".jpeg")) {
+        } else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
           contentType = "image/jpeg";
         }
       } else if (bill.fileType === "csv") {
         contentType = "text/csv";
       }
 
-      // Return file with appropriate headers
+      // Return file
       return new NextResponse(fileBuffer, {
         status: 200,
         headers: {
@@ -74,14 +62,14 @@ export async function GET(
     } catch (fileError) {
       console.error(`File not found at ${bill.filePath}:`, fileError);
       
-      // File was deleted or /tmp was cleared (common on Vercel)
+      // File was deleted or /tmp was cleared
       return NextResponse.json(
         {
           success: false,
           error: "File no longer available. Files in /tmp are ephemeral on serverless platforms.",
           suggestion: "Please re-upload the bill file.",
         },
-        { status: 410 } // 410 Gone
+        { status: 410 }
       );
     }
   } catch (error) {
