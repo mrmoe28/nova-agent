@@ -52,11 +52,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Use /tmp directory for serverless environment (Vercel)
-    // Note: Files in /tmp are ephemeral and will be deleted after function execution
-    const uploadsDir = join("/tmp", "uploads", projectId);
+    // Use public/uploads directory for persistent file storage
+    // Files in public/ are served as static assets by Vercel
+    const publicDir = join(process.cwd(), "public", "uploads", projectId);
     try {
-      await mkdir(uploadsDir, { recursive: true });
+      await mkdir(publicDir, { recursive: true });
     } catch {
       // Directory might already exist, that's fine
     }
@@ -65,7 +65,10 @@ export async function POST(request: NextRequest) {
     const timestamp = Date.now();
     const safeFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
     const fileName = `${timestamp}_${safeFileName}`;
-    const filePath = join(uploadsDir, fileName);
+    const filePath = join(publicDir, fileName);
+    
+    // Store relative path for URL access
+    const urlPath = `/uploads/${projectId}/${fileName}`;
 
     // Convert file to buffer and save
     const bytes = await file.arrayBuffer();
@@ -82,7 +85,7 @@ export async function POST(request: NextRequest) {
       fileType = "csv";
     }
 
-    // Process OCR immediately while file is in /tmp
+    // Process OCR on the saved file
     let ocrText: string | null = null;
     let extractedData: string | null = null;
     let ocrConfidence = 0;
@@ -111,13 +114,13 @@ export async function POST(request: NextRequest) {
       console.log("File will be saved without OCR data due to processing failure");
     }
 
-    // Save to database with OCR data
+    // Save to database with URL path for web access
     const bill = await prisma.bill.create({
       data: {
         projectId,
         fileName: file.name,
         fileType,
-        filePath: filePath,
+        filePath: urlPath, // Store URL path instead of filesystem path
         ocrText,
         extractedData,
       },
