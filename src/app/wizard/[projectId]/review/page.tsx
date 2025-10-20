@@ -52,13 +52,6 @@ export default function ReviewPage() {
   const [project, setProject] = useState<ProjectData | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [_editedSystem, setEditedSystem] = useState<{
-    solarPanelCount: number;
-    solarPanelWattage: number;
-    batteryKwh: number;
-    inverterKw: number;
-    backupDurationHrs: number;
-  } | null>(null);
 
   useEffect(() => {
     fetchProject();
@@ -84,16 +77,7 @@ export default function ReviewPage() {
   };
 
   const handleEditSystem = () => {
-    if (project?.system) {
-      setEditedSystem({
-        solarPanelCount: project.system.solarPanelCount,
-        solarPanelWattage: project.system.solarPanelWattage,
-        batteryKwh: project.system.batteryKwh,
-        inverterKw: project.system.inverterKw,
-        backupDurationHrs: project.system.backupDurationHrs,
-      });
-      setEditing(true);
-    }
+    setEditing(true);
   };
 
   const handleCancelEdit = () => {
