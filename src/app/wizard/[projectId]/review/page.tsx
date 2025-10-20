@@ -82,7 +82,6 @@ export default function ReviewPage() {
 
   const handleCancelEdit = () => {
     setEditing(false);
-    setEditedSystem(null);
   };
 
 
@@ -256,7 +255,6 @@ export default function ReviewPage() {
                   if (data.success) {
                     await fetchProject();
                     setEditing(false);
-                    setEditedSystem(null);
                   } else {
                     alert(`Error: ${data.error}`);
                   }
