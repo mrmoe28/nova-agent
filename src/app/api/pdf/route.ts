@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
 
     await prisma.project.update({
       where: { id: projectId },
-      data: { status: "COMPLETE" },
+      data: { status: "complete" },
     });
 
     if (project.plan) {

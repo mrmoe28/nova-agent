@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
         address,
         phone,
         email,
-        status: "INTAKE",
+        status: "intake",
       },
     });
 

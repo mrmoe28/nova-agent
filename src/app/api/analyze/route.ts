@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
     // Update project status
     await prisma.project.update({
       where: { id: projectId },
-      data: { status: "ANALYSIS" },
+      data: { status: "analysis" },
     });
 
     return NextResponse.json({
