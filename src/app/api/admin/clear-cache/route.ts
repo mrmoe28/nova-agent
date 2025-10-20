@@ -14,11 +14,11 @@ export async function GET() {
     
     console.log("Clearing PostgreSQL prepared statement cache...");
     
-    // Disconnect and reconnect to clear session-level cache
-    await prisma.$disconnect();
-    await prisma.$connect();
+    // Execute DISCARD ALL to clear cached query plans
+    // This is more effective than disconnect/reconnect on serverless
+    await prisma.$executeRaw`DISCARD ALL;`;
     
-    console.log("✓ Cache cleared by reconnecting");
+    console.log("✓ Executed DISCARD ALL");
     
     // Test query to verify cache is cleared
     const projects = await prisma.project.findMany({
@@ -34,7 +34,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: "Cache cleared successfully",
+      message: "Cache cleared successfully with DISCARD ALL",
       projectCount: projects.length,
       timestamp: new Date().toISOString(),
     });
