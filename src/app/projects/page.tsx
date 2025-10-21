@@ -367,7 +367,7 @@ export default function ProjectsPage() {
           <CollapsibleTrigger asChild>
             <div className="cursor-pointer">
               <CardHeader className="pb-4">
-                <div className="absolute top-4 right-4 z-10">
+                <div className="absolute top-4 right-4 z-10 flex gap-2">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -379,6 +379,22 @@ export default function ProjectsPage() {
                   >
                     <Eye className="h-4 w-4 mr-1" />
                     View Details
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteClick(project);
+                    }}
+                    disabled={deletingProject === project.id}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-100 text-red-600"
+                  >
+                    {deletingProject === project.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
                 <div className="flex items-start justify-between">
