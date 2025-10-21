@@ -4,7 +4,7 @@ import { regenerateBom, SizingError } from "@/lib/system-sizing";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { projectId, skipStatusUpdate = false } = body;
+    const { projectId, skipStatusUpdate = false, distributorId } = body;
 
     if (!projectId) {
       return NextResponse.json(
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await regenerateBom(projectId, skipStatusUpdate);
+    const result = await regenerateBom(projectId, skipStatusUpdate, distributorId);
 
     return NextResponse.json({
       success: true,

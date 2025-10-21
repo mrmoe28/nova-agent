@@ -181,7 +181,7 @@ export async function performSystemSizing({
   };
 
   if (!updateProjectStatus) {
-    await refreshBomAndPlan(projectId, true);
+    await refreshBomAndPlan(projectId, true, distributorId);
   }
 
   return { system, pricing: pricingInfo };
@@ -192,6 +192,7 @@ export { SizingError };
 export async function regenerateBom(
   projectId: string,
   skipStatusUpdate = false,
+  distributorId?: string,
 ) {
   const system = await prisma.system.findUnique({
     where: { projectId },
@@ -205,61 +206,126 @@ export async function regenerateBom(
     where: { projectId },
   });
 
+  // Fetch real equipment from distributor if provided
+  let solarPanel = null;
+  let battery = null;
+  let inverter = null;
+  let mounting = null;
+  let electrical = null;
+
+  if (distributorId) {
+    try {
+      const equipment = await prisma.equipment.findMany({
+        where: {
+          distributorId,
+          isActive: true,
+          inStock: true,
+        },
+        select: {
+          id: true,
+          category: true,
+          name: true,
+          manufacturer: true,
+          modelNumber: true,
+          unitPrice: true,
+          specifications: true,
+        },
+      });
+
+      // Find best match for each category
+      const solarPanels = equipment.filter((e) => e.category === "SOLAR_PANEL");
+      const batteries = equipment.filter((e) => e.category === "BATTERY");
+      const inverters = equipment.filter((e) => e.category === "INVERTER");
+      const mountingSystems = equipment.filter((e) => e.category === "MOUNTING");
+      const electricalSystems = equipment.filter((e) => e.category === "ELECTRICAL");
+
+      // Pick first available item from each category
+      solarPanel = solarPanels[0];
+      battery = batteries[0];
+      inverter = inverters[0];
+      mounting = mountingSystems[0];
+      electrical = electricalSystems[0];
+    } catch (error) {
+      console.error("Error fetching distributor equipment:", error);
+    }
+  }
+
+  // Solar Panel - use real product or fallback to defaults
+  const solarUnitPrice = solarPanel
+    ? solarPanel.unitPrice
+    : (SYSTEM_SIZING.SOLAR_PANEL_WATTAGE * SYSTEM_SIZING.SOLAR_COST_PER_WATT) / 2;
+
+  // Battery - calculate price based on kWh capacity
+  const batteryUnitPrice = battery
+    ? battery.unitPrice
+    : system.batteryKwh * SYSTEM_SIZING.BATTERY_COST_PER_KWH;
+
+  // Inverter - calculate price based on kW capacity
+  const inverterUnitPrice = inverter
+    ? inverter.unitPrice
+    : system.inverterKw * SYSTEM_SIZING.INVERTER_COST_PER_KW;
+
+  // Mounting - use real product or fallback
+  const mountingUnitPrice = mounting ? mounting.unitPrice : 300;
+
+  // Electrical - use real product or fallback
+  const electricalUnitPrice = electrical ? electrical.unitPrice : 2000;
+
   const bomItems = [
     {
       projectId,
       category: "solar" as const,
-      itemName: "Solar Panel - Monocrystalline",
-      manufacturer: "SolarTech",
-      modelNumber: "ST-400W",
+      itemName: solarPanel?.name || "Solar Panel - Monocrystalline",
+      manufacturer: solarPanel?.manufacturer || "SolarTech",
+      modelNumber: solarPanel?.modelNumber || "ST-400W",
       quantity: system.solarPanelCount,
-      unitPriceUsd: (SYSTEM_SIZING.SOLAR_PANEL_WATTAGE * SYSTEM_SIZING.SOLAR_COST_PER_WATT) / 2,
-      totalPriceUsd: system.solarPanelCount * ((SYSTEM_SIZING.SOLAR_PANEL_WATTAGE * SYSTEM_SIZING.SOLAR_COST_PER_WATT) / 2),
-      notes: "400W high-efficiency panels",
+      unitPriceUsd: solarUnitPrice,
+      totalPriceUsd: system.solarPanelCount * solarUnitPrice,
+      notes: solarPanel?.specifications || "400W high-efficiency panels",
     },
     {
       projectId,
       category: "battery" as const,
-      itemName: "Lithium Battery Storage System",
-      manufacturer: "PowerStore",
-      modelNumber: `PS-${Math.ceil(system.batteryKwh)}kWh`,
+      itemName: battery?.name || "Lithium Battery Storage System",
+      manufacturer: battery?.manufacturer || "PowerStore",
+      modelNumber: battery?.modelNumber || `PS-${Math.ceil(system.batteryKwh)}kWh`,
       quantity: 1,
-      unitPriceUsd: system.batteryKwh * SYSTEM_SIZING.BATTERY_COST_PER_KWH,
-      totalPriceUsd: system.batteryKwh * SYSTEM_SIZING.BATTERY_COST_PER_KWH,
-      notes: `${system.batteryKwh.toFixed(1)}kWh capacity`,
+      unitPriceUsd: batteryUnitPrice,
+      totalPriceUsd: batteryUnitPrice,
+      notes: battery?.specifications || `${system.batteryKwh.toFixed(1)}kWh capacity`,
     },
     {
       projectId,
       category: "inverter" as const,
-      itemName: "Hybrid String Inverter",
-      manufacturer: "InverterPro",
-      modelNumber: `IP-${Math.ceil(system.inverterKw)}K`,
+      itemName: inverter?.name || "Hybrid String Inverter",
+      manufacturer: inverter?.manufacturer || "InverterPro",
+      modelNumber: inverter?.modelNumber || `IP-${Math.ceil(system.inverterKw)}K`,
       quantity: 1,
-      unitPriceUsd: system.inverterKw * SYSTEM_SIZING.INVERTER_COST_PER_KW,
-      totalPriceUsd: system.inverterKw * SYSTEM_SIZING.INVERTER_COST_PER_KW,
-      notes: `${system.inverterKw.toFixed(1)}kW capacity`,
+      unitPriceUsd: inverterUnitPrice,
+      totalPriceUsd: inverterUnitPrice,
+      notes: inverter?.specifications || `${system.inverterKw.toFixed(1)}kW capacity`,
     },
     {
       projectId,
       category: "mounting" as const,
-      itemName: "Roof Mounting Rails & Hardware",
-      manufacturer: "MountTech",
-      modelNumber: "MT-RAIL-KIT",
+      itemName: mounting?.name || "Roof Mounting Rails & Hardware",
+      manufacturer: mounting?.manufacturer || "MountTech",
+      modelNumber: mounting?.modelNumber || "MT-RAIL-KIT",
       quantity: Math.ceil(system.solarPanelCount / 4),
-      unitPriceUsd: 300,
-      totalPriceUsd: Math.ceil(system.solarPanelCount / 4) * 300,
-      notes: "Aluminum rails with stainless hardware",
+      unitPriceUsd: mountingUnitPrice,
+      totalPriceUsd: Math.ceil(system.solarPanelCount / 4) * mountingUnitPrice,
+      notes: mounting?.specifications || "Aluminum rails with stainless hardware",
     },
     {
       projectId,
       category: "electrical" as const,
-      itemName: "Electrical BOS Components",
-      manufacturer: "Various",
-      modelNumber: "BOS-COMPLETE",
+      itemName: electrical?.name || "Electrical BOS Components",
+      manufacturer: electrical?.manufacturer || "Various",
+      modelNumber: electrical?.modelNumber || "BOS-COMPLETE",
       quantity: 1,
-      unitPriceUsd: 2000,
-      totalPriceUsd: 2000,
-      notes: "DC/AC disconnects, combiner box, conduit, wire",
+      unitPriceUsd: electricalUnitPrice,
+      totalPriceUsd: electricalUnitPrice,
+      notes: electrical?.specifications || "DC/AC disconnects, combiner box, conduit, wire",
     },
   ];
 
@@ -290,6 +356,8 @@ export async function regenerateBom(
       (sum, item) => sum + item.totalPriceUsd,
       0,
     ),
+    pricingSource: distributorId ? "distributor" : "default_estimates",
+    distributorId: distributorId || null,
   };
 }
 
@@ -339,10 +407,20 @@ export async function regeneratePlan(
       status: "pass",
       notes: "Battery system meets fire and safety requirements",
     },
+    {
+      code: "Georgia Permit Rules",
+      description: "Georgia Residential Solar Limit",
+      status: system.totalSolarKw > 10 ? "fail" : "pass",
+      notes:
+        system.totalSolarKw > 10
+          ? `VIOLATION: System ${system.totalSolarKw.toFixed(2)}kW exceeds Georgia's 10kW residential permit limit. Reduce panel quantity to ${Math.floor((10 * 1000) / SYSTEM_SIZING.SOLAR_PANEL_WATTAGE)} panels maximum.`
+          : "System complies with Georgia 10kW residential limit",
+    },
   ];
 
   const warnings = [];
   if (system.totalSolarKw > 10) {
+    warnings.push("⚠️ GEORGIA PERMIT VIOLATION: System exceeds 10kW residential limit. Must reduce to 10kW or obtain commercial permit.");
     warnings.push("System exceeds 10kW - utility pre-approval required");
   }
   if (system.batteryKwh > 20) {
@@ -411,8 +489,9 @@ export async function regeneratePlan(
 export async function refreshBomAndPlan(
   projectId: string,
   skipStatusUpdate = false,
+  distributorId?: string,
 ) {
-  const bom = await regenerateBom(projectId, skipStatusUpdate);
+  const bom = await regenerateBom(projectId, skipStatusUpdate, distributorId);
   const plan = await regeneratePlan(projectId, skipStatusUpdate);
   return { ...bom, ...plan };
 }
