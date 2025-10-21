@@ -4,9 +4,10 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+// Equipment selection coming in future update
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Trash2, Edit } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
 interface BOMItem {
@@ -19,6 +20,17 @@ interface BOMItem {
   unitPriceUsd: number;
   totalPriceUsd: number;
   notes: string | null;
+  imageUrl?: string | null;
+}
+
+interface Equipment {
+  id: string;
+  name: string;
+  manufacturer: string | null;
+  modelNumber: string;
+  unitPrice: number;
+  specifications: string | null;
+  imageUrl: string | null;
 }
 
 export default function BOMPage() {
@@ -29,6 +41,10 @@ export default function BOMPage() {
   const [generating, setGenerating] = useState(false);
   const [bomItems, setBomItems] = useState<BOMItem[]>([]);
   const [totalCost, setTotalCost] = useState(0);
+  const [distributorId, setDistributorId] = useState<string | null>(null);
+  // Equipment selection UI coming in future update
+  // const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [availableEquipment, setAvailableEquipment] = useState<Record<string, Equipment[]>>({});
 
   useEffect(() => {
     generateBOM();
@@ -49,6 +65,7 @@ export default function BOMPage() {
       if (data.success) {
         setBomItems(data.bomItems);
         setTotalCost(data.totalCost);
+        setDistributorId(data.distributorId);
         if (data.message) {
           toast.success("BOM Generated", {
             description: data.message,
@@ -68,6 +85,77 @@ export default function BOMPage() {
       setGenerating(false);
     }
   };
+
+  const fetchEquipmentByCategory = async (category: string) => {
+    if (!distributorId) return;
+
+    try {
+      const response = await fetch(
+        `/api/equipment/by-category?distributorId=${distributorId}&category=${category}`
+      );
+      const data = await response.json();
+
+      if (data.success) {
+        setAvailableEquipment(prev => ({
+          ...prev,
+          [category]: data.equipment,
+        }));
+      }
+    } catch (error) {
+      console.error(`Error fetching ${category} equipment:`, error);
+    }
+  };
+
+  // Equipment selection handlers - UI coming in future update
+  const handleEditEquipment = (_item: BOMItem) => {
+    // setEditingItemId(item.id);
+    // Fetch equipment for this category if not already loaded
+    // if (!availableEquipment[item.category]) {
+    //   fetchEquipmentByCategory(item.category.toUpperCase());
+    // }
+    toast.info("Equipment Selection", {
+      description: "Equipment selection UI coming soon! For now, prices are pulled from your selected distributor automatically.",
+    });
+  };
+
+  // const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => {
+  //   try {
+  //     const response = await fetch(`/api/bom/${bomItemId}/update-equipment`, {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ equipmentId }),
+  //     });
+
+  //     const data = await response.json();
+
+  //     if (data.success) {
+  //       // Update local state
+  //       setBomItems(prev =>
+  //         prev.map(item =>
+  //           item.id === bomItemId ? data.bomItem : item
+  //         )
+  //       );
+
+  //       // Recalculate total
+  //       const newTotal = bomItems
+  //         .map(item => item.id === bomItemId ? data.bomItem : item)
+  //         .reduce((sum, item) => sum + item.totalPriceUsd, 0);
+  //       setTotalCost(newTotal);
+
+  //       setEditingItemId(null);
+  //       toast.success("Equipment Updated", {
+  //         description: "BOM item has been updated with selected equipment.",
+  //       });
+  //     } else {
+  //       throw new Error(data.error);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating equipment:", error);
+  //     toast.error("Error", {
+  //       description: "Failed to update equipment selection.",
+  //     });
+  //   }
+  // };
 
   const handleDeleteItem = async (itemId: string) => {
     try {
@@ -147,6 +235,7 @@ export default function BOMPage() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
+                <th className="pb-3 text-left font-semibold text-foreground">Image</th>
                 <th className="pb-3 text-left font-semibold text-foreground">Category</th>
                 <th className="pb-3 text-left font-semibold text-foreground">Item</th>
                 <th className="pb-3 text-left font-semibold text-foreground">Model</th>
@@ -159,8 +248,31 @@ export default function BOMPage() {
             <tbody>
               {bomItems.map((item) => (
                 <tr key={item.id} className="border-b border-border last:border-0">
+                  <td className="py-3">
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={item.itemName}
+                        className="h-16 w-16 object-contain rounded border border-border"
+                        onError={(e) => {
+                          const img = e.currentTarget as HTMLImageElement;
+                          if (img.src.endsWith("/images/placeholder.svg")) return;
+                          img.src = "/images/placeholder.svg";
+                        }}
+                      />
+                    ) : (
+                      <div className="h-16 w-16 bg-muted rounded border border-border flex items-center justify-center text-xs text-muted-foreground">
+                        No Image
+                      </div>
+                    )}
+                  </td>
                   <td className="py-3 text-sm capitalize text-foreground">{item.category}</td>
-                  <td className="py-3 text-sm text-foreground">{item.itemName}</td>
+                  <td className="py-3">
+                    <div className="text-sm text-foreground font-medium">{item.itemName}</div>
+                    {item.manufacturer && (
+                      <div className="text-xs text-muted-foreground">{item.manufacturer}</div>
+                    )}
+                  </td>
                   <td className="py-3 text-xs font-mono text-muted-foreground">
                     {item.modelNumber}
                   </td>
@@ -172,14 +284,26 @@ export default function BOMPage() {
                     {formatCurrency(item.totalPriceUsd)}
                   </td>
                   <td className="py-3 text-center">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteItem(item.id)}
-                      className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center justify-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditEquipment(item)}
+                        className="h-8 w-8 p-0 text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                        title="Change equipment"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteItem(item.id)}
+                        className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        title="Delete item"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </td>
                 </tr>
               ))}

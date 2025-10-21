@@ -90,6 +90,7 @@ model BOMItem {
   quantity      Int
   unitPriceUsd  Float
   totalPriceUsd Float
+  imageUrl      String? // Product image URL
   sourceUrl     String?
   notes         String?
 

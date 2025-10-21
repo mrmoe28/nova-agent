@@ -229,6 +229,7 @@ export async function regenerateBom(
           modelNumber: true,
           unitPrice: true,
           specifications: true,
+          imageUrl: true,
         },
       });
 
@@ -281,6 +282,7 @@ export async function regenerateBom(
       quantity: system.solarPanelCount,
       unitPriceUsd: solarUnitPrice,
       totalPriceUsd: system.solarPanelCount * solarUnitPrice,
+      imageUrl: solarPanel?.imageUrl || null,
       notes: solarPanel?.specifications || "400W high-efficiency panels",
     },
     {
@@ -292,6 +294,7 @@ export async function regenerateBom(
       quantity: 1,
       unitPriceUsd: batteryUnitPrice,
       totalPriceUsd: batteryUnitPrice,
+      imageUrl: battery?.imageUrl || null,
       notes: battery?.specifications || `${system.batteryKwh.toFixed(1)}kWh capacity`,
     },
     {
@@ -303,6 +306,7 @@ export async function regenerateBom(
       quantity: 1,
       unitPriceUsd: inverterUnitPrice,
       totalPriceUsd: inverterUnitPrice,
+      imageUrl: inverter?.imageUrl || null,
       notes: inverter?.specifications || `${system.inverterKw.toFixed(1)}kW capacity`,
     },
     {
@@ -314,6 +318,7 @@ export async function regenerateBom(
       quantity: Math.ceil(system.solarPanelCount / 4),
       unitPriceUsd: mountingUnitPrice,
       totalPriceUsd: Math.ceil(system.solarPanelCount / 4) * mountingUnitPrice,
+      imageUrl: mounting?.imageUrl || null,
       notes: mounting?.specifications || "Aluminum rails with stainless hardware",
     },
     {
@@ -325,6 +330,7 @@ export async function regenerateBom(
       quantity: 1,
       unitPriceUsd: electricalUnitPrice,
       totalPriceUsd: electricalUnitPrice,
+      imageUrl: electrical?.imageUrl || null,
       notes: electrical?.specifications || "DC/AC disconnects, combiner box, conduit, wire",
     },
   ];
