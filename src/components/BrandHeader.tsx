@@ -4,13 +4,18 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, FolderOpen, Building2, Zap } from "lucide-react";
+import { Plus, FolderOpen, Building2, Zap, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function BrandHeader() {
   const pathname = usePathname();
 
   const navItems = [
+    {
+      label: "Dashboard",
+      href: "/dashboard",
+      icon: LayoutDashboard,
+    },
     {
       label: "Distributors",
       href: "/distributors",
