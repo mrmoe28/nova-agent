@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  Lightning,
   Package,
   Zap,
   TrendingUp,
@@ -107,7 +106,7 @@ export default function DashboardPage() {
         <div className="container mx-auto px-6 py-16 relative">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-3 bg-[#22D3EE]/20 rounded-xl">
-              <Lightning className="h-8 w-8 text-[#22D3EE]" />
+              <Zap className="h-8 w-8 text-[#22D3EE]" />
             </div>
             <h1 className="text-4xl font-bold text-white">
               NovaAgent <span className="text-[#22D3EE]">AI</span>
@@ -193,7 +192,7 @@ export default function DashboardPage() {
                 <p className="text-3xl font-bold text-white">{stats.averageSystemSize}kW</p>
               </div>
               <div className="p-3 bg-[#22D3EE]/20 rounded-lg">
-                <Lightning className="h-6 w-6 text-[#22D3EE]" />
+                <Zap className="h-6 w-6 text-[#22D3EE]" />
               </div>
             </div>
             <div className="mt-4 flex items-center gap-2 text-sm">
