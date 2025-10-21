@@ -1,18 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FileText, AlertCircle, CheckCircle2, XCircle, ChevronDown, ChevronUp } from "lucide-react";
 
+interface ExtractedData {
+  kWhUsage?: number;
+  totalCost?: number;
+  peakDemand?: number;
+  billingPeriod?: string;
+  accountNumber?: string;
+  utilityCompany?: string;
+}
+
 interface Bill {
   id: string;
   fileName: string;
   fileType: string;
   ocrText: string | null;
-  extractedData: any;
+  extractedData: ExtractedData | string | null;
   createdAt: string;
 }
 
@@ -31,11 +40,7 @@ export default function BillDebugPage() {
   const [loading, setLoading] = useState(true);
   const [expandedBill, setExpandedBill] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchDebugData();
-  }, [projectId]);
-
-  const fetchDebugData = async () => {
+  const fetchDebugData = useCallback(async () => {
     try {
       // Fetch project with bills
       const projectRes = await fetch(`/api/projects/${projectId}`);
@@ -50,7 +55,11 @@ export default function BillDebugPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [projectId]);
+
+  useEffect(() => {
+    fetchDebugData();
+  }, [fetchDebugData]);
 
   const getDataSource = (bill: Bill): "real" | "fallback" | "none" => {
     if (!bill.extractedData) return "none";
@@ -314,7 +323,7 @@ export default function BillDebugPage() {
           <li className="flex items-start gap-2">
             <span className="text-primary mt-1">•</span>
             <span>
-              <strong>Check OCR Text</strong>: Expand "Show Details" to see raw extracted text
+              <strong>Check OCR Text</strong>: Expand &quot;Show Details&quot; to see raw extracted text
             </span>
           </li>
           <li className="flex items-start gap-2">
@@ -326,7 +335,7 @@ export default function BillDebugPage() {
           <li className="flex items-start gap-2">
             <span className="text-primary mt-1">•</span>
             <span>
-              <strong>Utility format</strong>: If your utility's bill format isn't recognized,
+              <strong>Utility format</strong>: If your utility&apos;s bill format isn&apos;t recognized,
               the parser may need custom regex patterns.
             </span>
           </li>
