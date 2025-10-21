@@ -1,0 +1,100 @@
+
+Running 1 test using 1 worker
+
+Created test distributor: cmgvfl37l0000n9f413ntwpcg
+→ REQUEST: GET http://localhost:3000/api/distributors/cmgvfl37l0000n9f413ntwpcg
+← RESPONSE: [33m200[39m http://localhost:3000/api/distributors/cmgvfl37l0000n9f413ntwpcg
+   Body: {
+  "success": true,
+  "distributor": {
+    "id": "cmgvfl37l0000n9f413ntwpcg",
+    "name": "Test Distributor for Rescrape",
+    "contactName": null,
+    "email": "test@example.com",
+    "phone": null,
+    "website": "https://bigbattery.com",
+    "address": null,
+    "notes": null,
+    "logoUrl": null,
+    "rating": null,
+    "shippingInfo": null,
+    "paymentTerms": null,
+    "lastScrapedAt": null,
+    "scrapeMetadata": null,
+    "isActive": true,
+    "createdAt": "2025-10-17T22:39:17.120Z",
+    "updatedAt": "2025-10-17T22:39:17.120Z",
+    "equipment": []
+  }
+}
+
+📊 Initial state:
+Equipment count before rescrape: [33m0[39m
+
+🔄 Clicking Rescrape button...
+→ REQUEST: POST http://localhost:3000/api/distributors/scrape-from-url
+⏳ Waiting for scraping to complete...
+
+📊 Final state:
+Equipment count after rescrape: [33m0[39m
+
+📦 Sample products:
+
+🔍 API Requests Summary:
+Total scrape requests: 1
+Last scrape request: {
+  url: [32m'http://localhost:3000/api/distributors/scrape-from-url'[39m,
+  method: [32m'POST'[39m,
+  postData: {
+    url: [32m'https://bigbattery.com'[39m,
+    saveToDatabase: [33mtrue[39m,
+    scrapeProducts: [33mtrue[39m,
+    distributorId: [32m'cmgvfl37l0000n9f413ntwpcg'[39m,
+    maxProducts: [33m500[39m,
+    useBrowser: [33mtrue[39m,
+    useAI: [33mfalse[39m
+  }
+}
+
+📥 API Responses Summary:
+Total scrape responses: 0
+Cleaned up test distributor
+  ✘  1 [chromium] › tests/test-rescrape.spec.ts:32:7 › Rescrape Function Test › should rescrape distributor and save products (36.3s)
+
+
+  1) [chromium] › tests/test-rescrape.spec.ts:32:7 › Rescrape Function Test › should rescrape distributor and save products 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeGreaterThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: > [32m0[39m
+    Received:   [31m0[39m
+
+      146 |
+      147 |     // Assertions
+    > 148 |     expect(finalEquipment).toBeGreaterThan(initialEquipment)
+          |                            ^
+      149 |   })
+      150 | })
+      151 |
+        at /Users/ekodevapps/Desktop/NovaAgent/novaagent/tests/test-rescrape.spec.ts:148:28
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/test-rescrape-Rescrape-Fun-47d3f-stributor-and-save-products-chromium/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    test-results/test-rescrape-Rescrape-Fun-47d3f-stributor-and-save-products-chromium/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/test-rescrape-Rescrape-Fun-47d3f-stributor-and-save-products-chromium/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/test-rescrape-Rescrape-Fun-47d3f-stributor-and-save-products-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/test-rescrape-Rescrape-Fun-47d3f-stributor-and-save-products-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › tests/test-rescrape.spec.ts:32:7 › Rescrape Function Test › should rescrape distributor and save products 
