@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import BrandHeader from "@/components/BrandHeader";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,13 +24,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-full" suppressHydrationWarning>
       <body
         className={`${inter.className} min-h-screen bg-background text-foreground antialiased`}
       >
-        <BrandHeader />
-        <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">{children}</main>
-        <Toaster />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <BrandHeader />
+          <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">{children}</main>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, FolderOpen, Building2, Zap, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function BrandHeader() {
   const pathname = usePathname();
@@ -85,6 +86,9 @@ export default function BrandHeader() {
               </Button>
             );
           })}
+
+          {/* Theme Toggle */}
+          <ThemeToggle />
 
           {/* CTA Button */}
           <Button
