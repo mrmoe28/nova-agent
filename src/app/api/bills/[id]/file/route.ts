@@ -50,8 +50,8 @@ export async function GET(
         contentType = "text/csv";
       }
 
-      // Return file
-      return new NextResponse(fileBuffer, {
+      // Return file (convert Buffer to Uint8Array for NextResponse)
+      return new NextResponse(new Uint8Array(fileBuffer), {
         status: 200,
         headers: {
           "Content-Type": contentType,
