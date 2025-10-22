@@ -20,7 +20,7 @@ export async function GET() {
     console.log("Enum exists check:", enumExists);
     
     // If enum doesn't exist, create it
-    if (!enumExists || !(enumExists as any)[0]?.exists) {
+    if (!enumExists || !(enumExists as { exists: boolean }[])[0]?.exists) {
       console.log("Creating ProjectStatus enum...");
       
       await prisma.$executeRaw`

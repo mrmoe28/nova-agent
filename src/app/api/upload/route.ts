@@ -112,6 +112,11 @@ export async function POST(request: NextRequest) {
       // Do not set fake data - leave ocrText and extractedData as null
       // File will still be saved but without OCR data
       console.log("File will be saved without OCR data due to processing failure");
+      
+      // Check if it's an OCR service unavailable error
+      if (ocrError instanceof Error && ocrError.message.includes("OCR microservice is not running")) {
+        console.log("OCR service is not available - file will be saved without OCR processing");
+      }
     }
 
     // Save to database with URL path for web access
