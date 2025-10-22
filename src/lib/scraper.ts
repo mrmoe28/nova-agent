@@ -1067,6 +1067,8 @@ export async function deepCrawlForProducts(
                 // SKU-like patterns
                 /-\d{3,}/, // ends with dash and 3+ digits
                 /[a-z]+-[a-z0-9]+-[a-z0-9]+/, // multi-dash separated (e.g., eg4-lifepower4-48v)
+                // Brand name patterns for batteries/solar (Solaris shop and similar)
+                /(byd|ecoflow|enphase|eg4|simpliphi|pytes|lith|lithion|tesla|lg|samsung)-/i,
               ];
 
               const isProductLink = productPatterns.some((pattern) => {
@@ -1086,9 +1088,13 @@ export async function deepCrawlForProducts(
               const linkClasses = $(link).attr("class") || "";
               const hasProductClass = linkClasses.match(/product|item|card/i);
 
+              // Check if link is inside a product container (for BigCommerce sites like Solaris)
+              const $parent = $(link).closest('.ProductDetails, .ProductImage, .ProductList, .product, .product-item, .product-card, [class*="product"]');
+              const isInsideProductContainer = $parent.length > 0;
+
               // Use the proper isProductPageUrl() function to filter out category pages
               if (
-                (isProductLink || hasProductClass) &&
+                (isProductLink || hasProductClass || isInsideProductContainer) &&
                 isProductPageUrl(absoluteUrl)
               ) {
                 pageProductLinks.push(absoluteUrl);
