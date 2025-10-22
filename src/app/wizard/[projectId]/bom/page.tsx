@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-// Equipment selection coming in future update
+import { EquipmentSelectionDialog } from "@/components/EquipmentSelectionDialog";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { Loader2, Trash2, Edit } from "lucide-react";
@@ -42,8 +42,8 @@ export default function BOMPage() {
   const [bomItems, setBomItems] = useState<BOMItem[]>([]);
   const [totalCost, setTotalCost] = useState(0);
   const [distributorId, setDistributorId] = useState<string | null>(null);
-  // Equipment selection UI coming in future update
-  // const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [editingItem, setEditingItem] = useState<BOMItem | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const [availableEquipment, setAvailableEquipment] = useState<Record<string, Equipment[]>>({});
 
   useEffect(() => {
