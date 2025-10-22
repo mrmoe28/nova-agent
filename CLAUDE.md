@@ -423,6 +423,42 @@ npm run dev
 
 ## Error Fix Reference
 
+### Database Migration Errors (October 2025)
+
+**Issue:** Production 500 errors due to missing database columns (`BOMItem.imageUrl`)
+
+**Root Cause:**
+- Migrations created but not applied to production database
+- Failed migration blocking new migrations from being applied
+
+**Prevention:**
+1. **Before Every Deployment:**
+   ```bash
+   # Check migration status
+   npx prisma migrate status
+
+   # Apply pending migrations
+   DATABASE_URL=<prod-url> npx prisma migrate deploy
+   ```
+
+2. **Handle Failed Migrations:**
+   ```bash
+   # If migration already applied to DB
+   npx prisma migrate resolve --applied <migration-name>
+
+   # If migration needs to be rolled back
+   npx prisma migrate resolve --rolled-back <migration-name>
+   ```
+
+3. **Never Add to Build Script:**
+   - ❌ Don't add `prisma migrate deploy` to Vercel build script
+   - ✅ Run migrations manually before deploying code changes
+   - **Reason:** Race conditions and build failures
+
+**See:** `DATABASE_MIGRATION_500_ERROR_FIX.md` for complete details
+
+---
+
 See CONTEXT.md for detailed error fixes and solutions from past debugging sessions.
 
 ## Additional Notes

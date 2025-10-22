@@ -1,0 +1,6196 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "NovaAgent AI Solar & Battery Energy Planner" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img [ref=e6]
+        - generic [ref=e8]:
+          - generic [ref=e9]:
+            - text: NovaAgent
+            - generic [ref=e10]: AI
+          - generic [ref=e11]: Solar & Battery Energy Planner
+      - navigation [ref=e12]:
+        - link "Dashboard" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - img
+          - generic [ref=e14]: Dashboard
+        - link "Distributors" [ref=e16] [cursor=pointer]:
+          - /url: /distributors
+          - img
+          - generic [ref=e17]: Distributors
+        - link "Projects" [ref=e18] [cursor=pointer]:
+          - /url: /projects
+          - img
+          - generic [ref=e19]: Projects
+        - button "Toggle theme" [ref=e20]:
+          - generic [ref=e21]: Toggle theme
+          - img
+        - link "New Project" [ref=e22] [cursor=pointer]:
+          - /url: /wizard/new
+          - img
+          - generic [ref=e23]: New Project
+  - main [ref=e24]:
+    - generic [ref=e25]:
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - img [ref=e31]
+          - heading "NovaAgent AI" [level=1] [ref=e33]
+        - paragraph [ref=e34]: Solar & Battery Energy Planning Platform
+        - generic [ref=e35]:
+          - button "Start New Project" [ref=e36]:
+            - text: Start New Project
+            - img
+          - button "View Projects" [ref=e37]
+      - generic [ref=e38]:
+        - generic [ref=e39]:
+          - generic [ref=e40]:
+            - generic [ref=e41]:
+              - generic [ref=e42]:
+                - paragraph [ref=e43]: Total Projects
+                - paragraph [ref=e44]: "0"
+              - img [ref=e46]
+            - generic [ref=e49]:
+              - img [ref=e50]
+              - generic [ref=e53]: Active
+          - generic [ref=e54]:
+            - generic [ref=e55]:
+              - generic [ref=e56]:
+                - paragraph [ref=e57]: Distributors
+                - paragraph [ref=e58]: "3"
+              - img [ref=e60]
+            - generic [ref=e64]:
+              - img [ref=e65]
+              - generic [ref=e70]: Connected
+          - generic [ref=e71]:
+            - generic [ref=e72]:
+              - generic [ref=e73]:
+                - paragraph [ref=e74]: Equipment Items
+                - paragraph [ref=e75]: "0"
+              - img [ref=e77]
+            - generic [ref=e81]:
+              - img [ref=e82]
+              - generic [ref=e84]: In Stock
+          - generic [ref=e85]:
+            - generic [ref=e86]:
+              - generic [ref=e87]:
+                - paragraph [ref=e88]: Avg System Size
+                - paragraph [ref=e89]: 10.5kW
+              - img [ref=e91]
+            - generic [ref=e93]:
+              - img [ref=e94]
+              - generic [ref=e97]: +12% vs last month
+        - generic [ref=e98]:
+          - generic [ref=e99]:
+            - heading "Trusted Distributors" [level=2] [ref=e100]:
+              - img [ref=e101]
+              - text: Trusted Distributors
+            - button "View All" [ref=e105]:
+              - text: View All
+              - img
+          - generic [ref=e106]:
+            - generic [ref=e108] [cursor=pointer]:
+              - img "Portable Sun LLC" [ref=e110]
+              - generic [ref=e111]:
+                - heading "Portable Sun LLC" [level=3] [ref=e112]
+                - paragraph [ref=e113]: https://www.portable-sun.com
+                - generic [ref=e114]:
+                  - img [ref=e115]
+                  - generic [ref=e119]: 0 products
+            - generic [ref=e121] [cursor=pointer]:
+              - 'img "SignatureSolar.com: Solar Panels, DIY Off" [ref=e123]'
+              - generic [ref=e124]:
+                - 'heading "SignatureSolar.com: Solar Panels, DIY Off" [level=3] [ref=e125]'
+                - paragraph [ref=e126]: https://signaturesolar.com
+                - generic [ref=e127]:
+                  - img [ref=e128]
+                  - generic [ref=e132]: 0 products
+            - generic [ref=e134] [cursor=pointer]:
+              - img "US Solar Supplier" [ref=e136]
+              - generic [ref=e137]:
+                - heading "US Solar Supplier" [level=3] [ref=e138]
+                - paragraph [ref=e139]: https://ussolarsupplier.com
+                - generic [ref=e140]:
+                  - img [ref=e141]
+                  - generic [ref=e145]: 0 products
+        - generic [ref=e146]:
+          - generic [ref=e147]:
+            - heading "Featured Equipment" [level=2] [ref=e148]:
+              - img [ref=e149]
+              - text: Featured Equipment
+            - button "Browse Catalog" [ref=e153]:
+              - text: Browse Catalog
+              - img
+          - generic [ref=e154]:
+            - generic [ref=e155]:
+              - img "11ft 10AWG PV Wire Extension | Black & Red" [ref=e157]
+              - generic [ref=e158]:
+                - generic [ref=e159]: WIRING
+                - heading "11ft 10AWG PV Wire Extension | Black & Red" [level=3] [ref=e160]
+                - paragraph [ref=e161]: Portable Sun LLC
+                - generic [ref=e162]:
+                  - generic [ref=e163]: $21.98
+                  - button "Details" [ref=e164]:
+                    - text: Details
+                    - img
+            - generic [ref=e165]:
+              - img "14.4kW Pallet - Hyperion by Runergy 400W Bifacial Solar Panel (Black) | Up to 500W with Bifacial Gain | Full Pallet (36) - 14.4kW Total" [ref=e167]
+              - generic [ref=e168]:
+                - generic [ref=e169]: SOLAR PANEL
+                - heading "14.4kW Pallet - Hyperion by Runergy 400W Bifacial Solar Panel (Black) | Up to 500W with Bifacial Gain | Full Pallet (36) - 14.4kW Total" [level=3] [ref=e170]
+                - paragraph [ref=e171]: Hyperion
+                - generic [ref=e172]:
+                  - generic [ref=e173]: $4,499.99
+                  - button "Details" [ref=e174]:
+                    - text: Details
+                    - img
+            - generic [ref=e175]:
+              - img "14.4kW Pallet - Hyperion by Runergy 400W Bifacial Solar Panel (Black) | Up to 500W with Bifacial Gain | Full Pallet (36) - 14.4kW Total" [ref=e177]
+              - generic [ref=e178]:
+                - generic [ref=e179]: SOLAR PANEL
+                - heading "14.4kW Pallet - Hyperion by Runergy 400W Bifacial Solar Panel (Black) | Up to 500W with Bifacial Gain | Full Pallet (36) - 14.4kW Total" [level=3] [ref=e180]
+                - paragraph [ref=e181]: Hyperion
+                - generic [ref=e182]:
+                  - generic [ref=e183]: $4,499.99
+                  - button "Details" [ref=e184]:
+                    - text: Details
+                    - img
+            - generic [ref=e185]:
+              - img "36in 4/0 AWG Battery to Inverter Cables | Black and Red" [ref=e187]
+              - generic [ref=e188]:
+                - generic [ref=e189]: BATTERY
+                - heading "36in 4/0 AWG Battery to Inverter Cables | Black and Red" [level=3] [ref=e190]
+                - paragraph [ref=e191]: Portable Sun LLC
+                - generic [ref=e192]:
+                  - generic [ref=e193]: $92.34
+                  - button "Details" [ref=e194]:
+                    - text: Details
+                    - img
+            - generic [ref=e195]:
+              - img "36in 4/0 AWG Battery to Inverter Cables | Black and Red" [ref=e197]
+              - generic [ref=e198]:
+                - generic [ref=e199]: BATTERY
+                - heading "36in 4/0 AWG Battery to Inverter Cables | Black and Red" [level=3] [ref=e200]
+                - paragraph [ref=e201]: Portable Sun LLC
+                - generic [ref=e202]:
+                  - generic [ref=e203]: $92.34
+                  - button "Details" [ref=e204]:
+                    - text: Details
+                    - img
+            - generic [ref=e205]:
+              - img "50ft 10 AWG Copper PV Wire | Black and Red" [ref=e207]
+              - generic [ref=e208]:
+                - generic [ref=e209]: INVERTER
+                - heading "50ft 10 AWG Copper PV Wire | Black and Red" [level=3] [ref=e210]
+                - paragraph [ref=e211]: Portable Sun LLC
+                - generic [ref=e212]:
+                  - generic [ref=e213]: $71.29
+                  - button "Details" [ref=e214]:
+                    - text: Details
+                    - img
+            - generic [ref=e215]:
+              - img "50ft 10 AWG Copper PV Wire | Black and Red" [ref=e217]
+              - generic [ref=e218]:
+                - generic [ref=e219]: INVERTER
+                - heading "50ft 10 AWG Copper PV Wire | Black and Red" [level=3] [ref=e220]
+                - paragraph [ref=e221]: Portable Sun LLC
+                - generic [ref=e222]:
+                  - generic [ref=e223]: $71.29
+                  - button "Details" [ref=e224]:
+                    - text: Details
+                    - img
+            - generic [ref=e225]:
+              - img "50ft 10 AWG Copper PV Wire | Black and Red" [ref=e227]
+              - generic [ref=e228]:
+                - generic [ref=e229]: INVERTER
+                - heading "50ft 10 AWG Copper PV Wire | Black and Red" [level=3] [ref=e230]
+                - paragraph [ref=e231]: Portable Sun LLC
+                - generic [ref=e232]:
+                  - generic [ref=e233]: $71.29
+                  - button "Details" [ref=e234]:
+                    - text: Details
+                    - img
+            - generic [ref=e235]:
+              - img "50ft 10 AWG Copper PV Wire | Black and Red" [ref=e237]
+              - generic [ref=e238]:
+                - generic [ref=e239]: INVERTER
+                - heading "50ft 10 AWG Copper PV Wire | Black and Red" [level=3] [ref=e240]
+                - paragraph [ref=e241]: Portable Sun LLC
+                - generic [ref=e242]:
+                  - generic [ref=e243]: $71.29
+                  - button "Details" [ref=e244]:
+                    - text: Details
+                    - img
+            - generic [ref=e245]:
+              - img "72in 4/0 AWG Battery to Inverter Cables | Black and Red" [ref=e247]
+              - generic [ref=e248]:
+                - generic [ref=e249]: BATTERY
+                - heading "72in 4/0 AWG Battery to Inverter Cables | Black and Red" [level=3] [ref=e250]
+                - paragraph [ref=e251]: Portable Sun LLC
+                - generic [ref=e252]:
+                  - generic [ref=e253]: $105.00
+                  - button "Details" [ref=e254]:
+                    - text: Details
+                    - img
+            - generic [ref=e255]:
+              - img "84in 1/0 AWG Battery to Inverter Cables | Black and Red" [ref=e257]
+              - generic [ref=e258]:
+                - generic [ref=e259]: BATTERY
+                - heading "84in 1/0 AWG Battery to Inverter Cables | Black and Red" [level=3] [ref=e260]
+                - paragraph [ref=e261]: Portable Sun LLC
+                - generic [ref=e262]:
+                  - generic [ref=e263]: $87.88
+                  - button "Details" [ref=e264]:
+                    - text: Details
+                    - img
+            - generic [ref=e265]:
+              - img "84in 1/0 AWG Battery to Inverter Cables | Black and Red" [ref=e267]
+              - generic [ref=e268]:
+                - generic [ref=e269]: BATTERY
+                - heading "84in 1/0 AWG Battery to Inverter Cables | Black and Red" [level=3] [ref=e270]
+                - paragraph [ref=e271]: Portable Sun LLC
+                - generic [ref=e272]:
+                  - generic [ref=e273]: $87.88
+                  - button "Details" [ref=e274]:
+                    - text: Details
+                    - img
+            - generic [ref=e275]:
+              - 'img "ABB & EG4 Smart Energy Command Bundle {BNDL-E0026}" [ref=e277]'
+              - generic [ref=e278]:
+                - generic [ref=e279]: OTHER
+                - 'heading "ABB & EG4 Smart Energy Command Bundle {BNDL-E0026}" [level=3] [ref=e280]'
+                - paragraph [ref=e281]: ABB
+                - generic [ref=e282]:
+                  - generic [ref=e283]: $8,312.88
+                  - button "Details" [ref=e284]:
+                    - text: Details
+                    - img
+            - generic [ref=e285]:
+              - 'img "ABB & EG4 Smart Energy Command Bundle {BNDL-E0026}" [ref=e287]'
+              - generic [ref=e288]:
+                - generic [ref=e289]: OTHER
+                - 'heading "ABB & EG4 Smart Energy Command Bundle {BNDL-E0026}" [level=3] [ref=e290]'
+                - paragraph [ref=e291]: ABB
+                - generic [ref=e292]:
+                  - generic [ref=e293]: $8,312.88
+                  - button "Details" [ref=e294]:
+                    - text: Details
+                    - img
+            - generic [ref=e295]:
+              - img "APSmart RSD-D-20 (duo) 1500V UL/1000V TUV 0.5m Input/2.2m" [ref=e297]
+              - generic [ref=e298]:
+                - generic [ref=e299]: OTHER
+                - heading "APSmart RSD-D-20 (duo) 1500V UL/1000V TUV 0.5m Input/2.2m" [level=3] [ref=e300]
+                - paragraph [ref=e301]: APsystems
+                - generic [ref=e302]:
+                  - generic [ref=e303]: $53.78
+                  - button "Details" [ref=e304]:
+                    - text: Details
+                    - img
+            - generic [ref=e305]:
+              - img "APSystems Y3 Trunk cable for DS3/QS1 - 2m" [ref=e307]
+              - generic [ref=e308]:
+                - generic [ref=e309]: WIRING
+                - heading "APSystems Y3 Trunk cable for DS3/QS1 - 2m" [level=3] [ref=e310]
+                - paragraph [ref=e311]: APsystems
+                - generic [ref=e312]:
+                  - generic [ref=e313]: $26.99
+                  - button "Details" [ref=e314]:
+                    - text: Details
+                    - img
+            - generic [ref=e315]:
+              - img "APsystems 119001 DS3-S Single Phase Dual-Module Microinverter" [ref=e317]
+              - generic [ref=e318]:
+                - generic [ref=e319]: INVERTER
+                - heading "APsystems 119001 DS3-S Single Phase Dual-Module Microinverter" [level=3] [ref=e320]
+                - paragraph [ref=e321]: APsystems
+                - generic [ref=e322]:
+                  - generic [ref=e323]: $165.30
+                  - button "Details" [ref=e324]:
+                    - text: Details
+                    - img
+            - generic [ref=e325]:
+              - img "APsystems 415002 RSD-S-PLC Rapid Shutdown PLC Device" [ref=e327]
+              - generic [ref=e328]:
+                - generic [ref=e329]: OTHER
+                - heading "APsystems 415002 RSD-S-PLC Rapid Shutdown PLC Device" [level=3] [ref=e330]
+                - paragraph [ref=e331]: APsystems
+                - generic [ref=e332]:
+                  - generic [ref=e333]: $31.25
+                  - button "Details" [ref=e334]:
+                    - text: Details
+                    - img
+            - generic [ref=e335]:
+              - img "APsystems 426101 RSD-D Rapid Shutdown-D (Duo)" [ref=e337]
+              - generic [ref=e338]:
+                - generic [ref=e339]: OTHER
+                - heading "APsystems 426101 RSD-D Rapid Shutdown-D (Duo)" [level=3] [ref=e340]
+                - paragraph [ref=e341]: APsystems
+                - generic [ref=e342]:
+                  - generic [ref=e343]: $50.96
+                  - button "Details" [ref=e344]:
+                    - text: Details
+                    - img
+            - generic [ref=e345]:
+              - img "APsystems QT2-208V 3-Phase Commercial Quad Microinverter" [ref=e347]
+              - generic [ref=e348]:
+                - generic [ref=e349]: INVERTER
+                - heading "APsystems QT2-208V 3-Phase Commercial Quad Microinverter" [level=3] [ref=e350]
+                - paragraph [ref=e351]: APsystems
+                - generic [ref=e352]:
+                  - generic [ref=e353]: $365.04
+                  - button "Details" [ref=e354]:
+                    - text: Details
+                    - img
+            - generic [ref=e355]:
+              - img "APsystems QT2-480V (5-Wire) 3-Phase Commercial Quad Microinverter" [ref=e357]
+              - generic [ref=e358]:
+                - generic [ref=e359]: INVERTER
+                - heading "APsystems QT2-480V (5-Wire) 3-Phase Commercial Quad Microinverter" [level=3] [ref=e360]
+                - paragraph [ref=e361]: APsystems
+                - generic [ref=e362]:
+                  - generic [ref=e363]: $362.89
+                  - button "Details" [ref=e364]:
+                    - text: Details
+                    - img
+            - generic [ref=e365]:
+              - img [ref=e367]
+              - generic [ref=e371]:
+                - generic [ref=e372]: OTHER
+                - heading "All Products - Inverters - Off-Grid Inverters - Signature SolarYouTubeFacebookLinkedInInstagram" [level=3] [ref=e373]
+                - generic [ref=e374]:
+                  - generic [ref=e375]: $1,699.95
+                  - button "Details" [ref=e376]:
+                    - text: Details
+                    - img
+            - generic [ref=e377]:
+              - img "All Products - Kits & Bundles - Home Backup Kits - Signature SolarYouTubeFacebookLinkedInInstagram" [ref=e379]
+              - generic [ref=e380]:
+                - generic [ref=e381]: OTHER
+                - heading "All Products - Kits & Bundles - Home Backup Kits - Signature SolarYouTubeFacebookLinkedInInstagram" [level=3] [ref=e382]
+                - generic [ref=e383]:
+                  - generic [ref=e384]: $13,546.87
+                  - button "Details" [ref=e385]:
+                    - text: Details
+                    - img
+            - generic [ref=e386]:
+              - img "Anker SOLIX C1000X Portable Solar Battery Generator + up to 400W Anker Solar Panels [KIT-AK003]" [ref=e388]
+              - generic [ref=e389]:
+                - generic [ref=e390]: BATTERY
+                - heading "Anker SOLIX C1000X Portable Solar Battery Generator + up to 400W Anker Solar Panels [KIT-AK003]" [level=3] [ref=e391]
+                - paragraph [ref=e392]: Anker
+                - generic [ref=e393]:
+                  - generic [ref=e394]: $788.00
+                  - button "Details" [ref=e395]:
+                    - text: Details
+                    - img
+            - generic [ref=e396]:
+              - img "Anker SOLIX F1500 Portable Solar Battery Generator + up to 400W Anker Solar Panels [KIT-AK004]" [ref=e398]
+              - generic [ref=e399]:
+                - generic [ref=e400]: SOLAR PANEL
+                - heading "Anker SOLIX F1500 Portable Solar Battery Generator + up to 400W Anker Solar Panels [KIT-AK004]" [level=3] [ref=e401]
+                - paragraph [ref=e402]: Anker
+                - generic [ref=e403]:
+                  - generic [ref=e404]: $1,218.00
+                  - button "Details" [ref=e405]:
+                    - text: Details
+                    - img
+            - generic [ref=e406]:
+              - img "Anker SOLIX F2600 Portable Solar Battery Generator 2560Wh | 2400W + up to 400W Anker Solar Panels [KIT-AK001]" [ref=e408]
+              - generic [ref=e409]:
+                - generic [ref=e410]: BATTERY
+                - heading "Anker SOLIX F2600 Portable Solar Battery Generator 2560Wh | 2400W + up to 400W Anker Solar Panels [KIT-AK001]" [level=3] [ref=e411]
+                - paragraph [ref=e412]: Anker
+                - generic [ref=e413]:
+                  - generic [ref=e414]: $2,148.00
+                  - button "Details" [ref=e415]:
+                    - text: Details
+                    - img
+            - generic [ref=e416]:
+              - img "Anker SOLIX F3000 Portable Power Station 3072Wh | 3600W | A1782111" [ref=e418]
+              - generic [ref=e419]:
+                - generic [ref=e420]: BATTERY
+                - heading "Anker SOLIX F3000 Portable Power Station 3072Wh | 3600W | A1782111" [level=3] [ref=e421]
+                - paragraph [ref=e422]: Anker
+                - generic [ref=e423]:
+                  - generic [ref=e424]: $1,699.00
+                  - button "Details" [ref=e425]:
+                    - text: Details
+                    - img
+            - generic [ref=e426]:
+              - img "Anker SOLIX F3800 + Home Backup Transfer Switch Kit" [ref=e428]
+              - generic [ref=e429]:
+                - generic [ref=e430]: ELECTRICAL
+                - heading "Anker SOLIX F3800 + Home Backup Transfer Switch Kit" [level=3] [ref=e431]
+                - paragraph [ref=e432]: Anker
+                - generic [ref=e433]:
+                  - generic [ref=e434]: $3,299.00
+                  - button "Details" [ref=e435]:
+                    - text: Details
+                    - img
+            - generic [ref=e436]:
+              - img "Anker SOLIX F3800 + Smart Home Power Kit" [ref=e438]
+              - generic [ref=e439]:
+                - generic [ref=e440]: ACCESSORIES
+                - heading "Anker SOLIX F3800 + Smart Home Power Kit" [level=3] [ref=e441]
+                - paragraph [ref=e442]: Anker
+                - generic [ref=e443]:
+                  - generic [ref=e444]: $4,299.00
+                  - button "Details" [ref=e445]:
+                    - text: Details
+                    - img
+            - generic [ref=e446]:
+              - img "Anker SOLIX F3800 Solar Generator + up to 1200W Anker Solar Panels [KIT-AK009]" [ref=e448]
+              - generic [ref=e449]:
+                - generic [ref=e450]: SOLAR PANEL
+                - heading "Anker SOLIX F3800 Solar Generator + up to 1200W Anker Solar Panels [KIT-AK009]" [level=3] [ref=e451]
+                - paragraph [ref=e452]: Anker
+                - generic [ref=e453]:
+                  - generic [ref=e454]: $3,399.00
+                  - button "Details" [ref=e455]:
+                    - text: Details
+                    - img
+            - generic [ref=e456]:
+              - img "Anker SOLIX Home Power Panel" [ref=e458]
+              - generic [ref=e459]:
+                - generic [ref=e460]: OTHER
+                - heading "Anker SOLIX Home Power Panel" [level=3] [ref=e461]
+                - paragraph [ref=e462]: Anker
+                - generic [ref=e463]:
+                  - generic [ref=e464]: $1,299.00
+                  - button "Details" [ref=e465]:
+                    - text: Details
+                    - img
+            - generic [ref=e466]:
+              - img "Apsystems 2060402006 Dc Connector Cap" [ref=e468]
+              - generic [ref=e469]:
+                - generic [ref=e470]: WIRING
+                - heading "Apsystems 2060402006 Dc Connector Cap" [level=3] [ref=e471]
+                - paragraph [ref=e472]: APsystems
+                - generic [ref=e473]:
+                  - generic [ref=e474]: $1.71
+                  - button "Details" [ref=e475]:
+                    - text: Details
+                    - img
+            - generic [ref=e476]:
+              - img "Aptos 400W BIFACIAL DNA-108-BF10-400W All Black 108 Bifacial Solar Panel" [ref=e478]
+              - generic [ref=e479]:
+                - generic [ref=e480]: SOLAR PANEL
+                - heading "Aptos 400W BIFACIAL DNA-108-BF10-400W All Black 108 Bifacial Solar Panel" [level=3] [ref=e481]
+                - paragraph [ref=e482]: Aptos
+                - generic [ref=e483]:
+                  - generic [ref=e484]: $150.00
+                  - button "Details" [ref=e485]:
+                    - text: Details
+                    - img
+            - generic [ref=e486]:
+              - img "Aptos 440W BIFACIAL DNA-120-BF10-440W All Black Solar Panel" [ref=e488]
+              - generic [ref=e489]:
+                - generic [ref=e490]: SOLAR PANEL
+                - heading "Aptos 440W BIFACIAL DNA-120-BF10-440W All Black Solar Panel" [level=3] [ref=e491]
+                - paragraph [ref=e492]: Aptos
+                - generic [ref=e493]:
+                  - generic [ref=e494]: $176.00
+                  - button "Details" [ref=e495]:
+                    - text: Details
+                    - img
+            - generic [ref=e496]:
+              - img "Aptos 550W DNA Bifacial All Black Solar Panel DNA-144-BF10-550W-DG" [ref=e498]
+              - generic [ref=e499]:
+                - generic [ref=e500]: SOLAR PANEL
+                - heading "Aptos 550W DNA Bifacial All Black Solar Panel DNA-144-BF10-550W-DG" [level=3] [ref=e501]
+                - paragraph [ref=e502]: Aptos
+                - generic [ref=e503]:
+                  - generic [ref=e504]: $216.99
+                  - button "Details" [ref=e505]:
+                    - text: Details
+                    - img
+            - generic [ref=e506]:
+              - img "Autel EV ChargerHome 50A In-body Holster MC50AHI" [ref=e508]
+              - generic [ref=e509]:
+                - generic [ref=e510]: OTHER
+                - heading "Autel EV ChargerHome 50A In-body Holster MC50AHI" [level=3] [ref=e511]
+                - paragraph [ref=e512]: Autel
+                - generic [ref=e513]:
+                  - generic [ref=e514]: $869.99
+                  - button "Details" [ref=e515]:
+                    - text: Details
+                    - img
+            - generic [ref=e516]:
+              - img "Axitec 440W GXXL bifacial N-Type TOPCon Solar Panel AC-440TGB/108BB" [ref=e518]
+              - generic [ref=e519]:
+                - generic [ref=e520]: SOLAR PANEL
+                - heading "Axitec 440W GXXL bifacial N-Type TOPCon Solar Panel AC-440TGB/108BB" [level=3] [ref=e521]
+                - paragraph [ref=e522]: Axitec
+                - generic [ref=e523]:
+                  - generic [ref=e524]: $179.00
+                  - button "Details" [ref=e525]:
+                    - text: Details
+                    - img
+            - generic [ref=e526]:
+              - img "Axitec 590W bifacial N-Type TOPCon Solar Panel AC-590TGB/144TS" [ref=e528]
+              - generic [ref=e529]:
+                - generic [ref=e530]: SOLAR PANEL
+                - heading "Axitec 590W bifacial N-Type TOPCon Solar Panel AC-590TGB/144TS" [level=3] [ref=e531]
+                - paragraph [ref=e532]: Axitec
+                - generic [ref=e533]:
+                  - generic [ref=e534]: $246.00
+                  - button "Details" [ref=e535]:
+                    - text: Details
+                    - img
+            - generic [ref=e536]:
+              - img "BLUETTI AC500 Home Battery Backup" [ref=e538]
+              - generic [ref=e539]:
+                - generic [ref=e540]: BATTERY
+                - heading "BLUETTI AC500 Home Battery Backup" [level=3] [ref=e541]
+                - paragraph [ref=e542]: Bluetti
+                - generic [ref=e543]:
+                  - generic [ref=e544]: $1,257.32
+                  - button "Details" [ref=e545]:
+                    - text: Details
+                    - img
+            - generic [ref=e546]:
+              - img "BigBattery 12V HUSKY 2 LiFePO4 Battery | 400Ah | 5.12kWh" [ref=e548]
+              - generic [ref=e549]:
+                - generic [ref=e550]: OTHER
+                - heading "BigBattery 12V HUSKY 2 LiFePO4 Battery | 400Ah | 5.12kWh" [level=3] [ref=e551]
+                - paragraph [ref=e552]: BigBattery
+                - generic [ref=e553]:
+                  - generic [ref=e554]: $1,790.00
+                  - button "Details" [ref=e555]:
+                    - text: Details
+                    - img
+            - generic [ref=e556]:
+              - img "BigBattery | 48V HUSKY 2 LiFePO4 Battery + Battery Charger and Battery Monitor [BNDL-B0014]" [ref=e558]
+              - generic [ref=e559]:
+                - generic [ref=e560]: BATTERY
+                - heading "BigBattery | 48V HUSKY 2 LiFePO4 Battery + Battery Charger and Battery Monitor [BNDL-B0014]" [level=3] [ref=e561]
+                - paragraph [ref=e562]: BigBattery
+                - generic [ref=e563]:
+                  - generic [ref=e564]: $2,150.00
+                  - button "Details" [ref=e565]:
+                    - text: Details
+                    - img
+            - generic [ref=e566]:
+              - img "BigBattery | ETHOS Battery EG4-18Kpv Bundle Bundle - Commercial Energy System | 36kW Output Total w/ 30.7kWh to 92.1kWh [BNDL-B0006]" [ref=e568]
+              - generic [ref=e569]:
+                - generic [ref=e570]: BATTERY
+                - heading "BigBattery | ETHOS Battery EG4-18Kpv Bundle Bundle - Commercial Energy System | 36kW Output Total w/ 30.7kWh to 92.1kWh [BNDL-B0006]" [level=3] [ref=e571]
+                - paragraph [ref=e572]: BigBattery
+                - generic [ref=e573]:
+                  - generic [ref=e574]: $26,544.00
+                  - button "Details" [ref=e575]:
+                    - text: Details
+                    - img
+            - generic [ref=e576]:
+              - img "BigBattery |48V HUSKY 2 INV Lithium Battery" [ref=e578]
+              - generic [ref=e579]:
+                - generic [ref=e580]: OTHER
+                - heading "BigBattery |48V HUSKY 2 INV Lithium Battery" [level=3] [ref=e581]
+                - paragraph [ref=e582]: BigBattery
+                - generic [ref=e583]:
+                  - generic [ref=e584]: $1,790.00
+                  - button "Details" [ref=e585]:
+                    - text: Details
+                    - img
+            - generic [ref=e586]:
+              - img "Bluesun 415W (Pallet of 36) Black Mono-Facial Perc Solar Panels-BSM415M10-54HPH" [ref=e588]
+              - generic [ref=e589]:
+                - generic [ref=e590]: SOLAR PANEL
+                - heading "Bluesun 415W (Pallet of 36) Black Mono-Facial Perc Solar Panels-BSM415M10-54HPH" [level=3] [ref=e591]
+                - paragraph [ref=e592]: Bluesun Solar
+                - generic [ref=e593]:
+                  - generic [ref=e594]: $5,599.00
+                  - button "Details" [ref=e595]:
+                    - text: Details
+                    - img
+            - generic [ref=e596]:
+              - img "Bluetti 864Wh P-AC70P-US-GY-BL-010 1000W Portable Power Station" [ref=e598]
+              - generic [ref=e599]:
+                - generic [ref=e600]: BATTERY
+                - heading "Bluetti 864Wh P-AC70P-US-GY-BL-010 1000W Portable Power Station" [level=3] [ref=e601]
+                - paragraph [ref=e602]: Bluetti
+                - generic [ref=e603]:
+                  - generic [ref=e604]: $499.00
+                  - button "Details" [ref=e605]:
+                    - text: Details
+                    - img
+            - generic [ref=e606]:
+              - img "CW Energy 16.5kW Pallet - 550W Bifacial Solar Panels | Up to 715W Bifacial Gain| CWT550-144PMB10 | Full Pallet (31) (Black)" [ref=e608]
+              - generic [ref=e609]:
+                - generic [ref=e610]: OTHER
+                - heading "CW Energy 16.5kW Pallet - 550W Bifacial Solar Panels | Up to 715W Bifacial Gain| CWT550-144PMB10 | Full Pallet (31) (Black)" [level=3] [ref=e611]
+                - paragraph [ref=e612]: CW Energy
+                - generic [ref=e613]:
+                  - generic [ref=e614]: $4,899.00
+                  - button "Details" [ref=e615]:
+                    - text: Details
+                    - img
+            - generic [ref=e616]:
+              - img "CW Energy 410W (Pallet of 35) Bifacial Mono PERC CWT410-108PMB10 Solar Panel" [ref=e618]
+              - generic [ref=e619]:
+                - generic [ref=e620]: SOLAR PANEL
+                - heading "CW Energy 410W (Pallet of 35) Bifacial Mono PERC CWT410-108PMB10 Solar Panel" [level=3] [ref=e621]
+                - paragraph [ref=e622]: CW Energy
+                - generic [ref=e623]:
+                  - generic [ref=e624]: $4,359.99
+                  - button "Details" [ref=e625]:
+                    - text: Details
+                    - img
+            - generic [ref=e626]:
+              - img "CW Energy 410W Bifacial Solar Panel (Black) | Up to 530W with Bifacial Gain" [ref=e628]
+              - generic [ref=e629]:
+                - generic [ref=e630]: SOLAR PANEL
+                - heading "CW Energy 410W Bifacial Solar Panel (Black) | Up to 530W with Bifacial Gain" [level=3] [ref=e631]
+                - paragraph [ref=e632]: CW Energy
+                - generic [ref=e633]:
+                  - generic [ref=e634]: $149.99
+                  - button "Details" [ref=e635]:
+                    - text: Details
+                    - img
+            - generic [ref=e636]:
+              - img "CW Energy 410W Bifacial Solar Panel (Black) | Up to 530W with Bifacial Gain | Full Pallet (35)" [ref=e638]
+              - generic [ref=e639]:
+                - generic [ref=e640]: SOLAR PANEL
+                - heading "CW Energy 410W Bifacial Solar Panel (Black) | Up to 530W with Bifacial Gain | Full Pallet (35)" [level=3] [ref=e641]
+                - paragraph [ref=e642]: CW Energy
+                - generic [ref=e643]:
+                  - generic [ref=e644]: $5,199.39
+                  - button "Details" [ref=e645]:
+                    - text: Details
+                    - img
+            - generic [ref=e646]:
+              - img "CW Energy 550W (Pallet of 31) Mono PERC Bifacial CWT550-144PMB10 Solar Panel" [ref=e648]
+              - generic [ref=e649]:
+                - generic [ref=e650]: SOLAR PANEL
+                - heading "CW Energy 550W (Pallet of 31) Mono PERC Bifacial CWT550-144PMB10 Solar Panel" [level=3] [ref=e651]
+                - paragraph [ref=e652]: CW Energy
+                - generic [ref=e653]:
+                  - generic [ref=e654]: $4,949.99
+                  - button "Details" [ref=e655]:
+                    - text: Details
+                    - img
+            - generic [ref=e656]:
+              - img "CW Energy 550W Bifacial Solar Panels | Up to 715W Bifacial Gain| CWT550-144PMB10 (Black)" [ref=e658]
+              - generic [ref=e659]:
+                - generic [ref=e660]: OTHER
+                - heading "CW Energy 550W Bifacial Solar Panels | Up to 715W Bifacial Gain| CWT550-144PMB10 (Black)" [level=3] [ref=e661]
+                - paragraph [ref=e662]: CW Energy
+                - generic [ref=e663]:
+                  - generic [ref=e664]: $199.99
+                  - button "Details" [ref=e665]:
+                    - text: Details
+                    - img
+            - generic [ref=e666]:
+              - img "Canadian 445W TOPHiKu6 TOPCon N Type Solar Panel CS6.2-48TM-445" [ref=e668]
+              - generic [ref=e669]:
+                - generic [ref=e670]: SOLAR PANEL
+                - heading "Canadian 445W TOPHiKu6 TOPCon N Type Solar Panel CS6.2-48TM-445" [level=3] [ref=e671]
+                - paragraph [ref=e672]: Canadian Solar
+                - generic [ref=e673]:
+                  - generic [ref=e674]: $199.99
+                  - button "Details" [ref=e675]:
+                    - text: Details
+                    - img
+            - generic [ref=e676]:
+              - img "Canadian Solar 18.55kW Pallet - 530W Bifacial Solar Panels| Up to 650W Bifacial| CS6W-530MB-AG | Full Pallet (35)" [ref=e678]
+              - generic [ref=e679]:
+                - generic [ref=e680]: OTHER
+                - heading "Canadian Solar 18.55kW Pallet - 530W Bifacial Solar Panels| Up to 650W Bifacial| CS6W-530MB-AG | Full Pallet (35)" [level=3] [ref=e681]
+                - paragraph [ref=e682]: Canadian Solar
+                - generic [ref=e683]:
+                  - generic [ref=e684]: $7,299.00
+                  - button "Details" [ref=e685]:
+                    - text: Details
+                    - img
+            - generic [ref=e686]:
+              - img "Canadian Solar 18.725kW Pallet - 535W Bifacial Solar Panels| Up to 650W Bifacial| CS6W-535MB-AG | Full Pallet (35)" [ref=e688]
+              - generic [ref=e689]:
+                - generic [ref=e690]: OTHER
+                - heading "Canadian Solar 18.725kW Pallet - 535W Bifacial Solar Panels| Up to 650W Bifacial| CS6W-535MB-AG | Full Pallet (35)" [level=3] [ref=e691]
+                - paragraph [ref=e692]: Canadian Solar
+                - generic [ref=e693]:
+                  - generic [ref=e694]: $7,359.00
+                  - button "Details" [ref=e695]:
+                    - text: Details
+                    - img
+            - generic [ref=e696]:
+              - img "Canadian Solar 530W Bifacial Solar Panel| Up to 640W Bifacial| CS6W-530MB-AG" [ref=e698]
+              - generic [ref=e699]:
+                - generic [ref=e700]: SOLAR PANEL
+                - heading "Canadian Solar 530W Bifacial Solar Panel| Up to 640W Bifacial| CS6W-530MB-AG" [level=3] [ref=e701]
+                - paragraph [ref=e702]: Canadian Solar
+                - generic [ref=e703]:
+                  - generic [ref=e704]: $218.40
+                  - button "Details" [ref=e705]:
+                    - text: Details
+                    - img
+            - generic [ref=e706]:
+              - img "Canadian Solar 530W Bifacial Solar Panel| Up to 640W Bifacial| CS6W-530MB-AG" [ref=e708]
+              - generic [ref=e709]:
+                - generic [ref=e710]: SOLAR PANEL
+                - heading "Canadian Solar 530W Bifacial Solar Panel| Up to 640W Bifacial| CS6W-530MB-AG" [level=3] [ref=e711]
+                - paragraph [ref=e712]: Canadian Solar
+                - generic [ref=e713]:
+                  - generic [ref=e714]: $218.40
+                  - button "Details" [ref=e715]:
+                    - text: Details
+                    - img
+            - generic [ref=e716]:
+              - img "Canadian Solar 535W Bifacial Solar Panel| Up to 650W Bifacial| CS6W-535MB-AG" [ref=e718]
+              - generic [ref=e719]:
+                - generic [ref=e720]: SOLAR PANEL
+                - heading "Canadian Solar 535W Bifacial Solar Panel| Up to 650W Bifacial| CS6W-535MB-AG" [level=3] [ref=e721]
+                - paragraph [ref=e722]: Canadian Solar
+                - generic [ref=e723]:
+                  - generic [ref=e724]: $219.99
+                  - button "Details" [ref=e725]:
+                    - text: Details
+                    - img
+            - generic [ref=e726]:
+              - img "Canadian Solar 690W N-type Bifacial TOPCon CS7N-690TB-AG solar panel" [ref=e728]
+              - generic [ref=e729]:
+                - generic [ref=e730]: SOLAR PANEL
+                - heading "Canadian Solar 690W N-type Bifacial TOPCon CS7N-690TB-AG solar panel" [level=3] [ref=e731]
+                - paragraph [ref=e732]: Canadian Solar
+                - generic [ref=e733]:
+                  - generic [ref=e734]: $279.50
+                  - button "Details" [ref=e735]:
+                    - text: Details
+                    - img
+            - generic [ref=e736]:
+              - img "Canadian Solar 710W N-Type TOPCon Bifacial Solar Panel | Up to 850W Bifacial | CS7N-710-TB-AG" [ref=e738]
+              - generic [ref=e739]:
+                - generic [ref=e740]: SOLAR PANEL
+                - heading "Canadian Solar 710W N-Type TOPCon Bifacial Solar Panel | Up to 850W Bifacial | CS7N-710-TB-AG" [level=3] [ref=e741]
+                - paragraph [ref=e742]: Canadian Solar
+                - generic [ref=e743]:
+                  - generic [ref=e744]: $259.29
+                  - button "Details" [ref=e745]:
+                    - text: Details
+                    - img
+            - generic [ref=e746]:
+              - img "Canadian Solar 710W N-Type TOPCon Bifacial Solar Panel | Up to 850W Bifacial | CS7N-710-TB-AG | 22 kW Full Pallet (31)" [ref=e748]
+              - generic [ref=e749]:
+                - generic [ref=e750]: SOLAR PANEL
+                - heading "Canadian Solar 710W N-Type TOPCon Bifacial Solar Panel | Up to 850W Bifacial | CS7N-710-TB-AG | 22 kW Full Pallet (31)" [level=3] [ref=e751]
+                - paragraph [ref=e752]: Canadian Solar
+                - generic [ref=e753]:
+                  - generic [ref=e754]: $7,699.00
+                  - button "Details" [ref=e755]:
+                    - text: Details
+                    - img
+            - generic [ref=e756]:
+              - img "Canadian Solar CS3W-445W BiHiKu Bifacial Solar Panel | 445W High-Efficiency Mono PERC | Up to 580W" [ref=e758]
+              - generic [ref=e759]:
+                - generic [ref=e760]: SOLAR PANEL
+                - heading "Canadian Solar CS3W-445W BiHiKu Bifacial Solar Panel | 445W High-Efficiency Mono PERC | Up to 580W" [level=3] [ref=e761]
+                - paragraph [ref=e762]: Canadian Solar
+                - generic [ref=e763]:
+                  - generic [ref=e764]: $142.00
+                  - button "Details" [ref=e765]:
+                    - text: Details
+                    - img
+            - generic [ref=e766]:
+              - img "Canadian Solar CS3W-445W BiHiKu Bifacial Solar Panel | 445W High-Efficiency Mono PERC | Up to 580W" [ref=e768]
+              - generic [ref=e769]:
+                - generic [ref=e770]: SOLAR PANEL
+                - heading "Canadian Solar CS3W-445W BiHiKu Bifacial Solar Panel | 445W High-Efficiency Mono PERC | Up to 580W" [level=3] [ref=e771]
+                - paragraph [ref=e772]: Canadian Solar
+                - generic [ref=e773]:
+                  - generic [ref=e774]: $142.00
+                  - button "Details" [ref=e775]:
+                    - text: Details
+                    - img
+            - generic [ref=e776]:
+              - img "Canadian Solar EP Cube Energy Storage System - All-In-One Solar Backup Power" [ref=e778]
+              - generic [ref=e779]:
+                - generic [ref=e780]: BATTERY
+                - heading "Canadian Solar EP Cube Energy Storage System - All-In-One Solar Backup Power" [level=3] [ref=e781]
+                - paragraph [ref=e782]: Canadian Solar
+                - generic [ref=e783]:
+                  - generic [ref=e784]: $7,649.00
+                  - button "Details" [ref=e785]:
+                    - text: Details
+                    - img
+            - generic [ref=e786]:
+              - img "Canadian Solar EP Cube Energy Storage System - All-In-One Solar Backup Power - 9.9 kWh+ Lithium Battery | 12.7kW+ of Solar PV" [ref=e788]
+              - generic [ref=e789]:
+                - generic [ref=e790]: BATTERY
+                - heading "Canadian Solar EP Cube Energy Storage System - All-In-One Solar Backup Power - 9.9 kWh+ Lithium Battery | 12.7kW+ of Solar PV" [level=3] [ref=e791]
+                - paragraph [ref=e792]: Canadian Solar
+                - generic [ref=e793]:
+                  - generic [ref=e794]: $13,769.40
+                  - button "Details" [ref=e795]:
+                    - text: Details
+                    - img
+            - generic [ref=e796]:
+              - 'img "Canadian Solar: EP Cube All-in-One Home Solar Backup System {BNDL-C0000}" [ref=e798]'
+              - generic [ref=e799]:
+                - generic [ref=e800]: BATTERY
+                - 'heading "Canadian Solar: EP Cube All-in-One Home Solar Backup System {BNDL-C0000}" [level=3] [ref=e801]'
+                - paragraph [ref=e802]: Canadian Solar
+                - generic [ref=e803]:
+                  - generic [ref=e804]: $7,999.00
+                  - button "Details" [ref=e805]:
+                    - text: Details
+                    - img
+            - generic [ref=e806]:
+              - img "Chiliconpower CP-720-IBC Cp 720 Microinverter" [ref=e808]
+              - generic [ref=e809]:
+                - generic [ref=e810]: INVERTER
+                - heading "Chiliconpower CP-720-IBC Cp 720 Microinverter" [level=3] [ref=e811]
+                - paragraph [ref=e812]: Chilicon Power
+                - generic [ref=e813]:
+                  - generic [ref=e814]: $275.01
+                  - button "Details" [ref=e815]:
+                    - text: Details
+                    - img
+            - generic [ref=e816]:
+              - img "Chiliconpower CP-GWY-1000 Gateway CP-100 The images shown are for illustration purposes only and may not be an exact representation of the product Chilicon Power, CP-GWY-100, 7\" LCD touch screen" [ref=e818]
+              - generic [ref=e819]:
+                - generic [ref=e820]: MONITORING
+                - heading "Chiliconpower CP-GWY-1000 Gateway CP-100 The images shown are for illustration purposes only and may not be an exact representation of the product Chilicon Power, CP-GWY-100, 7\" LCD touch screen" [level=3] [ref=e821]
+                - paragraph [ref=e822]: Chilicon Power
+                - generic [ref=e823]:
+                  - generic [ref=e824]: $537.26
+                  - button "Details" [ref=e825]:
+                    - text: Details
+                    - img
+            - generic [ref=e826]:
+              - img "Chiliconpower CP-MTC-2.15 2.15m 10AWG modular trunk cable" [ref=e828]
+              - generic [ref=e829]:
+                - generic [ref=e830]: SOLAR PANEL
+                - heading "Chiliconpower CP-MTC-2.15 2.15m 10AWG modular trunk cable" [level=3] [ref=e831]
+                - paragraph [ref=e832]: Chilicon Power
+                - generic [ref=e833]:
+                  - generic [ref=e834]: $40.93
+                  - button "Details" [ref=e835]:
+                    - text: Details
+                    - img
+            - generic [ref=e836]:
+              - img "Chint 36kW 3-Phase 480VAC, 1000VDC String Inverter SCA36KTL-DO/US-480 V2, (Wirebox)" [ref=e838]
+              - generic [ref=e839]:
+                - generic [ref=e840]: INVERTER
+                - heading "Chint 36kW 3-Phase 480VAC, 1000VDC String Inverter SCA36KTL-DO/US-480 V2, (Wirebox)" [level=3] [ref=e841]
+                - paragraph [ref=e842]: Chint Power
+                - generic [ref=e843]:
+                  - generic [ref=e844]: $6,864.66
+                  - button "Details" [ref=e845]:
+                    - text: Details
+                    - img
+            - generic [ref=e846]:
+              - img "Complete Grid-Tie Bundle - 800W Aptos Microinverter - Aptos MAC-800 - Up to 30 Panel Capacity [BNDL-A0003]" [ref=e848]
+              - generic [ref=e849]:
+                - generic [ref=e850]: SOLAR PANEL
+                - heading "Complete Grid-Tie Bundle - 800W Aptos Microinverter - Aptos MAC-800 - Up to 30 Panel Capacity [BNDL-A0003]" [level=3] [ref=e851]
+                - paragraph [ref=e852]: Aptos Solar
+                - generic [ref=e853]:
+                  - generic [ref=e854]: $1,554.00
+                  - button "Details" [ref=e855]:
+                    - text: Details
+                    - img
+            - generic [ref=e856]:
+              - img "Complete Grid-Tie Solar Panel Kit - 8kW Aptos Microinverter Kit - Aptos MAC-800" [ref=e858]
+              - generic [ref=e859]:
+                - generic [ref=e860]: SOLAR PANEL
+                - heading "Complete Grid-Tie Solar Panel Kit - 8kW Aptos Microinverter Kit - Aptos MAC-800" [level=3] [ref=e861]
+                - paragraph [ref=e862]: Aptos Solar
+                - generic [ref=e863]:
+                  - generic [ref=e864]: $6,945.00
+                  - button "Details" [ref=e865]:
+                    - text: Details
+                    - img
+            - generic [ref=e866]:
+              - img "Complete Hybrid Solar Kit - 11.4 kW 120/240V Output + 25.6kWh Midnite Power Lithium Powerwall + More Than 14.4 kW Watts of Solar PV" [ref=e868]
+              - generic [ref=e869]:
+                - generic [ref=e870]: BATTERY
+                - heading "Complete Hybrid Solar Kit - 11.4 kW 120/240V Output + 25.6kWh Midnite Power Lithium Powerwall + More Than 14.4 kW Watts of Solar PV" [level=3] [ref=e871]
+                - paragraph [ref=e872]: Portable Sun LLC
+                - generic [ref=e873]:
+                  - generic [ref=e874]: $17,537.84
+                  - button "Details" [ref=e875]:
+                    - text: Details
+                    - img
+            - generic [ref=e876]:
+              - img "Complete Hybrid Solar Kit - Midnite Power TheOne Hybrid Inverter | 11.4kW 120/240V Output | 48V 310AH 16.1kWh Midnite Power AllWeather Lithium Battery | 14.4kW+ of Solar PV" [ref=e878]
+              - generic [ref=e879]:
+                - generic [ref=e880]: BATTERY
+                - heading "Complete Hybrid Solar Kit - Midnite Power TheOne Hybrid Inverter | 11.4kW 120/240V Output | 48V 310AH 16.1kWh Midnite Power AllWeather Lithium Battery | 14.4kW+ of Solar PV" [level=3] [ref=e881]
+                - paragraph [ref=e882]: Midnite Solar
+                - generic [ref=e883]:
+                  - generic [ref=e884]: $15,505.51
+                  - button "Details" [ref=e885]:
+                    - text: Details
+                    - img
+            - generic [ref=e886]:
+              - img "Complete Hybrid Solar Kit - Sol-Ark 15K Hybrid Inverter | 15kW 120/240V Output | 48V 310AH 16.1kWh Midnite Power AllWeather Lithium Battery | 13.5kW+ Solar PV" [ref=e888]
+              - generic [ref=e889]:
+                - generic [ref=e890]: BATTERY
+                - heading "Complete Hybrid Solar Kit - Sol-Ark 15K Hybrid Inverter | 15kW 120/240V Output | 48V 310AH 16.1kWh Midnite Power AllWeather Lithium Battery | 13.5kW+ Solar PV" [level=3] [ref=e891]
+                - paragraph [ref=e892]: Portable Sun LLC
+                - generic [ref=e893]:
+                  - generic [ref=e894]: $16,109.23
+                  - button "Details" [ref=e895]:
+                    - text: Details
+                    - img
+            - generic [ref=e896]:
+              - img "Complete Hybrid Solar Kit - Sol-Ark 15K Hybrid Inverter | 15kW 120/240V Output | 48V 310AH 16.1kWh Midnite Power AllWeather Lithium Battery | 13.5kW+ Solar PV" [ref=e898]
+              - generic [ref=e899]:
+                - generic [ref=e900]: BATTERY
+                - heading "Complete Hybrid Solar Kit - Sol-Ark 15K Hybrid Inverter | 15kW 120/240V Output | 48V 310AH 16.1kWh Midnite Power AllWeather Lithium Battery | 13.5kW+ Solar PV" [level=3] [ref=e901]
+                - paragraph [ref=e902]: Portable Sun LLC
+                - generic [ref=e903]:
+                  - generic [ref=e904]: $16,109.23
+                  - button "Details" [ref=e905]:
+                    - text: Details
+                    - img
+            - generic [ref=e906]:
+              - img "Complete Hybrid Solar Kit | Growatt SPH 10000TL Hybrid Inverter | 15kW PV Input 120/240V 10kW Output | 16.1kWh Midnite Power Lithium Powerwall | More Than 8000 Watts of Solar PV" [ref=e908]
+              - generic [ref=e909]:
+                - generic [ref=e910]: BATTERY
+                - heading "Complete Hybrid Solar Kit | Growatt SPH 10000TL Hybrid Inverter | 15kW PV Input 120/240V 10kW Output | 16.1kWh Midnite Power Lithium Powerwall | More Than 8000 Watts of Solar PV" [level=3] [ref=e911]
+                - paragraph [ref=e912]: Portable Sun LLC
+                - generic [ref=e913]:
+                  - generic [ref=e914]: $9,647.99
+                  - button "Details" [ref=e915]:
+                    - text: Details
+                    - img
+            - generic [ref=e916]:
+              - img "Complete Mobile Solar Kit For 50 AMP RVs| Victron MultiPlus-II 12/3000 | 12V Input | 3000VA Output 120/240V | [Kit-V0004]" [ref=e918]
+              - generic [ref=e919]:
+                - generic [ref=e920]: BATTERY
+                - heading "Complete Mobile Solar Kit For 50 AMP RVs| Victron MultiPlus-II 12/3000 | 12V Input | 3000VA Output 120/240V | [Kit-V0004]" [level=3] [ref=e921]
+                - paragraph [ref=e922]: Victron Energy
+                - generic [ref=e923]:
+                  - generic [ref=e924]: $11,055.15
+                  - button "Details" [ref=e925]:
+                    - text: Details
+                    - img
+            - generic [ref=e926]:
+              - img "Complete Off-Grid Solar Kit EG4 6000XP x2 | 20.48kWh Capacity + 12800 Watts of Solar PV [KIT-E0009]" [ref=e928]
+              - generic [ref=e929]:
+                - generic [ref=e930]: OTHER
+                - heading "Complete Off-Grid Solar Kit EG4 6000XP x2 | 20.48kWh Capacity + 12800 Watts of Solar PV [KIT-E0009]" [level=3] [ref=e931]
+                - paragraph [ref=e932]: EG4 Electronics
+                - generic [ref=e933]:
+                  - generic [ref=e934]: $10,328.58
+                  - button "Details" [ref=e935]:
+                    - text: Details
+                    - img
+            - generic [ref=e936]:
+              - img "Concorde Sunxtender PVX-4050HT 405AH 6V Agm Battery" [ref=e938]
+              - generic [ref=e939]:
+                - generic [ref=e940]: BATTERY
+                - heading "Concorde Sunxtender PVX-4050HT 405AH 6V Agm Battery" [level=3] [ref=e941]
+                - paragraph [ref=e942]: MK Battery
+                - generic [ref=e943]:
+                  - generic [ref=e944]: $799.00
+                  - button "Details" [ref=e945]:
+                    - text: Details
+                    - img
+            - generic [ref=e946]:
+              - 'img "EG4 12000XP & Indoor Wallmount Battery Bundle {BNDL-E0020}" [ref=e948]'
+              - generic [ref=e949]:
+                - generic [ref=e950]: OTHER
+                - 'heading "EG4 12000XP & Indoor Wallmount Battery Bundle {BNDL-E0020}" [level=3] [ref=e951]'
+                - paragraph [ref=e952]: EG4 Electronics
+                - generic [ref=e953]:
+                  - generic [ref=e954]: $6,009.28
+                  - button "Details" [ref=e955]:
+                    - text: Details
+                    - img
+            - generic [ref=e956]:
+              - img "EG4 18KPV Hybrid Inverter System Bundle - 30.72kWH EG4 Lithium Powerwall [BNDL-E0005]" [ref=e958]
+              - generic [ref=e959]:
+                - generic [ref=e960]: OTHER
+                - heading "EG4 18KPV Hybrid Inverter System Bundle - 30.72kWH EG4 Lithium Powerwall [BNDL-E0005]" [level=3] [ref=e961]
+                - paragraph [ref=e962]: EG4 Electronics
+                - generic [ref=e963]:
+                  - generic [ref=e964]: $13,945.96
+                  - button "Details" [ref=e965]:
+                    - text: Details
+                    - img
+            - generic [ref=e966]:
+              - img "EG4 18KPV Hybrid Inverter System Bundle - 61.44kWh EG4 Lithium Battery Rack [BNDL-E0006]" [ref=e968]
+              - generic [ref=e969]:
+                - generic [ref=e970]: OTHER
+                - heading "EG4 18KPV Hybrid Inverter System Bundle - 61.44kWh EG4 Lithium Battery Rack [BNDL-E0006]" [level=3] [ref=e971]
+                - paragraph [ref=e972]: EG4 Electronics
+                - generic [ref=e973]:
+                  - generic [ref=e974]: $21,148.96
+                  - button "Details" [ref=e975]:
+                    - text: Details
+                    - img
+            - generic [ref=e976]:
+              - img "EG4 18kPV Home & Off-Grid Solar Kit – 11.6kW Solar with Battery Storage" [ref=e978]
+              - generic [ref=e979]:
+                - generic [ref=e980]: BATTERY
+                - heading "EG4 18kPV Home & Off-Grid Solar Kit – 11.6kW Solar with Battery Storage" [level=3] [ref=e981]
+                - paragraph [ref=e982]: EG4 Electronics
+                - generic [ref=e983]:
+                  - generic [ref=e984]: $19,681.05
+                  - button "Details" [ref=e985]:
+                    - text: Details
+                    - img
+            - generic [ref=e986]:
+              - img "EG4 18kPV Inverter & Outdoor Wallmount ESS Bundle [BNDL-E0007]" [ref=e988]
+              - generic [ref=e989]:
+                - generic [ref=e990]: OTHER
+                - heading "EG4 18kPV Inverter & Outdoor Wallmount ESS Bundle [BNDL-E0007]" [level=3] [ref=e991]
+                - paragraph [ref=e992]: EG4 Electronics
+                - generic [ref=e993]:
+                  - generic [ref=e994]: $13,335.85
+                  - button "Details" [ref=e995]:
+                    - text: Details
+                    - img
+            - generic [ref=e996]:
+              - img "EG4 18kPV-12LV All-In-One Hybrid Inverter EG4INV18KPV00V2" [ref=e998]
+              - generic [ref=e999]:
+                - generic [ref=e1000]: BATTERY
+                - heading "EG4 18kPV-12LV All-In-One Hybrid Inverter EG4INV18KPV00V2" [level=3] [ref=e1001]
+                - paragraph [ref=e1002]: EG4 Battery
+                - generic [ref=e1003]:
+                  - generic [ref=e1004]: $4,898.00
+                  - button "Details" [ref=e1005]:
+                    - text: Details
+                    - img
+            - generic [ref=e1006]:
+              - img "EG4 6000XP and Indoor WallMount Off-Grid | Backup Bundle [BNDL-E0009]" [ref=e1008]
+              - generic [ref=e1009]:
+                - generic [ref=e1010]: OTHER
+                - heading "EG4 6000XP and Indoor WallMount Off-Grid | Backup Bundle [BNDL-E0009]" [level=3] [ref=e1011]
+                - paragraph [ref=e1012]: EG4 Electronics
+                - generic [ref=e1013]:
+                  - generic [ref=e1014]: $4,968.99
+                  - button "Details" [ref=e1015]:
+                    - text: Details
+                    - img
+            - generic [ref=e1016]:
+              - img "EG4 9K Mini-Split Air Conditioner Heat Pump | 9000 BTU | SEER2 29.5 | Energy Star Certified | Plug-N-Cool Do-It-Yourself Installation" [ref=e1018]
+              - generic [ref=e1019]:
+                - generic [ref=e1020]: OTHER
+                - heading "EG4 9K Mini-Split Air Conditioner Heat Pump | 9000 BTU | SEER2 29.5 | Energy Star Certified | Plug-N-Cool Do-It-Yourself Installation" [level=3] [ref=e1021]
+                - paragraph [ref=e1022]: EG4 Electronics
+                - generic [ref=e1023]:
+                  - generic [ref=e1024]: $1,199.00
+                  - button "Details" [ref=e1025]:
+                    - text: Details
+                    - img
+            - generic [ref=e1026]:
+              - img "EG4 FlexBOSS21 & EG4-WallMount Battery Bundle [BNDL-E0022]" [ref=e1028]
+              - generic [ref=e1029]:
+                - generic [ref=e1030]: OTHER
+                - heading "EG4 FlexBOSS21 & EG4-WallMount Battery Bundle [BNDL-E0022]" [level=3] [ref=e1031]
+                - paragraph [ref=e1032]: EG4 Electronics
+                - generic [ref=e1033]:
+                  - generic [ref=e1034]: $12,636.85
+                  - button "Details" [ref=e1035]:
+                    - text: Details
+                    - img
+            - generic [ref=e1036]:
+              - img "EG4 FlexBOSS21 | EG4-WallMount Indoor Battery Bundle [BNDL-E0023]" [ref=e1038]
+              - generic [ref=e1039]:
+                - generic [ref=e1040]: OTHER
+                - heading "EG4 FlexBOSS21 | EG4-WallMount Indoor Battery Bundle [BNDL-E0023]" [level=3] [ref=e1041]
+                - paragraph [ref=e1042]: EG4 Electronics
+                - generic [ref=e1043]:
+                  - generic [ref=e1044]: $11,258.93
+                  - button "Details" [ref=e1045]:
+                    - text: Details
+                    - img
+            - generic [ref=e1046]:
+              - img "EG4 GridBoss All-in-One Eaton Breaker Kit" [ref=e1048]
+              - generic [ref=e1049]:
+                - generic [ref=e1050]: OTHER
+                - heading "EG4 GridBoss All-in-One Eaton Breaker Kit" [level=3] [ref=e1051]
+                - paragraph [ref=e1052]: Eaton
+                - generic [ref=e1053]:
+                  - generic [ref=e1054]: $511.52
+                  - button "Details" [ref=e1055]:
+                    - text: Details
+                    - img
+            - generic [ref=e1056]:
+              - 'img "EG4 Home Power Bundle – EG4 12kPV Hybrid Inverter & Wall-Mount Battery {BNDL-E0012}" [ref=e1058]'
+              - generic [ref=e1059]:
+                - generic [ref=e1060]: OTHER
+                - 'heading "EG4 Home Power Bundle – EG4 12kPV Hybrid Inverter & Wall-Mount Battery {BNDL-E0012}" [level=3] [ref=e1061]'
+                - paragraph [ref=e1062]: EG4 Electronics
+                - generic [ref=e1063]:
+                  - generic [ref=e1064]: $6,918.99
+                  - button "Details" [ref=e1065]:
+                    - text: Details
+                    - img
+            - generic [ref=e1066]:
+              - img "EG4 Hybrid Solar Mini-Split Kit | 24k BTU Unit + up to 3150 Watts of Solar PV [KIT-E0012]" [ref=e1068]
+              - generic [ref=e1069]:
+                - generic [ref=e1070]: OTHER
+                - heading "EG4 Hybrid Solar Mini-Split Kit | 24k BTU Unit + up to 3150 Watts of Solar PV [KIT-E0012]" [level=3] [ref=e1071]
+                - paragraph [ref=e1072]: EG4 Electronics
+                - generic [ref=e1073]:
+                  - generic [ref=e1074]: $3,671.36
+                  - button "Details" [ref=e1075]:
+                    - text: Details
+                    - img
+            - generic [ref=e1076]:
+              - img "EG4 Hybrid Solar Mini-Split Kit | 12k BTU Unit+ 1600 Watts of Solar PV [KIT-E0011]" [ref=e1078]
+              - generic [ref=e1079]:
+                - generic [ref=e1080]: OTHER
+                - heading "EG4 Hybrid Solar Mini-Split Kit | 12k BTU Unit+ 1600 Watts of Solar PV [KIT-E0011]" [level=3] [ref=e1081]
+                - paragraph [ref=e1082]: EG4 Electronics
+                - generic [ref=e1083]:
+                  - generic [ref=e1084]: $2,171.40
+                  - button "Details" [ref=e1085]:
+                    - text: Details
+                    - img
+            - generic [ref=e1086]:
+              - img "EG4 LL-S Lithium Battery | 48V 100AH | Server Rack Battery" [ref=e1088]
+              - generic [ref=e1089]:
+                - generic [ref=e1090]: BATTERY
+                - heading "EG4 LL-S Lithium Battery | 48V 100AH | Server Rack Battery" [level=3] [ref=e1091]
+                - paragraph [ref=e1092]: EG4 Electronics
+                - generic [ref=e1093]:
+                  - generic [ref=e1094]: $1,329.00
+                  - button "Details" [ref=e1095]:
+                    - text: Details
+                    - img
+            - generic [ref=e1096]:
+              - 'img "EG4 Off-Grid Shed & Garage Solar Kit {KIT-E0017}" [ref=e1098]'
+              - generic [ref=e1099]:
+                - generic [ref=e1100]: ACCESSORIES
+                - 'heading "EG4 Off-Grid Shed & Garage Solar Kit {KIT-E0017}" [level=3] [ref=e1101]'
+                - paragraph [ref=e1102]: EG4 Electronics
+                - generic [ref=e1103]:
+                  - generic [ref=e1104]: $8,238.88
+                  - button "Details" [ref=e1105]:
+                    - text: Details
+                    - img
+            - generic [ref=e1106]:
+              - img "EG4 Off-Grid Solar Kit | 6000XP and Indoor Wallmount [KIT-E0013]" [ref=e1108]
+              - generic [ref=e1109]:
+                - generic [ref=e1110]: OTHER
+                - heading "EG4 Off-Grid Solar Kit | 6000XP and Indoor Wallmount [KIT-E0013]" [level=3] [ref=e1111]
+                - paragraph [ref=e1112]: EG4 Electronics
+                - generic [ref=e1113]:
+                  - generic [ref=e1114]: $8,488.47
+                  - button "Details" [ref=e1115]:
+                    - text: Details
+                    - img
+            - generic [ref=e1116]:
+              - img "EG4 WallMount All Weather Lithium Battery | 48V 280Ah | 14.3kWh" [ref=e1118]
+              - generic [ref=e1119]:
+                - generic [ref=e1120]: BATTERY
+                - heading "EG4 WallMount All Weather Lithium Battery | 48V 280Ah | 14.3kWh" [level=3] [ref=e1121]
+                - paragraph [ref=e1122]: EG4 Electronics
+                - generic [ref=e1123]:
+                  - generic [ref=e1124]: $3,999.00
+                  - button "Details" [ref=e1125]:
+                    - text: Details
+                    - img
+            - generic [ref=e1126]:
+              - img "EG4 WallMount Indoor 100Ah Lithium Battery | UL9540A, UL1973" [ref=e1128]
+              - generic [ref=e1129]:
+                - generic [ref=e1130]: OTHER
+                - heading "EG4 WallMount Indoor 100Ah Lithium Battery | UL9540A, UL1973" [level=3] [ref=e1131]
+                - paragraph [ref=e1132]: EG4 Electronics
+                - generic [ref=e1133]:
+                  - generic [ref=e1134]: $1,650.00
+                  - button "Details" [ref=e1135]:
+                    - text: Details
+                    - img
+            - generic [ref=e1136]:
+              - img "EG4-WallMount Indoor Battery & EG4-18kPV [BNDL-E0011]" [ref=e1138]
+              - generic [ref=e1139]:
+                - generic [ref=e1140]: OTHER
+                - heading "EG4-WallMount Indoor Battery & EG4-18kPV [BNDL-E0011]" [level=3] [ref=e1141]
+                - paragraph [ref=e1142]: EG4 Electronics
+                - generic [ref=e1143]:
+                  - generic [ref=e1144]: $8,317.99
+                  - button "Details" [ref=e1145]:
+                    - text: Details
+                    - img
+            - generic [ref=e1146]:
+              - img "EG4-WallMount Indoor Battery | 48V 280Ah | 14.3kWh" [ref=e1148]
+              - generic [ref=e1149]:
+                - generic [ref=e1150]: BATTERY
+                - heading "EG4-WallMount Indoor Battery | 48V 280Ah | 14.3kWh" [level=3] [ref=e1151]
+                - paragraph [ref=e1152]: EG4 Electronics
+                - generic [ref=e1153]:
+                  - generic [ref=e1154]: $3,299.00
+                  - button "Details" [ref=e1155]:
+                    - text: Details
+                    - img
+            - generic [ref=e1156]:
+              - img "EcoFlow DELTA Pro 3 Portable Power Station" [ref=e1158]
+              - generic [ref=e1159]:
+                - generic [ref=e1160]: OTHER
+                - heading "EcoFlow DELTA Pro 3 Portable Power Station" [level=3] [ref=e1161]
+                - paragraph [ref=e1162]: EcoFlow
+                - generic [ref=e1163]:
+                  - generic [ref=e1164]: $2,899.00
+                  - button "Details" [ref=e1165]:
+                    - text: Details
+                    - img
+            - generic [ref=e1166]:
+              - img "Endurenergy ESP-5100 B0005 5.1KWH 100AH 48V Battery Pack" [ref=e1168]
+              - generic [ref=e1169]:
+                - generic [ref=e1170]: BATTERY
+                - heading "Endurenergy ESP-5100 B0005 5.1KWH 100AH 48V Battery Pack" [level=3] [ref=e1171]
+                - paragraph [ref=e1172]: EndurEnergy Systems
+                - generic [ref=e1173]:
+                  - generic [ref=e1174]: $2,867.18
+                  - button "Details" [ref=e1175]:
+                    - text: Details
+                    - img
+            - generic [ref=e1176]:
+              - img "Enphase CS Pedestal Adapter Dual EV Charger Mounting CC-DUALMOUNT-KIT" [ref=e1178]
+              - generic [ref=e1179]:
+                - generic [ref=e1180]: MOUNTING
+                - heading "Enphase CS Pedestal Adapter Dual EV Charger Mounting CC-DUALMOUNT-KIT" [level=3] [ref=e1181]
+                - paragraph [ref=e1182]: Enphase
+                - generic [ref=e1183]:
+                  - generic [ref=e1184]: $471.71
+                  - button "Details" [ref=e1185]:
+                    - text: Details
+                    - img
+            - generic [ref=e1186]:
+              - img "Enphase Consumption Clamp Current Transformer CT-200-CLAMP" [ref=e1188]
+              - generic [ref=e1189]:
+                - generic [ref=e1190]: MOUNTING
+                - heading "Enphase Consumption Clamp Current Transformer CT-200-CLAMP" [level=3] [ref=e1191]
+                - paragraph [ref=e1192]: Enphase
+                - generic [ref=e1193]:
+                  - generic [ref=e1194]: $36.76
+                  - button "Details" [ref=e1195]:
+                    - text: Details
+                    - img
+            - generic [ref=e1196]:
+              - img "Enphase Disconnect Tool QD-DISC-10–QD" [ref=e1198]
+              - generic [ref=e1199]:
+                - generic [ref=e1200]: INVERTER
+                - heading "Enphase Disconnect Tool QD-DISC-10–QD" [level=3] [ref=e1201]
+                - paragraph [ref=e1202]: Enphase
+                - generic [ref=e1203]:
+                  - generic [ref=e1204]: $42.38
+                  - button "Details" [ref=e1205]:
+                    - text: Details
+                    - img
+            - generic [ref=e1206]:
+              - img "Enphase Dual Output Level 2 EV Charging Station HCS-D50R-C29-L25-268" [ref=e1208]
+              - generic [ref=e1209]:
+                - generic [ref=e1210]: OTHER
+                - heading "Enphase Dual Output Level 2 EV Charging Station HCS-D50R-C29-L25-268" [level=3] [ref=e1211]
+                - paragraph [ref=e1212]: Enphase
+                - generic [ref=e1213]:
+                  - generic [ref=e1214]: $2,239.00
+                  - button "Details" [ref=e1215]:
+                    - text: Details
+                    - img
+            - generic [ref=e1216]:
+              - img "Enphase EN-Q-CUT-PORT-01 Portrait Q Cable For 60/72 Cell Modules" [ref=e1218]
+              - generic [ref=e1219]:
+                - generic [ref=e1220]: SOLAR PANEL
+                - heading "Enphase EN-Q-CUT-PORT-01 Portrait Q Cable For 60/72 Cell Modules" [level=3] [ref=e1221]
+                - paragraph [ref=e1222]: Enphase
+                - generic [ref=e1223]:
+                  - generic [ref=e1224]: $19.97
+                  - button "Details" [ref=e1225]:
+                    - text: Details
+                    - img
+            - generic [ref=e1226]:
+              - img "Enphase EN-Q-DISC-10 Disconnect Tool" [ref=e1228]
+              - generic [ref=e1229]:
+                - generic [ref=e1230]: SOLAR PANEL
+                - heading "Enphase EN-Q-DISC-10 Disconnect Tool" [level=3] [ref=e1231]
+                - paragraph [ref=e1232]: Enphase
+                - generic [ref=e1233]:
+                  - generic [ref=e1234]: $4.21
+                  - button "Details" [ref=e1235]:
+                    - text: Details
+                    - img
+            - generic [ref=e1236]:
+              - img "Enphase ENV-IQ-AM1-240-M IQ Envoy Communications Gateway" [ref=e1238]
+              - generic [ref=e1239]:
+                - generic [ref=e1240]: MONITORING
+                - heading "Enphase ENV-IQ-AM1-240-M IQ Envoy Communications Gateway" [level=3] [ref=e1241]
+                - paragraph [ref=e1242]: Enphase
+                - generic [ref=e1243]:
+                  - generic [ref=e1244]: $569.75
+                  - button "Details" [ref=e1245]:
+                    - text: Details
+                    - img
+            - generic [ref=e1246]:
+              - img "Enphase ENVOY-S ENV-S-AM1-120 Communications Gateway" [ref=e1248]
+              - generic [ref=e1249]:
+                - generic [ref=e1250]: MONITORING
+                - heading "Enphase ENVOY-S ENV-S-AM1-120 Communications Gateway" [level=3] [ref=e1251]
+                - paragraph [ref=e1252]: Enphase
+                - generic [ref=e1253]:
+                  - generic [ref=e1254]: $572.00
+                  - button "Details" [ref=e1255]:
+                    - text: Details
+                    - img
+            - generic [ref=e1256]:
+              - img "Enphase HCS-40, 32 Amp, Level 2 EVSE, 240V, Hardwired, with 25 ft cable, ETL Listed, Energy Star Certified" [ref=e1258]
+              - generic [ref=e1259]:
+                - generic [ref=e1260]: WIRING
+                - heading "Enphase HCS-40, 32 Amp, Level 2 EVSE, 240V, Hardwired, with 25 ft cable, ETL Listed, Energy Star Certified" [level=3] [ref=e1261]
+                - paragraph [ref=e1262]: Enphase
+                - generic [ref=e1263]:
+                  - generic [ref=e1264]: $977.85
+                  - button "Details" [ref=e1265]:
+                    - text: Details
+                    - img
+            - generic [ref=e1266]:
+              - img "Enphase ID Cover for IQ Battery 10C 10C-NC-0708-O" [ref=e1268]
+              - generic [ref=e1269]:
+                - generic [ref=e1270]: BATTERY
+                - heading "Enphase ID Cover for IQ Battery 10C 10C-NC-0708-O" [level=3] [ref=e1271]
+                - paragraph [ref=e1272]: Enphase
+                - generic [ref=e1273]:
+                  - generic [ref=e1274]: $549.45
+                  - button "Details" [ref=e1275]:
+                    - text: Details
+                    - img
+            - generic [ref=e1276]:
+              - img "Enphase IQ 5C X-IQ-AM1-240-5C-HDK Combiner" [ref=e1278]
+              - generic [ref=e1279]:
+                - generic [ref=e1280]: BATTERY
+                - heading "Enphase IQ 5C X-IQ-AM1-240-5C-HDK Combiner" [level=3] [ref=e1281]
+                - paragraph [ref=e1282]: Enphase
+                - generic [ref=e1283]:
+                  - generic [ref=e1284]: $1,139.88
+                  - button "Details" [ref=e1285]:
+                    - text: Details
+                    - img
+            - generic [ref=e1286]:
+              - img "Enphase IQ Battery 5P" [ref=e1288]
+              - generic [ref=e1289]:
+                - generic [ref=e1290]: BATTERY
+                - heading "Enphase IQ Battery 5P" [level=3] [ref=e1291]
+                - paragraph [ref=e1292]: Enphase
+                - generic [ref=e1293]:
+                  - generic [ref=e1294]: $3,649.00
+                  - button "Details" [ref=e1295]:
+                    - text: Details
+                    - img
+            - generic [ref=e1296]:
+              - img "Enphase IQ Battery 5kWh IQBATTERY-5P-1P-NA Lithium Battery Kit" [ref=e1298]
+              - generic [ref=e1299]:
+                - generic [ref=e1300]: BATTERY
+                - heading "Enphase IQ Battery 5kWh IQBATTERY-5P-1P-NA Lithium Battery Kit" [level=3] [ref=e1301]
+                - paragraph [ref=e1302]: Enphase
+                - generic [ref=e1303]:
+                  - generic [ref=e1304]: $3,485.24
+                  - button "Details" [ref=e1305]:
+                    - text: Details
+                    - img
+            - generic [ref=e1306]:
+              - img "Enphase IQ Cable Spool | Per Foot" [ref=e1308]
+              - generic [ref=e1309]:
+                - generic [ref=e1310]: WIRING
+                - heading "Enphase IQ Cable Spool | Per Foot" [level=3] [ref=e1311]
+                - paragraph [ref=e1312]: Enphase
+                - generic [ref=e1313]:
+                  - generic [ref=e1314]: $1.65
+                  - button "Details" [ref=e1315]:
+                    - text: Details
+                    - img
+            - generic [ref=e1316]:
+              - img "Enphase IQ Combiner 6C X-IQ-AM1-240-6C" [ref=e1318]
+              - generic [ref=e1319]:
+                - generic [ref=e1320]: OTHER
+                - heading "Enphase IQ Combiner 6C X-IQ-AM1-240-6C" [level=3] [ref=e1321]
+                - paragraph [ref=e1322]: Enphase
+                - generic [ref=e1323]:
+                  - generic [ref=e1324]: $1,719.84
+                  - button "Details" [ref=e1325]:
+                    - text: Details
+                    - img
+            - generic [ref=e1326]:
+              - img "Enphase IQ Combiner-5 with IQ Gateway X-IQ-AM1-240-5-HDK Single Phase" [ref=e1328]
+              - generic [ref=e1329]:
+                - generic [ref=e1330]: MONITORING
+                - heading "Enphase IQ Combiner-5 with IQ Gateway X-IQ-AM1-240-5-HDK Single Phase" [level=3] [ref=e1331]
+                - paragraph [ref=e1332]: Enphase
+                - generic [ref=e1333]:
+                  - generic [ref=e1334]: $746.26
+                  - button "Details" [ref=e1335]:
+                    - text: Details
+                    - img
+            - generic [ref=e1336]:
+              - img "Enphase IQ System Controller 3" [ref=e1338]
+              - generic [ref=e1339]:
+                - generic [ref=e1340]: BATTERY
+                - heading "Enphase IQ System Controller 3" [level=3] [ref=e1341]
+                - paragraph [ref=e1342]: Enphase
+                - generic [ref=e1343]:
+                  - generic [ref=e1344]: $2,179.00
+                  - button "Details" [ref=e1345]:
+                    - text: Details
+                    - img
+            - generic [ref=e1346]:
+              - img "Enphase IQ System Controller 3M SC200D111CMC1US01" [ref=e1348]
+              - generic [ref=e1349]:
+                - generic [ref=e1350]: OTHER
+                - heading "Enphase IQ System Controller 3M SC200D111CMC1US01" [level=3] [ref=e1351]
+                - paragraph [ref=e1352]: Enphase
+                - generic [ref=e1353]:
+                  - generic [ref=e1354]: $1,627.17
+                  - button "Details" [ref=e1355]:
+                    - text: Details
+                    - img
+            - generic [ref=e1356]:
+              - img "Enphase IQ7+ Microinverter IQ7PLUS-72-2-INT" [ref=e1358]
+              - generic [ref=e1359]:
+                - generic [ref=e1360]: INVERTER
+                - heading "Enphase IQ7+ Microinverter IQ7PLUS-72-2-INT" [level=3] [ref=e1361]
+                - paragraph [ref=e1362]: Enphase
+                - generic [ref=e1363]:
+                  - generic [ref=e1364]: $166.37
+                  - button "Details" [ref=e1365]:
+                    - text: Details
+                    - img
+            - generic [ref=e1366]:
+              - img "Enphase IQ7+ Microinverter IQ7PLUS-72-2-US" [ref=e1368]
+              - generic [ref=e1369]:
+                - generic [ref=e1370]: INVERTER
+                - heading "Enphase IQ7+ Microinverter IQ7PLUS-72-2-US" [level=3] [ref=e1371]
+                - paragraph [ref=e1372]: Enphase
+                - generic [ref=e1373]:
+                  - generic [ref=e1374]: $200.00
+                  - button "Details" [ref=e1375]:
+                    - text: Details
+                    - img
+            - generic [ref=e1376]:
+              - img "Enphase IQ8 Microinverter IQ8HC-72-M-US Made in the USA" [ref=e1378]
+              - generic [ref=e1379]:
+                - generic [ref=e1380]: INVERTER
+                - heading "Enphase IQ8 Microinverter IQ8HC-72-M-US Made in the USA" [level=3] [ref=e1381]
+                - paragraph [ref=e1382]: Enphase
+                - generic [ref=e1383]:
+                  - generic [ref=e1384]: $241.46
+                  - button "Details" [ref=e1385]:
+                    - text: Details
+                    - img
+            - generic [ref=e1386]:
+              - img "Enphase IQ8 Microinverter IQ8M-72-M-US" [ref=e1388]
+              - generic [ref=e1389]:
+                - generic [ref=e1390]: INVERTER
+                - heading "Enphase IQ8 Microinverter IQ8M-72-M-US" [level=3] [ref=e1391]
+                - paragraph [ref=e1392]: Enphase
+                - generic [ref=e1393]:
+                  - generic [ref=e1394]: $202.78
+                  - button "Details" [ref=e1395]:
+                    - text: Details
+                    - img
+            - generic [ref=e1396]:
+              - img "Enphase IQ8 Microinverter IQ8MC-72-M-US" [ref=e1398]
+              - generic [ref=e1399]:
+                - generic [ref=e1400]: INVERTER
+                - heading "Enphase IQ8 Microinverter IQ8MC-72-M-US" [level=3] [ref=e1401]
+                - paragraph [ref=e1402]: Enphase
+                - generic [ref=e1403]:
+                  - generic [ref=e1404]: $182.50
+                  - button "Details" [ref=e1405]:
+                    - text: Details
+                    - img
+            - generic [ref=e1406]:
+              - img "Enphase IQ8 Microinverter IQ8P-3P-72-E-US" [ref=e1408]
+              - generic [ref=e1409]:
+                - generic [ref=e1410]: INVERTER
+                - heading "Enphase IQ8 Microinverter IQ8P-3P-72-E-US" [level=3] [ref=e1411]
+                - paragraph [ref=e1412]: Enphase
+                - generic [ref=e1413]:
+                  - generic [ref=e1414]: $166.21
+                  - button "Details" [ref=e1415]:
+                    - text: Details
+                    - img
+            - generic [ref=e1416]:
+              - img "Enphase IQ8+ MicroInverter IQ8PLUS-72-2-US" [ref=e1418]
+              - generic [ref=e1419]:
+                - generic [ref=e1420]: INVERTER
+                - heading "Enphase IQ8+ MicroInverter IQ8PLUS-72-2-US" [level=3] [ref=e1421]
+                - paragraph [ref=e1422]: Enphase
+                - generic [ref=e1423]:
+                  - generic [ref=e1424]: $192.85
+                  - button "Details" [ref=e1425]:
+                    - text: Details
+                    - img
+            - generic [ref=e1426]:
+              - img "Enphase IQ8A Microinverter IQ8A-72-2-US" [ref=e1428]
+              - generic [ref=e1429]:
+                - generic [ref=e1430]: INVERTER
+                - heading "Enphase IQ8A Microinverter IQ8A-72-2-US" [level=3] [ref=e1431]
+                - paragraph [ref=e1432]: Enphase
+                - generic [ref=e1433]:
+                  - generic [ref=e1434]: $221.78
+                  - button "Details" [ref=e1435]:
+                    - text: Details
+                    - img
+            - generic [ref=e1436]:
+              - img "Enphase IQ8AC Microinverter" [ref=e1438]
+              - generic [ref=e1439]:
+                - generic [ref=e1440]: INVERTER
+                - heading "Enphase IQ8AC Microinverter" [level=3] [ref=e1441]
+                - paragraph [ref=e1442]: Enphase
+                - generic [ref=e1443]:
+                  - generic [ref=e1444]: $215.23
+                  - button "Details" [ref=e1445]:
+                    - text: Details
+                    - img
+            - generic [ref=e1446]:
+              - img "Enphase IQ8AC Microinverter EN-IQ8AC-72-M-US" [ref=e1448]
+              - generic [ref=e1449]:
+                - generic [ref=e1450]: BATTERY
+                - heading "Enphase IQ8AC Microinverter EN-IQ8AC-72-M-US" [level=3] [ref=e1451]
+                - paragraph [ref=e1452]: Enphase
+                - generic [ref=e1453]:
+                  - generic [ref=e1454]: $223.63
+                  - button "Details" [ref=e1455]:
+                    - text: Details
+                    - img
+            - generic [ref=e1456]:
+              - img "Enphase IQ8HC Microinverter IQ8HC-72-M-DOM-US Made in the USA" [ref=e1458]
+              - generic [ref=e1459]:
+                - generic [ref=e1460]: INVERTER
+                - heading "Enphase IQ8HC Microinverter IQ8HC-72-M-DOM-US Made in the USA" [level=3] [ref=e1461]
+                - paragraph [ref=e1462]: Enphase
+                - generic [ref=e1463]:
+                  - generic [ref=e1464]: $273.35
+                  - button "Details" [ref=e1465]:
+                    - text: Details
+                    - img
+            - generic [ref=e1466]:
+              - img "Enphase IQ8P Microinverter IQ8P-3P-72-E-DOM-US" [ref=e1468]
+              - generic [ref=e1469]:
+                - generic [ref=e1470]: INVERTER
+                - heading "Enphase IQ8P Microinverter IQ8P-3P-72-E-DOM-US" [level=3] [ref=e1471]
+                - paragraph [ref=e1472]: Enphase
+                - generic [ref=e1473]:
+                  - generic [ref=e1474]: $193.68
+                  - button "Details" [ref=e1475]:
+                    - text: Details
+                    - img
+            - generic [ref=e1476]:
+              - img "Enphase Mobile Connect CELLMODEM-07-NA-05" [ref=e1478]
+              - generic [ref=e1479]:
+                - generic [ref=e1480]: MONITORING
+                - heading "Enphase Mobile Connect CELLMODEM-07-NA-05" [level=3] [ref=e1481]
+                - paragraph [ref=e1482]: Enphase
+                - generic [ref=e1483]:
+                  - generic [ref=e1484]: $483.84
+                  - button "Details" [ref=e1485]:
+                    - text: Details
+                    - img
+            - generic [ref=e1486]:
+              - img "Enphase Q-DCC-2 Replacement Adapter" [ref=e1488]
+              - generic [ref=e1489]:
+                - generic [ref=e1490]: ACCESSORIES
+                - heading "Enphase Q-DCC-2 Replacement Adapter" [level=3] [ref=e1491]
+                - paragraph [ref=e1492]: Enphase
+                - generic [ref=e1493]:
+                  - generic [ref=e1494]: $12.28
+                  - button "Details" [ref=e1495]:
+                    - text: Details
+                    - img
+            - generic [ref=e1496]:
+              - img "Enphase Q-SEAL-10 Sealing Cap" [ref=e1498]
+              - generic [ref=e1499]:
+                - generic [ref=e1500]: OTHER
+                - heading "Enphase Q-SEAL-10 Sealing Cap" [level=3] [ref=e1501]
+                - paragraph [ref=e1502]: Enphase
+                - generic [ref=e1503]:
+                  - generic [ref=e1504]: $4.21
+                  - button "Details" [ref=e1505]:
+                    - text: Details
+                    - img
+            - generic [ref=e1506]:
+              - img "FRONIUS 4,240,153 DUO RAPID SHUTDOWN BOX" [ref=e1508]
+              - generic [ref=e1509]:
+                - generic [ref=e1510]: OTHER
+                - heading "FRONIUS 4,240,153 DUO RAPID SHUTDOWN BOX" [level=3] [ref=e1511]
+                - paragraph [ref=e1512]: Fronius
+                - generic [ref=e1513]:
+                  - generic [ref=e1514]: $217.06
+                  - button "Details" [ref=e1515]:
+                    - text: Details
+                    - img
+            - generic [ref=e1516]:
+              - img "FRONIUS 4,240,154 QUATTRO RAPID SHUTDOWN BOX" [ref=e1518]
+              - generic [ref=e1519]:
+                - generic [ref=e1520]: OTHER
+                - heading "FRONIUS 4,240,154 QUATTRO RAPID SHUTDOWN BOX" [level=3] [ref=e1521]
+                - paragraph [ref=e1522]: Fronius
+                - generic [ref=e1523]:
+                  - generic [ref=e1524]: $351.81
+                  - button "Details" [ref=e1525]:
+                    - text: Details
+                    - img
+            - generic [ref=e1526]:
+              - img "Fortress Avalon Battery Module, 4.9 kWh, 48V, Max 50A" [ref=e1528]
+              - generic [ref=e1529]:
+                - generic [ref=e1530]: BATTERY
+                - heading "Fortress Avalon Battery Module, 4.9 kWh, 48V, Max 50A" [level=3] [ref=e1531]
+                - paragraph [ref=e1532]: Fortress Power
+                - generic [ref=e1533]:
+                  - generic [ref=e1534]: $2,050.00
+                  - button "Details" [ref=e1535]:
+                    - text: Details
+                    - img
+            - generic [ref=e1536]:
+              - img "Fortress Power 10.24 kWh Lithium Battery Storage LFP-10 Max" [ref=e1538]
+              - generic [ref=e1539]:
+                - generic [ref=e1540]: BATTERY
+                - heading "Fortress Power 10.24 kWh Lithium Battery Storage LFP-10 Max" [level=3] [ref=e1541]
+                - paragraph [ref=e1542]: Fortress Power
+                - generic [ref=e1543]:
+                  - generic [ref=e1544]: $4,699.99
+                  - button "Details" [ref=e1545]:
+                    - text: Details
+                    - img
+            - generic [ref=e1546]:
+              - img "Fortress Power 16kWh eBoost LFP Battery" [ref=e1548]
+              - generic [ref=e1549]:
+                - generic [ref=e1550]: BATTERY
+                - heading "Fortress Power 16kWh eBoost LFP Battery" [level=3] [ref=e1551]
+                - paragraph [ref=e1552]: Fortress Power
+                - generic [ref=e1553]:
+                  - generic [ref=e1554]: $3,915.00
+                  - button "Details" [ref=e1555]:
+                    - text: Details
+                    - img
+            - generic [ref=e1556]:
+              - img "Fortress Power Envy Duo 21 16kW Whole Home Solar Hybrid Inverter Envy Duo 21-US (16KW)" [ref=e1558]
+              - generic [ref=e1559]:
+                - generic [ref=e1560]: INVERTER
+                - heading "Fortress Power Envy Duo 21 16kW Whole Home Solar Hybrid Inverter Envy Duo 21-US (16KW)" [level=3] [ref=e1561]
+                - paragraph [ref=e1562]: Fortress Power
+                - generic [ref=e1563]:
+                  - generic [ref=e1564]: $5,449.00
+                  - button "Details" [ref=e1565]:
+                    - text: Details
+                    - img
+            - generic [ref=e1566]:
+              - img "Fortress Power FlexRack Enclosure" [ref=e1568]
+              - generic [ref=e1569]:
+                - generic [ref=e1570]: OTHER
+                - heading "Fortress Power FlexRack Enclosure" [level=3] [ref=e1571]
+                - paragraph [ref=e1572]: Fortress Power
+                - generic [ref=e1573]:
+                  - generic [ref=e1574]: $1,499.00
+                  - button "Details" [ref=e1575]:
+                    - text: Details
+                    - img
+            - generic [ref=e1576]:
+              - img "Fortress Power Solo 6.5kW Off Grid Solar Hybrid Inverter EV 6500-S" [ref=e1578]
+              - generic [ref=e1579]:
+                - generic [ref=e1580]: INVERTER
+                - heading "Fortress Power Solo 6.5kW Off Grid Solar Hybrid Inverter EV 6500-S" [level=3] [ref=e1581]
+                - paragraph [ref=e1582]: Fortress Power
+                - generic [ref=e1583]:
+                  - generic [ref=e1584]: $1,689.00
+                  - button "Details" [ref=e1585]:
+                    - text: Details
+                    - img
+            - generic [ref=e1586]:
+              - img "Fortress Power eVault Max 18.5 kWh 48V Lithium Iron Phosphate Battery" [ref=e1588]
+              - generic [ref=e1589]:
+                - generic [ref=e1590]: BATTERY
+                - heading "Fortress Power eVault Max 18.5 kWh 48V Lithium Iron Phosphate Battery" [level=3] [ref=e1591]
+                - paragraph [ref=e1592]: Fortress Power
+                - generic [ref=e1593]:
+                  - generic [ref=e1594]: $6,479.00
+                  - button "Details" [ref=e1595]:
+                    - text: Details
+                    - img
+            - generic [ref=e1596]:
+              - img "Fullriver Battery 6V 415Ah AGM L16 DC400-6 Battery" [ref=e1598]
+              - generic [ref=e1599]:
+                - generic [ref=e1600]: BATTERY
+                - heading "Fullriver Battery 6V 415Ah AGM L16 DC400-6 Battery" [level=3] [ref=e1601]
+                - paragraph [ref=e1602]: Fullriver Battery
+                - generic [ref=e1603]:
+                  - generic [ref=e1604]: $699.99
+                  - button "Details" [ref=e1605]:
+                    - text: Details
+                    - img
+            - generic [ref=e1606]:
+              - img "Greenlancer Residential Electrical Engineer Review & Stamp" [ref=e1608]
+              - generic [ref=e1609]:
+                - generic [ref=e1610]: OTHER
+                - heading "Greenlancer Residential Electrical Engineer Review & Stamp" [level=3] [ref=e1611]
+                - paragraph [ref=e1612]: Portable Sun LLC
+                - generic [ref=e1613]:
+                  - generic [ref=e1614]: $395.00
+                  - button "Details" [ref=e1615]:
+                    - text: Details
+                    - img
+            - generic [ref=e1616]:
+              - img "Greenlancer Residential Rooftop Structural Engineer Review & Stamp" [ref=e1618]
+              - generic [ref=e1619]:
+                - generic [ref=e1620]: OTHER
+                - heading "Greenlancer Residential Rooftop Structural Engineer Review & Stamp" [level=3] [ref=e1621]
+                - paragraph [ref=e1622]: Portable Sun LLC
+                - generic [ref=e1623]:
+                  - generic [ref=e1624]: $375.00
+                  - button "Details" [ref=e1625]:
+                    - text: Details
+                    - img
+            - generic [ref=e1626]:
+              - img "Greenlancer Residential Solar + Battery Storage Permit Planset" [ref=e1628]
+              - generic [ref=e1629]:
+                - generic [ref=e1630]: BATTERY
+                - heading "Greenlancer Residential Solar + Battery Storage Permit Planset" [level=3] [ref=e1631]
+                - paragraph [ref=e1632]: Portable Sun LLC
+                - generic [ref=e1633]:
+                  - generic [ref=e1634]: $385.00
+                  - button "Details" [ref=e1635]:
+                    - text: Details
+                    - img
+            - generic [ref=e1636]:
+              - img "Greenlancer Residential Solar-Only Permit Planset" [ref=e1638]
+              - generic [ref=e1639]:
+                - generic [ref=e1640]: OTHER
+                - heading "Greenlancer Residential Solar-Only Permit Planset" [level=3] [ref=e1641]
+                - paragraph [ref=e1642]: Portable Sun LLC
+                - generic [ref=e1643]:
+                  - generic [ref=e1644]: $280.00
+                  - button "Details" [ref=e1645]:
+                    - text: Details
+                    - img
+            - generic [ref=e1646]:
+              - img "Growatt 10kW Hybrid Inverter | SPH 10000TL-HU-US" [ref=e1648]
+              - generic [ref=e1649]:
+                - generic [ref=e1650]: BATTERY
+                - heading "Growatt 10kW Hybrid Inverter | SPH 10000TL-HU-US" [level=3] [ref=e1651]
+                - paragraph [ref=e1652]: Growatt
+                - generic [ref=e1653]:
+                  - generic [ref=e1654]: $2,299.00
+                  - button "Details" [ref=e1655]:
+                    - text: Details
+                    - img
+            - generic [ref=e1656]:
+              - img "Growatt 10kW Hybrid Inverter | SPH 10000TL-HU-US" [ref=e1658]
+              - generic [ref=e1659]:
+                - generic [ref=e1660]: BATTERY
+                - heading "Growatt 10kW Hybrid Inverter | SPH 10000TL-HU-US" [level=3] [ref=e1661]
+                - paragraph [ref=e1662]: Growatt
+                - generic [ref=e1663]:
+                  - generic [ref=e1664]: $2,299.00
+                  - button "Details" [ref=e1665]:
+                    - text: Details
+                    - img
+            - generic [ref=e1666]:
+              - img "Growatt 11.4kW Grid-Tie Inverter (V3) | MIN11400TL-XH-US" [ref=e1668]
+              - generic [ref=e1669]:
+                - generic [ref=e1670]: INVERTER
+                - heading "Growatt 11.4kW Grid-Tie Inverter (V3) | MIN11400TL-XH-US" [level=3] [ref=e1671]
+                - paragraph [ref=e1672]: Growatt
+                - generic [ref=e1673]:
+                  - generic [ref=e1674]: $1,649.00
+                  - button "Details" [ref=e1675]:
+                    - text: Details
+                    - img
+            - generic [ref=e1676]:
+              - img "Growatt 12kW Split Phase Off-Grid Inverter UL 1741 Certified | SPF 12000KT DVM-US" [ref=e1678]
+              - generic [ref=e1679]:
+                - generic [ref=e1680]: BATTERY
+                - heading "Growatt 12kW Split Phase Off-Grid Inverter UL 1741 Certified | SPF 12000KT DVM-US" [level=3] [ref=e1681]
+                - paragraph [ref=e1682]: Growatt
+                - generic [ref=e1683]:
+                  - generic [ref=e1684]: $2,399.00
+                  - button "Details" [ref=e1685]:
+                    - text: Details
+                    - img
+            - generic [ref=e1686]:
+              - img "Growatt 12kW THOR 12AS-P-US 50Amp Smart AC EV Charger | Compatible with All Brands EVS" [ref=e1688]
+              - generic [ref=e1689]:
+                - generic [ref=e1690]: OTHER
+                - heading "Growatt 12kW THOR 12AS-P-US 50Amp Smart AC EV Charger | Compatible with All Brands EVS" [level=3] [ref=e1691]
+                - paragraph [ref=e1692]: Growatt
+                - generic [ref=e1693]:
+                  - generic [ref=e1694]: $699.00
+                  - button "Details" [ref=e1695]:
+                    - text: Details
+                    - img
+            - generic [ref=e1696]:
+              - img "Growatt 3kW Stackable Off-Grid Inverter | SPF 3000TL LVM-48P" [ref=e1698]
+              - generic [ref=e1699]:
+                - generic [ref=e1700]: BATTERY
+                - heading "Growatt 3kW Stackable Off-Grid Inverter | SPF 3000TL LVM-48P" [level=3] [ref=e1701]
+                - paragraph [ref=e1702]: Growatt
+                - generic [ref=e1703]:
+                  - generic [ref=e1704]: $749.99
+                  - button "Details" [ref=e1705]:
+                    - text: Details
+                    - img
+            - generic [ref=e1706]:
+              - img "Growatt 6kW Grid-Tie Inverter (V2) | MIN 6000TL-XH-US" [ref=e1708]
+              - generic [ref=e1709]:
+                - generic [ref=e1710]: INVERTER
+                - heading "Growatt 6kW Grid-Tie Inverter (V2) | MIN 6000TL-XH-US" [level=3] [ref=e1711]
+                - paragraph [ref=e1712]: Growatt
+                - generic [ref=e1713]:
+                  - generic [ref=e1714]: $1,199.00
+                  - button "Details" [ref=e1715]:
+                    - text: Details
+                    - img
+            - generic [ref=e1716]:
+              - img "Growatt 7.6kW Grid-Tie Inverter | MIN 7600TL XH-US" [ref=e1718]
+              - generic [ref=e1719]:
+                - generic [ref=e1720]: INVERTER
+                - heading "Growatt 7.6kW Grid-Tie Inverter | MIN 7600TL XH-US" [level=3] [ref=e1721]
+                - paragraph [ref=e1722]: Growatt
+                - generic [ref=e1723]:
+                  - generic [ref=e1724]: $1,259.00
+                  - button "Details" [ref=e1725]:
+                    - text: Details
+                    - img
+            - generic [ref=e1726]:
+              - img "Growatt 9.6kW THOR 09AS-P US 40Amp Smart AC EV Charger | Compatible with All Brands EVs" [ref=e1728]
+              - generic [ref=e1729]:
+                - generic [ref=e1730]: OTHER
+                - heading "Growatt 9.6kW THOR 09AS-P US 40Amp Smart AC EV Charger | Compatible with All Brands EVs" [level=3] [ref=e1731]
+                - paragraph [ref=e1732]: Growatt
+                - generic [ref=e1733]:
+                  - generic [ref=e1734]: $550.00
+                  - button "Details" [ref=e1735]:
+                    - text: Details
+                    - img
+            - generic [ref=e1736]:
+              - img "Growatt INFINITY 2000 PRO Portable Power Station | 2048Wh 51.2V | 2400W Output 40Ah | LFP" [ref=e1738]
+              - generic [ref=e1739]:
+                - generic [ref=e1740]: BATTERY
+                - heading "Growatt INFINITY 2000 PRO Portable Power Station | 2048Wh 51.2V | 2400W Output 40Ah | LFP" [level=3] [ref=e1741]
+                - paragraph [ref=e1742]: Growatt
+                - generic [ref=e1743]:
+                  - generic [ref=e1744]: $899.00
+                  - button "Details" [ref=e1745]:
+                    - text: Details
+                    - img
+            - generic [ref=e1746]:
+              - img "Growatt SM-US-200 Smart Meter" [ref=e1748]
+              - generic [ref=e1749]:
+                - generic [ref=e1750]: MONITORING
+                - heading "Growatt SM-US-200 Smart Meter" [level=3] [ref=e1751]
+                - paragraph [ref=e1752]: Growatt
+                - generic [ref=e1753]:
+                  - generic [ref=e1754]: $194.00
+                  - button "Details" [ref=e1755]:
+                    - text: Details
+                    - img
+            - generic [ref=e1756]:
+              - img "Growatt SYN 200-XH-US | Automatic Transfer Box" [ref=e1758]
+              - generic [ref=e1759]:
+                - generic [ref=e1760]: ELECTRICAL
+                - heading "Growatt SYN 200-XH-US | Automatic Transfer Box" [level=3] [ref=e1761]
+                - paragraph [ref=e1762]: Growatt
+                - generic [ref=e1763]:
+                  - generic [ref=e1764]: $1,699.00
+                  - button "Details" [ref=e1765]:
+                    - text: Details
+                    - img
+            - generic [ref=e1766]:
+              - img "HT-SAAE 405W Solar Panel Bifacial Black Frame HT66-166M 405W" [ref=e1768]
+              - generic [ref=e1769]:
+                - generic [ref=e1770]: SOLAR PANEL
+                - heading "HT-SAAE 405W Solar Panel Bifacial Black Frame HT66-166M 405W" [level=3] [ref=e1771]
+                - paragraph [ref=e1772]: HT-SAAE Solar
+                - generic [ref=e1773]:
+                  - generic [ref=e1774]: $163.99
+                  - button "Details" [ref=e1775]:
+                    - text: Details
+                    - img
+            - generic [ref=e1776]:
+              - img "HanerSun 445W HItouch5N Bifacial N-TOPCon HN18N-54HT445W" [ref=e1778]
+              - generic [ref=e1779]:
+                - generic [ref=e1780]: SOLAR PANEL
+                - heading "HanerSun 445W HItouch5N Bifacial N-TOPCon HN18N-54HT445W" [level=3] [ref=e1781]
+                - paragraph [ref=e1782]: HanerSun
+                - generic [ref=e1783]:
+                  - generic [ref=e1784]: $172.99
+                  - button "Details" [ref=e1785]:
+                    - text: Details
+                    - img
+            - generic [ref=e1786]:
+              - img "HanerSun 585W Hitouch5N N-TOPCon Bifacial Solar Panel HN18N-72HT585W" [ref=e1788]
+              - generic [ref=e1789]:
+                - generic [ref=e1790]: SOLAR PANEL
+                - heading "HanerSun 585W Hitouch5N N-TOPCon Bifacial Solar Panel HN18N-72HT585W" [level=3] [ref=e1791]
+                - paragraph [ref=e1792]: HanerSun
+                - generic [ref=e1793]:
+                  - generic [ref=e1794]: $249.99
+                  - button "Details" [ref=e1795]:
+                    - text: Details
+                    - img
+            - generic [ref=e1796]:
+              - img "Heliene 580W 144HC M10 NTYP SL Bifacial Solar Panel Domestic Content" [ref=e1798]
+              - generic [ref=e1799]:
+                - generic [ref=e1800]: SOLAR PANEL
+                - heading "Heliene 580W 144HC M10 NTYP SL Bifacial Solar Panel Domestic Content" [level=3] [ref=e1801]
+                - paragraph [ref=e1802]: Heliene
+                - generic [ref=e1803]:
+                  - generic [ref=e1804]: $332.99
+                  - button "Details" [ref=e1805]:
+                    - text: Details
+                    - img
+            - generic [ref=e1806]:
+              - img "Hyperion Runergy 550W 144 Cells Bifacial Solar Panel HY-DH144P8-550" [ref=e1808]
+              - generic [ref=e1809]:
+                - generic [ref=e1810]: SOLAR PANEL
+                - heading "Hyperion Runergy 550W 144 Cells Bifacial Solar Panel HY-DH144P8-550" [level=3] [ref=e1811]
+                - paragraph [ref=e1812]: Hyperion Runergy
+                - generic [ref=e1813]:
+                  - generic [ref=e1814]: $199.38
+                  - button "Details" [ref=e1815]:
+                    - text: Details
+                    - img
+            - generic [ref=e1816]:
+              - img "Hyperion Runergy Solar 405W Mono P-Type Bifacial Solar Panel HY-DH108P8B" [ref=e1818]
+              - generic [ref=e1819]:
+                - generic [ref=e1820]: SOLAR PANEL
+                - heading "Hyperion Runergy Solar 405W Mono P-Type Bifacial Solar Panel HY-DH108P8B" [level=3] [ref=e1821]
+                - paragraph [ref=e1822]: Hyperion Runergy
+                - generic [ref=e1823]:
+                  - generic [ref=e1824]: $141.99
+                  - button "Details" [ref=e1825]:
+                    - text: Details
+                    - img
+            - generic [ref=e1826]:
+              - img "Hyperion by Runergy 400W Bifacial Solar Panel (Black) | Up to 500W with Bifacial Gain" [ref=e1828]
+              - generic [ref=e1829]:
+                - generic [ref=e1830]: SOLAR PANEL
+                - heading "Hyperion by Runergy 400W Bifacial Solar Panel (Black) | Up to 500W with Bifacial Gain" [level=3] [ref=e1831]
+                - paragraph [ref=e1832]: Hyperion
+                - generic [ref=e1833]:
+                  - generic [ref=e1834]: $126.00
+                  - button "Details" [ref=e1835]:
+                    - text: Details
+                    - img
+            - generic [ref=e1836]:
+              - img "Hyperion by Runergy 400W Bifacial Solar Panel (Black) | Up to 500W with Bifacial Gain" [ref=e1838]
+              - generic [ref=e1839]:
+                - generic [ref=e1840]: SOLAR PANEL
+                - heading "Hyperion by Runergy 400W Bifacial Solar Panel (Black) | Up to 500W with Bifacial Gain" [level=3] [ref=e1841]
+                - paragraph [ref=e1842]: Hyperion
+                - generic [ref=e1843]:
+                  - generic [ref=e1844]: $126.00
+                  - button "Details" [ref=e1845]:
+                    - text: Details
+                    - img
+            - generic [ref=e1846]:
+              - img "Hyundai 585W Clear on Transparent 156 Half-Cell Bifacial Solar Panel HiS-S585OJ" [ref=e1848]
+              - generic [ref=e1849]:
+                - generic [ref=e1850]: SOLAR PANEL
+                - heading "Hyundai 585W Clear on Transparent 156 Half-Cell Bifacial Solar Panel HiS-S585OJ" [level=3] [ref=e1851]
+                - paragraph [ref=e1852]: Hyundai Energy Solutions
+                - generic [ref=e1853]:
+                  - generic [ref=e1854]: $229.99
+                  - button "Details" [ref=e1855]:
+                    - text: Details
+                    - img
+            - generic [ref=e1856]:
+              - img "Hyundai 640W (504 per Container) NJ Series N Type TOPCon Solar Panel HiN-T640NJ" [ref=e1858]
+              - generic [ref=e1859]:
+                - generic [ref=e1860]: SOLAR PANEL
+                - heading "Hyundai 640W (504 per Container) NJ Series N Type TOPCon Solar Panel HiN-T640NJ" [level=3] [ref=e1861]
+                - paragraph [ref=e1862]: Hyundai Energy Solutions
+                - generic [ref=e1863]:
+                  - generic [ref=e1864]: $131,034.96
+                  - button "Details" [ref=e1865]:
+                    - text: Details
+                    - img
+            - generic [ref=e1866]:
+              - img "Hyundai Energy Solutions 405W YH Series HiS-S405YH(BK) Solar Panel" [ref=e1868]
+              - generic [ref=e1869]:
+                - generic [ref=e1870]: SOLAR PANEL
+                - heading "Hyundai Energy Solutions 405W YH Series HiS-S405YH(BK) Solar Panel" [level=3] [ref=e1871]
+                - paragraph [ref=e1872]: Hyundai Energy Solutions
+                - generic [ref=e1873]:
+                  - generic [ref=e1874]: $129.99
+                  - button "Details" [ref=e1875]:
+                    - text: Details
+                    - img
+            - generic [ref=e1876]:
+              - img "IMO DC Disconnect Rooftop Isolator Switch" [ref=e1878]
+              - generic [ref=e1879]:
+                - generic [ref=e1880]: ELECTRICAL
+                - heading "IMO DC Disconnect Rooftop Isolator Switch" [level=3] [ref=e1881]
+                - paragraph [ref=e1882]: IMO
+                - generic [ref=e1883]:
+                  - generic [ref=e1884]: $97.49
+                  - button "Details" [ref=e1885]:
+                    - text: Details
+                    - img
+            - generic [ref=e1886]:
+              - img "IMO DC Disconnect Rooftop Isolator Switch" [ref=e1888]
+              - generic [ref=e1889]:
+                - generic [ref=e1890]: ELECTRICAL
+                - heading "IMO DC Disconnect Rooftop Isolator Switch" [level=3] [ref=e1891]
+                - paragraph [ref=e1892]: IMO
+                - generic [ref=e1893]:
+                  - generic [ref=e1894]: $97.49
+                  - button "Details" [ref=e1895]:
+                    - text: Details
+                    - img
+            - generic [ref=e1896]:
+              - img "IMO Enclosed DC Switch IP66 16A 900 VDC 2 SI16-PEL64R-2 Pole Gray" [ref=e1898]
+              - generic [ref=e1899]:
+                - generic [ref=e1900]: ELECTRICAL
+                - heading "IMO Enclosed DC Switch IP66 16A 900 VDC 2 SI16-PEL64R-2 Pole Gray" [level=3] [ref=e1901]
+                - paragraph [ref=e1902]: IMO
+                - generic [ref=e1903]:
+                  - generic [ref=e1904]: $61.81
+                  - button "Details" [ref=e1905]:
+                    - text: Details
+                    - img
+            - generic [ref=e1906]:
+              - img "IRONRIDGE BX-BCL-M1 BX Bottom Clamp w/ Hardware Mill" [ref=e1908]
+              - generic [ref=e1909]:
+                - generic [ref=e1910]: MOUNTING
+                - heading "IRONRIDGE BX-BCL-M1 BX Bottom Clamp w/ Hardware Mill" [level=3] [ref=e1911]
+                - paragraph [ref=e1912]: IronRidge
+                - generic [ref=e1913]:
+                  - generic [ref=e1914]: $2.75
+                  - button "Details" [ref=e1915]:
+                    - text: Details
+                    - img
+            - generic [ref=e1916]:
+              - img "IRONRIDGE UFO UFO-CL-01-A1 Clear Universal Bonding Module Clamp" [ref=e1918]
+              - generic [ref=e1919]:
+                - generic [ref=e1920]: MOUNTING
+                - heading "IRONRIDGE UFO UFO-CL-01-A1 Clear Universal Bonding Module Clamp" [level=3] [ref=e1921]
+                - paragraph [ref=e1922]: IronRidge
+                - generic [ref=e1923]:
+                  - generic [ref=e1924]: $4.84
+                  - button "Details" [ref=e1925]:
+                    - text: Details
+                    - img
+            - generic [ref=e1926]:
+              - img "IRONRIDGE UFO UFO-CL-01-B1 Black Universal Bonding Module Clamp" [ref=e1928]
+              - generic [ref=e1929]:
+                - generic [ref=e1930]: SOLAR PANEL
+                - heading "IRONRIDGE UFO UFO-CL-01-B1 Black Universal Bonding Module Clamp" [level=3] [ref=e1931]
+                - paragraph [ref=e1932]: IronRidge
+                - generic [ref=e1933]:
+                  - generic [ref=e1934]: $4.84
+                  - button "Details" [ref=e1935]:
+                    - text: Details
+                    - img
+            - generic [ref=e1936]:
+              - img "IRONRIDGE UFO XR-LUG-03-A1 Grounding Lug" [ref=e1938]
+              - generic [ref=e1939]:
+                - generic [ref=e1940]: SOLAR PANEL
+                - heading "IRONRIDGE UFO XR-LUG-03-A1 Grounding Lug" [level=3] [ref=e1941]
+                - paragraph [ref=e1942]: IronRidge
+                - generic [ref=e1943]:
+                  - generic [ref=e1944]: $8.33
+                  - button "Details" [ref=e1945]:
+                    - text: Details
+                    - img
+            - generic [ref=e1946]:
+              - img "IRONRIDGE XR RAIL XR-10-132B 132\" 11' BLACK RAIL" [ref=e1948]
+              - generic [ref=e1949]:
+                - generic [ref=e1950]: SOLAR PANEL
+                - heading "IRONRIDGE XR RAIL XR-10-132B 132\" 11' BLACK RAIL" [level=3] [ref=e1951]
+                - paragraph [ref=e1952]: IronRidge
+                - generic [ref=e1953]:
+                  - generic [ref=e1954]: $22.86
+                  - button "Details" [ref=e1955]:
+                    - text: Details
+                    - img
+            - generic [ref=e1956]:
+              - img "IRONRIDGE XR RAIL XR-10-204A 204' (17') CLEAR RAIL" [ref=e1958]
+              - generic [ref=e1959]:
+                - generic [ref=e1960]: MOUNTING
+                - heading "IRONRIDGE XR RAIL XR-10-204A 204' (17') CLEAR RAIL" [level=3] [ref=e1961]
+                - paragraph [ref=e1962]: IronRidge
+                - generic [ref=e1963]:
+                  - generic [ref=e1964]: $44.89
+                  - button "Details" [ref=e1965]:
+                    - text: Details
+                    - img
+            - generic [ref=e1966]:
+              - img "IRONRIDGE XR RAIL XR-100-204A 204' (17') CLEAR RAIL" [ref=e1968]
+              - generic [ref=e1969]:
+                - generic [ref=e1970]: SOLAR PANEL
+                - heading "IRONRIDGE XR RAIL XR-100-204A 204' (17') CLEAR RAIL" [level=3] [ref=e1971]
+                - paragraph [ref=e1972]: IronRidge
+                - generic [ref=e1973]:
+                  - generic [ref=e1974]: $62.88
+                  - button "Details" [ref=e1975]:
+                    - text: Details
+                    - img
+            - generic [ref=e1976]:
+              - img "IRONRIDGE XR RAIL XR-100-204B 204' (17') BLACK RAIL" [ref=e1978]
+              - generic [ref=e1979]:
+                - generic [ref=e1980]: SOLAR PANEL
+                - heading "IRONRIDGE XR RAIL XR-100-204B 204' (17') BLACK RAIL" [level=3] [ref=e1981]
+                - paragraph [ref=e1982]: IronRidge
+                - generic [ref=e1983]:
+                  - generic [ref=e1984]: $76.01
+                  - button "Details" [ref=e1985]:
+                    - text: Details
+                    - img
+            - generic [ref=e1986]:
+              - img "IRONRIDGE XR RAIL XR-1000-168A 168' (14') CLEAR RAIL" [ref=e1988]
+              - generic [ref=e1989]:
+                - generic [ref=e1990]: SOLAR PANEL
+                - heading "IRONRIDGE XR RAIL XR-1000-168A 168' (14') CLEAR RAIL" [level=3] [ref=e1991]
+                - paragraph [ref=e1992]: IronRidge
+                - generic [ref=e1993]:
+                  - generic [ref=e1994]: $81.70
+                  - button "Details" [ref=e1995]:
+                    - text: Details
+                    - img
+            - generic [ref=e1996]:
+              - img "IntegraRack AnchorSpike Mounting Kit (10 Pack)" [ref=e1998]
+              - generic [ref=e1999]:
+                - generic [ref=e2000]: MOUNTING
+                - heading "IntegraRack AnchorSpike Mounting Kit (10 Pack)" [level=3] [ref=e2001]
+                - paragraph [ref=e2002]: IntegraRack
+                - generic [ref=e2003]:
+                  - generic [ref=e2004]: $144.99
+                  - button "Details" [ref=e2005]:
+                    - text: Details
+                    - img
+            - generic [ref=e2006]:
+              - img "IntegraRack Concrete Slab/Footing Lag Bolt Mounting Kit" [ref=e2008]
+              - generic [ref=e2009]:
+                - generic [ref=e2010]: MOUNTING
+                - heading "IntegraRack Concrete Slab/Footing Lag Bolt Mounting Kit" [level=3] [ref=e2011]
+                - paragraph [ref=e2012]: IntegraRack
+                - generic [ref=e2013]:
+                  - generic [ref=e2014]: $59.99
+                  - button "Details" [ref=e2015]:
+                    - text: Details
+                    - img
+            - generic [ref=e2016]:
+              - img "IntegraRack IR EarthBallast Mounting Kit" [ref=e2018]
+              - generic [ref=e2019]:
+                - generic [ref=e2020]: SOLAR PANEL
+                - heading "IntegraRack IR EarthBallast Mounting Kit" [level=3] [ref=e2021]
+                - paragraph [ref=e2022]: IntegraRack
+                - generic [ref=e2023]:
+                  - generic [ref=e2024]: $89.99
+                  - button "Details" [ref=e2025]:
+                    - text: Details
+                    - img
+            - generic [ref=e2026]:
+              - img "IntegraRack IR-15 Solar Panel Ground Mount | 15 Degree Angle | Aircraft Grade Aluminum" [ref=e2028]
+              - generic [ref=e2029]:
+                - generic [ref=e2030]: SOLAR PANEL
+                - heading "IntegraRack IR-15 Solar Panel Ground Mount | 15 Degree Angle | Aircraft Grade Aluminum" [level=3] [ref=e2031]
+                - paragraph [ref=e2032]: IntegraRack
+                - generic [ref=e2033]:
+                  - generic [ref=e2034]: $114.99
+                  - button "Details" [ref=e2035]:
+                    - text: Details
+                    - img
+            - generic [ref=e2036]:
+              - img "IntegraRack IR-30 Solar Panel Ground Mount | 30 Degree Angle | Aircraft Grade Aluminum" [ref=e2038]
+              - generic [ref=e2039]:
+                - generic [ref=e2040]: SOLAR PANEL
+                - heading "IntegraRack IR-30 Solar Panel Ground Mount | 30 Degree Angle | Aircraft Grade Aluminum" [level=3] [ref=e2041]
+                - paragraph [ref=e2042]: IntegraRack
+                - generic [ref=e2043]:
+                  - generic [ref=e2044]: $119.99
+                  - button "Details" [ref=e2045]:
+                    - text: Details
+                    - img
+            - generic [ref=e2046]:
+              - img "IntegraRack IR-45ASA Solar Panel Ground Mount | 15-45 Degree Adjustable Angle | Aircraft Grade Aluminum" [ref=e2048]
+              - generic [ref=e2049]:
+                - generic [ref=e2050]: SOLAR PANEL
+                - heading "IntegraRack IR-45ASA Solar Panel Ground Mount | 15-45 Degree Adjustable Angle | Aircraft Grade Aluminum" [level=3] [ref=e2051]
+                - paragraph [ref=e2052]: IntegraRack
+                - generic [ref=e2053]:
+                  - generic [ref=e2054]: $189.99
+                  - button "Details" [ref=e2055]:
+                    - text: Details
+                    - img
+            - generic [ref=e2056]:
+              - img "Iota Engineering 24VDC 25A DLS/M-27V-25A/120V Battery Charger" [ref=e2058]
+              - generic [ref=e2059]:
+                - generic [ref=e2060]: BATTERY
+                - heading "Iota Engineering 24VDC 25A DLS/M-27V-25A/120V Battery Charger" [level=3] [ref=e2061]
+                - paragraph [ref=e2062]: Iota Engineering
+                - generic [ref=e2063]:
+                  - generic [ref=e2064]: $366.96
+                  - button "Details" [ref=e2065]:
+                    - text: Details
+                    - img
+            - generic [ref=e2066]:
+              - img "Iota Engineering 54VDC 13A DLS-54V-13A Battery Charger and Power Converter" [ref=e2068]
+              - generic [ref=e2069]:
+                - generic [ref=e2070]: BATTERY
+                - heading "Iota Engineering 54VDC 13A DLS-54V-13A Battery Charger and Power Converter" [level=3] [ref=e2071]
+                - paragraph [ref=e2072]: Iota Engineering
+                - generic [ref=e2073]:
+                  - generic [ref=e2074]: $523.35
+                  - button "Details" [ref=e2075]:
+                    - text: Details
+                    - img
+            - generic [ref=e2076]:
+              - img "IronRidge 88.5\" GM-DB2-TB01-M1 GM Diagonal Brace 2 Inch Square Tube" [ref=e2078]
+              - generic [ref=e2079]:
+                - generic [ref=e2080]: OTHER
+                - heading "IronRidge 88.5\" GM-DB2-TB01-M1 GM Diagonal Brace 2 Inch Square Tube" [level=3] [ref=e2081]
+                - paragraph [ref=e2082]: IronRidge
+                - generic [ref=e2083]:
+                  - generic [ref=e2084]: $111.00
+                  - button "Details" [ref=e2085]:
+                    - text: Details
+                    - img
+            - generic [ref=e2086]:
+              - img "IronRidge Aire AE-LUG-01-M1 Lug" [ref=e2088]
+              - generic [ref=e2089]:
+                - generic [ref=e2090]: OTHER
+                - heading "IronRidge Aire AE-LUG-01-M1 Lug" [level=3] [ref=e2091]
+                - paragraph [ref=e2092]: IronRidge
+                - generic [ref=e2093]:
+                  - generic [ref=e2094]: $9.56
+                  - button "Details" [ref=e2095]:
+                    - text: Details
+                    - img
+            - generic [ref=e2096]:
+              - img "IronRidge BX-5D-P1 5-degree Tilt Angle Chassis" [ref=e2098]
+              - generic [ref=e2099]:
+                - generic [ref=e2100]: SOLAR PANEL
+                - heading "IronRidge BX-5D-P1 5-degree Tilt Angle Chassis" [level=3] [ref=e2101]
+                - paragraph [ref=e2102]: Ironridge
+                - generic [ref=e2103]:
+                  - generic [ref=e2104]: $56.94
+                  - button "Details" [ref=e2105]:
+                    - text: Details
+                    - img
+            - generic [ref=e2106]:
+              - img "IronRidge BX-CMA-MI-M1 BX MLPE Mounting Assembly" [ref=e2108]
+              - generic [ref=e2109]:
+                - generic [ref=e2110]: MOUNTING
+                - heading "IronRidge BX-CMA-MI-M1 BX MLPE Mounting Assembly" [level=3] [ref=e2111]
+                - paragraph [ref=e2112]: IronRidge
+                - generic [ref=e2113]:
+                  - generic [ref=e2114]: $2.24
+                  - button "Details" [ref=e2115]:
+                    - text: Details
+                    - img
+            - generic [ref=e2116]:
+              - img "IronRidge BX-CT-UV-P1 Black Cable Tie" [ref=e2118]
+              - generic [ref=e2119]:
+                - generic [ref=e2120]: WIRING
+                - heading "IronRidge BX-CT-UV-P1 Black Cable Tie" [level=3] [ref=e2121]
+                - paragraph [ref=e2122]: IronRidge
+                - generic [ref=e2123]:
+                  - generic [ref=e2124]: $0.24
+                  - button "Details" [ref=e2125]:
+                    - text: Details
+                    - img
+            - generic [ref=e2126]:
+              - img "IronRidge Conduit Penetration Flashing QMCPT-A-12, Tile, Mill" [ref=e2128]
+              - generic [ref=e2129]:
+                - generic [ref=e2130]: WIRING
+                - heading "IronRidge Conduit Penetration Flashing QMCPT-A-12, Tile, Mill" [level=3] [ref=e2131]
+                - paragraph [ref=e2132]: IronRidge
+                - generic [ref=e2133]:
+                  - generic [ref=e2134]: $30.99
+                  - button "Details" [ref=e2135]:
+                    - text: Details
+                    - img
+            - generic [ref=e2136]:
+              - img "IronRidge FF2-02-M2 8x12-inch FlashFoot2 w/ Mill Finish" [ref=e2138]
+              - generic [ref=e2139]:
+                - generic [ref=e2140]: OTHER
+                - heading "IronRidge FF2-02-M2 8x12-inch FlashFoot2 w/ Mill Finish" [level=3] [ref=e2141]
+                - paragraph [ref=e2142]: IronRidge
+                - generic [ref=e2143]:
+                  - generic [ref=e2144]: $16.35
+                  - button "Details" [ref=e2145]:
+                    - text: Details
+                    - img
+            - generic [ref=e2146]:
+              - img "IronRidge KOB-1L02-B1 Tile Replacement Base in Black" [ref=e2148]
+              - generic [ref=e2149]:
+                - generic [ref=e2150]: OTHER
+                - heading "IronRidge KOB-1L02-B1 Tile Replacement Base in Black" [level=3] [ref=e2151]
+                - paragraph [ref=e2152]: IronRidge
+                - generic [ref=e2153]:
+                  - generic [ref=e2154]: $19.33
+                  - button "Details" [ref=e2155]:
+                    - text: Details
+                    - img
+            - generic [ref=e2156]:
+              - img "IronRidge Mounting Rail 168 in (14 ft) XR-100-168B-US" [ref=e2158]
+              - generic [ref=e2159]:
+                - generic [ref=e2160]: MOUNTING
+                - heading "IronRidge Mounting Rail 168 in (14 ft) XR-100-168B-US" [level=3] [ref=e2161]
+                - paragraph [ref=e2162]: Ironridge
+                - generic [ref=e2163]:
+                  - generic [ref=e2164]: $75.14
+                  - button "Details" [ref=e2165]:
+                    - text: Details
+                    - img
+            - generic [ref=e2166]:
+              - img "IronRidge Mounting Rail 168 inches (14 ft) XR-100-168M-US" [ref=e2168]
+              - generic [ref=e2169]:
+                - generic [ref=e2170]: SOLAR PANEL
+                - heading "IronRidge Mounting Rail 168 inches (14 ft) XR-100-168M-US" [level=3] [ref=e2171]
+                - paragraph [ref=e2172]: Ironridge
+                - generic [ref=e2173]:
+                  - generic [ref=e2174]: $59.08
+                  - button "Details" [ref=e2175]:
+                    - text: Details
+                    - img
+            - generic [ref=e2176]:
+              - img "IronRidge Mounting Rail 168\" (14ft) XR-10-168B-US" [ref=e2178]
+              - generic [ref=e2179]:
+                - generic [ref=e2180]: MOUNTING
+                - heading "IronRidge Mounting Rail 168\" (14ft) XR-10-168B-US" [level=3] [ref=e2181]
+                - paragraph [ref=e2182]: Ironridge
+                - generic [ref=e2183]:
+                  - generic [ref=e2184]: $55.26
+                  - button "Details" [ref=e2185]:
+                    - text: Details
+                    - img
+            - generic [ref=e2186]:
+              - img "IronRidge Mounting Rail 168\" (14ft) XR-10-168M-US" [ref=e2188]
+              - generic [ref=e2189]:
+                - generic [ref=e2190]: MOUNTING
+                - heading "IronRidge Mounting Rail 168\" (14ft) XR-10-168M-US" [level=3] [ref=e2191]
+                - paragraph [ref=e2192]: Ironridge
+                - generic [ref=e2193]:
+                  - generic [ref=e2194]: $38.85
+                  - button "Details" [ref=e2195]:
+                    - text: Details
+                    - img
+            - generic [ref=e2196]:
+              - img "IronRidge PV-LUG-01-A1 PV Grounding Lug" [ref=e2198]
+              - generic [ref=e2199]:
+                - generic [ref=e2200]: OTHER
+                - heading "IronRidge PV-LUG-01-A1 PV Grounding Lug" [level=3] [ref=e2201]
+                - paragraph [ref=e2202]: IronRidge
+                - generic [ref=e2203]:
+                  - generic [ref=e2204]: $6.16
+                  - button "Details" [ref=e2205]:
+                    - text: Details
+                    - img
+            - generic [ref=e2206]:
+              - img "IronRidge Quickmount QM-LM-01-B1 Black 9 X 12 - Flashing With L-foot" [ref=e2208]
+              - generic [ref=e2209]:
+                - generic [ref=e2210]: OTHER
+                - heading "IronRidge Quickmount QM-LM-01-B1 Black 9 X 12 - Flashing With L-foot" [level=3] [ref=e2211]
+                - paragraph [ref=e2212]: IronRidge
+                - generic [ref=e2213]:
+                  - generic [ref=e2214]: $10.35
+                  - button "Details" [ref=e2215]:
+                    - text: Details
+                    - img
+            - generic [ref=e2216]:
+              - img "IronRidge XR Rail XR-100-CAP01-B1 Black End Caps (1 Bag of 10 Pairs)" [ref=e2218]
+              - generic [ref=e2219]:
+                - generic [ref=e2220]: MOUNTING
+                - heading "IronRidge XR Rail XR-100-CAP01-B1 Black End Caps (1 Bag of 10 Pairs)" [level=3] [ref=e2221]
+                - paragraph [ref=e2222]: IronRidge
+                - generic [ref=e2223]:
+                  - generic [ref=e2224]: $27.40
+                  - button "Details" [ref=e2225]:
+                    - text: Details
+                    - img
+            - generic [ref=e2226]:
+              - img "IronRidge XR-100-CAP End Cap" [ref=e2228]
+              - generic [ref=e2229]:
+                - generic [ref=e2230]: OTHER
+                - heading "IronRidge XR-100-CAP End Cap" [level=3] [ref=e2231]
+                - paragraph [ref=e2232]: IronRidge
+                - generic [ref=e2233]:
+                  - generic [ref=e2234]: $14.14
+                  - button "Details" [ref=e2235]:
+                    - text: Details
+                    - img
+            - generic [ref=e2236]:
+              - img "Ironridge KO KOF-F01-T1Tan Flat Tile Flashing" [ref=e2238]
+              - generic [ref=e2239]:
+                - generic [ref=e2240]: MOUNTING
+                - heading "Ironridge KO KOF-F01-T1Tan Flat Tile Flashing" [level=3] [ref=e2241]
+                - paragraph [ref=e2242]: IronRidge
+                - generic [ref=e2243]:
+                  - generic [ref=e2244]: $17.79
+                  - button "Details" [ref=e2245]:
+                    - text: Details
+                    - img
+            - generic [ref=e2246]:
+              - img "Ironridge BX-TCL-35MM-M1 35mm Top Clamp Mill" [ref=e2248]
+              - generic [ref=e2249]:
+                - generic [ref=e2250]: MOUNTING
+                - heading "Ironridge BX-TCL-35MM-M1 35mm Top Clamp Mill" [level=3] [ref=e2251]
+                - paragraph [ref=e2252]: Ironridge
+                - generic [ref=e2253]:
+                  - generic [ref=e2254]: $2.85
+                  - button "Details" [ref=e2255]:
+                    - text: Details
+                    - img
+            - generic [ref=e2256]:
+              - img "Ironridge BX-TCL-40MM-M1 40MM Top Clamp" [ref=e2258]
+              - generic [ref=e2259]:
+                - generic [ref=e2260]: SOLAR PANEL
+                - heading "Ironridge BX-TCL-40MM-M1 40MM Top Clamp" [level=3] [ref=e2261]
+                - paragraph [ref=e2262]: Ironridge
+                - generic [ref=e2263]:
+                  - generic [ref=e2264]: $2.85
+                  - button "Details" [ref=e2265]:
+                    - text: Details
+                    - img
+            - generic [ref=e2266]:
+              - img "Ironridge Bx Top Clamp - BX-TCL-32MM-M1" [ref=e2268]
+              - generic [ref=e2269]:
+                - generic [ref=e2270]: SOLAR PANEL
+                - heading "Ironridge Bx Top Clamp - BX-TCL-32MM-M1" [level=3] [ref=e2271]
+                - paragraph [ref=e2272]: Ironridge
+                - generic [ref=e2273]:
+                  - generic [ref=e2274]: $2.85
+                  - button "Details" [ref=e2275]:
+                    - text: Details
+                    - img
+            - generic [ref=e2276]:
+              - img "Ironridge GM-HSHW-01-M1 Ground Screw Attachment Bolt, Hex Head W/ Thread Loc" [ref=e2278]
+              - generic [ref=e2279]:
+                - generic [ref=e2280]: SOLAR PANEL
+                - heading "Ironridge GM-HSHW-01-M1 Ground Screw Attachment Bolt, Hex Head W/ Thread Loc" [level=3] [ref=e2281]
+                - paragraph [ref=e2282]: IronRidge
+                - generic [ref=e2283]:
+                  - generic [ref=e2284]: $3.56
+                  - button "Details" [ref=e2285]:
+                    - text: Details
+                    - img
+            - generic [ref=e2286]:
+              - img "Ironridge UFO ATH-01-M1 Tile Hook Side Mount" [ref=e2288]
+              - generic [ref=e2289]:
+                - generic [ref=e2290]: MOUNTING
+                - heading "Ironridge UFO ATH-01-M1 Tile Hook Side Mount" [level=3] [ref=e2291]
+                - paragraph [ref=e2292]: IronRidge
+                - generic [ref=e2293]:
+                  - generic [ref=e2294]: $10.93
+                  - button "Details" [ref=e2295]:
+                    - text: Details
+                    - img
+            - generic [ref=e2296]:
+              - img "Ironridge UFO FRA-BASE-01-M1 Flat Roof Attachment" [ref=e2298]
+              - generic [ref=e2299]:
+                - generic [ref=e2300]: SOLAR PANEL
+                - heading "Ironridge UFO FRA-BASE-01-M1 Flat Roof Attachment" [level=3] [ref=e2301]
+                - paragraph [ref=e2302]: IronRidge
+                - generic [ref=e2303]:
+                  - generic [ref=e2304]: $45.23
+                  - button "Details" [ref=e2305]:
+                    - text: Details
+                    - img
+            - generic [ref=e2306]:
+              - img "Ironridge XR RAIL XR-10-168M 168' (14') Mill Rail" [ref=e2308]
+              - generic [ref=e2309]:
+                - generic [ref=e2310]: MOUNTING
+                - heading "Ironridge XR RAIL XR-10-168M 168' (14') Mill Rail" [level=3] [ref=e2311]
+                - paragraph [ref=e2312]: IronRidge
+                - generic [ref=e2313]:
+                  - generic [ref=e2314]: $35.51
+                  - button "Details" [ref=e2315]:
+                    - text: Details
+                    - img
+            - generic [ref=e2316]:
+              - img "Ironridge XR-1000-cap End Cap (10pc)" [ref=e2318]
+              - generic [ref=e2319]:
+                - generic [ref=e2320]: SOLAR PANEL
+                - heading "Ironridge XR-1000-cap End Cap (10pc)" [level=3] [ref=e2321]
+                - paragraph [ref=e2322]: IronRidge
+                - generic [ref=e2323]:
+                  - generic [ref=e2324]: $15.72
+                  - button "Details" [ref=e2325]:
+                    - text: Details
+                    - img
+            - generic [ref=e2326]:
+              - img "JA Solar 595W N Type Double Glass Bifacial Solar Panel JAM72D40-595/MB-US" [ref=e2328]
+              - generic [ref=e2329]:
+                - generic [ref=e2330]: SOLAR PANEL
+                - heading "JA Solar 595W N Type Double Glass Bifacial Solar Panel JAM72D40-595/MB-US" [level=3] [ref=e2331]
+                - paragraph [ref=e2332]: JA Solar
+                - generic [ref=e2333]:
+                  - generic [ref=e2334]: $295.99
+                  - button "Details" [ref=e2335]:
+                    - text: Details
+                    - img
+            - generic [ref=e2336]:
+              - img "JA Solar 615W Bifacial Mono PERC Silver Frame Solar Panel JAM66-D45-615LB" [ref=e2338]
+              - generic [ref=e2339]:
+                - generic [ref=e2340]: SOLAR PANEL
+                - heading "JA Solar 615W Bifacial Mono PERC Silver Frame Solar Panel JAM66-D45-615LB" [level=3] [ref=e2341]
+                - paragraph [ref=e2342]: JA Solar
+                - generic [ref=e2343]:
+                  - generic [ref=e2344]: $295.99
+                  - button "Details" [ref=e2345]:
+                    - text: Details
+                    - img
+            - generic [ref=e2346]:
+              - img "Jinko 385W JKM385M-72HBL-V PERC Diamond Cell Solar Panel" [ref=e2348]
+              - generic [ref=e2349]:
+                - generic [ref=e2350]: SOLAR PANEL
+                - heading "Jinko 385W JKM385M-72HBL-V PERC Diamond Cell Solar Panel" [level=3] [ref=e2351]
+                - paragraph [ref=e2352]: Jinko Solar
+                - generic [ref=e2353]:
+                  - generic [ref=e2354]: $89.99
+                  - button "Details" [ref=e2355]:
+                    - text: Details
+                    - img
+            - generic [ref=e2356]:
+              - img "Jinko 430W Black on Black Solar Panel JKM430N-54HL4-B" [ref=e2358]
+              - generic [ref=e2359]:
+                - generic [ref=e2360]: SOLAR PANEL
+                - heading "Jinko 430W Black on Black Solar Panel JKM430N-54HL4-B" [level=3] [ref=e2361]
+                - paragraph [ref=e2362]: Jinko Solar
+                - generic [ref=e2363]:
+                  - generic [ref=e2364]: $196.99
+                  - button "Details" [ref=e2365]:
+                    - text: Details
+                    - img
+            - generic [ref=e2366]:
+              - img "Jinko 590W EAGLE G6B Bifacial N-Type TOPCon Solar Panel JKM590N-72HL4-BDV" [ref=e2368]
+              - generic [ref=e2369]:
+                - generic [ref=e2370]: SOLAR PANEL
+                - heading "Jinko 590W EAGLE G6B Bifacial N-Type TOPCon Solar Panel JKM590N-72HL4-BDV" [level=3] [ref=e2371]
+                - paragraph [ref=e2372]: Jinko Solar
+                - generic [ref=e2373]:
+                  - generic [ref=e2374]: $297.99
+                  - button "Details" [ref=e2375]:
+                    - text: Details
+                    - img
+            - generic [ref=e2376]:
+              - img "Jinko EAGLE 425W JKM425N-54HL4-B N-Type TOPCon Solar Panel" [ref=e2378]
+              - generic [ref=e2379]:
+                - generic [ref=e2380]: OTHER
+                - heading "Jinko EAGLE 425W JKM425N-54HL4-B N-Type TOPCon Solar Panel" [level=3] [ref=e2381]
+                - paragraph [ref=e2382]: Jinko Solar
+                - generic [ref=e2383]:
+                  - generic [ref=e2384]: $189.99
+                  - button "Details" [ref=e2385]:
+                    - text: Details
+                    - img
+            - generic [ref=e2386]:
+              - img "K2 System 4000006-H accessories Ground Lug Set" [ref=e2388]
+              - generic [ref=e2389]:
+                - generic [ref=e2390]: OTHER
+                - heading "K2 System 4000006-H accessories Ground Lug Set" [level=3] [ref=e2391]
+                - paragraph [ref=e2392]: K2 Systems
+                - generic [ref=e2393]:
+                  - generic [ref=e2394]: $6.11
+                  - button "Details" [ref=e2395]:
+                    - text: Details
+                    - img
+            - generic [ref=e2396]:
+              - img "K2 System 4000385 Crossrail 48 x Connector SET" [ref=e2398]
+              - generic [ref=e2399]:
+                - generic [ref=e2400]: WIRING
+                - heading "K2 System 4000385 Crossrail 48 x Connector SET" [level=3] [ref=e2401]
+                - paragraph [ref=e2402]: K2 Systems
+                - generic [ref=e2403]:
+                  - generic [ref=e2404]: $6.25
+                  - button "Details" [ref=e2405]:
+                    - text: Details
+                    - img
+            - generic [ref=e2406]:
+              - img "K2 System 4000386 Crossrail 48 x Black Connector SET" [ref=e2408]
+              - generic [ref=e2409]:
+                - generic [ref=e2410]: WIRING
+                - heading "K2 System 4000386 Crossrail 48 x Black Connector SET" [level=3] [ref=e2411]
+                - paragraph [ref=e2412]: K2 Systems
+                - generic [ref=e2413]:
+                  - generic [ref=e2414]: $7.72
+                  - button "Details" [ref=e2415]:
+                    - text: Details
+                    - img
+            - generic [ref=e2416]:
+              - img "K2 System 4006042 Tilt Up Kit Climber Set 48/80, Hole" [ref=e2418]
+              - generic [ref=e2419]:
+                - generic [ref=e2420]: SOLAR PANEL
+                - heading "K2 System 4006042 Tilt Up Kit Climber Set 48/80, Hole" [level=3] [ref=e2421]
+                - paragraph [ref=e2422]: K2 Systems
+                - generic [ref=e2423]:
+                  - generic [ref=e2424]: $3.25
+                  - button "Details" [ref=e2425]:
+                    - text: Details
+                    - img
+            - generic [ref=e2426]:
+              - img "K2 Systems 4000051 Rail Connector Set CR 44-X, Mill" [ref=e2428]
+              - generic [ref=e2429]:
+                - generic [ref=e2430]: MOUNTING
+                - heading "K2 Systems 4000051 Rail Connector Set CR 44-X, Mill" [level=3] [ref=e2431]
+                - paragraph [ref=e2432]: K2 Systems
+                - generic [ref=e2433]:
+                  - generic [ref=e2434]: $6.17
+                  - button "Details" [ref=e2435]:
+                    - text: Details
+                    - img
+            - generic [ref=e2436]:
+              - img "K2 Systems 4000508 CrossRail 80 168\" (14') Rail, Mill" [ref=e2438]
+              - generic [ref=e2439]:
+                - generic [ref=e2440]: MOUNTING
+                - heading "K2 Systems 4000508 CrossRail 80 168\" (14') Rail, Mill" [level=3] [ref=e2441]
+                - paragraph [ref=e2442]: K2 Systems
+                - generic [ref=e2443]:
+                  - generic [ref=e2444]: $75.98
+                  - button "Details" [ref=e2445]:
+                    - text: Details
+                    - img
+            - generic [ref=e2446]:
+              - img "K2 Systems 4000602-H Dark Mid Clamp, 30-47mm" [ref=e2448]
+              - generic [ref=e2449]:
+                - generic [ref=e2450]: MOUNTING
+                - heading "K2 Systems 4000602-H Dark Mid Clamp, 30-47mm" [level=3] [ref=e2451]
+                - paragraph [ref=e2452]: K2 Systems
+                - generic [ref=e2453]:
+                  - generic [ref=e2454]: $4.72
+                  - button "Details" [ref=e2455]:
+                    - text: Details
+                    - img
+            - generic [ref=e2456]:
+              - img "K2 Systems 4000663 Crossrail 48-X 166\" Rail, Dark" [ref=e2458]
+              - generic [ref=e2459]:
+                - generic [ref=e2460]: MOUNTING
+                - heading "K2 Systems 4000663 Crossrail 48-X 166\" Rail, Dark" [level=3] [ref=e2461]
+                - paragraph [ref=e2462]: K2 Systems
+                - generic [ref=e2463]:
+                  - generic [ref=e2464]: $52.99
+                  - button "Details" [ref=e2465]:
+                    - text: Details
+                    - img
+            - generic [ref=e2466]:
+              - img "K2 Systems 4001221 Crossrail 80 End Cap (Pack of 10)" [ref=e2468]
+              - generic [ref=e2469]:
+                - generic [ref=e2470]: OTHER
+                - heading "K2 Systems 4001221 Crossrail 80 End Cap (Pack of 10)" [level=3] [ref=e2471]
+                - paragraph [ref=e2472]: K2 Systems
+                - generic [ref=e2473]:
+                  - generic [ref=e2474]: $1.17
+                  - button "Details" [ref=e2475]:
+                    - text: Details
+                    - img
+            - generic [ref=e2476]:
+              - img "K2 Systems CrossRail 172\" Rail Dark 4000728" [ref=e2478]
+              - generic [ref=e2479]:
+                - generic [ref=e2480]: SOLAR PANEL
+                - heading "K2 Systems CrossRail 172\" Rail Dark 4000728" [level=3] [ref=e2481]
+                - paragraph [ref=e2482]: K2 Systems
+                - generic [ref=e2483]:
+                  - generic [ref=e2484]: $75.76
+                  - button "Details" [ref=e2485]:
+                    - text: Details
+                    - img
+            - generic [ref=e2486]:
+              - img "LG 16H Prime 16kWh High Voltage Battery Bundle with Growatt 7.6kW or 11.4kW Grid-Tie Inverter" [ref=e2488]
+              - generic [ref=e2489]:
+                - generic [ref=e2490]: BATTERY
+                - heading "LG 16H Prime 16kWh High Voltage Battery Bundle with Growatt 7.6kW or 11.4kW Grid-Tie Inverter" [level=3] [ref=e2491]
+                - paragraph [ref=e2492]: Portable Sun LLC
+                - generic [ref=e2493]:
+                  - generic [ref=e2494]: $3,999.00
+                  - button "Details" [ref=e2495]:
+                    - text: Details
+                    - img
+            - generic [ref=e2496]:
+              - img "LG 16H Prime Battery | 16kWh | 400V | High Voltage" [ref=e2498]
+              - generic [ref=e2499]:
+                - generic [ref=e2500]: BATTERY
+                - heading "LG 16H Prime Battery | 16kWh | 400V | High Voltage" [level=3] [ref=e2501]
+                - paragraph [ref=e2502]: LG
+                - generic [ref=e2503]:
+                  - generic [ref=e2504]: $2,750.00
+                  - button "Details" [ref=e2505]:
+                    - text: Details
+                    - img
+            - generic [ref=e2506]:
+              - img "LG 16H Prime Battery | 16kWh | 400V | High Voltage" [ref=e2508]
+              - generic [ref=e2509]:
+                - generic [ref=e2510]: BATTERY
+                - heading "LG 16H Prime Battery | 16kWh | 400V | High Voltage" [level=3] [ref=e2511]
+                - paragraph [ref=e2512]: LG
+                - generic [ref=e2513]:
+                  - generic [ref=e2514]: $2,750.00
+                  - button "Details" [ref=e2515]:
+                    - text: Details
+                    - img
+            - generic [ref=e2516]:
+              - img "LG 380W NeON® H All Black N Type Solar Panel LG380N1K-E6" [ref=e2518]
+              - generic [ref=e2519]:
+                - generic [ref=e2520]: SOLAR PANEL
+                - heading "LG 380W NeON® H All Black N Type Solar Panel LG380N1K-E6" [level=3] [ref=e2521]
+                - paragraph [ref=e2522]: LG
+                - generic [ref=e2523]:
+                  - generic [ref=e2524]: $119.99
+                  - button "Details" [ref=e2525]:
+                    - text: Details
+                    - img
+            - generic [ref=e2526]:
+              - img "Littelfuse¬†FLNR050 250V RK5 TD FUSE" [ref=e2528]
+              - generic [ref=e2529]:
+                - generic [ref=e2530]: ELECTRICAL
+                - heading "Littelfuse¬†FLNR050 250V RK5 TD FUSE" [level=3] [ref=e2531]
+                - paragraph [ref=e2532]: Littelfuse
+                - generic [ref=e2533]:
+                  - generic [ref=e2534]: $17.37
+                  - button "Details" [ref=e2535]:
+                    - text: Details
+                    - img
+            - generic [ref=e2536]:
+              - img "Longi 370W Bifacial Mono PERC Solar Panel – LR6-72HBD-370M" [ref=e2538]
+              - generic [ref=e2539]:
+                - generic [ref=e2540]: SOLAR PANEL
+                - heading "Longi 370W Bifacial Mono PERC Solar Panel – LR6-72HBD-370M" [level=3] [ref=e2541]
+                - paragraph [ref=e2542]: LONGi Solar
+                - generic [ref=e2543]:
+                  - generic [ref=e2544]: $124.99
+                  - button "Details" [ref=e2545]:
+                    - text: Details
+                    - img
+            - generic [ref=e2546]:
+              - img "Longi HiMO 360W LR4-60HPB-360M BoB Solar Module" [ref=e2548]
+              - generic [ref=e2549]:
+                - generic [ref=e2550]: INVERTER
+                - heading "Longi HiMO 360W LR4-60HPB-360M BoB Solar Module" [level=3] [ref=e2551]
+                - paragraph [ref=e2552]: LONGi Solar
+                - generic [ref=e2553]:
+                  - generic [ref=e2554]: $109.99
+                  - button "Details" [ref=e2555]:
+                    - text: Details
+                    - img
+            - generic [ref=e2556]:
+              - img "MC4 Male and Female Connector" [ref=e2558]
+              - generic [ref=e2559]:
+                - generic [ref=e2560]: WIRING
+                - heading "MC4 Male and Female Connector" [level=3] [ref=e2561]
+                - paragraph [ref=e2562]: Stäubli
+                - generic [ref=e2563]:
+                  - generic [ref=e2564]: $3.25
+                  - button "Details" [ref=e2565]:
+                    - text: Details
+                    - img
+            - generic [ref=e2566]:
+              - img "MK BATTERY 8A31DT-DEKA 104AH 12V AGM BATTERY" [ref=e2568]
+              - generic [ref=e2569]:
+                - generic [ref=e2570]: BATTERY
+                - heading "MK BATTERY 8A31DT-DEKA 104AH 12V AGM BATTERY" [level=3] [ref=e2571]
+                - paragraph [ref=e2572]: MK Battery
+                - generic [ref=e2573]:
+                  - generic [ref=e2574]: $293.44
+                  - button "Details" [ref=e2575]:
+                    - text: Details
+                    - img
+            - generic [ref=e2576]:
+              - img "MK BATTERY 8A4DLTP-DEKA 198AH 12V AGM BATTERY" [ref=e2578]
+              - generic [ref=e2579]:
+                - generic [ref=e2580]: BATTERY
+                - heading "MK BATTERY 8A4DLTP-DEKA 198AH 12V AGM BATTERY" [level=3] [ref=e2581]
+                - paragraph [ref=e2582]: MK Battery
+                - generic [ref=e2583]:
+                  - generic [ref=e2584]: $574.69
+                  - button "Details" [ref=e2585]:
+                    - text: Details
+                    - img
+            - generic [ref=e2586]:
+              - img "MK BATTERY 8GU1H-DEKA 31AH 12V GEL BATTERY" [ref=e2588]
+              - generic [ref=e2589]:
+                - generic [ref=e2590]: BATTERY
+                - heading "MK BATTERY 8GU1H-DEKA 31AH 12V GEL BATTERY" [level=3] [ref=e2591]
+                - paragraph [ref=e2592]: MK Battery
+                - generic [ref=e2593]:
+                  - generic [ref=e2594]: $111.00
+                  - button "Details" [ref=e2595]:
+                    - text: Details
+                    - img
+            - generic [ref=e2596]:
+              - img "MK BATTERY AGM Deep Cycle Battery 250AH 12V 8A8DLTP-DEKA" [ref=e2598]
+              - generic [ref=e2599]:
+                - generic [ref=e2600]: BATTERY
+                - heading "MK BATTERY AGM Deep Cycle Battery 250AH 12V 8A8DLTP-DEKA" [level=3] [ref=e2601]
+                - paragraph [ref=e2602]: MK Battery
+                - generic [ref=e2603]:
+                  - generic [ref=e2604]: $676.69
+                  - button "Details" [ref=e2605]:
+                    - text: Details
+                    - img
+            - generic [ref=e2606]:
+              - img "MK BATTERY DEKA 8AGC2-DEKA 190AH 6V AGM BATTERY" [ref=e2608]
+              - generic [ref=e2609]:
+                - generic [ref=e2610]: BATTERY
+                - heading "MK BATTERY DEKA 8AGC2-DEKA 190AH 6V AGM BATTERY" [level=3] [ref=e2611]
+                - paragraph [ref=e2612]: MK Battery
+                - generic [ref=e2613]:
+                  - generic [ref=e2614]: $293.25
+                  - button "Details" [ref=e2615]:
+                    - text: Details
+                    - img
+            - generic [ref=e2616]:
+              - img "Mango Power M 15.0 kWh MPB01US1N015 Energy Storage" [ref=e2618]
+              - generic [ref=e2619]:
+                - generic [ref=e2620]: BATTERY
+                - heading "Mango Power M 15.0 kWh MPB01US1N015 Energy Storage" [level=3] [ref=e2621]
+                - paragraph [ref=e2622]: Mango Power
+                - generic [ref=e2623]:
+                  - generic [ref=e2624]: $7,965.60
+                  - button "Details" [ref=e2625]:
+                    - text: Details
+                    - img
+            - generic [ref=e2626]:
+              - img "Maxeon Solar 425W SPR-MAX6-425-BLK Mono Solar Panel" [ref=e2628]
+              - generic [ref=e2629]:
+                - generic [ref=e2630]: ACCESSORIES
+                - heading "Maxeon Solar 425W SPR-MAX6-425-BLK Mono Solar Panel" [level=3] [ref=e2631]
+                - paragraph [ref=e2632]: Maxeon
+                - generic [ref=e2633]:
+                  - generic [ref=e2634]: $448.04
+                  - button "Details" [ref=e2635]:
+                    - text: Details
+                    - img
+            - generic [ref=e2636]:
+              - img "Meyer Burger 380W Bifacial Hetereojunction Solar Panel MB_B120AyB_380" [ref=e2638]
+              - generic [ref=e2639]:
+                - generic [ref=e2640]: SOLAR PANEL
+                - heading "Meyer Burger 380W Bifacial Hetereojunction Solar Panel MB_B120AyB_380" [level=3] [ref=e2641]
+                - paragraph [ref=e2642]: Meyer Burger
+                - generic [ref=e2643]:
+                  - generic [ref=e2644]: $132.99
+                  - button "Details" [ref=e2645]:
+                    - text: Details
+                    - img
+            - generic [ref=e2646]:
+              - img "Meyer Burger Black 395W All Black 120 Half-Cells Mono MB_B120AyB_395 Solar Panel" [ref=e2648]
+              - generic [ref=e2649]:
+                - generic [ref=e2650]: SOLAR PANEL
+                - heading "Meyer Burger Black 395W All Black 120 Half-Cells Mono MB_B120AyB_395 Solar Panel" [level=3] [ref=e2651]
+                - paragraph [ref=e2652]: Meyer Burger
+                - generic [ref=e2653]:
+                  - generic [ref=e2654]: $214.99
+                  - button "Details" [ref=e2655]:
+                    - text: Details
+                    - img
+            - generic [ref=e2656]:
+              - img "MidNite Hawke's Bay 90A 600V 48VDC MNHAWKESBAY90 Charge Controller" [ref=e2658]
+              - generic [ref=e2659]:
+                - generic [ref=e2660]: CHARGE CONTROLLER
+                - heading "MidNite Hawke's Bay 90A 600V 48VDC MNHAWKESBAY90 Charge Controller" [level=3] [ref=e2661]
+                - paragraph [ref=e2662]: MidNite Solar
+                - generic [ref=e2663]:
+                  - generic [ref=e2664]: $1,189.65
+                  - button "Details" [ref=e2665]:
+                    - text: Details
+                    - img
+            - generic [ref=e2666]:
+              - img "MidNite Power \"TheOne\" MN 15-12KW-AIO Hybrid Inverter – 15kW PV Input | 11.4kW Output | 600V VOC Input | 48V 120/240V Split Phase | All-In-One Solar Inverter" [ref=e2668]
+              - generic [ref=e2669]:
+                - generic [ref=e2670]: BATTERY
+                - heading "MidNite Power \"TheOne\" MN 15-12KW-AIO Hybrid Inverter – 15kW PV Input | 11.4kW Output | 600V VOC Input | 48V 120/240V Split Phase | All-In-One Solar Inverter" [level=3] [ref=e2671]
+                - paragraph [ref=e2672]: Midnite Solar
+                - generic [ref=e2673]:
+                  - generic [ref=e2674]: $5,150.00
+                  - button "Details" [ref=e2675]:
+                    - text: Details
+                    - img
+            - generic [ref=e2676]:
+              - img "MidNite Power \"TheOne\" MN 15-12KW-AIO Hybrid Inverter – 15kW PV Input | 11.4kW Output | 600V VOC Input | 48V 120/240V Split Phase | All-In-One Solar Inverter" [ref=e2678]
+              - generic [ref=e2679]:
+                - generic [ref=e2680]: BATTERY
+                - heading "MidNite Power \"TheOne\" MN 15-12KW-AIO Hybrid Inverter – 15kW PV Input | 11.4kW Output | 600V VOC Input | 48V 120/240V Split Phase | All-In-One Solar Inverter" [level=3] [ref=e2681]
+                - paragraph [ref=e2682]: Midnite Solar
+                - generic [ref=e2683]:
+                  - generic [ref=e2684]: $5,150.00
+                  - button "Details" [ref=e2685]:
+                    - text: Details
+                    - img
+            - generic [ref=e2686]:
+              - img "MidNite Power \"TheOne\" MN 15-12KW-AIO Hybrid Inverter – 15kW PV Input | 11.4kW Output | 600V VOC Input | 48V 120/240V Split Phase | All-In-One Solar Inverter" [ref=e2688]
+              - generic [ref=e2689]:
+                - generic [ref=e2690]: BATTERY
+                - heading "MidNite Power \"TheOne\" MN 15-12KW-AIO Hybrid Inverter – 15kW PV Input | 11.4kW Output | 600V VOC Input | 48V 120/240V Split Phase | All-In-One Solar Inverter" [level=3] [ref=e2691]
+                - paragraph [ref=e2692]: Midnite Solar
+                - generic [ref=e2693]:
+                  - generic [ref=e2694]: $5,150.00
+                  - button "Details" [ref=e2695]:
+                    - text: Details
+                    - img
+            - generic [ref=e2696]:
+              - img "MidNite Power MNPowerflo16 | 20+ Year Design Life | 48v 310Ah | 16.1 kWh Capacity | Self Heating | Outdoor Wallmount LiFePO4 Battery" [ref=e2698]
+              - generic [ref=e2699]:
+                - generic [ref=e2700]: BATTERY
+                - heading "MidNite Power MNPowerflo16 | 20+ Year Design Life | 48v 310Ah | 16.1 kWh Capacity | Self Heating | Outdoor Wallmount LiFePO4 Battery" [level=3] [ref=e2701]
+                - paragraph [ref=e2702]: Midnite Solar
+                - generic [ref=e2703]:
+                  - generic [ref=e2704]: $3,999.00
+                  - button "Details" [ref=e2705]:
+                    - text: Details
+                    - img
+            - generic [ref=e2706]:
+              - img "MidNite Power MNPowerflo16 | 20+ Year Design Life | 48v 310Ah | 16.1 kWh Capacity | Self Heating | Outdoor Wallmount LiFePO4 Battery" [ref=e2708]
+              - generic [ref=e2709]:
+                - generic [ref=e2710]: BATTERY
+                - heading "MidNite Power MNPowerflo16 | 20+ Year Design Life | 48v 310Ah | 16.1 kWh Capacity | Self Heating | Outdoor Wallmount LiFePO4 Battery" [level=3] [ref=e2711]
+                - paragraph [ref=e2712]: Midnite Solar
+                - generic [ref=e2713]:
+                  - generic [ref=e2714]: $3,999.00
+                  - button "Details" [ref=e2715]:
+                    - text: Details
+                    - img
+            - generic [ref=e2716]:
+              - img "MidNite Power MNPowerflo16 | 20+ Year Design Life | 48v 310Ah | 16.1 kWh Capacity | Self Heating | Outdoor Wallmount LiFePO4 Battery" [ref=e2718]
+              - generic [ref=e2719]:
+                - generic [ref=e2720]: BATTERY
+                - heading "MidNite Power MNPowerflo16 | 20+ Year Design Life | 48v 310Ah | 16.1 kWh Capacity | Self Heating | Outdoor Wallmount LiFePO4 Battery" [level=3] [ref=e2721]
+                - paragraph [ref=e2722]: Midnite Solar
+                - generic [ref=e2723]:
+                  - generic [ref=e2724]: $3,999.00
+                  - button "Details" [ref=e2725]:
+                    - text: Details
+                    - img
+            - generic [ref=e2726]:
+              - img "MidNite Power MNPowerflo5 | 20+ Year Design Life | 5.12kWh Capacity, 48V 100 AH | Rack Mount LiFePO4 Battery" [ref=e2728]
+              - generic [ref=e2729]:
+                - generic [ref=e2730]: BATTERY
+                - heading "MidNite Power MNPowerflo5 | 20+ Year Design Life | 5.12kWh Capacity, 48V 100 AH | Rack Mount LiFePO4 Battery" [level=3] [ref=e2731]
+                - paragraph [ref=e2732]: Midnite Solar
+                - generic [ref=e2733]:
+                  - generic [ref=e2734]: $1,099.00
+                  - button "Details" [ref=e2735]:
+                    - text: Details
+                    - img
+            - generic [ref=e2736]:
+              - img "MidNite Solar 5.12kWh 48V LFP Server Rack Battery MNPOWERFLO5" [ref=e2738]
+              - generic [ref=e2739]:
+                - generic [ref=e2740]: BATTERY
+                - heading "MidNite Solar 5.12kWh 48V LFP Server Rack Battery MNPOWERFLO5" [level=3] [ref=e2741]
+                - paragraph [ref=e2742]: MidNite Solar
+                - generic [ref=e2743]:
+                  - generic [ref=e2744]: $1,299.00
+                  - button "Details" [ref=e2745]:
+                    - text: Details
+                    - img
+            - generic [ref=e2746]:
+              - img "MidNite Solar MN1000FUSE-15-10PK 15A 1000VDC, 15 AMP, 1000V Fuse UL2579" [ref=e2748]
+              - generic [ref=e2749]:
+                - generic [ref=e2750]: ELECTRICAL
+                - heading "MidNite Solar MN1000FUSE-15-10PK 15A 1000VDC, 15 AMP, 1000V Fuse UL2579" [level=3] [ref=e2751]
+                - paragraph [ref=e2752]: MidNite Solar
+                - generic [ref=e2753]:
+                  - generic [ref=e2754]: $4.28
+                  - button "Details" [ref=e2755]:
+                    - text: Details
+                    - img
+            - generic [ref=e2756]:
+              - img "MidNite Solar MN1000FUSE-20 PV Midget Fuse 20 AMP 1000V Fuse UL2579" [ref=e2758]
+              - generic [ref=e2759]:
+                - generic [ref=e2760]: ELECTRICAL
+                - heading "MidNite Solar MN1000FUSE-20 PV Midget Fuse 20 AMP 1000V Fuse UL2579" [level=3] [ref=e2761]
+                - paragraph [ref=e2762]: MidNite Solar
+                - generic [ref=e2763]:
+                  - generic [ref=e2764]: $4.28
+                  - button "Details" [ref=e2765]:
+                    - text: Details
+                    - img
+            - generic [ref=e2766]:
+              - img "MidNite Solar MNDC125PLUS Mini DC Disconnect PC Plus" [ref=e2768]
+              - generic [ref=e2769]:
+                - generic [ref=e2770]: MOUNTING
+                - heading "MidNite Solar MNDC125PLUS Mini DC Disconnect PC Plus" [level=3] [ref=e2771]
+                - paragraph [ref=e2772]: MidNite Solar
+                - generic [ref=e2773]:
+                  - generic [ref=e2774]: $287.28
+                  - button "Details" [ref=e2775]:
+                    - text: Details
+                    - img
+            - generic [ref=e2776]:
+              - img "MidNite Solar MNDC175PLUS Mini DC Disconnect PC Plus" [ref=e2778]
+              - generic [ref=e2779]:
+                - generic [ref=e2780]: MOUNTING
+                - heading "MidNite Solar MNDC175PLUS Mini DC Disconnect PC Plus" [level=3] [ref=e2781]
+                - paragraph [ref=e2782]: MidNite Solar
+                - generic [ref=e2783]:
+                  - generic [ref=e2784]: $321.30
+                  - button "Details" [ref=e2785]:
+                    - text: Details
+                    - img
+            - generic [ref=e2786]:
+              - img "MidNite Solar MNEAC25-2P 25A 120/240VAC 2-Pole Din Rail Mount Circuit Breaker" [ref=e2788]
+              - generic [ref=e2789]:
+                - generic [ref=e2790]: MOUNTING
+                - heading "MidNite Solar MNEAC25-2P 25A 120/240VAC 2-Pole Din Rail Mount Circuit Breaker" [level=3] [ref=e2791]
+                - paragraph [ref=e2792]: MidNite Solar
+                - generic [ref=e2793]:
+                  - generic [ref=e2794]: $34.40
+                  - button "Details" [ref=e2795]:
+                    - text: Details
+                    - img
+            - generic [ref=e2796]:
+              - img "MidNite Solar MNEPV15-600-2PP Din Rail Mount Breaker" [ref=e2798]
+              - generic [ref=e2799]:
+                - generic [ref=e2800]: MOUNTING
+                - heading "MidNite Solar MNEPV15-600-2PP Din Rail Mount Breaker" [level=3] [ref=e2801]
+                - paragraph [ref=e2802]: Midnite Solar
+                - generic [ref=e2803]:
+                  - generic [ref=e2804]: $45.99
+                  - button "Details" [ref=e2805]:
+                    - text: Details
+                    - img
+            - generic [ref=e2806]:
+              - img "MidNite Solar MNGP2 Graphics and Programming Module" [ref=e2808]
+              - generic [ref=e2809]:
+                - generic [ref=e2810]: MONITORING
+                - heading "MidNite Solar MNGP2 Graphics and Programming Module" [level=3] [ref=e2811]
+                - paragraph [ref=e2812]: Midnite Solar
+                - generic [ref=e2813]:
+                  - generic [ref=e2814]: $207.00
+                  - button "Details" [ref=e2815]:
+                    - text: Details
+                    - img
+            - generic [ref=e2816]:
+              - img "MidNite Solar MNKID-WMBB-W Pre-Wired Mounting Bracket" [ref=e2818]
+              - generic [ref=e2819]:
+                - generic [ref=e2820]: MOUNTING
+                - heading "MidNite Solar MNKID-WMBB-W Pre-Wired Mounting Bracket" [level=3] [ref=e2821]
+                - paragraph [ref=e2822]: MidNite Solar
+                - generic [ref=e2823]:
+                  - generic [ref=e2824]: $49.90
+                  - button "Details" [ref=e2825]:
+                    - text: Details
+                    - img
+            - generic [ref=e2826]:
+              - img "MidNite Solar MNLBC-W250 Lithium Battery Combiner" [ref=e2828]
+              - generic [ref=e2829]:
+                - generic [ref=e2830]: BATTERY
+                - heading "MidNite Solar MNLBC-W250 Lithium Battery Combiner" [level=3] [ref=e2831]
+                - paragraph [ref=e2832]: Midnite Solar
+                - generic [ref=e2833]:
+                  - generic [ref=e2834]: $539.39
+                  - button "Details" [ref=e2835]:
+                    - text: Details
+                    - img
+            - generic [ref=e2836]:
+              - img "MidNite Solar MNPV4-MC4 Solar Array Combiner" [ref=e2838]
+              - generic [ref=e2839]:
+                - generic [ref=e2840]: WIRING
+                - heading "MidNite Solar MNPV4-MC4 Solar Array Combiner" [level=3] [ref=e2841]
+                - paragraph [ref=e2842]: Midnite Solar
+                - generic [ref=e2843]:
+                  - generic [ref=e2844]: $281.16
+                  - button "Details" [ref=e2845]:
+                    - text: Details
+                    - img
+            - generic [ref=e2846]:
+              - img "MidNite Solar MNPV4BY3 12-string, 3 Output PV Combiner Box" [ref=e2848]
+              - generic [ref=e2849]:
+                - generic [ref=e2850]: WIRING
+                - heading "MidNite Solar MNPV4BY3 12-string, 3 Output PV Combiner Box" [level=3] [ref=e2851]
+                - paragraph [ref=e2852]: Midnite Solar
+                - generic [ref=e2853]:
+                  - generic [ref=e2854]: $439.79
+                  - button "Details" [ref=e2855]:
+                    - text: Details
+                    - img
+            - generic [ref=e2856]:
+              - img "MidNite Solar MNPV6 Solar Array Combiner" [ref=e2858]
+              - generic [ref=e2859]:
+                - generic [ref=e2860]: OTHER
+                - heading "MidNite Solar MNPV6 Solar Array Combiner" [level=3] [ref=e2861]
+                - paragraph [ref=e2862]: Midnite Solar
+                - generic [ref=e2863]:
+                  - generic [ref=e2864]: $139.89
+                  - button "Details" [ref=e2865]:
+                    - text: Details
+                    - img
+            - generic [ref=e2866]:
+              - img "MidNite Solar MNSR-1000 Heyco Strain Relief 1/2 in 1000V" [ref=e2868]
+              - generic [ref=e2869]:
+                - generic [ref=e2870]: WIRING
+                - heading "MidNite Solar MNSR-1000 Heyco Strain Relief 1/2 in 1000V" [level=3] [ref=e2871]
+                - paragraph [ref=e2872]: MidNite Solar
+                - generic [ref=e2873]:
+                  - generic [ref=e2874]: $2.40
+                  - button "Details" [ref=e2875]:
+                    - text: Details
+                    - img
+            - generic [ref=e2876]:
+              - img "Midnite Power MNPowerflo5 Lithium Batteries Kit | 25.6 kWh Storage Capacity | 5 Server Rack batteries" [ref=e2878]
+              - generic [ref=e2879]:
+                - generic [ref=e2880]: BATTERY
+                - heading "Midnite Power MNPowerflo5 Lithium Batteries Kit | 25.6 kWh Storage Capacity | 5 Server Rack batteries" [level=3] [ref=e2881]
+                - paragraph [ref=e2882]: Midnite Solar
+                - generic [ref=e2883]:
+                  - generic [ref=e2884]: $5,399.00
+                  - button "Details" [ref=e2885]:
+                    - text: Details
+                    - img
+            - generic [ref=e2886]:
+              - img "Midnite Power Outdoor Wallmount LiFePO4 Battery | 51.2v 310Ah 16.1 kWh | + Midnite Power TheOne 15kW PV Input | 11.4kW Output" [ref=e2888]
+              - generic [ref=e2889]:
+                - generic [ref=e2890]: BATTERY
+                - heading "Midnite Power Outdoor Wallmount LiFePO4 Battery | 51.2v 310Ah 16.1 kWh | + Midnite Power TheOne 15kW PV Input | 11.4kW Output" [level=3] [ref=e2891]
+                - paragraph [ref=e2892]: Midnite Solar
+                - generic [ref=e2893]:
+                  - generic [ref=e2894]: $9,149.39
+                  - button "Details" [ref=e2895]:
+                    - text: Details
+                    - img
+            - generic [ref=e2896]:
+              - img "Midnite Solar Battery Busbar | 280 Amp | 5 5/16 Studs | 6 Auxiliary Slots | MNBIGBUSBAR" [ref=e2898]
+              - generic [ref=e2899]:
+                - generic [ref=e2900]: BATTERY
+                - heading "Midnite Solar Battery Busbar | 280 Amp | 5 5/16 Studs | 6 Auxiliary Slots | MNBIGBUSBAR" [level=3] [ref=e2901]
+                - paragraph [ref=e2902]: Midnite Solar
+                - generic [ref=e2903]:
+                  - generic [ref=e2904]: $89.99
+                  - button "Details" [ref=e2905]:
+                    - text: Details
+                    - img
+            - generic [ref=e2906]:
+              - img "Midnite Solar Classic 150 Charge Controller | 12-72V Battery Charger | Wind Solar Hydro | American Made" [ref=e2908]
+              - generic [ref=e2909]:
+                - generic [ref=e2910]: BATTERY
+                - heading "Midnite Solar Classic 150 Charge Controller | 12-72V Battery Charger | Wind Solar Hydro | American Made" [level=3] [ref=e2911]
+                - paragraph [ref=e2912]: Midnite Solar
+                - generic [ref=e2913]:
+                  - generic [ref=e2914]: $599.99
+                  - button "Details" [ref=e2915]:
+                    - text: Details
+                    - img
+            - generic [ref=e2916]:
+              - img "Midnite Solar Classic 250 Charge Controller | 12-72V Battery Charger | Wind Solar Hydro | American Made" [ref=e2918]
+              - generic [ref=e2919]:
+                - generic [ref=e2920]: BATTERY
+                - heading "Midnite Solar Classic 250 Charge Controller | 12-72V Battery Charger | Wind Solar Hydro | American Made" [level=3] [ref=e2921]
+                - paragraph [ref=e2922]: Midnite Solar
+                - generic [ref=e2923]:
+                  - generic [ref=e2924]: $702.99
+                  - button "Details" [ref=e2925]:
+                    - text: Details
+                    - img
+            - generic [ref=e2926]:
+              - img "Midnite Solar Lightning and Surge Arrestor | 300AC | MNSPD-300-AC" [ref=e2928]
+              - generic [ref=e2929]:
+                - generic [ref=e2930]: OTHER
+                - heading "Midnite Solar Lightning and Surge Arrestor | 300AC | MNSPD-300-AC" [level=3] [ref=e2931]
+                - paragraph [ref=e2932]: Midnite Solar
+                - generic [ref=e2933]:
+                  - generic [ref=e2934]: $89.99
+                  - button "Details" [ref=e2935]:
+                    - text: Details
+                    - img
+            - generic [ref=e2936]:
+              - img "Midnite Solar Lightning and Surge Arrestor | 600DC | MNSPD-600" [ref=e2938]
+              - generic [ref=e2939]:
+                - generic [ref=e2940]: OTHER
+                - heading "Midnite Solar Lightning and Surge Arrestor | 600DC | MNSPD-600" [level=3] [ref=e2941]
+                - paragraph [ref=e2942]: Midnite Solar
+                - generic [ref=e2943]:
+                  - generic [ref=e2944]: $89.99
+                  - button "Details" [ref=e2945]:
+                    - text: Details
+                    - img
+            - generic [ref=e2946]:
+              - img "Midnite Solar Lightning and Surge Arrestor | 600DC | MNSPD-600" [ref=e2948]
+              - generic [ref=e2949]:
+                - generic [ref=e2950]: OTHER
+                - heading "Midnite Solar Lightning and Surge Arrestor | 600DC | MNSPD-600" [level=3] [ref=e2951]
+                - paragraph [ref=e2952]: Midnite Solar
+                - generic [ref=e2953]:
+                  - generic [ref=e2954]: $89.99
+                  - button "Details" [ref=e2955]:
+                    - text: Details
+                    - img
+            - generic [ref=e2956]:
+              - img "Midnite Solar Lightning and Surge Arrestor | 600DC | MNSPD-600" [ref=e2958]
+              - generic [ref=e2959]:
+                - generic [ref=e2960]: OTHER
+                - heading "Midnite Solar Lightning and Surge Arrestor | 600DC | MNSPD-600" [level=3] [ref=e2961]
+                - paragraph [ref=e2962]: Midnite Solar
+                - generic [ref=e2963]:
+                  - generic [ref=e2964]: $89.99
+                  - button "Details" [ref=e2965]:
+                    - text: Details
+                    - img
+            - generic [ref=e2966]:
+              - img "Midnite Solar Little Rosie Mobile/Off-Grid Inverter | 3600W Output | 60A Battery Charger | American Made" [ref=e2968]
+              - generic [ref=e2969]:
+                - generic [ref=e2970]: BATTERY
+                - heading "Midnite Solar Little Rosie Mobile/Off-Grid Inverter | 3600W Output | 60A Battery Charger | American Made" [level=3] [ref=e2971]
+                - paragraph [ref=e2972]: Midnite Solar
+                - generic [ref=e2973]:
+                  - generic [ref=e2974]: $1,699.00
+                  - button "Details" [ref=e2975]:
+                    - text: Details
+                    - img
+            - generic [ref=e2976]:
+              - img "Midnite Solar Little Rosie Mobile/Off-Grid Inverter | 3600W Output | 60A Battery Charger | American Made" [ref=e2978]
+              - generic [ref=e2979]:
+                - generic [ref=e2980]: BATTERY
+                - heading "Midnite Solar Little Rosie Mobile/Off-Grid Inverter | 3600W Output | 60A Battery Charger | American Made" [level=3] [ref=e2981]
+                - paragraph [ref=e2982]: Midnite Solar
+                - generic [ref=e2983]:
+                  - generic [ref=e2984]: $1,699.00
+                  - button "Details" [ref=e2985]:
+                    - text: Details
+                    - img
+            - generic [ref=e2986]:
+              - img "Midnite Solar MNBCB 1000/50 Battery Combiner" [ref=e2988]
+              - generic [ref=e2989]:
+                - generic [ref=e2990]: BATTERY
+                - heading "Midnite Solar MNBCB 1000/50 Battery Combiner" [level=3] [ref=e2991]
+                - paragraph [ref=e2992]: Midnite Solar
+                - generic [ref=e2993]:
+                  - generic [ref=e2994]: $793.80
+                  - button "Details" [ref=e2995]:
+                    - text: Details
+                    - img
+            - generic [ref=e2996]:
+              - img "Midnite Solar MNEAC30 30AMP Ac Din Rail Mount Breaker" [ref=e2998]
+              - generic [ref=e2999]:
+                - generic [ref=e3000]: MOUNTING
+                - heading "Midnite Solar MNEAC30 30AMP Ac Din Rail Mount Breaker" [level=3] [ref=e3001]
+                - paragraph [ref=e3002]: MidNite Solar
+                - generic [ref=e3003]:
+                  - generic [ref=e3004]: $17.53
+                  - button "Details" [ref=e3005]:
+                    - text: Details
+                    - img
+            - generic [ref=e3006]:
+              - img "Midnite Solar MNHAWKE’S BAY120-PW" [ref=e3008]
+              - generic [ref=e3009]:
+                - generic [ref=e3010]: CHARGE CONTROLLER
+                - heading "Midnite Solar MNHAWKE’S BAY120-PW" [level=3] [ref=e3011]
+                - paragraph [ref=e3012]: Midnite Solar
+                - generic [ref=e3013]:
+                  - generic [ref=e3014]: $2,399.00
+                  - button "Details" [ref=e3015]:
+                    - text: Details
+                    - img
+            - generic [ref=e3016]:
+              - img "Midnite Solar Off-Grid Solar Kit | 7000W Output | 48V 120/240V Split Phase + 6000 Watts of Solar PV | 15.3kWh Lithium Battery Storage" [ref=e3018]
+              - generic [ref=e3019]:
+                - generic [ref=e3020]: BATTERY
+                - heading "Midnite Solar Off-Grid Solar Kit | 7000W Output | 48V 120/240V Split Phase + 6000 Watts of Solar PV | 15.3kWh Lithium Battery Storage" [level=3] [ref=e3021]
+                - paragraph [ref=e3022]: Midnite Solar
+                - generic [ref=e3023]:
+                  - generic [ref=e3024]: $11,809.39
+                  - button "Details" [ref=e3025]:
+                    - text: Details
+                    - img
+            - generic [ref=e3026]:
+              - img "Midnite Solar Rosie 48V Pre-Wired Solar Kit With Classic 150| 7000W Output | 15,000W Surge | All-In-One Off-Grid Inverter System | American Made" [ref=e3028]
+              - generic [ref=e3029]:
+                - generic [ref=e3030]: BATTERY
+                - heading "Midnite Solar Rosie 48V Pre-Wired Solar Kit With Classic 150| 7000W Output | 15,000W Surge | All-In-One Off-Grid Inverter System | American Made" [level=3] [ref=e3031]
+                - paragraph [ref=e3032]: Midnite Solar
+                - generic [ref=e3033]:
+                  - generic [ref=e3034]: $7,049.29
+                  - button "Details" [ref=e3035]:
+                    - text: Details
+                    - img
+            - generic [ref=e3036]:
+              - img "Midnite Solar Rosie 48V Pre-Wired Solar Kit | 7000W Output | 15,000W Surge | All-In-One Off-Grid Inverter System | American Made" [ref=e3038]
+              - generic [ref=e3039]:
+                - generic [ref=e3040]: BATTERY
+                - heading "Midnite Solar Rosie 48V Pre-Wired Solar Kit | 7000W Output | 15,000W Surge | All-In-One Off-Grid Inverter System | American Made" [level=3] [ref=e3041]
+                - paragraph [ref=e3042]: Midnite Solar
+                - generic [ref=e3043]:
+                  - generic [ref=e3044]: $5,999.29
+                  - button "Details" [ref=e3045]:
+                    - text: Details
+                    - img
+            - generic [ref=e3046]:
+              - img "Midnite Solar Rosie Inverter | 7000W Output | 48V 120/240V Split Phase | American Made" [ref=e3048]
+              - generic [ref=e3049]:
+                - generic [ref=e3050]: INVERTER
+                - heading "Midnite Solar Rosie Inverter | 7000W Output | 48V 120/240V Split Phase | American Made" [level=3] [ref=e3051]
+                - paragraph [ref=e3052]: Midnite Solar
+                - generic [ref=e3053]:
+                  - generic [ref=e3054]: $3,262.50
+                  - button "Details" [ref=e3055]:
+                    - text: Details
+                    - img
+            - generic [ref=e3056]:
+              - img "Midnite Solar Rosie Inverter | 7000W Output | 48V 120/240V Split Phase | American Made" [ref=e3058]
+              - generic [ref=e3059]:
+                - generic [ref=e3060]: BATTERY
+                - heading "Midnite Solar Rosie Inverter | 7000W Output | 48V 120/240V Split Phase | American Made" [level=3] [ref=e3061]
+                - paragraph [ref=e3062]: Midnite Solar
+                - generic [ref=e3063]:
+                  - generic [ref=e3064]: $3,262.50
+                  - button "Details" [ref=e3065]:
+                    - text: Details
+                    - img
+            - generic [ref=e3066]:
+              - img "Midnite Solar, MNBCB 1000/50, Battery Combiner" [ref=e3068]
+              - generic [ref=e3069]:
+                - generic [ref=e3070]: BATTERY
+                - heading "Midnite Solar, MNBCB 1000/50, Battery Combiner" [level=3] [ref=e3071]
+                - paragraph [ref=e3072]: MidNite Solar
+                - generic [ref=e3073]:
+                  - generic [ref=e3074]: $857.30
+                  - button "Details" [ref=e3075]:
+                    - text: Details
+                    - img
+            - generic [ref=e3076]:
+              - img "Mission Solar 410W (Pallet of 30) All Black 108 Half-Cell Mono Solar Panel MSE410HTOB Made in USA" [ref=e3078]
+              - generic [ref=e3079]:
+                - generic [ref=e3080]: SOLAR PANEL
+                - heading "Mission Solar 410W (Pallet of 30) All Black 108 Half-Cell Mono Solar Panel MSE410HTOB Made in USA" [level=3] [ref=e3081]
+                - paragraph [ref=e3082]: Mission Solar
+                - generic [ref=e3083]:
+                  - generic [ref=e3084]: $6,750.00
+                  - button "Details" [ref=e3085]:
+                    - text: Details
+                    - img
+            - generic [ref=e3086]:
+              - img "Mk Battery 8G24UT-DEKA 74AH 12V Gel Battery" [ref=e3088]
+              - generic [ref=e3089]:
+                - generic [ref=e3090]: BATTERY
+                - heading "Mk Battery 8G24UT-DEKA 74AH 12V Gel Battery" [level=3] [ref=e3091]
+                - paragraph [ref=e3092]: MK Battery
+                - generic [ref=e3093]:
+                  - generic [ref=e3094]: $254.63
+                  - button "Details" [ref=e3095]:
+                    - text: Details
+                    - img
+            - generic [ref=e3096]:
+              - img "Mk Battery 8L16LTP-DEKA 370AH 6V Flooded Battery" [ref=e3098]
+              - generic [ref=e3099]:
+                - generic [ref=e3100]: BATTERY
+                - heading "Mk Battery 8L16LTP-DEKA 370AH 6V Flooded Battery" [level=3] [ref=e3101]
+                - paragraph [ref=e3102]: MK Battery
+                - generic [ref=e3103]:
+                  - generic [ref=e3104]: $370.00
+                  - button "Details" [ref=e3105]:
+                    - text: Details
+                    - img
+            - generic [ref=e3106]:
+              - img "Mobile Power Solar Kit - Victron Phoenix Inverter 12/1200 System | 12V | + 400W PV Solar [KIT-V0005]" [ref=e3108]
+              - generic [ref=e3109]:
+                - generic [ref=e3110]: INVERTER
+                - heading "Mobile Power Solar Kit - Victron Phoenix Inverter 12/1200 System | 12V | + 400W PV Solar [KIT-V0005]" [level=3] [ref=e3111]
+                - paragraph [ref=e3112]: Victron Energy
+                - generic [ref=e3113]:
+                  - generic [ref=e3114]: $2,327.13
+                  - button "Details" [ref=e3115]:
+                    - text: Details
+                    - img
+            - generic [ref=e3116]:
+              - img "Morningstar Prostar PS-15M 15A PWM Charge Controller" [ref=e3118]
+              - generic [ref=e3119]:
+                - generic [ref=e3120]: BATTERY
+                - heading "Morningstar Prostar PS-15M 15A PWM Charge Controller" [level=3] [ref=e3121]
+                - paragraph [ref=e3122]: Morningstar Corporation
+                - generic [ref=e3123]:
+                  - generic [ref=e3124]: $219.80
+                  - button "Details" [ref=e3125]:
+                    - text: Details
+                    - img
+            - generic [ref=e3126]:
+              - img "OUTBACK POWER ENERGYCELL 115TT 112AH 12V AGM BATTERY" [ref=e3128]
+              - generic [ref=e3129]:
+                - generic [ref=e3130]: BATTERY
+                - heading "OUTBACK POWER ENERGYCELL 115TT 112AH 12V AGM BATTERY" [level=3] [ref=e3131]
+                - paragraph [ref=e3132]: Outback Power
+                - generic [ref=e3133]:
+                  - generic [ref=e3134]: $310.00
+                  - button "Details" [ref=e3135]:
+                    - text: Details
+                    - img
+            - generic [ref=e3136]:
+              - img "OUTBACK POWER VFXR3648A-01 3.6KW BATTERY-BASED INVERTER" [ref=e3138]
+              - generic [ref=e3139]:
+                - generic [ref=e3140]: BATTERY
+                - heading "OUTBACK POWER VFXR3648A-01 3.6KW BATTERY-BASED INVERTER" [level=3] [ref=e3141]
+                - paragraph [ref=e3142]: Outback Power
+                - generic [ref=e3143]:
+                  - generic [ref=e3144]: $2,071.51
+                  - button "Details" [ref=e3145]:
+                    - text: Details
+                    - img
+            - generic [ref=e3146]:
+              - img "Oatey Aurora 12801 GALV Clear Flashing" [ref=e3148]
+              - generic [ref=e3149]:
+                - generic [ref=e3150]: OTHER
+                - heading "Oatey Aurora 12801 GALV Clear Flashing" [level=3] [ref=e3151]
+                - paragraph [ref=e3152]: Oatey
+                - generic [ref=e3153]:
+                  - generic [ref=e3154]: $8.73
+                  - button "Details" [ref=e3155]:
+                    - text: Details
+                    - img
+            - generic [ref=e3156]:
+              - 'img "Off-Grid Essential Solar Power Kit {KIT-E0020}" [ref=e3158]'
+              - generic [ref=e3159]:
+                - generic [ref=e3160]: ACCESSORIES
+                - 'heading "Off-Grid Essential Solar Power Kit {KIT-E0020}" [level=3] [ref=e3161]'
+                - paragraph [ref=e3162]: EG4 Electronics
+                - generic [ref=e3163]:
+                  - generic [ref=e3164]: $13,122.00
+                  - button "Details" [ref=e3165]:
+                    - text: Details
+                    - img
+            - generic [ref=e3166]:
+              - img "OutBack FP4 FXR3048A-01 Pre-Wired Quad Power Center" [ref=e3168]
+              - generic [ref=e3169]:
+                - generic [ref=e3170]: OTHER
+                - heading "OutBack FP4 FXR3048A-01 Pre-Wired Quad Power Center" [level=3] [ref=e3171]
+                - paragraph [ref=e3172]: Outback Power
+                - generic [ref=e3173]:
+                  - generic [ref=e3174]: $17,502.44
+                  - button "Details" [ref=e3175]:
+                    - text: Details
+                    - img
+            - generic [ref=e3176]:
+              - img "OutBack MATE2 Communications Controller for FlexWare" [ref=e3178]
+              - generic [ref=e3179]:
+                - generic [ref=e3180]: MONITORING
+                - heading "OutBack MATE2 Communications Controller for FlexWare" [level=3] [ref=e3181]
+                - paragraph [ref=e3182]: Outback Power
+                - generic [ref=e3183]:
+                  - generic [ref=e3184]: $381.38
+                  - button "Details" [ref=e3185]:
+                    - text: Details
+                    - img
+            - generic [ref=e3186]:
+              - img "OutBack Power FWPV3-FH600-S2D PV Rapid Shutdown Combiner For SkyBox" [ref=e3188]
+              - generic [ref=e3189]:
+                - generic [ref=e3190]: OTHER
+                - heading "OutBack Power FWPV3-FH600-S2D PV Rapid Shutdown Combiner For SkyBox" [level=3] [ref=e3191]
+                - paragraph [ref=e3192]: Outback Power
+                - generic [ref=e3193]:
+                  - generic [ref=e3194]: $1,350.00
+                  - button "Details" [ref=e3195]:
+                    - text: Details
+                    - img
+            - generic [ref=e3196]:
+              - img "OutBack Power SPARE-111 48 Volt FET Board Replacement for FXR Inverter" [ref=e3198]
+              - generic [ref=e3199]:
+                - generic [ref=e3200]: INVERTER
+                - heading "OutBack Power SPARE-111 48 Volt FET Board Replacement for FXR Inverter" [level=3] [ref=e3201]
+                - paragraph [ref=e3202]: Outback Power
+                - generic [ref=e3203]:
+                  - generic [ref=e3204]: $725.00
+                  - button "Details" [ref=e3205]:
+                    - text: Details
+                    - img
+            - generic [ref=e3206]:
+              - img "Outback Power Grid-interactive Fxr Renewable Series Inverter VFXR3024E" [ref=e3208]
+              - generic [ref=e3209]:
+                - generic [ref=e3210]: INVERTER
+                - heading "Outback Power Grid-interactive Fxr Renewable Series Inverter VFXR3024E" [level=3] [ref=e3211]
+                - paragraph [ref=e3212]: Outback Power
+                - generic [ref=e3213]:
+                  - generic [ref=e3214]: $1,951.28
+                  - button "Details" [ref=e3215]:
+                    - text: Details
+                    - img
+            - generic [ref=e3216]:
+              - img "Outback Power SPARE-001 FM80 Fan Replacement Kit" [ref=e3218]
+              - generic [ref=e3219]:
+                - generic [ref=e3220]: ACCESSORIES
+                - heading "Outback Power SPARE-001 FM80 Fan Replacement Kit" [level=3] [ref=e3221]
+                - paragraph [ref=e3222]: Outback Power
+                - generic [ref=e3223]:
+                  - generic [ref=e3224]: $46.88
+                  - button "Details" [ref=e3225]:
+                    - text: Details
+                    - img
+            - generic [ref=e3226]:
+              - img "PV 2 Wire Management Clip | 50 Pack" [ref=e3228]
+              - generic [ref=e3229]:
+                - generic [ref=e3230]: WIRING
+                - heading "PV 2 Wire Management Clip | 50 Pack" [level=3] [ref=e3231]
+                - paragraph [ref=e3232]: Portable Sun LLC
+                - generic [ref=e3233]:
+                  - generic [ref=e3234]: $11.00
+                  - button "Details" [ref=e3235]:
+                    - text: Details
+                    - img
+            - generic [ref=e3236]:
+              - img "PV 2 Wire Management Clip | 50 Pack" [ref=e3238]
+              - generic [ref=e3239]:
+                - generic [ref=e3240]: WIRING
+                - heading "PV 2 Wire Management Clip | 50 Pack" [level=3] [ref=e3241]
+                - paragraph [ref=e3242]: Portable Sun LLC
+                - generic [ref=e3243]:
+                  - generic [ref=e3244]: $11.00
+                  - button "Details" [ref=e3245]:
+                    - text: Details
+                    - img
+            - generic [ref=e3246]:
+              - img "PYTES Energy R-BOX-IP20 Indoor Enclosure for E-BOX-48100R" [ref=e3248]
+              - generic [ref=e3249]:
+                - generic [ref=e3250]: BATTERY
+                - heading "PYTES Energy R-BOX-IP20 Indoor Enclosure for E-BOX-48100R" [level=3] [ref=e3251]
+                - paragraph [ref=e3252]: Pytes
+                - generic [ref=e3253]:
+                  - generic [ref=e3254]: $450.30
+                  - button "Details" [ref=e3255]:
+                    - text: Details
+                    - img
+            - generic [ref=e3256]:
+              - img "Panasonic 400W EverVolt EVPV400HK N Type Mono Solar Panel" [ref=e3258]
+              - generic [ref=e3259]:
+                - generic [ref=e3260]: SOLAR PANEL
+                - heading "Panasonic 400W EverVolt EVPV400HK N Type Mono Solar Panel" [level=3] [ref=e3261]
+                - paragraph [ref=e3262]: Panasonic
+                - generic [ref=e3263]:
+                  - generic [ref=e3264]: $299.99
+                  - button "Details" [ref=e3265]:
+                    - text: Details
+                    - img
+            - generic [ref=e3266]:
+              - img "Phono Solar 400W Twinplus Black on Black Solar Panel PS400M6H-18/VHB" [ref=e3268]
+              - generic [ref=e3269]:
+                - generic [ref=e3270]: SOLAR PANEL
+                - heading "Phono Solar 400W Twinplus Black on Black Solar Panel PS400M6H-18/VHB" [level=3] [ref=e3271]
+                - paragraph [ref=e3272]: Phono Solar
+                - generic [ref=e3273]:
+                  - generic [ref=e3274]: $149.99
+                  - button "Details" [ref=e3275]:
+                    - text: Details
+                    - img
+            - generic [ref=e3276]:
+              - img "Phono Solar TwinPlus 550W PS550M6H-24/TH Silver Frame 144 Mono Solar Panel" [ref=e3278]
+              - generic [ref=e3279]:
+                - generic [ref=e3280]: SOLAR PANEL
+                - heading "Phono Solar TwinPlus 550W PS550M6H-24/TH Silver Frame 144 Mono Solar Panel" [level=3] [ref=e3281]
+                - paragraph [ref=e3282]: Phono Solar
+                - generic [ref=e3283]:
+                  - generic [ref=e3284]: $199.99
+                  - button "Details" [ref=e3285]:
+                    - text: Details
+                    - img
+            - generic [ref=e3286]:
+              - img "Portable Sun LLC" [ref=e3288]
+              - generic [ref=e3289]:
+                - generic [ref=e3290]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3291]
+                - generic [ref=e3292]:
+                  - generic [ref=e3293]: $1,690.00
+                  - button "Details" [ref=e3294]:
+                    - text: Details
+                    - img
+            - generic [ref=e3295]:
+              - img "Portable Sun LLC" [ref=e3297]
+              - generic [ref=e3298]:
+                - generic [ref=e3299]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3300]
+                - generic [ref=e3301]:
+                  - generic [ref=e3302]: $1,699.00
+                  - button "Details" [ref=e3303]:
+                    - text: Details
+                    - img
+            - generic [ref=e3304]:
+              - img "Portable Sun LLC" [ref=e3306]
+              - generic [ref=e3307]:
+                - generic [ref=e3308]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3309]
+                - generic [ref=e3310]:
+                  - generic [ref=e3311]: $2,750.00
+                  - button "Details" [ref=e3312]:
+                    - text: Details
+                    - img
+            - generic [ref=e3313]:
+              - img "Portable Sun LLC" [ref=e3315]
+              - generic [ref=e3316]:
+                - generic [ref=e3317]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3318]
+                - paragraph [ref=e3319]: Growatt
+                - generic [ref=e3320]:
+                  - generic [ref=e3321]: $11,809.39
+                  - button "Details" [ref=e3322]:
+                    - text: Details
+                    - img
+            - generic [ref=e3323]:
+              - img "Portable Sun LLC" [ref=e3325]
+              - generic [ref=e3326]:
+                - generic [ref=e3327]: OTHER
+                - heading "Portable Sun LLC" [level=3] [ref=e3328]
+                - generic [ref=e3329]:
+                  - generic [ref=e3330]: $126.00
+                  - button "Details" [ref=e3331]:
+                    - text: Details
+                    - img
+            - generic [ref=e3332]:
+              - img "Portable Sun LLC" [ref=e3334]
+              - generic [ref=e3335]:
+                - generic [ref=e3336]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3337]
+                - generic [ref=e3338]:
+                  - generic [ref=e3339]: $215.23
+                  - button "Details" [ref=e3340]:
+                    - text: Details
+                    - img
+            - generic [ref=e3341]:
+              - img "Portable Sun LLC" [ref=e3343]
+              - generic [ref=e3344]:
+                - generic [ref=e3345]: OTHER
+                - heading "Portable Sun LLC" [level=3] [ref=e3346]
+                - generic [ref=e3347]:
+                  - generic [ref=e3348]: $1,649.00
+                  - button "Details" [ref=e3349]:
+                    - text: Details
+                    - img
+            - generic [ref=e3350]:
+              - img "Portable Sun LLC" [ref=e3352]
+              - generic [ref=e3353]:
+                - generic [ref=e3354]: SOLAR PANEL
+                - heading "Portable Sun LLC" [level=3] [ref=e3355]
+                - generic [ref=e3356]:
+                  - generic [ref=e3357]: $119.99
+                  - button "Details" [ref=e3358]:
+                    - text: Details
+                    - img
+            - generic [ref=e3359]:
+              - img "Portable Sun LLC" [ref=e3361]
+              - generic [ref=e3362]:
+                - generic [ref=e3363]: SOLAR PANEL
+                - heading "Portable Sun LLC" [level=3] [ref=e3364]
+                - generic [ref=e3365]:
+                  - generic [ref=e3366]: $89.99
+                  - button "Details" [ref=e3367]:
+                    - text: Details
+                    - img
+            - generic [ref=e3368]:
+              - img "Portable Sun LLC" [ref=e3370]
+              - generic [ref=e3371]:
+                - generic [ref=e3372]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3373]
+                - generic [ref=e3374]:
+                  - generic [ref=e3375]: $158.00
+                  - button "Details" [ref=e3376]:
+                    - text: Details
+                    - img
+            - generic [ref=e3377]:
+              - img "Portable Sun LLC" [ref=e3379]
+              - generic [ref=e3380]:
+                - generic [ref=e3381]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3382]
+                - generic [ref=e3383]:
+                  - generic [ref=e3384]: $559.00
+                  - button "Details" [ref=e3385]:
+                    - text: Details
+                    - img
+            - generic [ref=e3386]:
+              - img "Portable Sun LLC" [ref=e3388]
+              - generic [ref=e3389]:
+                - generic [ref=e3390]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3391]
+                - generic [ref=e3392]:
+                  - generic [ref=e3393]: $1,690.00
+                  - button "Details" [ref=e3394]:
+                    - text: Details
+                    - img
+            - generic [ref=e3395]:
+              - img "Portable Sun LLC" [ref=e3397]
+              - generic [ref=e3398]:
+                - generic [ref=e3399]: MOUNTING
+                - heading "Portable Sun LLC" [level=3] [ref=e3400]
+                - generic [ref=e3401]:
+                  - generic [ref=e3402]: $5.62
+                  - button "Details" [ref=e3403]:
+                    - text: Details
+                    - img
+            - generic [ref=e3404]:
+              - img "Portable Sun LLC" [ref=e3406]
+              - generic [ref=e3407]:
+                - generic [ref=e3408]: MONITORING
+                - heading "Portable Sun LLC" [level=3] [ref=e3409]
+                - generic [ref=e3410]:
+                  - generic [ref=e3411]: $54.29
+                  - button "Details" [ref=e3412]:
+                    - text: Details
+                    - img
+            - generic [ref=e3413]:
+              - img "Portable Sun LLC" [ref=e3415]
+              - generic [ref=e3416]:
+                - generic [ref=e3417]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3418]
+                - generic [ref=e3419]:
+                  - generic [ref=e3420]: $11,809.39
+                  - button "Details" [ref=e3421]:
+                    - text: Details
+                    - img
+            - generic [ref=e3422]:
+              - img "Portable Sun LLC" [ref=e3424]
+              - generic [ref=e3425]:
+                - generic [ref=e3426]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3427]
+                - generic [ref=e3428]:
+                  - generic [ref=e3429]: $7,649.00
+                  - button "Details" [ref=e3430]:
+                    - text: Details
+                    - img
+            - generic [ref=e3431]:
+              - img "Portable Sun LLC" [ref=e3433]
+              - generic [ref=e3434]:
+                - generic [ref=e3435]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3436]
+                - generic [ref=e3437]:
+                  - generic [ref=e3438]: $5,399.00
+                  - button "Details" [ref=e3439]:
+                    - text: Details
+                    - img
+            - generic [ref=e3440]:
+              - img "Portable Sun LLC" [ref=e3442]
+              - generic [ref=e3443]:
+                - generic [ref=e3444]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3445]
+                - generic [ref=e3446]:
+                  - generic [ref=e3447]: $2,899.00
+                  - button "Details" [ref=e3448]:
+                    - text: Details
+                    - img
+            - generic [ref=e3449]:
+              - img "Portable Sun LLC" [ref=e3451]
+              - generic [ref=e3452]:
+                - generic [ref=e3453]: INVERTER
+                - heading "Portable Sun LLC" [level=3] [ref=e3454]
+                - generic [ref=e3455]:
+                  - generic [ref=e3456]: $1,649.00
+                  - button "Details" [ref=e3457]:
+                    - text: Details
+                    - img
+            - generic [ref=e3458]:
+              - img "Portable Sun LLC" [ref=e3460]
+              - generic [ref=e3461]:
+                - generic [ref=e3462]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3463]
+                - generic [ref=e3464]:
+                  - generic [ref=e3465]: $2,299.00
+                  - button "Details" [ref=e3466]:
+                    - text: Details
+                    - img
+            - generic [ref=e3467]:
+              - img "Portable Sun LLC" [ref=e3469]
+              - generic [ref=e3470]:
+                - generic [ref=e3471]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3472]
+                - generic [ref=e3473]:
+                  - generic [ref=e3474]: $139.89
+                  - button "Details" [ref=e3475]:
+                    - text: Details
+                    - img
+            - generic [ref=e3476]:
+              - img [ref=e3478]
+              - generic [ref=e3482]:
+                - generic [ref=e3483]: OTHER
+                - heading "Portable Sun LLC" [level=3] [ref=e3484]
+                - generic [ref=e3485]:
+                  - generic [ref=e3486]: $385.00
+                  - button "Details" [ref=e3487]:
+                    - text: Details
+                    - img
+            - generic [ref=e3488]:
+              - img "Portable Sun LLC" [ref=e3490]
+              - generic [ref=e3491]:
+                - generic [ref=e3492]: OTHER
+                - heading "Portable Sun LLC" [level=3] [ref=e3493]
+                - generic [ref=e3494]:
+                  - generic [ref=e3495]: $699.00
+                  - button "Details" [ref=e3496]:
+                    - text: Details
+                    - img
+            - generic [ref=e3497]:
+              - img "Portable Sun LLC" [ref=e3499]
+              - generic [ref=e3500]:
+                - generic [ref=e3501]: OTHER
+                - heading "Portable Sun LLC" [level=3] [ref=e3502]
+                - generic [ref=e3503]:
+                  - generic [ref=e3504]: $218.40
+                  - button "Details" [ref=e3505]:
+                    - text: Details
+                    - img
+            - generic [ref=e3506]:
+              - img "Portable Sun LLC" [ref=e3508]
+              - generic [ref=e3509]:
+                - generic [ref=e3510]: OTHER
+                - heading "Portable Sun LLC" [level=3] [ref=e3511]
+                - generic [ref=e3512]:
+                  - generic [ref=e3513]: $199.99
+                  - button "Details" [ref=e3514]:
+                    - text: Details
+                    - img
+            - generic [ref=e3515]:
+              - img "Portable Sun LLC" [ref=e3517]
+              - generic [ref=e3518]:
+                - generic [ref=e3519]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3520]
+                - generic [ref=e3521]:
+                  - generic [ref=e3522]: $2,899.00
+                  - button "Details" [ref=e3523]:
+                    - text: Details
+                    - img
+            - generic [ref=e3524]:
+              - img "Portable Sun LLC" [ref=e3526]
+              - generic [ref=e3527]:
+                - generic [ref=e3528]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3529]
+                - generic [ref=e3530]:
+                  - generic [ref=e3531]: $7,649.00
+                  - button "Details" [ref=e3532]:
+                    - text: Details
+                    - img
+            - generic [ref=e3533]:
+              - img "Portable Sun LLC" [ref=e3535]
+              - generic [ref=e3536]:
+                - generic [ref=e3537]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3538]
+                - generic [ref=e3539]:
+                  - generic [ref=e3540]: $5,399.00
+                  - button "Details" [ref=e3541]:
+                    - text: Details
+                    - img
+            - generic [ref=e3542]:
+              - img "Portable Sun LLC" [ref=e3544]
+              - generic [ref=e3545]:
+                - generic [ref=e3546]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3547]
+                - generic [ref=e3548]:
+                  - generic [ref=e3549]: $2,899.00
+                  - button "Details" [ref=e3550]:
+                    - text: Details
+                    - img
+            - generic [ref=e3551]:
+              - img "Portable Sun LLC" [ref=e3553]
+              - generic [ref=e3554]:
+                - generic [ref=e3555]: INVERTER
+                - heading "Portable Sun LLC" [level=3] [ref=e3556]
+                - generic [ref=e3557]:
+                  - generic [ref=e3558]: $1,649.00
+                  - button "Details" [ref=e3559]:
+                    - text: Details
+                    - img
+            - generic [ref=e3560]:
+              - img "Portable Sun LLC" [ref=e3562]
+              - generic [ref=e3563]:
+                - generic [ref=e3564]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3565]
+                - generic [ref=e3566]:
+                  - generic [ref=e3567]: $2,299.00
+                  - button "Details" [ref=e3568]:
+                    - text: Details
+                    - img
+            - generic [ref=e3569]:
+              - img "Portable Sun LLC" [ref=e3571]
+              - generic [ref=e3572]:
+                - generic [ref=e3573]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3574]
+                - generic [ref=e3575]:
+                  - generic [ref=e3576]: $1,699.00
+                  - button "Details" [ref=e3577]:
+                    - text: Details
+                    - img
+            - generic [ref=e3578]:
+              - img "Portable Sun LLC" [ref=e3580]
+              - generic [ref=e3581]:
+                - generic [ref=e3582]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3583]
+                - generic [ref=e3584]:
+                  - generic [ref=e3585]: $139.89
+                  - button "Details" [ref=e3586]:
+                    - text: Details
+                    - img
+            - generic [ref=e3587]:
+              - img [ref=e3589]
+              - generic [ref=e3593]:
+                - generic [ref=e3594]: OTHER
+                - heading "Portable Sun LLC" [level=3] [ref=e3595]
+                - generic [ref=e3596]:
+                  - generic [ref=e3597]: $385.00
+                  - button "Details" [ref=e3598]:
+                    - text: Details
+                    - img
+            - generic [ref=e3599]:
+              - img "Portable Sun LLC" [ref=e3601]
+              - generic [ref=e3602]:
+                - generic [ref=e3603]: OTHER
+                - heading "Portable Sun LLC" [level=3] [ref=e3604]
+                - generic [ref=e3605]:
+                  - generic [ref=e3606]: $699.00
+                  - button "Details" [ref=e3607]:
+                    - text: Details
+                    - img
+            - generic [ref=e3608]:
+              - img "Portable Sun LLC" [ref=e3610]
+              - generic [ref=e3611]:
+                - generic [ref=e3612]: OTHER
+                - heading "Portable Sun LLC" [level=3] [ref=e3613]
+                - generic [ref=e3614]:
+                  - generic [ref=e3615]: $218.40
+                  - button "Details" [ref=e3616]:
+                    - text: Details
+                    - img
+            - generic [ref=e3617]:
+              - img "Portable Sun LLC" [ref=e3619]
+              - generic [ref=e3620]:
+                - generic [ref=e3621]: OTHER
+                - heading "Portable Sun LLC" [level=3] [ref=e3622]
+                - generic [ref=e3623]:
+                  - generic [ref=e3624]: $199.99
+                  - button "Details" [ref=e3625]:
+                    - text: Details
+                    - img
+            - generic [ref=e3626]:
+              - img "Portable Sun LLC" [ref=e3628]
+              - generic [ref=e3629]:
+                - generic [ref=e3630]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3631]
+                - generic [ref=e3632]:
+                  - generic [ref=e3633]: $2,899.00
+                  - button "Details" [ref=e3634]:
+                    - text: Details
+                    - img
+            - generic [ref=e3635]:
+              - img "Portable Sun LLC" [ref=e3637]
+              - generic [ref=e3638]:
+                - generic [ref=e3639]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3640]
+                - generic [ref=e3641]:
+                  - generic [ref=e3642]: $215.23
+                  - button "Details" [ref=e3643]:
+                    - text: Details
+                    - img
+            - generic [ref=e3644]:
+              - img "Portable Sun LLC" [ref=e3646]
+              - generic [ref=e3647]:
+                - generic [ref=e3648]: OTHER
+                - heading "Portable Sun LLC" [level=3] [ref=e3649]
+                - generic [ref=e3650]:
+                  - generic [ref=e3651]: $1,649.00
+                  - button "Details" [ref=e3652]:
+                    - text: Details
+                    - img
+            - generic [ref=e3653]:
+              - img "Portable Sun LLC" [ref=e3655]
+              - generic [ref=e3656]:
+                - generic [ref=e3657]: OTHER
+                - heading "Portable Sun LLC" [level=3] [ref=e3658]
+                - generic [ref=e3659]:
+                  - generic [ref=e3660]: $126.00
+                  - button "Details" [ref=e3661]:
+                    - text: Details
+                    - img
+            - generic [ref=e3662]:
+              - img "Portable Sun LLC" [ref=e3664]
+              - generic [ref=e3665]:
+                - generic [ref=e3666]: SOLAR PANEL
+                - heading "Portable Sun LLC" [level=3] [ref=e3667]
+                - generic [ref=e3668]:
+                  - generic [ref=e3669]: $119.99
+                  - button "Details" [ref=e3670]:
+                    - text: Details
+                    - img
+            - generic [ref=e3671]:
+              - img "Portable Sun LLC" [ref=e3673]
+              - generic [ref=e3674]:
+                - generic [ref=e3675]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3676]
+                - generic [ref=e3677]:
+                  - generic [ref=e3678]: $2,750.00
+                  - button "Details" [ref=e3679]:
+                    - text: Details
+                    - img
+            - generic [ref=e3680]:
+              - img "Portable Sun LLC" [ref=e3682]
+              - generic [ref=e3683]:
+                - generic [ref=e3684]: SOLAR PANEL
+                - heading "Portable Sun LLC" [level=3] [ref=e3685]
+                - generic [ref=e3686]:
+                  - generic [ref=e3687]: $89.99
+                  - button "Details" [ref=e3688]:
+                    - text: Details
+                    - img
+            - generic [ref=e3689]:
+              - img "Portable Sun LLC" [ref=e3691]
+              - generic [ref=e3692]:
+                - generic [ref=e3693]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3694]
+                - generic [ref=e3695]:
+                  - generic [ref=e3696]: $158.00
+                  - button "Details" [ref=e3697]:
+                    - text: Details
+                    - img
+            - generic [ref=e3698]:
+              - img "Portable Sun LLC" [ref=e3700]
+              - generic [ref=e3701]:
+                - generic [ref=e3702]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3703]
+                - generic [ref=e3704]:
+                  - generic [ref=e3705]: $559.00
+                  - button "Details" [ref=e3706]:
+                    - text: Details
+                    - img
+            - generic [ref=e3707]:
+              - img "Portable Sun LLC" [ref=e3709]
+              - generic [ref=e3710]:
+                - generic [ref=e3711]: MOUNTING
+                - heading "Portable Sun LLC" [level=3] [ref=e3712]
+                - generic [ref=e3713]:
+                  - generic [ref=e3714]: $5.62
+                  - button "Details" [ref=e3715]:
+                    - text: Details
+                    - img
+            - generic [ref=e3716]:
+              - img "Portable Sun LLC" [ref=e3718]
+              - generic [ref=e3719]:
+                - generic [ref=e3720]: MONITORING
+                - heading "Portable Sun LLC" [level=3] [ref=e3721]
+                - generic [ref=e3722]:
+                  - generic [ref=e3723]: $54.29
+                  - button "Details" [ref=e3724]:
+                    - text: Details
+                    - img
+            - generic [ref=e3725]:
+              - img "Portable Sun LLC" [ref=e3727]
+              - generic [ref=e3728]:
+                - generic [ref=e3729]: SOLAR PANEL
+                - heading "Portable Sun LLC" [level=3] [ref=e3730]
+                - generic [ref=e3731]:
+                  - generic [ref=e3732]: $126.00
+                  - button "Details" [ref=e3733]:
+                    - text: Details
+                    - img
+            - generic [ref=e3734]:
+              - img "Portable Sun LLC" [ref=e3736]
+              - generic [ref=e3737]:
+                - generic [ref=e3738]: SOLAR PANEL
+                - heading "Portable Sun LLC" [level=3] [ref=e3739]
+                - generic [ref=e3740]:
+                  - generic [ref=e3741]: $126.00
+                  - button "Details" [ref=e3742]:
+                    - text: Details
+                    - img
+            - generic [ref=e3743]:
+              - img "Portable Sun LLC" [ref=e3745]
+              - generic [ref=e3746]:
+                - generic [ref=e3747]: SOLAR PANEL
+                - heading "Portable Sun LLC" [level=3] [ref=e3748]
+                - generic [ref=e3749]:
+                  - generic [ref=e3750]: $126.00
+                  - button "Details" [ref=e3751]:
+                    - text: Details
+                    - img
+            - generic [ref=e3752]:
+              - img "Portable Sun LLC" [ref=e3754]
+              - generic [ref=e3755]:
+                - generic [ref=e3756]: SOLAR PANEL
+                - heading "Portable Sun LLC" [level=3] [ref=e3757]
+                - generic [ref=e3758]:
+                  - generic [ref=e3759]: $126.00
+                  - button "Details" [ref=e3760]:
+                    - text: Details
+                    - img
+            - generic [ref=e3761]:
+              - img "Portable Sun LLC" [ref=e3763]
+              - generic [ref=e3764]:
+                - generic [ref=e3765]: SOLAR PANEL
+                - heading "Portable Sun LLC" [level=3] [ref=e3766]
+                - generic [ref=e3767]:
+                  - generic [ref=e3768]: $126.00
+                  - button "Details" [ref=e3769]:
+                    - text: Details
+                    - img
+            - generic [ref=e3770]:
+              - img "Portable Sun LLC" [ref=e3772]
+              - generic [ref=e3773]:
+                - generic [ref=e3774]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3775]
+                - generic [ref=e3776]:
+                  - generic [ref=e3777]: $6,250.00
+                  - button "Details" [ref=e3778]:
+                    - text: Details
+                    - img
+            - generic [ref=e3779]:
+              - img "Portable Sun LLC" [ref=e3781]
+              - generic [ref=e3782]:
+                - generic [ref=e3783]: BATTERY
+                - heading "Portable Sun LLC" [level=3] [ref=e3784]
+                - generic [ref=e3785]:
+                  - generic [ref=e3786]: $6,250.00
+                  - button "Details" [ref=e3787]:
+                    - text: Details
+                    - img
+            - generic [ref=e3788]:
+              - img "Portable Sun LLC" [ref=e3790]
+              - generic [ref=e3791]:
+                - generic [ref=e3792]: OTHER
+                - heading "Portable Sun LLC" [level=3] [ref=e3793]
+                - generic [ref=e3794]:
+                  - generic [ref=e3795]: $54.29
+                  - button "Details" [ref=e3796]:
+                    - text: Details
+                    - img
+            - generic [ref=e3797]:
+              - img "Portable Sun LLC" [ref=e3799]
+              - generic [ref=e3800]:
+                - generic [ref=e3801]: OTHER
+                - heading "Portable Sun LLC" [level=3] [ref=e3802]
+                - generic [ref=e3803]:
+                  - generic [ref=e3804]: $54.29
+                  - button "Details" [ref=e3805]:
+                    - text: Details
+                    - img
+            - generic [ref=e3806]:
+              - img "Prosolar A-SPLICE-1-G Clear Grounding Splice" [ref=e3808]
+              - generic [ref=e3809]:
+                - generic [ref=e3810]: OTHER
+                - heading "Prosolar A-SPLICE-1-G Clear Grounding Splice" [level=3] [ref=e3811]
+                - paragraph [ref=e3812]: ProSolar
+                - generic [ref=e3813]:
+                  - generic [ref=e3814]: $5.28
+                  - button "Details" [ref=e3815]:
+                    - text: Details
+                    - img
+            - generic [ref=e3816]:
+              - img "Prosolar Fastjack Commercial E-SERIES CFJE-800-1 Standoff" [ref=e3818]
+              - generic [ref=e3819]:
+                - generic [ref=e3820]: SOLAR PANEL
+                - heading "Prosolar Fastjack Commercial E-SERIES CFJE-800-1 Standoff" [level=3] [ref=e3821]
+                - paragraph [ref=e3822]: ProSolar
+                - generic [ref=e3823]:
+                  - generic [ref=e3824]: $9.19
+                  - button "Details" [ref=e3825]:
+                    - text: Details
+                    - img
+            - generic [ref=e3826]:
+              - img "Prosolar Fastjack FJ-600-1 6\" Standoff" [ref=e3828]
+              - generic [ref=e3829]:
+                - generic [ref=e3830]: MOUNTING
+                - heading "Prosolar Fastjack FJ-600-1 6\" Standoff" [level=3] [ref=e3831]
+                - paragraph [ref=e3832]: ProSolar
+                - generic [ref=e3833]:
+                  - generic [ref=e3834]: $11.65
+                  - button "Details" [ref=e3835]:
+                    - text: Details
+                    - img
+            - generic [ref=e3836]:
+              - img "Prosolar P-CN-1-bond Silver Channel Nut" [ref=e3838]
+              - generic [ref=e3839]:
+                - generic [ref=e3840]: SOLAR PANEL
+                - heading "Prosolar P-CN-1-bond Silver Channel Nut" [level=3] [ref=e3841]
+                - paragraph [ref=e3842]: ProSolar
+                - generic [ref=e3843]:
+                  - generic [ref=e3844]: $1.01
+                  - button "Details" [ref=e3845]:
+                    - text: Details
+                    - img
+            - generic [ref=e3846]:
+              - img "Pytes Battery HUB | 1U Low Voltage HUB for V5 Expansion" [ref=e3848]
+              - generic [ref=e3849]:
+                - generic [ref=e3850]: BATTERY
+                - heading "Pytes Battery HUB | 1U Low Voltage HUB for V5 Expansion" [level=3] [ref=e3851]
+                - paragraph [ref=e3852]: Pytes
+                - generic [ref=e3853]:
+                  - generic [ref=e3854]: $164.00
+                  - button "Details" [ref=e3855]:
+                    - text: Details
+                    - img
+            - generic [ref=e3856]:
+              - img "Pytes Busbar to Inverter Power Cables | 1/0 AWG" [ref=e3858]
+              - generic [ref=e3859]:
+                - generic [ref=e3860]: INVERTER
+                - heading "Pytes Busbar to Inverter Power Cables | 1/0 AWG" [level=3] [ref=e3861]
+                - paragraph [ref=e3862]: Pytes
+                - generic [ref=e3863]:
+                  - generic [ref=e3864]: $80.00
+                  - button "Details" [ref=e3865]:
+                    - text: Details
+                    - img
+            - generic [ref=e3866]:
+              - img "Pytes Busbar to Inverter Power Cables | 2/0 AWG" [ref=e3868]
+              - generic [ref=e3869]:
+                - generic [ref=e3870]: INVERTER
+                - heading "Pytes Busbar to Inverter Power Cables | 2/0 AWG" [level=3] [ref=e3871]
+                - paragraph [ref=e3872]: Pytes
+                - generic [ref=e3873]:
+                  - generic [ref=e3874]: $92.00
+                  - button "Details" [ref=e3875]:
+                    - text: Details
+                    - img
+            - generic [ref=e3876]:
+              - img "Pytes Busbar to Inverter Power Cables | 4/0 AWG" [ref=e3878]
+              - generic [ref=e3879]:
+                - generic [ref=e3880]: INVERTER
+                - heading "Pytes Busbar to Inverter Power Cables | 4/0 AWG" [level=3] [ref=e3881]
+                - paragraph [ref=e3882]: Pytes
+                - generic [ref=e3883]:
+                  - generic [ref=e3884]: $158.00
+                  - button "Details" [ref=e3885]:
+                    - text: Details
+                    - img
+            - generic [ref=e3886]:
+              - img "Pytes V-BOX-OC Outdoor Cabinet for Pytes V5 Batteries" [ref=e3888]
+              - generic [ref=e3889]:
+                - generic [ref=e3890]: BATTERY
+                - heading "Pytes V-BOX-OC Outdoor Cabinet for Pytes V5 Batteries" [level=3] [ref=e3891]
+                - paragraph [ref=e3892]: Pytes
+                - generic [ref=e3893]:
+                  - generic [ref=e3894]: $1,243.00
+                  - button "Details" [ref=e3895]:
+                    - text: Details
+                    - img
+            - generic [ref=e3896]:
+              - img "Pytes V5 20.48 kWh LiFePO4 Solar Battery + Outdoor Cabinet | Whole‑Home Energy Storage" [ref=e3898]
+              - generic [ref=e3899]:
+                - generic [ref=e3900]: BATTERY
+                - heading "Pytes V5 20.48 kWh LiFePO4 Solar Battery + Outdoor Cabinet | Whole‑Home Energy Storage" [level=3] [ref=e3901]
+                - paragraph [ref=e3902]: Pytes
+                - generic [ref=e3903]:
+                  - generic [ref=e3904]: $7,043.00
+                  - button "Details" [ref=e3905]:
+                    - text: Details
+                    - img
+            - generic [ref=e3906]:
+              - img "Pytes V5 B2I Communication Cable" [ref=e3908]
+              - generic [ref=e3909]:
+                - generic [ref=e3910]: BATTERY
+                - heading "Pytes V5 B2I Communication Cable" [level=3] [ref=e3911]
+                - paragraph [ref=e3912]: Pytes
+                - generic [ref=e3913]:
+                  - generic [ref=e3914]: $6.00
+                  - button "Details" [ref=e3915]:
+                    - text: Details
+                    - img
+            - generic [ref=e3916]:
+              - 'img "Pytes V5 Battery | EG4 Hybrid Inverter Energy Storage Bundle {BNDL-E0024}" [ref=e3918]'
+              - generic [ref=e3919]:
+                - generic [ref=e3920]: BATTERY
+                - 'heading "Pytes V5 Battery | EG4 Hybrid Inverter Energy Storage Bundle {BNDL-E0024}" [level=3] [ref=e3921]'
+                - paragraph [ref=e3922]: EG4 Electronics
+                - generic [ref=e3923]:
+                  - generic [ref=e3924]: $11,638.10
+                  - button "Details" [ref=e3925]:
+                    - text: Details
+                    - img
+            - generic [ref=e3926]:
+              - img "Pytes V5 LiFePO4 Battery Pack 5.12 kWh 51.2V 100 Ah > 6000 cycles 10 year Warranty" [ref=e3928]
+              - generic [ref=e3929]:
+                - generic [ref=e3930]: BATTERY
+                - heading "Pytes V5 LiFePO4 Battery Pack 5.12 kWh 51.2V 100 Ah > 6000 cycles 10 year Warranty" [level=3] [ref=e3931]
+                - paragraph [ref=e3932]: Pytes
+                - generic [ref=e3933]:
+                  - generic [ref=e3934]: $1,322.37
+                  - button "Details" [ref=e3935]:
+                    - text: Details
+                    - img
+            - generic [ref=e3936]:
+              - img "Pytes V5 LiFePO4 Battery | 5.12kWh | 51.2V | 100Ah | Lithium Iron Phosphate" [ref=e3938]
+              - generic [ref=e3939]:
+                - generic [ref=e3940]: BATTERY
+                - heading "Pytes V5 LiFePO4 Battery | 5.12kWh | 51.2V | 100Ah | Lithium Iron Phosphate" [level=3] [ref=e3941]
+                - paragraph [ref=e3942]: Pytes
+                - generic [ref=e3943]:
+                  - generic [ref=e3944]: $1,450.00
+                  - button "Details" [ref=e3945]:
+                    - text: Details
+                    - img
+            - generic [ref=e3946]:
+              - img "Pytes V5 WiFi Stick for Pytes V5 battery" [ref=e3948]
+              - generic [ref=e3949]:
+                - generic [ref=e3950]: BATTERY
+                - heading "Pytes V5 WiFi Stick for Pytes V5 battery" [level=3] [ref=e3951]
+                - paragraph [ref=e3952]: Pytes
+                - generic [ref=e3953]:
+                  - generic [ref=e3954]: $37.00
+                  - button "Details" [ref=e3955]:
+                    - text: Details
+                    - img
+            - generic [ref=e3956]:
+              - img "Pytes, Forrest Rb, Battery Enclosure [6 Battery Cabinet]" [ref=e3958]
+              - generic [ref=e3959]:
+                - generic [ref=e3960]: BATTERY
+                - heading "Pytes, Forrest Rb, Battery Enclosure [6 Battery Cabinet]" [level=3] [ref=e3961]
+                - paragraph [ref=e3962]: Pytes
+                - generic [ref=e3963]:
+                  - generic [ref=e3964]: $1,278.28
+                  - button "Details" [ref=e3965]:
+                    - text: Details
+                    - img
+            - generic [ref=e3966]:
+              - img "Qcells 430W Q.ANTUM NEO N-type Solar Panel Q.TRON BLK M-G2.H1+/AC 430 (Integrated Microinverter)" [ref=e3968]
+              - generic [ref=e3969]:
+                - generic [ref=e3970]: SOLAR PANEL
+                - heading "Qcells 430W Q.ANTUM NEO N-type Solar Panel Q.TRON BLK M-G2.H1+/AC 430 (Integrated Microinverter)" [level=3] [ref=e3971]
+                - paragraph [ref=e3972]: Qcells
+                - generic [ref=e3973]:
+                  - generic [ref=e3974]: $389.49
+                  - button "Details" [ref=e3975]:
+                    - text: Details
+                    - img
+            - generic [ref=e3976]:
+              - img "Qcells Q.HOME+ ESS HYBG1 7.6 / 12.6 Hybrid Energy Storage System" [ref=e3978]
+              - generic [ref=e3979]:
+                - generic [ref=e3980]: BATTERY
+                - heading "Qcells Q.HOME+ ESS HYBG1 7.6 / 12.6 Hybrid Energy Storage System" [level=3] [ref=e3981]
+                - paragraph [ref=e3982]: QCells
+                - generic [ref=e3983]:
+                  - generic [ref=e3984]: $6,022.89
+                  - button "Details" [ref=e3985]:
+                    - text: Details
+                    - img
+            - generic [ref=e3986]:
+              - img "Quick Mount PV QM-HUG-01-M1 Halo Ultra Grip Mill Finish" [ref=e3988]
+              - generic [ref=e3989]:
+                - generic [ref=e3990]: MOUNTING
+                - heading "Quick Mount PV QM-HUG-01-M1 Halo Ultra Grip Mill Finish" [level=3] [ref=e3991]
+                - paragraph [ref=e3992]: Quick Mount
+                - generic [ref=e3993]:
+                  - generic [ref=e3994]: $9.28
+                  - button "Details" [ref=e3995]:
+                    - text: Details
+                    - img
+            - generic [ref=e3996]:
+              - img "Quick Mount PV Qbase QM-QBP-12.5-M1 12.5\" Mill Post" [ref=e3998]
+              - generic [ref=e3999]:
+                - generic [ref=e4000]: SOLAR PANEL
+                - heading "Quick Mount PV Qbase QM-QBP-12.5-M1 12.5\" Mill Post" [level=3] [ref=e4001]
+                - paragraph [ref=e4002]: IronRidge
+                - generic [ref=e4003]:
+                  - generic [ref=e4004]: $11.05
+                  - button "Details" [ref=e4005]:
+                    - text: Details
+                    - img
+            - generic [ref=e4006]:
+              - img "QuickBOLT 17662 4IN QB2 3IN Microflash + SS-LFT Multi Roof Mount - QB2 Kit with 3\" Microflashing and Stainless Steel L-Foot" [ref=e4008]
+              - generic [ref=e4009]:
+                - generic [ref=e4010]: SOLAR PANEL
+                - heading "QuickBOLT 17662 4IN QB2 3IN Microflash + SS-LFT Multi Roof Mount - QB2 Kit with 3\" Microflashing and Stainless Steel L-Foot" [level=3] [ref=e4011]
+                - paragraph [ref=e4012]: EcoFasten
+                - generic [ref=e4013]:
+                  - generic [ref=e4014]: $7.67
+                  - button "Details" [ref=e4015]:
+                    - text: Details
+                    - img
+            - generic [ref=e4016]:
+              - img "REC 395W (Pallet of 33) Alpha Pure Black HJT Cell Solar Panel" [ref=e4018]
+              - generic [ref=e4019]:
+                - generic [ref=e4020]: SOLAR PANEL
+                - heading "REC 395W (Pallet of 33) Alpha Pure Black HJT Cell Solar Panel" [level=3] [ref=e4021]
+                - paragraph [ref=e4022]: US Solar Supplier
+                - generic [ref=e4023]:
+                  - generic [ref=e4024]: $5,609.97
+                  - button "Details" [ref=e4025]:
+                    - text: Details
+                    - img
+            - generic [ref=e4026]:
+              - img "REC 460W AA Pure-RX All Black Solar Panel REC-460-AA-PURE-RX" [ref=e4028]
+              - generic [ref=e4029]:
+                - generic [ref=e4030]: SOLAR PANEL
+                - heading "REC 460W AA Pure-RX All Black Solar Panel REC-460-AA-PURE-RX" [level=3] [ref=e4031]
+                - paragraph [ref=e4032]: REC Solar
+                - generic [ref=e4033]:
+                  - generic [ref=e4034]: $399.00
+                  - button "Details" [ref=e4035]:
+                    - text: Details
+                    - img
+            - generic [ref=e4036]:
+              - img "REC Solar 375W TwinPeak 2S Mono 72 SERIES REC375TP2SM72" [ref=e4038]
+              - generic [ref=e4039]:
+                - generic [ref=e4040]: BATTERY
+                - heading "REC Solar 375W TwinPeak 2S Mono 72 SERIES REC375TP2SM72" [level=3] [ref=e4041]
+                - paragraph [ref=e4042]: REC Solar
+                - generic [ref=e4043]:
+                  - generic [ref=e4044]: $70.00
+                  - button "Details" [ref=e4045]:
+                    - text: Details
+                    - img
+            - generic [ref=e4046]:
+              - img "REGITEC 430W (Pallet of 31) TOPCon All Black Glass Bifacial RMHT54-430AB2 BOB" [ref=e4048]
+              - generic [ref=e4049]:
+                - generic [ref=e4050]: OTHER
+                - heading "REGITEC 430W (Pallet of 31) TOPCon All Black Glass Bifacial RMHT54-430AB2 BOB" [level=3] [ref=e4051]
+                - paragraph [ref=e4052]: REGITEC
+                - generic [ref=e4053]:
+                  - generic [ref=e4054]: $4,499.00
+                  - button "Details" [ref=e4055]:
+                    - text: Details
+                    - img
+            - generic [ref=e4056]:
+              - img "REGITEC 550W (Pallet of 31) Monocrystalline 182mm 144 Cells Solar Panel RMH72-550S1" [ref=e4058]
+              - generic [ref=e4059]:
+                - generic [ref=e4060]: SOLAR PANEL
+                - heading "REGITEC 550W (Pallet of 31) Monocrystalline 182mm 144 Cells Solar Panel RMH72-550S1" [level=3] [ref=e4061]
+                - paragraph [ref=e4062]: REGITEC
+                - generic [ref=e4063]:
+                  - generic [ref=e4064]: $4,549.00
+                  - button "Details" [ref=e4065]:
+                    - text: Details
+                    - img
+            - generic [ref=e4066]:
+              - img "REGITEC 580W (Pallet of 31) 182mm 16BB 144Cells Mono Half Cells TOPCon RMHT72-580S1" [ref=e4068]
+              - generic [ref=e4069]:
+                - generic [ref=e4070]: SOLAR PANEL
+                - heading "REGITEC 580W (Pallet of 31) 182mm 16BB 144Cells Mono Half Cells TOPCon RMHT72-580S1" [level=3] [ref=e4071]
+                - paragraph [ref=e4072]: REGITEC
+                - generic [ref=e4073]:
+                  - generic [ref=e4074]: $4,887.00
+                  - button "Details" [ref=e4075]:
+                    - text: Details
+                    - img
+            - generic [ref=e4076]:
+              - img "RUIXU Battery | Server Rack 3U Battery | RX-LFP48100 | UL1973 Certified | UL9540" [ref=e4078]
+              - generic [ref=e4079]:
+                - generic [ref=e4080]: BATTERY
+                - heading "RUIXU Battery | Server Rack 3U Battery | RX-LFP48100 | UL1973 Certified | UL9540" [level=3] [ref=e4081]
+                - paragraph [ref=e4082]: Ruixu
+                - generic [ref=e4083]:
+                  - generic [ref=e4084]: $1,059.00
+                  - button "Details" [ref=e4085]:
+                    - text: Details
+                    - img
+            - generic [ref=e4086]:
+              - img "RUiXU Lithi2-16 Battery Energy Storage IP65 outdoor | Self-Heating | 51.2V / 314Ah / 16kWh Capacity" [ref=e4088]
+              - generic [ref=e4089]:
+                - generic [ref=e4090]: BATTERY
+                - heading "RUiXU Lithi2-16 Battery Energy Storage IP65 outdoor | Self-Heating | 51.2V / 314Ah / 16kWh Capacity" [level=3] [ref=e4091]
+                - paragraph [ref=e4092]: Ruixu
+                - generic [ref=e4093]:
+                  - generic [ref=e4094]: $3,249.00
+                  - button "Details" [ref=e4095]:
+                    - text: Details
+                    - img
+            - generic [ref=e4096]:
+              - img "RUiXU RX-12K Hybrid Inverter | 12kW 120/240V Split Phase | Whole Home Backup | 4 MPPT | Off-Grid, Grid-Tie, and Generator-Ready" [ref=e4098]
+              - generic [ref=e4099]:
+                - generic [ref=e4100]: INVERTER
+                - heading "RUiXU RX-12K Hybrid Inverter | 12kW 120/240V Split Phase | Whole Home Backup | 4 MPPT | Off-Grid, Grid-Tie, and Generator-Ready" [level=3] [ref=e4101]
+                - paragraph [ref=e4102]: Ruixu
+                - generic [ref=e4103]:
+                  - generic [ref=e4104]: $3,299.00
+                  - button "Details" [ref=e4105]:
+                    - text: Details
+                    - img
+            - generic [ref=e4106]:
+              - img "RUiXU Single/Split-Phase Off-Grid Inverter | SUNON10 | 10kW | UL1741" [ref=e4108]
+              - generic [ref=e4109]:
+                - generic [ref=e4110]: INVERTER
+                - heading "RUiXU Single/Split-Phase Off-Grid Inverter | SUNON10 | 10kW | UL1741" [level=3] [ref=e4111]
+                - paragraph [ref=e4112]: Ruixu
+                - generic [ref=e4113]:
+                  - generic [ref=e4114]: $1,759.00
+                  - button "Details" [ref=e4115]:
+                    - text: Details
+                    - img
+            - generic [ref=e4116]:
+              - img "Ruixu 6 Slot Battery Cabinet | Wheels & Busbar Included | Pre-assembled" [ref=e4118]
+              - generic [ref=e4119]:
+                - generic [ref=e4120]: BATTERY
+                - heading "Ruixu 6 Slot Battery Cabinet | Wheels & Busbar Included | Pre-assembled" [level=3] [ref=e4121]
+                - paragraph [ref=e4122]: Ruixu
+                - generic [ref=e4123]:
+                  - generic [ref=e4124]: $559.00
+                  - button "Details" [ref=e4125]:
+                    - text: Details
+                    - img
+            - generic [ref=e4126]:
+              - img "Runergy 570W (Pallet of 36) Mono N-Type Bifacial Dual Glass HY-DH144N8-570" [ref=e4128]
+              - generic [ref=e4129]:
+                - generic [ref=e4130]: SOLAR PANEL
+                - heading "Runergy 570W (Pallet of 36) Mono N-Type Bifacial Dual Glass HY-DH144N8-570" [level=3] [ref=e4131]
+                - paragraph [ref=e4132]: Hyperion Runergy
+                - generic [ref=e4133]:
+                  - generic [ref=e4134]: $7,343.64
+                  - button "Details" [ref=e4135]:
+                    - text: Details
+                    - img
+            - generic [ref=e4136]:
+              - img "Runergy 575W (Pallet of 31) Bifacial N-Type Dual Glass Solar Panel HY-DH144N8-575 Made in USA" [ref=e4138]
+              - generic [ref=e4139]:
+                - generic [ref=e4140]: SOLAR PANEL
+                - heading "Runergy 575W (Pallet of 31) Bifacial N-Type Dual Glass Solar Panel HY-DH144N8-575 Made in USA" [level=3] [ref=e4141]
+                - paragraph [ref=e4142]: Runergy
+                - generic [ref=e4143]:
+                  - generic [ref=e4144]: $7,792.78
+                  - button "Details" [ref=e4145]:
+                    - text: Details
+                    - img
+            - generic [ref=e4146]:
+              - img "Runergy 580W (Pallet of 31) Bifacial Dual Glass N-Type Solar Panel HY-DH144N8-580 Made in USA" [ref=e4148]
+              - generic [ref=e4149]:
+                - generic [ref=e4150]: SOLAR PANEL
+                - heading "Runergy 580W (Pallet of 31) Bifacial Dual Glass N-Type Solar Panel HY-DH144N8-580 Made in USA" [level=3] [ref=e4151]
+                - paragraph [ref=e4152]: Runergy
+                - generic [ref=e4153]:
+                  - generic [ref=e4154]: $7,858.50
+                  - button "Details" [ref=e4155]:
+                    - text: Details
+                    - img
+            - generic [ref=e4156]:
+              - img "Runergy 585W (Pallet of 31) Bifacial Dual Glass N-Type Solar Panel HY-DH144N8-585 Made in USA" [ref=e4158]
+              - generic [ref=e4159]:
+                - generic [ref=e4160]: SOLAR PANEL
+                - heading "Runergy 585W (Pallet of 31) Bifacial Dual Glass N-Type Solar Panel HY-DH144N8-585 Made in USA" [level=3] [ref=e4161]
+                - paragraph [ref=e4162]: Runergy
+                - generic [ref=e4163]:
+                  - generic [ref=e4164]: $8,110.53
+                  - button "Details" [ref=e4165]:
+                    - text: Details
+                    - img
+            - generic [ref=e4166]:
+              - img "Runergy 590W (Pallet of 31) N-Type Bifacial Dual Glass Solar Panel HY-DH144N8-590 Made in USA" [ref=e4168]
+              - generic [ref=e4169]:
+                - generic [ref=e4170]: SOLAR PANEL
+                - heading "Runergy 590W (Pallet of 31) N-Type Bifacial Dual Glass Solar Panel HY-DH144N8-590 Made in USA" [level=3] [ref=e4171]
+                - paragraph [ref=e4172]: Runergy
+                - generic [ref=e4173]:
+                  - generic [ref=e4174]: $8,052.25
+                  - button "Details" [ref=e4175]:
+                    - text: Details
+                    - img
+            - generic [ref=e4176]:
+              - img "Runergy 595W (Pallet of 31) Bifacial N-Type Dual Glass Solar Panel HY-DH144N8-595 Made in USA" [ref=e4178]
+              - generic [ref=e4179]:
+                - generic [ref=e4180]: SOLAR PANEL
+                - heading "Runergy 595W (Pallet of 31) Bifacial N-Type Dual Glass Solar Panel HY-DH144N8-595 Made in USA" [level=3] [ref=e4181]
+                - paragraph [ref=e4182]: Runergy
+                - generic [ref=e4183]:
+                  - generic [ref=e4184]: $8,056.28
+                  - button "Details" [ref=e4185]:
+                    - text: Details
+                    - img
+            - generic [ref=e4186]:
+              - img "Runergy Hyperion 395W Mono PERC Bifacial Dual Glass All Black HY-DH108P8B-395 Solar Panel" [ref=e4188]
+              - generic [ref=e4189]:
+                - generic [ref=e4190]: SOLAR PANEL
+                - heading "Runergy Hyperion 395W Mono PERC Bifacial Dual Glass All Black HY-DH108P8B-395 Solar Panel" [level=3] [ref=e4191]
+                - paragraph [ref=e4192]: Hyperion Runergy
+                - generic [ref=e4193]:
+                  - generic [ref=e4194]: $124.99
+                  - button "Details" [ref=e4195]:
+                    - text: Details
+                    - img
+            - generic [ref=e4196]:
+              - img "Runergy Hyperion 415W (Pallet of 36) Bifacial P-Type 108 Half-Cells Solar Panel HY-DH108P8B-415" [ref=e4198]
+              - generic [ref=e4199]:
+                - generic [ref=e4200]: SOLAR PANEL
+                - heading "Runergy Hyperion 415W (Pallet of 36) Bifacial P-Type 108 Half-Cells Solar Panel HY-DH108P8B-415" [level=3] [ref=e4201]
+                - paragraph [ref=e4202]: Runergy
+                - generic [ref=e4203]:
+                  - generic [ref=e4204]: $4,482.00
+                  - button "Details" [ref=e4205]:
+                    - text: Details
+                    - img
+            - generic [ref=e4206]:
+              - img "S-5! Corrubracket Metal Roof Mounting Bracket" [ref=e4208]
+              - generic [ref=e4209]:
+                - generic [ref=e4210]: SOLAR PANEL
+                - heading "S-5! Corrubracket Metal Roof Mounting Bracket" [level=3] [ref=e4211]
+                - paragraph [ref=e4212]: S-5!
+                - generic [ref=e4213]:
+                  - generic [ref=e4214]: $10.45
+                  - button "Details" [ref=e4215]:
+                    - text: Details
+                    - img
+            - generic [ref=e4216]:
+              - img "S-5! Proteabracket-AL Aluminum Bracket" [ref=e4218]
+              - generic [ref=e4219]:
+                - generic [ref=e4220]: MOUNTING
+                - heading "S-5! Proteabracket-AL Aluminum Bracket" [level=3] [ref=e4221]
+                - paragraph [ref=e4222]: S-5!
+                - generic [ref=e4223]:
+                  - generic [ref=e4224]: $14.35
+                  - button "Details" [ref=e4225]:
+                    - text: Details
+                    - img
+            - generic [ref=e4226]:
+              - img "S-5! S-5 Cable Clip, ACC-F1-270" [ref=e4228]
+              - generic [ref=e4229]:
+                - generic [ref=e4230]: MOUNTING
+                - heading "S-5! S-5 Cable Clip, ACC-F1-270" [level=3] [ref=e4231]
+                - paragraph [ref=e4232]: S-5!
+                - generic [ref=e4233]:
+                  - generic [ref=e4234]: $1.61
+                  - button "Details" [ref=e4235]:
+                    - text: Details
+                    - img
+            - generic [ref=e4236]:
+              - img "S-5! S-5 Cable Clip, ACC-F2-90" [ref=e4238]
+              - generic [ref=e4239]:
+                - generic [ref=e4240]: MOUNTING
+                - heading "S-5! S-5 Cable Clip, ACC-F2-90" [level=3] [ref=e4241]
+                - paragraph [ref=e4242]: S-5!
+                - generic [ref=e4243]:
+                  - generic [ref=e4244]: $1.60
+                  - button "Details" [ref=e4245]:
+                    - text: Details
+                    - img
+            - generic [ref=e4246]:
+              - img "S-5! VERSABRACKET-47 VB-47 Metal Roof Mounting Bracket" [ref=e4248]
+              - generic [ref=e4249]:
+                - generic [ref=e4250]: SOLAR PANEL
+                - heading "S-5! VERSABRACKET-47 VB-47 Metal Roof Mounting Bracket" [level=3] [ref=e4251]
+                - paragraph [ref=e4252]: S-5!
+                - generic [ref=e4253]:
+                  - generic [ref=e4254]: $3.96
+                  - button "Details" [ref=e4255]:
+                    - text: Details
+                    - img
+            - generic [ref=e4256]:
+              - img "SEG 595W (620 per Container) Yukon N Series Bifacial N Type Solar Panel SEG-595-BTA-BG-144Cells Made in USA" [ref=e4258]
+              - generic [ref=e4259]:
+                - generic [ref=e4260]: SOLAR PANEL
+                - heading "SEG 595W (620 per Container) Yukon N Series Bifacial N Type Solar Panel SEG-595-BTA-BG-144Cells Made in USA" [level=3] [ref=e4261]
+                - paragraph [ref=e4262]: SEG Solar
+                - generic [ref=e4263]:
+                  - generic [ref=e4264]: $123,380.00
+                  - button "Details" [ref=e4265]:
+                    - text: Details
+                    - img
+            - generic [ref=e4266]:
+              - img "SMA 348-00000-40 COMMUNICATIONS HUB" [ref=e4268]
+              - generic [ref=e4269]:
+                - generic [ref=e4270]: MONITORING
+                - heading "SMA 348-00000-40 COMMUNICATIONS HUB" [level=3] [ref=e4271]
+                - paragraph [ref=e4272]: SMA America
+                - generic [ref=e4273]:
+                  - generic [ref=e4274]: $44.00
+                  - button "Details" [ref=e4275]:
+                    - text: Details
+                    - img
+            - generic [ref=e4276]:
+              - img "SMA 7.7kW Sunny Boy Smart Energy SBSE7.7-US-50 Hybrid Inverter" [ref=e4278]
+              - generic [ref=e4279]:
+                - generic [ref=e4280]: SOLAR PANEL
+                - heading "SMA 7.7kW Sunny Boy Smart Energy SBSE7.7-US-50 Hybrid Inverter" [level=3] [ref=e4281]
+                - paragraph [ref=e4282]: SMA America
+                - generic [ref=e4283]:
+                  - generic [ref=e4284]: $2,681.05
+                  - button "Details" [ref=e4285]:
+                    - text: Details
+                    - img
+            - generic [ref=e4286]:
+              - img "SMA CELLMODKIT-US-10 Cellular LTE Modem w/ 5-Year Data Plan" [ref=e4288]
+              - generic [ref=e4289]:
+                - generic [ref=e4290]: INVERTER
+                - heading "SMA CELLMODKIT-US-10 Cellular LTE Modem w/ 5-Year Data Plan" [level=3] [ref=e4291]
+                - paragraph [ref=e4292]: SMA America
+                - generic [ref=e4293]:
+                  - generic [ref=e4294]: $309.70
+                  - button "Details" [ref=e4295]:
+                    - text: Details
+                    - img
+            - generic [ref=e4296]:
+              - img "SMA COMGW-US-10 Communications Gateway" [ref=e4298]
+              - generic [ref=e4299]:
+                - generic [ref=e4300]: INVERTER
+                - heading "SMA COMGW-US-10 Communications Gateway" [level=3] [ref=e4301]
+                - paragraph [ref=e4302]: SMA America
+                - generic [ref=e4303]:
+                  - generic [ref=e4304]: $290.63
+                  - button "Details" [ref=e4305]:
+                    - text: Details
+                    - img
+            - generic [ref=e4306]:
+              - img "SMA SBS-ABU-200-US-10 Automatic Backup Unit" [ref=e4308]
+              - generic [ref=e4309]:
+                - generic [ref=e4310]: OTHER
+                - heading "SMA SBS-ABU-200-US-10 Automatic Backup Unit" [level=3] [ref=e4311]
+                - paragraph [ref=e4312]: SMA America
+                - generic [ref=e4313]:
+                  - generic [ref=e4314]: $2,738.22
+                  - button "Details" [ref=e4315]:
+                    - text: Details
+                    - img
+            - generic [ref=e4316]:
+              - img "SMA SunSpec Certified Rapid Shutdown Device JMS-F-V2" [ref=e4318]
+              - generic [ref=e4319]:
+                - generic [ref=e4320]: WIRING
+                - heading "SMA SunSpec Certified Rapid Shutdown Device JMS-F-V2" [level=3] [ref=e4321]
+                - paragraph [ref=e4322]: SMA America
+                - generic [ref=e4323]:
+                  - generic [ref=e4324]: $37.36
+                  - button "Details" [ref=e4325]:
+                    - text: Details
+                    - img
+            - generic [ref=e4326]:
+              - img "SMA TS4-R 150-00000-50 Communications Gateway" [ref=e4328]
+              - generic [ref=e4329]:
+                - generic [ref=e4330]: MONITORING
+                - heading "SMA TS4-R 150-00000-50 Communications Gateway" [level=3] [ref=e4331]
+                - paragraph [ref=e4332]: SMA America
+                - generic [ref=e4333]:
+                  - generic [ref=e4334]: $86.25
+                  - button "Details" [ref=e4335]:
+                    - text: Details
+                    - img
+            - generic [ref=e4336]:
+              - img "STAUBLI 18-32.0017P0001-UR MALE MC4 CONNECTOR W/ BOOT" [ref=e4338]
+              - generic [ref=e4339]:
+                - generic [ref=e4340]: WIRING
+                - heading "STAUBLI 18-32.0017P0001-UR MALE MC4 CONNECTOR W/ BOOT" [level=3] [ref=e4341]
+                - paragraph [ref=e4342]: STAUBLI
+                - generic [ref=e4343]:
+                  - generic [ref=e4344]: $2.01
+                  - button "Details" [ref=e4345]:
+                    - text: Details
+                    - img
+            - generic [ref=e4346]:
+              - img "SUNMODO A20144-206-ML 206\" (17') MILL RAIL" [ref=e4348]
+              - generic [ref=e4349]:
+                - generic [ref=e4350]: SOLAR PANEL
+                - heading "SUNMODO A20144-206-ML 206\" (17') MILL RAIL" [level=3] [ref=e4351]
+                - paragraph [ref=e4352]: SunModo Corp.
+                - generic [ref=e4353]:
+                  - generic [ref=e4354]: $39.60
+                  - button "Details" [ref=e4355]:
+                    - text: Details
+                    - img
+            - generic [ref=e4356]:
+              - img "Schneider Electric Homeline 100A 2-Pole Circuit Breaker HOM2100" [ref=e4358]
+              - generic [ref=e4359]:
+                - generic [ref=e4360]: ELECTRICAL
+                - heading "Schneider Electric Homeline 100A 2-Pole Circuit Breaker HOM2100" [level=3] [ref=e4361]
+                - paragraph [ref=e4362]: Schneider Electric
+                - generic [ref=e4363]:
+                  - generic [ref=e4364]: $82.54
+                  - button "Details" [ref=e4365]:
+                    - text: Details
+                    - img
+            - generic [ref=e4366]:
+              - img "Schneider Electric Homeline 15A 1-Pole Circuit Breaker HOM115" [ref=e4368]
+              - generic [ref=e4369]:
+                - generic [ref=e4370]: ELECTRICAL
+                - heading "Schneider Electric Homeline 15A 1-Pole Circuit Breaker HOM115" [level=3] [ref=e4371]
+                - paragraph [ref=e4372]: Schneider Electric
+                - generic [ref=e4373]:
+                  - generic [ref=e4374]: $9.47
+                  - button "Details" [ref=e4375]:
+                    - text: Details
+                    - img
+            - generic [ref=e4376]:
+              - img "Schneider Electric Homeline 20A 2-Pole Circuit Breaker HOM220" [ref=e4378]
+              - generic [ref=e4379]:
+                - generic [ref=e4380]: ELECTRICAL
+                - heading "Schneider Electric Homeline 20A 2-Pole Circuit Breaker HOM220" [level=3] [ref=e4381]
+                - paragraph [ref=e4382]: Schneider Electric
+                - generic [ref=e4383]:
+                  - generic [ref=e4384]: $21.56
+                  - button "Details" [ref=e4385]:
+                    - text: Details
+                    - img
+            - generic [ref=e4386]:
+              - img "Schneider Electric Homeline 25A 2-Pole Circuit Breaker HOM225" [ref=e4388]
+              - generic [ref=e4389]:
+                - generic [ref=e4390]: ELECTRICAL
+                - heading "Schneider Electric Homeline 25A 2-Pole Circuit Breaker HOM225" [level=3] [ref=e4391]
+                - paragraph [ref=e4392]: Schneider Electric
+                - generic [ref=e4393]:
+                  - generic [ref=e4394]: $21.56
+                  - button "Details" [ref=e4395]:
+                    - text: Details
+                    - img
+            - generic [ref=e4396]:
+              - img "Schneider Electric Homeline 35A 2-Pole Circuit Breaker HOM235" [ref=e4398]
+              - generic [ref=e4399]:
+                - generic [ref=e4400]: ELECTRICAL
+                - heading "Schneider Electric Homeline 35A 2-Pole Circuit Breaker HOM235" [level=3] [ref=e4401]
+                - paragraph [ref=e4402]: Schneider Electric
+                - generic [ref=e4403]:
+                  - generic [ref=e4404]: $21.56
+                  - button "Details" [ref=e4405]:
+                    - text: Details
+                    - img
+            - generic [ref=e4406]:
+              - img "Schneider Electric Homeline 40A 2-Pole Circuit Breaker HOM240" [ref=e4408]
+              - generic [ref=e4409]:
+                - generic [ref=e4410]: ELECTRICAL
+                - heading "Schneider Electric Homeline 40A 2-Pole Circuit Breaker HOM240" [level=3] [ref=e4411]
+                - paragraph [ref=e4412]: Schneider Electric
+                - generic [ref=e4413]:
+                  - generic [ref=e4414]: $21.56
+                  - button "Details" [ref=e4415]:
+                    - text: Details
+                    - img
+            - generic [ref=e4416]:
+              - img "Schneider Electric Homeline 45A 2-Pole Circuit Breaker HOM245" [ref=e4418]
+              - generic [ref=e4419]:
+                - generic [ref=e4420]: ELECTRICAL
+                - heading "Schneider Electric Homeline 45A 2-Pole Circuit Breaker HOM245" [level=3] [ref=e4421]
+                - paragraph [ref=e4422]: Schneider Electric
+                - generic [ref=e4423]:
+                  - generic [ref=e4424]: $21.56
+                  - button "Details" [ref=e4425]:
+                    - text: Details
+                    - img
+            - generic [ref=e4426]:
+              - img "Schneider Electric Homeline 50A 2-Pole Circuit Breaker HOM250" [ref=e4428]
+              - generic [ref=e4429]:
+                - generic [ref=e4430]: ELECTRICAL
+                - heading "Schneider Electric Homeline 50A 2-Pole Circuit Breaker HOM250" [level=3] [ref=e4431]
+                - paragraph [ref=e4432]: Schneider Electric
+                - generic [ref=e4433]:
+                  - generic [ref=e4434]: $21.56
+                  - button "Details" [ref=e4435]:
+                    - text: Details
+                    - img
+            - generic [ref=e4436]:
+              - img "Schneider Electric Homeline 60A 2-Pole Circuit Breaker HOM260" [ref=e4438]
+              - generic [ref=e4439]:
+                - generic [ref=e4440]: ELECTRICAL
+                - heading "Schneider Electric Homeline 60A 2-Pole Circuit Breaker HOM260" [level=3] [ref=e4441]
+                - paragraph [ref=e4442]: Schneider Electric
+                - generic [ref=e4443]:
+                  - generic [ref=e4444]: $21.56
+                  - button "Details" [ref=e4445]:
+                    - text: Details
+                    - img
+            - generic [ref=e4446]:
+              - img "Schneider Electric Homeline 70A 2-Pole Circuit Breaker HOM270" [ref=e4448]
+              - generic [ref=e4449]:
+                - generic [ref=e4450]: ELECTRICAL
+                - heading "Schneider Electric Homeline 70A 2-Pole Circuit Breaker HOM270" [level=3] [ref=e4451]
+                - paragraph [ref=e4452]: Schneider Electric
+                - generic [ref=e4453]:
+                  - generic [ref=e4454]: $60.85
+                  - button "Details" [ref=e4455]:
+                    - text: Details
+                    - img
+            - generic [ref=e4456]:
+              - img "Schneider Electric Homeline 80A 2-Pole Circuit Breaker HOM280" [ref=e4458]
+              - generic [ref=e4459]:
+                - generic [ref=e4460]: ELECTRICAL
+                - heading "Schneider Electric Homeline 80A 2-Pole Circuit Breaker HOM280" [level=3] [ref=e4461]
+                - paragraph [ref=e4462]: Schneider Electric
+                - generic [ref=e4463]:
+                  - generic [ref=e4464]: $89.29
+                  - button "Details" [ref=e4465]:
+                    - text: Details
+                    - img
+            - generic [ref=e4466]:
+              - img "Schneider Electric Homeline 90A 2-Pole Circuit Breaker HOM290" [ref=e4468]
+              - generic [ref=e4469]:
+                - generic [ref=e4470]: ELECTRICAL
+                - heading "Schneider Electric Homeline 90A 2-Pole Circuit Breaker HOM290" [level=3] [ref=e4471]
+                - paragraph [ref=e4472]: Schneider Electric
+                - generic [ref=e4473]:
+                  - generic [ref=e4474]: $89.29
+                  - button "Details" [ref=e4475]:
+                    - text: Details
+                    - img
+            - generic [ref=e4476]:
+              - img "Schneider Electric Homeline Tandem 15A/20A Circuit Breaker HOMT1520" [ref=e4478]
+              - generic [ref=e4479]:
+                - generic [ref=e4480]: ELECTRICAL
+                - heading "Schneider Electric Homeline Tandem 15A/20A Circuit Breaker HOMT1520" [level=3] [ref=e4481]
+                - paragraph [ref=e4482]: Schneider Electric
+                - generic [ref=e4483]:
+                  - generic [ref=e4484]: $22.05
+                  - button "Details" [ref=e4485]:
+                    - text: Details
+                    - img
+            - generic [ref=e4486]:
+              - img [ref=e4488]
+              - generic [ref=e4492]:
+                - generic [ref=e4493]: OTHER
+                - heading "Shop by Project - EV Charging - Signature SolarYouTubeFacebookLinkedInInstagram" [level=3] [ref=e4494]
+                - generic [ref=e4495]:
+                  - generic [ref=e4496]: $7,500.00
+                  - button "Details" [ref=e4497]:
+                    - text: Details
+                    - img
+            - generic [ref=e4498]:
+              - img "Shop by Project - Mobile Adventures - Signature SolarYouTubeFacebookLinkedInInstagram" [ref=e4500]
+              - generic [ref=e4501]:
+                - generic [ref=e4502]: OTHER
+                - heading "Shop by Project - Mobile Adventures - Signature SolarYouTubeFacebookLinkedInInstagram" [level=3] [ref=e4503]
+                - generic [ref=e4504]:
+                  - generic [ref=e4505]: $1,699.95
+                  - button "Details" [ref=e4506]:
+                    - text: Details
+                    - img
+            - generic [ref=e4507]:
+              - img [ref=e4509]
+              - generic [ref=e4513]:
+                - generic [ref=e4514]: OTHER
+                - heading "Shop by Project - Survival Preparedness - Signature SolarYouTubeFacebookLinkedInInstagram" [level=3] [ref=e4515]
+                - generic [ref=e4516]:
+                  - generic [ref=e4517]: $719.95
+                  - button "Details" [ref=e4518]:
+                    - text: Details
+                    - img
+            - generic [ref=e4519]:
+              - img "Silfab 430W QD SIL-430-QD-DCA Domestic Content Eligible Solar Panel" [ref=e4521]
+              - generic [ref=e4522]:
+                - generic [ref=e4523]: SOLAR PANEL
+                - heading "Silfab 430W QD SIL-430-QD-DCA Domestic Content Eligible Solar Panel" [level=3] [ref=e4524]
+                - paragraph [ref=e4525]: Silfab Solar
+                - generic [ref=e4526]:
+                  - generic [ref=e4527]: $244.00
+                  - button "Details" [ref=e4528]:
+                    - text: Details
+                    - img
+            - generic [ref=e4529]:
+              - img "Sirius 415W ELNSM54M-HC-DC-415-MIN BoW Mono PERC Solar Panel Assembled in Texas Domestic Content" [ref=e4531]
+              - generic [ref=e4532]:
+                - generic [ref=e4533]: SOLAR PANEL
+                - heading "Sirius 415W ELNSM54M-HC-DC-415-MIN BoW Mono PERC Solar Panel Assembled in Texas Domestic Content" [level=3] [ref=e4534]
+                - paragraph [ref=e4535]: SIRIUS
+                - generic [ref=e4536]:
+                  - generic [ref=e4537]: $193.99
+                  - button "Details" [ref=e4538]:
+                    - text: Details
+                    - img
+            - generic [ref=e4539]:
+              - img "SnapNrack UR-45 Rail 172\" Mill USA 232-10095" [ref=e4541]
+              - generic [ref=e4542]:
+                - generic [ref=e4543]: SOLAR PANEL
+                - heading "SnapNrack UR-45 Rail 172\" Mill USA 232-10095" [level=3] [ref=e4544]
+                - paragraph [ref=e4545]: SnapNrack
+                - generic [ref=e4546]:
+                  - generic [ref=e4547]: $40.95
+                  - button "Details" [ref=e4548]:
+                    - text: Details
+                    - img
+            - generic [ref=e4549]:
+              - img "Sol Ark 15kW Inverter + 1 x Helios Discover Outdoor Battery 16.1kWh 52-48-160000 / SA-15K-SA" [ref=e4551]
+              - generic [ref=e4552]:
+                - generic [ref=e4553]: BATTERY
+                - heading "Sol Ark 15kW Inverter + 1 x Helios Discover Outdoor Battery 16.1kWh 52-48-160000 / SA-15K-SA" [level=3] [ref=e4554]
+                - paragraph [ref=e4555]: Sol-Ark
+                - generic [ref=e4556]:
+                  - generic [ref=e4557]: $9,899.00
+                  - button "Details" [ref=e4558]:
+                    - text: Details
+                    - img
+            - generic [ref=e4559]:
+              - img "Sol-Ark 12kW Hybrid Inverter + Midnite Power MNPowerflo16 ESS | 16.1 kWh Lithium Wall Mount Battery + 12kW Hybrid Inverter Bundle | Outdoor Rated Essentials Backup" [ref=e4561]
+              - generic [ref=e4562]:
+                - generic [ref=e4563]: BATTERY
+                - heading "Sol-Ark 12kW Hybrid Inverter + Midnite Power MNPowerflo16 ESS | 16.1 kWh Lithium Wall Mount Battery + 12kW Hybrid Inverter Bundle | Outdoor Rated Essentials Backup" [level=3] [ref=e4564]
+                - paragraph [ref=e4565]: Portable Sun LLC
+                - generic [ref=e4566]:
+                  - generic [ref=e4567]: $8,599.29
+                  - button "Details" [ref=e4568]:
+                    - text: Details
+                    - img
+            - generic [ref=e4569]:
+              - img "Sol-Ark 12kW Hybrid Inverter | All-In-One Solar Inverter | 13000W PV Input | 12000W Output | 48V 120/240V Split Phase | Sol-Ark 12K-2P" [ref=e4571]
+              - generic [ref=e4572]:
+                - generic [ref=e4573]: BATTERY
+                - heading "Sol-Ark 12kW Hybrid Inverter | All-In-One Solar Inverter | 13000W PV Input | 12000W Output | 48V 120/240V Split Phase | Sol-Ark 12K-2P" [level=3] [ref=e4574]
+                - paragraph [ref=e4575]: Sol-Ark
+                - generic [ref=e4576]:
+                  - generic [ref=e4577]: $4,850.00
+                  - button "Details" [ref=e4578]:
+                    - text: Details
+                    - img
+            - generic [ref=e4579]:
+              - img "Sol-Ark 12kW Hybrid Inverter | All-In-One Solar Inverter | 13000W PV Input | 12000W Output | 48V 120/240V Split Phase | Sol-Ark 12K-2P" [ref=e4581]
+              - generic [ref=e4582]:
+                - generic [ref=e4583]: BATTERY
+                - heading "Sol-Ark 12kW Hybrid Inverter | All-In-One Solar Inverter | 13000W PV Input | 12000W Output | 48V 120/240V Split Phase | Sol-Ark 12K-2P" [level=3] [ref=e4584]
+                - paragraph [ref=e4585]: Sol-Ark
+                - generic [ref=e4586]:
+                  - generic [ref=e4587]: $4,850.00
+                  - button "Details" [ref=e4588]:
+                    - text: Details
+                    - img
+            - generic [ref=e4589]:
+              - img "Sol-Ark 15K-2P + (2) Discover Helios 16kWh Batteries | 32kWh Whole-Home Backup Power Bundle" [ref=e4591]
+              - generic [ref=e4592]:
+                - generic [ref=e4593]: BATTERY
+                - heading "Sol-Ark 15K-2P + (2) Discover Helios 16kWh Batteries | 32kWh Whole-Home Backup Power Bundle" [level=3] [ref=e4594]
+                - paragraph [ref=e4595]: Sol-Ark
+                - generic [ref=e4596]:
+                  - generic [ref=e4597]: $14,699.00
+                  - button "Details" [ref=e4598]:
+                    - text: Details
+                    - img
+            - generic [ref=e4599]:
+              - img "Sol-Ark 15K-2P + Discover Helios 16kWh Battery | 16kWh Whole-Home Backup Power Bundle" [ref=e4601]
+              - generic [ref=e4602]:
+                - generic [ref=e4603]: BATTERY
+                - heading "Sol-Ark 15K-2P + Discover Helios 16kWh Battery | 16kWh Whole-Home Backup Power Bundle" [level=3] [ref=e4604]
+                - paragraph [ref=e4605]: Sol-Ark
+                - generic [ref=e4606]:
+                  - generic [ref=e4607]: $11,499.00
+                  - button "Details" [ref=e4608]:
+                    - text: Details
+                    - img
+            - generic [ref=e4609]:
+              - img "Sol-Ark 15kW Hybrid Inverter + Midnite Power MNPowerflo16 ESS | 16.1 kWh Lithium Wall Mount Battery + 15kW Hybrid Inverter Bundle | Outdoor Rated Whole Home Backup" [ref=e4611]
+              - generic [ref=e4612]:
+                - generic [ref=e4613]: BATTERY
+                - heading "Sol-Ark 15kW Hybrid Inverter + Midnite Power MNPowerflo16 ESS | 16.1 kWh Lithium Wall Mount Battery + 15kW Hybrid Inverter Bundle | Outdoor Rated Whole Home Backup" [level=3] [ref=e4614]
+                - paragraph [ref=e4615]: Portable Sun LLC
+                - generic [ref=e4616]:
+                  - generic [ref=e4617]: $9,949.29
+                  - button "Details" [ref=e4618]:
+                    - text: Details
+                    - img
+            - generic [ref=e4619]:
+              - img "Sol-Ark 15kW Hybrid Inverter | All-In-One Solar Inverter | 19500W PV Input | 15000W Output | 48V 120/240V Split Phase | Sol-Ark 15K-2P" [ref=e4621]
+              - generic [ref=e4622]:
+                - generic [ref=e4623]: INVERTER
+                - heading "Sol-Ark 15kW Hybrid Inverter | All-In-One Solar Inverter | 19500W PV Input | 15000W Output | 48V 120/240V Split Phase | Sol-Ark 15K-2P" [level=3] [ref=e4624]
+                - paragraph [ref=e4625]: Sol-Ark
+                - generic [ref=e4626]:
+                  - generic [ref=e4627]: $6,250.00
+                  - button "Details" [ref=e4628]:
+                    - text: Details
+                    - img
+            - generic [ref=e4629]:
+              - img "Sol-Ark 18kW 18K-2P-N Hybrid Solar Inverter" [ref=e4631]
+              - generic [ref=e4632]:
+                - generic [ref=e4633]: BATTERY
+                - heading "Sol-Ark 18kW 18K-2P-N Hybrid Solar Inverter" [level=3] [ref=e4634]
+                - paragraph [ref=e4635]: Sol-Ark
+                - generic [ref=e4636]:
+                  - generic [ref=e4637]: $7,299.00
+                  - button "Details" [ref=e4638]:
+                    - text: Details
+                    - img
+            - generic [ref=e4639]:
+              - img "Sol-Ark 30K-3P-208V" [ref=e4641]
+              - generic [ref=e4642]:
+                - generic [ref=e4643]: INVERTER
+                - heading "Sol-Ark 30K-3P-208V" [level=3] [ref=e4644]
+                - paragraph [ref=e4645]: Sol-Ark
+                - generic [ref=e4646]:
+                  - generic [ref=e4647]: $14,000.00
+                  - button "Details" [ref=e4648]:
+                    - text: Details
+                    - img
+            - generic [ref=e4649]:
+              - img "Sol-Ark 5kW 5K-1P-N 120/230V Hybrid Inverter" [ref=e4651]
+              - generic [ref=e4652]:
+                - generic [ref=e4653]: INVERTER
+                - heading "Sol-Ark 5kW 5K-1P-N 120/230V Hybrid Inverter" [level=3] [ref=e4654]
+                - paragraph [ref=e4655]: Sol-Ark
+                - generic [ref=e4656]:
+                  - generic [ref=e4657]: $2,199.00
+                  - button "Details" [ref=e4658]:
+                    - text: Details
+                    - img
+            - generic [ref=e4659]:
+              - img "Sol-Ark 60K-3P-480V" [ref=e4661]
+              - generic [ref=e4662]:
+                - generic [ref=e4663]: INVERTER
+                - heading "Sol-Ark 60K-3P-480V" [level=3] [ref=e4664]
+                - paragraph [ref=e4665]: Sol-Ark
+                - generic [ref=e4666]:
+                  - generic [ref=e4667]: $18,750.00
+                  - button "Details" [ref=e4668]:
+                    - text: Details
+                    - img
+            - generic [ref=e4669]:
+              - img "Sol-Ark 60kWh 480V Lithium Iron Phosphate Battery System L3-HVR-60KWH" [ref=e4671]
+              - generic [ref=e4672]:
+                - generic [ref=e4673]: BATTERY
+                - heading "Sol-Ark 60kWh 480V Lithium Iron Phosphate Battery System L3-HVR-60KWH" [level=3] [ref=e4674]
+                - paragraph [ref=e4675]: Sol-Ark
+                - generic [ref=e4676]:
+                  - generic [ref=e4677]: $35,499.00
+                  - button "Details" [ref=e4678]:
+                    - text: Details
+                    - img
+            - generic [ref=e4679]:
+              - img "Sol-Ark L3 HV-40KWH-30K Commercial Indoor Energy Storage System" [ref=e4681]
+              - generic [ref=e4682]:
+                - generic [ref=e4683]: BATTERY
+                - heading "Sol-Ark L3 HV-40KWH-30K Commercial Indoor Energy Storage System" [level=3] [ref=e4684]
+                - paragraph [ref=e4685]: Sol-Ark
+                - generic [ref=e4686]:
+                  - generic [ref=e4687]: $21,380.00
+                  - button "Details" [ref=e4688]:
+                    - text: Details
+                    - img
+            - generic [ref=e4689]:
+              - img "Sol-Ark L3 HV-60KWH 60K Commercial Indoor Energy Storage System" [ref=e4691]
+              - generic [ref=e4692]:
+                - generic [ref=e4693]: BATTERY
+                - heading "Sol-Ark L3 HV-60KWH 60K Commercial Indoor Energy Storage System" [level=3] [ref=e4694]
+                - paragraph [ref=e4695]: Sol-Ark
+                - generic [ref=e4696]:
+                  - generic [ref=e4697]: $30,700.00
+                  - button "Details" [ref=e4698]:
+                    - text: Details
+                    - img
+            - generic [ref=e4699]:
+              - img "SolaTrim ST-055 Pest Abatement Barrier 5.50IN" [ref=e4701]
+              - generic [ref=e4702]:
+                - generic [ref=e4703]: OTHER
+                - heading "SolaTrim ST-055 Pest Abatement Barrier 5.50IN" [level=3] [ref=e4704]
+                - paragraph [ref=e4705]: SolaTrim
+                - generic [ref=e4706]:
+                  - generic [ref=e4707]: $12.13
+                  - button "Details" [ref=e4708]:
+                    - text: Details
+                    - img
+            - generic [ref=e4709]:
+              - img [ref=e4711]
+              - generic [ref=e4715]:
+                - generic [ref=e4716]: OTHER
+                - heading "Solar Ground MountsYouTubeFacebookLinkedInInstagram" [level=3] [ref=e4717]
+                - generic [ref=e4718]:
+                  - generic [ref=e4719]: $84.99
+                  - button "Details" [ref=e4720]:
+                    - text: Details
+                    - img
+            - generic [ref=e4721]:
+              - img "SolarEdge 11.4kW SE11400H-US SE11400H-US000BEU4 1-ph Inverter" [ref=e4723]
+              - generic [ref=e4724]:
+                - generic [ref=e4725]: INVERTER
+                - heading "SolarEdge 11.4kW SE11400H-US SE11400H-US000BEU4 1-ph Inverter" [level=3] [ref=e4726]
+                - paragraph [ref=e4727]: SolarEdge
+                - generic [ref=e4728]:
+                  - generic [ref=e4729]: $2,689.01
+                  - button "Details" [ref=e4730]:
+                    - text: Details
+                    - img
+            - generic [ref=e4731]:
+              - img "SolarEdge 3.8kW Single Phase Inverter SE3800H-US000BNU4" [ref=e4733]
+              - generic [ref=e4734]:
+                - generic [ref=e4735]: INVERTER
+                - heading "SolarEdge 3.8kW Single Phase Inverter SE3800H-US000BNU4" [level=3] [ref=e4736]
+                - paragraph [ref=e4737]: SolarEdge
+                - generic [ref=e4738]:
+                  - generic [ref=e4739]: $1,353.66
+                  - button "Details" [ref=e4740]:
+                    - text: Details
+                    - img
+            - generic [ref=e4741]:
+              - img "SolarEdge 7.6kW Single Phase Home Hub Inverter SE7600H-USMNUBL75" [ref=e4743]
+              - generic [ref=e4744]:
+                - generic [ref=e4745]: INVERTER
+                - heading "SolarEdge 7.6kW Single Phase Home Hub Inverter SE7600H-USMNUBL75" [level=3] [ref=e4746]
+                - paragraph [ref=e4747]: SolarEdge
+                - generic [ref=e4748]:
+                  - generic [ref=e4749]: $2,869.49
+                  - button "Details" [ref=e4750]:
+                    - text: Details
+                    - img
+            - generic [ref=e4751]:
+              - img "SolarEdge HD Wave 5kW SE5000H-US000BNU4 Single Phase String Inverter" [ref=e4753]
+              - generic [ref=e4754]:
+                - generic [ref=e4755]: INVERTER
+                - heading "SolarEdge HD Wave 5kW SE5000H-US000BNU4 Single Phase String Inverter" [level=3] [ref=e4756]
+                - paragraph [ref=e4757]: SolarEdge
+                - generic [ref=e4758]:
+                  - generic [ref=e4759]: $1,680.72
+                  - button "Details" [ref=e4760]:
+                    - text: Details
+                    - img
+            - generic [ref=e4761]:
+              - img "SolarEdge Home Hub 7.6kW Single Phase Inverter USE7600H-USMNBE78" [ref=e4763]
+              - generic [ref=e4764]:
+                - generic [ref=e4765]: INVERTER
+                - heading "SolarEdge Home Hub 7.6kW Single Phase Inverter USE7600H-USMNBE78" [level=3] [ref=e4766]
+                - paragraph [ref=e4767]: SolarEdge
+                - generic [ref=e4768]:
+                  - generic [ref=e4769]: $2,592.45
+                  - button "Details" [ref=e4770]:
+                    - text: Details
+                    - img
+            - generic [ref=e4771]:
+              - img "SolarEdge Home Hub Inverter 3.8kW On-Grid SE-3800H-USMNUBL75" [ref=e4773]
+              - generic [ref=e4774]:
+                - generic [ref=e4775]: INVERTER
+                - heading "SolarEdge Home Hub Inverter 3.8kW On-Grid SE-3800H-USMNUBL75" [level=3] [ref=e4776]
+                - paragraph [ref=e4777]: SolarEdge
+                - generic [ref=e4778]:
+                  - generic [ref=e4779]: $2,226.66
+                  - button "Details" [ref=e4780]:
+                    - text: Details
+                    - img
+            - generic [ref=e4781]:
+              - img "SolarEdge Home Hub inverter 10kW Single Phase SE-10000H-USMNUBL75" [ref=e4783]
+              - generic [ref=e4784]:
+                - generic [ref=e4785]: INVERTER
+                - heading "SolarEdge Home Hub inverter 10kW Single Phase SE-10000H-USMNUBL75" [level=3] [ref=e4786]
+                - paragraph [ref=e4787]: SolarEdge
+                - generic [ref=e4788]:
+                  - generic [ref=e4789]: $3,440.22
+                  - button "Details" [ref=e4790]:
+                    - text: Details
+                    - img
+            - generic [ref=e4791]:
+              - img "SolarEdge P600 600W Commercial Power Optimizer" [ref=e4793]
+              - generic [ref=e4794]:
+                - generic [ref=e4795]: CHARGE CONTROLLER
+                - heading "SolarEdge P600 600W Commercial Power Optimizer" [level=3] [ref=e4796]
+                - paragraph [ref=e4797]: SolarEdge
+                - generic [ref=e4798]:
+                  - generic [ref=e4799]: $49.99
+                  - button "Details" [ref=e4800]:
+                    - text: Details
+                    - img
+            - generic [ref=e4801]:
+              - img "SolarEdge S650B 650W Power Optimizer" [ref=e4803]
+              - generic [ref=e4804]:
+                - generic [ref=e4805]: OTHER
+                - heading "SolarEdge S650B 650W Power Optimizer" [level=3] [ref=e4806]
+                - paragraph [ref=e4807]: SolarEdge
+                - generic [ref=e4808]:
+                  - generic [ref=e4809]: $125.00
+                  - button "Details" [ref=e4810]:
+                    - text: Details
+                    - img
+            - generic [ref=e4811]:
+              - img "SolarEdge SE-CELL-B-R05-S-S2 Cellular Plugin With 5 Year Data Plan For Residential SETAPP Solar Inverters" [ref=e4813]
+              - generic [ref=e4814]:
+                - generic [ref=e4815]: MONITORING
+                - heading "SolarEdge SE-CELL-B-R05-S-S2 Cellular Plugin With 5 Year Data Plan For Residential SETAPP Solar Inverters" [level=3] [ref=e4816]
+                - paragraph [ref=e4817]: SolarEdge
+                - generic [ref=e4818]:
+                  - generic [ref=e4819]: $403.93
+                  - button "Details" [ref=e4820]:
+                    - text: Details
+                    - img
+            - generic [ref=e4821]:
+              - img "SolarEdge SE-MTR240-0-000-S2 Inverters NEMA3R 1PH 240V Electricity Meter" [ref=e4823]
+              - generic [ref=e4824]:
+                - generic [ref=e4825]: MONITORING
+                - heading "SolarEdge SE-MTR240-0-000-S2 Inverters NEMA3R 1PH 240V Electricity Meter" [level=3] [ref=e4826]
+                - paragraph [ref=e4827]: SolarEdge
+                - generic [ref=e4828]:
+                  - generic [ref=e4829]: $190.00
+                  - button "Details" [ref=e4830]:
+                    - text: Details
+                    - img
+            - generic [ref=e4831]:
+              - img "SolarEdge SE11400H-US000BNU4 11.4kW 240VAC Single Phase String Inverter w/ SetApp HD-Wave Technology" [ref=e4833]
+              - generic [ref=e4834]:
+                - generic [ref=e4835]: INVERTER
+                - heading "SolarEdge SE11400H-US000BNU4 11.4kW 240VAC Single Phase String Inverter w/ SetApp HD-Wave Technology" [level=3] [ref=e4836]
+                - paragraph [ref=e4837]: SolarEdge
+                - generic [ref=e4838]:
+                  - generic [ref=e4839]: $2,689.01
+                  - button "Details" [ref=e4840]:
+                    - text: Details
+                    - img
+            - generic [ref=e4841]:
+              - img "SolarEdge USA Domestic Content Eligible Power Optimizer U650B" [ref=e4843]
+              - generic [ref=e4844]:
+                - generic [ref=e4845]: OTHER
+                - heading "SolarEdge USA Domestic Content Eligible Power Optimizer U650B" [level=3] [ref=e4846]
+                - paragraph [ref=e4847]: SolarEdge
+                - generic [ref=e4848]:
+                  - generic [ref=e4849]: $156.54
+                  - button "Details" [ref=e4850]:
+                    - text: Details
+                    - img
+            - generic [ref=e4851]:
+              - img "SolarSpace 410W All Black Mono PERC Solar Panel SS8-54HSB-410M" [ref=e4853]
+              - generic [ref=e4854]:
+                - generic [ref=e4855]: SOLAR PANEL
+                - heading "SolarSpace 410W All Black Mono PERC Solar Panel SS8-54HSB-410M" [level=3] [ref=e4856]
+                - paragraph [ref=e4857]: SolarSpace
+                - generic [ref=e4858]:
+                  - generic [ref=e4859]: $143.99
+                  - button "Details" [ref=e4860]:
+                    - text: Details
+                    - img
+            - generic [ref=e4861]:
+              - img "SolarSpace 540W (Pallet of 36) Bifacial Dual Glass Solar Panel SS8-72HD-540M" [ref=e4863]
+              - generic [ref=e4864]:
+                - generic [ref=e4865]: SOLAR PANEL
+                - heading "SolarSpace 540W (Pallet of 36) Bifacial Dual Glass Solar Panel SS8-72HD-540M" [level=3] [ref=e4866]
+                - paragraph [ref=e4867]: SolarSpace
+                - generic [ref=e4868]:
+                  - generic [ref=e4869]: $6,929.64
+                  - button "Details" [ref=e4870]:
+                    - text: Details
+                    - img
+            - generic [ref=e4871]:
+              - img "SolarSpace 550W (Pallet of 31) Bifacial Solar Panel SS8-72HD-550-M" [ref=e4873]
+              - generic [ref=e4874]:
+                - generic [ref=e4875]: SOLAR PANEL
+                - heading "SolarSpace 550W (Pallet of 31) Bifacial Solar Panel SS8-72HD-550-M" [level=3] [ref=e4876]
+                - paragraph [ref=e4877]: SolarSpace
+                - generic [ref=e4878]:
+                  - generic [ref=e4879]: $6,199.69
+                  - button "Details" [ref=e4880]:
+                    - text: Details
+                    - img
+            - generic [ref=e4881]:
+              - img "SolarSpace 580W N-Type Bifacial Solar Panel SS8-72HD-580" [ref=e4883]
+              - generic [ref=e4884]:
+                - generic [ref=e4885]: SOLAR PANEL
+                - heading "SolarSpace 580W N-Type Bifacial Solar Panel SS8-72HD-580" [level=3] [ref=e4886]
+                - paragraph [ref=e4887]: SolarSpace
+                - generic [ref=e4888]:
+                  - generic [ref=e4889]: $264.99
+                  - button "Details" [ref=e4890]:
+                    - text: Details
+                    - img
+            - generic [ref=e4891]:
+              - img "Solaredge Energy Hub Hd-wave ENET-HBNP-01 Communications Gateway" [ref=e4893]
+              - generic [ref=e4894]:
+                - generic [ref=e4895]: MONITORING
+                - heading "Solaredge Energy Hub Hd-wave ENET-HBNP-01 Communications Gateway" [level=3] [ref=e4896]
+                - paragraph [ref=e4897]: SolarEdge
+                - generic [ref=e4898]:
+                  - generic [ref=e4899]: $319.24
+                  - button "Details" [ref=e4900]:
+                    - text: Details
+                    - img
+            - generic [ref=e4901]:
+              - img "Solaredge HD-WAVE SE6000H-US000BNU4 6.0KW 1-PH Grid Tied Inverter" [ref=e4903]
+              - generic [ref=e4904]:
+                - generic [ref=e4905]: INVERTER
+                - heading "Solaredge HD-WAVE SE6000H-US000BNU4 6.0KW 1-PH Grid Tied Inverter" [level=3] [ref=e4906]
+                - paragraph [ref=e4907]: SolarEdge
+                - generic [ref=e4908]:
+                  - generic [ref=e4909]: $1,753.01
+                  - button "Details" [ref=e4910]:
+                    - text: Details
+                    - img
+            - generic [ref=e4911]:
+              - img "Solaredge SE-WFRPT-B-S1-NA Wifi Repeater" [ref=e4913]
+              - generic [ref=e4914]:
+                - generic [ref=e4915]: MONITORING
+                - heading "Solaredge SE-WFRPT-B-S1-NA Wifi Repeater" [level=3] [ref=e4916]
+                - paragraph [ref=e4917]: SolarEdge
+                - generic [ref=e4918]:
+                  - generic [ref=e4919]: $126.48
+                  - button "Details" [ref=e4920]:
+                    - text: Details
+                    - img
+            - generic [ref=e4921]:
+              - img "Solarever 410W USA HC 108M 1/2 Cells BoB Monocrystalline Solar Panel" [ref=e4923]
+              - generic [ref=e4924]:
+                - generic [ref=e4925]: BATTERY
+                - heading "Solarever 410W USA HC 108M 1/2 Cells BoB Monocrystalline Solar Panel" [level=3] [ref=e4926]
+                - paragraph [ref=e4927]: Solarever
+                - generic [ref=e4928]:
+                  - generic [ref=e4929]: $156.99
+                  - button "Details" [ref=e4930]:
+                    - text: Details
+                    - img
+            - generic [ref=e4931]:
+              - img "Solis 11.4kW Hybrid Inverter with Tigo Transmitter S6-EH1P11.4K-H-US-RS" [ref=e4933]
+              - generic [ref=e4934]:
+                - generic [ref=e4935]: BATTERY
+                - heading "Solis 11.4kW Hybrid Inverter with Tigo Transmitter S6-EH1P11.4K-H-US-RS" [level=3] [ref=e4936]
+                - paragraph [ref=e4937]: Solis
+                - generic [ref=e4938]:
+                  - generic [ref=e4939]: $2,368.64
+                  - button "Details" [ref=e4940]:
+                    - text: Details
+                    - img
+            - generic [ref=e4941]:
+              - img "Solis 6kW Single Phase Inverter 1P6K-4G-US-APST-RGM" [ref=e4943]
+              - generic [ref=e4944]:
+                - generic [ref=e4945]: INVERTER
+                - heading "Solis 6kW Single Phase Inverter 1P6K-4G-US-APST-RGM" [level=3] [ref=e4946]
+                - paragraph [ref=e4947]: Solis
+                - generic [ref=e4948]:
+                  - generic [ref=e4949]: $1,540.25
+                  - button "Details" [ref=e4950]:
+                    - text: Details
+                    - img
+            - generic [ref=e4951]:
+              - img "Solis 7.6 kW Solis-1P7.6K-4G-US-APST US Plus Single Phase String Inverter" [ref=e4953]
+              - generic [ref=e4954]:
+                - generic [ref=e4955]: MOUNTING
+                - heading "Solis 7.6 kW Solis-1P7.6K-4G-US-APST US Plus Single Phase String Inverter" [level=3] [ref=e4956]
+                - paragraph [ref=e4957]: Ginlong Solis
+                - generic [ref=e4958]:
+                  - generic [ref=e4959]: $2,106.73
+                  - button "Details" [ref=e4960]:
+                    - text: Details
+                    - img
+            - generic [ref=e4961]:
+              - img "Sonnen WHSSCK1 Self-consumption Kit" [ref=e4963]
+              - generic [ref=e4964]:
+                - generic [ref=e4965]: ACCESSORIES
+                - heading "Sonnen WHSSCK1 Self-consumption Kit" [level=3] [ref=e4966]
+                - paragraph [ref=e4967]: Sonnen
+                - generic [ref=e4968]:
+                  - generic [ref=e4969]: $389.00
+                  - button "Details" [ref=e4970]:
+                    - text: Details
+                    - img
+            - generic [ref=e4971]:
+              - img "SunGold 11.4KW Split Phase Hybrid Inverter" [ref=e4973]
+              - generic [ref=e4974]:
+                - generic [ref=e4975]: INVERTER
+                - heading "SunGold 11.4KW Split Phase Hybrid Inverter" [level=3] [ref=e4976]
+                - paragraph [ref=e4977]: SunGold
+                - generic [ref=e4978]:
+                  - generic [ref=e4979]: $2,950.00
+                  - button "Details" [ref=e4980]:
+                    - text: Details
+                    - img
+            - generic [ref=e4981]:
+              - img "SunGold 48V 100AH Server Rack LiFePO4 Lithium Battery SG48100P UL1973 UL9540A" [ref=e4983]
+              - generic [ref=e4984]:
+                - generic [ref=e4985]: BATTERY
+                - heading "SunGold 48V 100AH Server Rack LiFePO4 Lithium Battery SG48100P UL1973 UL9540A" [level=3] [ref=e4986]
+                - paragraph [ref=e4987]: SunGold
+                - generic [ref=e4988]:
+                  - generic [ref=e4989]: $1,150.00
+                  - button "Details" [ref=e4990]:
+                    - text: Details
+                    - img
+            - generic [ref=e4991]:
+              - img "SunGold 6.5KW 48V Split Phase Solar Inverter" [ref=e4993]
+              - generic [ref=e4994]:
+                - generic [ref=e4995]: INVERTER
+                - heading "SunGold 6.5KW 48V Split Phase Solar Inverter" [level=3] [ref=e4996]
+                - paragraph [ref=e4997]: SunGold
+                - generic [ref=e4998]:
+                  - generic [ref=e4999]: $1,250.00
+                  - button "Details" [ref=e5000]:
+                    - text: Details
+                    - img
+            - generic [ref=e5001]:
+              - img "SunGold Battery Server Rack" [ref=e5003]
+              - generic [ref=e5004]:
+                - generic [ref=e5005]: BATTERY
+                - heading "SunGold Battery Server Rack" [level=3] [ref=e5006]
+                - paragraph [ref=e5007]: SunGold
+                - generic [ref=e5008]:
+                  - generic [ref=e5009]: $215.00
+                  - button "Details" [ref=e5010]:
+                    - text: Details
+                    - img
+            - generic [ref=e5011]:
+              - img "SunGold Off-Grid Solar Kit | 6500W/8000W 48VDC 120V/240V | LiFePO4 10.24KWH/20.48KWH Lithium Battery | 3320W Solar PV" [ref=e5013]
+              - generic [ref=e5014]:
+                - generic [ref=e5015]: BATTERY
+                - heading "SunGold Off-Grid Solar Kit | 6500W/8000W 48VDC 120V/240V | LiFePO4 10.24KWH/20.48KWH Lithium Battery | 3320W Solar PV" [level=3] [ref=e5016]
+                - paragraph [ref=e5017]: SunGold
+                - generic [ref=e5018]:
+                  - generic [ref=e5019]: $5,802.00
+                  - button "Details" [ref=e5020]:
+                    - text: Details
+                    - img
+            - generic [ref=e5021]:
+              - img "SunGold Power 10KW 48V Split Phase Solar Inverter" [ref=e5023]
+              - generic [ref=e5024]:
+                - generic [ref=e5025]: INVERTER
+                - heading "SunGold Power 10KW 48V Split Phase Solar Inverter" [level=3] [ref=e5026]
+                - paragraph [ref=e5027]: SunGold
+                - generic [ref=e5028]:
+                  - generic [ref=e5029]: $1,690.00
+                  - button "Details" [ref=e5030]:
+                    - text: Details
+                    - img
+            - generic [ref=e5031]:
+              - img "SunGold Power 8KW 48V Split Phase Solar Inverter" [ref=e5033]
+              - generic [ref=e5034]:
+                - generic [ref=e5035]: BATTERY
+                - heading "SunGold Power 8KW 48V Split Phase Solar Inverter" [level=3] [ref=e5036]
+                - paragraph [ref=e5037]: SunGold
+                - generic [ref=e5038]:
+                  - generic [ref=e5039]: $1,550.00
+                  - button "Details" [ref=e5040]:
+                    - text: Details
+                    - img
+            - generic [ref=e5041]:
+              - img "SunGold Powerwall X LITHIUM BATTERY 51.2V 200AH SG48200T" [ref=e5043]
+              - generic [ref=e5044]:
+                - generic [ref=e5045]: BATTERY
+                - heading "SunGold Powerwall X LITHIUM BATTERY 51.2V 200AH SG48200T" [level=3] [ref=e5046]
+                - paragraph [ref=e5047]: SunGold
+                - generic [ref=e5048]:
+                  - generic [ref=e5049]: $2,250.00
+                  - button "Details" [ref=e5050]:
+                    - text: Details
+                    - img
+            - generic [ref=e5051]:
+              - img "Sunmodo MRB | Metal Roof Mounting Attachment (Rail-Less System)" [ref=e5053]
+              - generic [ref=e5054]:
+                - generic [ref=e5055]: MOUNTING
+                - heading "Sunmodo MRB | Metal Roof Mounting Attachment (Rail-Less System)" [level=3] [ref=e5056]
+                - paragraph [ref=e5057]: Sunmodo
+                - generic [ref=e5058]:
+                  - generic [ref=e5059]: $14.49
+                  - button "Details" [ref=e5060]:
+                    - text: Details
+                    - img
+            - generic [ref=e5061]:
+              - img "Sunmodo Silver Mid Clamp CLMP-CON-100-S" [ref=e5063]
+              - generic [ref=e5064]:
+                - generic [ref=e5065]: SOLAR PANEL
+                - heading "Sunmodo Silver Mid Clamp CLMP-CON-100-S" [level=3] [ref=e5066]
+                - paragraph [ref=e5067]: SunModo
+                - generic [ref=e5068]:
+                  - generic [ref=e5069]: $4.01
+                  - button "Details" [ref=e5070]:
+                    - text: Details
+                    - img
+            - generic [ref=e5071]:
+              - img "TROJAN 31-AGM 100AH 12V AGM BATTERY" [ref=e5073]
+              - generic [ref=e5074]:
+                - generic [ref=e5075]: BATTERY
+                - heading "TROJAN 31-AGM 100AH 12V AGM BATTERY" [level=3] [ref=e5076]
+                - paragraph [ref=e5077]: TROJAN Battery
+                - generic [ref=e5078]:
+                  - generic [ref=e5079]: $415.00
+                  - button "Details" [ref=e5080]:
+                    - text: Details
+                    - img
+            - generic [ref=e5081]:
+              - img "Talesun 415W (Pallet of 36) Bifacial Dual Glass Half-Cut Solar Panel TD7G54M-415" [ref=e5083]
+              - generic [ref=e5084]:
+                - generic [ref=e5085]: SOLAR PANEL
+                - heading "Talesun 415W (Pallet of 36) Bifacial Dual Glass Half-Cut Solar Panel TD7G54M-415" [level=3] [ref=e5086]
+                - paragraph [ref=e5087]: Talesun
+                - generic [ref=e5088]:
+                  - generic [ref=e5089]: $5,239.99
+                  - button "Details" [ref=e5090]:
+                    - text: Details
+                    - img
+            - generic [ref=e5091]:
+              - img "Talesun 450W BIPRO Bifacial Dual Glass TOPCon All Black Solar Panel TM7G54M" [ref=e5093]
+              - generic [ref=e5094]:
+                - generic [ref=e5095]: SOLAR PANEL
+                - heading "Talesun 450W BIPRO Bifacial Dual Glass TOPCon All Black Solar Panel TM7G54M" [level=3] [ref=e5096]
+                - paragraph [ref=e5097]: Talesun
+                - generic [ref=e5098]:
+                  - generic [ref=e5099]: $194.99
+                  - button "Details" [ref=e5100]:
+                    - text: Details
+                    - img
+            - generic [ref=e5101]:
+              - img "Talesun 550W (Pallet of 31) BIPRO 144 Cell N Type Bifacial Dual Glass Solar Panel TD7G72M-550" [ref=e5103]
+              - generic [ref=e5104]:
+                - generic [ref=e5105]: SOLAR PANEL
+                - heading "Talesun 550W (Pallet of 31) BIPRO 144 Cell N Type Bifacial Dual Glass Solar Panel TD7G72M-550" [level=3] [ref=e5106]
+                - paragraph [ref=e5107]: Talesun
+                - generic [ref=e5108]:
+                  - generic [ref=e5109]: $5,641.69
+                  - button "Details" [ref=e5110]:
+                    - text: Details
+                    - img
+            - generic [ref=e5111]:
+              - img "Talesun Solar 545W (Pallet of 31) BIPRO Mono PERC Bifacial TD7G72M-545 Solar Panel" [ref=e5113]
+              - generic [ref=e5114]:
+                - generic [ref=e5115]: SOLAR PANEL
+                - heading "Talesun Solar 545W (Pallet of 31) BIPRO Mono PERC Bifacial TD7G72M-545 Solar Panel" [level=3] [ref=e5116]
+                - paragraph [ref=e5117]: Talesun
+                - generic [ref=e5118]:
+                  - generic [ref=e5119]: $5,579.69
+                  - button "Details" [ref=e5120]:
+                    - text: Details
+                    - img
+            - generic [ref=e5121]:
+              - img "Thornova 550W (Pallet of 31) Zosma M Pro Bifacial PERC Dual Glass Solar Panel TS-BG72" [ref=e5123]
+              - generic [ref=e5124]:
+                - generic [ref=e5125]: SOLAR PANEL
+                - heading "Thornova 550W (Pallet of 31) Zosma M Pro Bifacial PERC Dual Glass Solar Panel TS-BG72" [level=3] [ref=e5126]
+                - paragraph [ref=e5127]: Thornova
+                - generic [ref=e5128]:
+                  - generic [ref=e5129]: $5,499.00
+                  - button "Details" [ref=e5130]:
+                    - text: Details
+                    - img
+            - generic [ref=e5131]:
+              - img "Thornova 590W (Pallet of 31) N-Type Bifacial Dual-Glass Solar Panel TS-BGT72" [ref=e5133]
+              - generic [ref=e5134]:
+                - generic [ref=e5135]: SOLAR PANEL
+                - heading "Thornova 590W (Pallet of 31) N-Type Bifacial Dual-Glass Solar Panel TS-BGT72" [level=3] [ref=e5136]
+                - paragraph [ref=e5137]: Thornova
+                - generic [ref=e5138]:
+                  - generic [ref=e5139]: $6,399.99
+                  - button "Details" [ref=e5140]:
+                    - text: Details
+                    - img
+            - generic [ref=e5141]:
+              - img "Thornova 600W (Pallet of 36) Tangra M Pro N‑Type Bifacial Dual‑Glass Solar Panel TS‑BGT72(600)" [ref=e5143]
+              - generic [ref=e5144]:
+                - generic [ref=e5145]: SOLAR PANEL
+                - heading "Thornova 600W (Pallet of 36) Tangra M Pro N‑Type Bifacial Dual‑Glass Solar Panel TS‑BGT72(600)" [level=3] [ref=e5146]
+                - paragraph [ref=e5147]: Thornova
+                - generic [ref=e5148]:
+                  - generic [ref=e5149]: $7,199.00
+                  - button "Details" [ref=e5150]:
+                    - text: Details
+                    - img
+            - generic [ref=e5151]:
+              - img "Thornova 620W (Pallet of 31) Tangra L Pro HD N-Type Bifacial Solar Panel TS-BGT66(620)-G11" [ref=e5153]
+              - generic [ref=e5154]:
+                - generic [ref=e5155]: SOLAR PANEL
+                - heading "Thornova 620W (Pallet of 31) Tangra L Pro HD N-Type Bifacial Solar Panel TS-BGT66(620)-G11" [level=3] [ref=e5156]
+                - paragraph [ref=e5157]: Thornova
+                - generic [ref=e5158]:
+                  - generic [ref=e5159]: $6,699.00
+                  - button "Details" [ref=e5160]:
+                    - text: Details
+                    - img
+            - generic [ref=e5161]:
+              - img "Tigo 1500V UL/TUV 1.2M Cable MC4 700W Max Power TS4-A-O" [ref=e5163]
+              - generic [ref=e5164]:
+                - generic [ref=e5165]: WIRING
+                - heading "Tigo 1500V UL/TUV 1.2M Cable MC4 700W Max Power TS4-A-O" [level=3] [ref=e5166]
+                - paragraph [ref=e5167]: Tigo Energy
+                - generic [ref=e5168]:
+                  - generic [ref=e5169]: $47.70
+                  - button "Details" [ref=e5170]:
+                    - text: Details
+                    - img
+            - generic [ref=e5171]:
+              - img "Tigo 200A MCB Auto Transfer Switch (ATS) | Backup/Grid" [ref=e5173]
+              - generic [ref=e5174]:
+                - generic [ref=e5175]: ELECTRICAL
+                - heading "Tigo 200A MCB Auto Transfer Switch (ATS) | Backup/Grid" [level=3] [ref=e5176]
+                - paragraph [ref=e5177]: Tigo
+                - generic [ref=e5178]:
+                  - generic [ref=e5179]: $1,999.00
+                  - button "Details" [ref=e5180]:
+                    - text: Details
+                    - img
+            - generic [ref=e5181]:
+              - img "Tigo EI 11.4W Hybrid Inverter — TS4 & Battery Ready | ATS-200A" [ref=e5183]
+              - generic [ref=e5184]:
+                - generic [ref=e5185]: BATTERY
+                - heading "Tigo EI 11.4W Hybrid Inverter — TS4 & Battery Ready | ATS-200A" [level=3] [ref=e5186]
+                - paragraph [ref=e5187]: Tigo
+                - generic [ref=e5188]:
+                  - generic [ref=e5189]: $2,510.00
+                  - button "Details" [ref=e5190]:
+                    - text: Details
+                    - img
+            - generic [ref=e5191]:
+              - img "Tigo EI 7.6kW Hybrid Inverter — TS4 & Battery Ready | ATS-200A" [ref=e5193]
+              - generic [ref=e5194]:
+                - generic [ref=e5195]: BATTERY
+                - heading "Tigo EI 7.6kW Hybrid Inverter — TS4 & Battery Ready | ATS-200A" [level=3] [ref=e5196]
+                - paragraph [ref=e5197]: Tigo
+                - generic [ref=e5198]:
+                  - generic [ref=e5199]: $2,099.00
+                  - button "Details" [ref=e5200]:
+                    - text: Details
+                    - img
+            - generic [ref=e5201]:
+              - img "Tigo EI 7.6kW Hybrid Inverter — TS4 & Battery Ready | ATS-200A" [ref=e5203]
+              - generic [ref=e5204]:
+                - generic [ref=e5205]: BATTERY
+                - heading "Tigo EI 7.6kW Hybrid Inverter — TS4 & Battery Ready | ATS-200A" [level=3] [ref=e5206]
+                - paragraph [ref=e5207]: Tigo
+                - generic [ref=e5208]:
+                  - generic [ref=e5209]: $2,099.00
+                  - button "Details" [ref=e5210]:
+                    - text: Details
+                    - img
+            - generic [ref=e5211]:
+              - img "Tigo Single Core 100 Amp RSS DIN Rail Transmitter Kit | Also Includes Power Supply & Outdoor Enclosure" [ref=e5213]
+              - generic [ref=e5214]:
+                - generic [ref=e5215]: MOUNTING
+                - heading "Tigo Single Core 100 Amp RSS DIN Rail Transmitter Kit | Also Includes Power Supply & Outdoor Enclosure" [level=3] [ref=e5216]
+                - paragraph [ref=e5217]: Tigo
+                - generic [ref=e5218]:
+                  - generic [ref=e5219]: $165.75
+                  - button "Details" [ref=e5220]:
+                    - text: Details
+                    - img
+            - generic [ref=e5221]:
+              - img "Tigo TS4-A-O | Optimization, Monitoring & Rapid Shutdown | 20A (Isc), 725W, 1500VUL/1000V IEC, 0.12/1.2M Cable, MC4" [ref=e5223]
+              - generic [ref=e5224]:
+                - generic [ref=e5225]: WIRING
+                - heading "Tigo TS4-A-O | Optimization, Monitoring & Rapid Shutdown | 20A (Isc), 725W, 1500VUL/1000V IEC, 0.12/1.2M Cable, MC4" [level=3] [ref=e5226]
+                - paragraph [ref=e5227]: Tigo
+                - generic [ref=e5228]:
+                  - generic [ref=e5229]: $54.29
+                  - button "Details" [ref=e5230]:
+                    - text: Details
+                    - img
+            - generic [ref=e5231]:
+              - img "Trina 410W Vertex S+ Bifacial All Black Solar Panel TSM-410-NE09RC.05" [ref=e5233]
+              - generic [ref=e5234]:
+                - generic [ref=e5235]: SOLAR PANEL
+                - heading "Trina 410W Vertex S+ Bifacial All Black Solar Panel TSM-410-NE09RC.05" [level=3] [ref=e5236]
+                - paragraph [ref=e5237]: Trina Solar
+                - generic [ref=e5238]:
+                  - generic [ref=e5239]: $155.99
+                  - button "Details" [ref=e5240]:
+                    - text: Details
+                    - img
+            - generic [ref=e5241]:
+              - img "Trina Solar Vertex S+ 405W N Type Bifacial Solar Panel TSM-NE09RC.05" [ref=e5243]
+              - generic [ref=e5244]:
+                - generic [ref=e5245]: SOLAR PANEL
+                - heading "Trina Solar Vertex S+ 405W N Type Bifacial Solar Panel TSM-NE09RC.05" [level=3] [ref=e5246]
+                - paragraph [ref=e5247]: Trina Solar
+                - generic [ref=e5248]:
+                  - generic [ref=e5249]: $131.63
+                  - button "Details" [ref=e5250]:
+                    - text: Details
+                    - img
+            - generic [ref=e5251]:
+              - img "Trina Solar Vertex S+ 435W (Pallet of 36) N-Type i TOPCon Solar Panel TSM-435NEG9R.28" [ref=e5253]
+              - generic [ref=e5254]:
+                - generic [ref=e5255]: SOLAR PANEL
+                - heading "Trina Solar Vertex S+ 435W (Pallet of 36) N-Type i TOPCon Solar Panel TSM-435NEG9R.28" [level=3] [ref=e5256]
+                - paragraph [ref=e5257]: Trina Solar
+                - generic [ref=e5258]:
+                  - generic [ref=e5259]: $5,039.64
+                  - button "Details" [ref=e5260]:
+                    - text: Details
+                    - img
+            - generic [ref=e5261]:
+              - img "UNIRAC 004600M 6\" Mill Standoff" [ref=e5263]
+              - generic [ref=e5264]:
+                - generic [ref=e5265]: SOLAR PANEL
+                - heading "UNIRAC 004600M 6\" Mill Standoff" [level=3] [ref=e5266]
+                - paragraph [ref=e5267]: Unirac
+                - generic [ref=e5268]:
+                  - generic [ref=e5269]: $19.71
+                  - button "Details" [ref=e5270]:
+                    - text: Details
+                    - img
+            - generic [ref=e5271]:
+              - img "UNIRAC 307107M 12\" Clear Adjustable Tilt Leg" [ref=e5273]
+              - generic [ref=e5274]:
+                - generic [ref=e5275]: OTHER
+                - heading "UNIRAC 307107M 12\" Clear Adjustable Tilt Leg" [level=3] [ref=e5276]
+                - paragraph [ref=e5277]: Unirac
+                - generic [ref=e5278]:
+                  - generic [ref=e5279]: $27.90
+                  - button "Details" [ref=e5280]:
+                    - text: Details
+                    - img
+            - generic [ref=e5281]:
+              - img "UNIRAC GFT 404001 150\" (13') Ground Fixed Tilt C-PILE" [ref=e5283]
+              - generic [ref=e5284]:
+                - generic [ref=e5285]: MOUNTING
+                - heading "UNIRAC GFT 404001 150\" (13') Ground Fixed Tilt C-PILE" [level=3] [ref=e5286]
+                - paragraph [ref=e5287]: Unirac
+                - generic [ref=e5288]:
+                  - generic [ref=e5289]: $263.79
+                  - button "Details" [ref=e5290]:
+                    - text: Details
+                    - img
+            - generic [ref=e5291]:
+              - img "UNIRAC NXT HORIZON 168RLD1 168\" (14') DARK RAIL" [ref=e5293]
+              - generic [ref=e5294]:
+                - generic [ref=e5295]: SOLAR PANEL
+                - heading "UNIRAC NXT HORIZON 168RLD1 168\" (14') DARK RAIL" [level=3] [ref=e5296]
+                - paragraph [ref=e5297]: Unirac
+                - generic [ref=e5298]:
+                  - generic [ref=e5299]: $36.15
+                  - button "Details" [ref=e5300]:
+                    - text: Details
+                    - img
+            - generic [ref=e5301]:
+              - img "UNIRAC NXT HORIZON 168RLM1 168\" (14') MILL RAIL" [ref=e5303]
+              - generic [ref=e5304]:
+                - generic [ref=e5305]: SOLAR PANEL
+                - heading "UNIRAC NXT HORIZON 168RLM1 168\" (14') MILL RAIL" [level=3] [ref=e5306]
+                - paragraph [ref=e5307]: Unirac
+                - generic [ref=e5308]:
+                  - generic [ref=e5309]: $30.61
+                  - button "Details" [ref=e5310]:
+                    - text: Details
+                    - img
+            - generic [ref=e5311]:
+              - img "UNIRAC ROOFMOUNT 310800 BALLAST BAY" [ref=e5313]
+              - generic [ref=e5314]:
+                - generic [ref=e5315]: MOUNTING
+                - heading "UNIRAC ROOFMOUNT 310800 BALLAST BAY" [level=3] [ref=e5316]
+                - paragraph [ref=e5317]: Unirac
+                - generic [ref=e5318]:
+                  - generic [ref=e5319]: $55.28
+                  - button "Details" [ref=e5320]:
+                    - text: Details
+                    - img
+            - generic [ref=e5321]:
+              - img "UNIRAC SOLARMOUNT 310246C 246\" (21') CLEAR RAIL" [ref=e5323]
+              - generic [ref=e5324]:
+                - generic [ref=e5325]: SOLAR PANEL
+                - heading "UNIRAC SOLARMOUNT 310246C 246\" (21') CLEAR RAIL" [level=3] [ref=e5326]
+                - paragraph [ref=e5327]: Unirac
+                - generic [ref=e5328]:
+                  - generic [ref=e5329]: $85.00
+                  - button "Details" [ref=e5330]:
+                    - text: Details
+                    - img
+            - generic [ref=e5331]:
+              - img "UNIRAC SolarMount Light Rail 315168M 168 inch (14') w/ Mill Finish" [ref=e5333]
+              - generic [ref=e5334]:
+                - generic [ref=e5335]: SOLAR PANEL
+                - heading "UNIRAC SolarMount Light Rail 315168M 168 inch (14') w/ Mill Finish" [level=3] [ref=e5336]
+                - paragraph [ref=e5337]: Unirac
+                - generic [ref=e5338]:
+                  - generic [ref=e5339]: $41.98
+                  - button "Details" [ref=e5340]:
+                    - text: Details
+                    - img
+            - generic [ref=e5341]:
+              - img "US Solar Supplier" [ref=e5343]
+              - generic [ref=e5344]:
+                - generic [ref=e5345]: SOLAR PANEL
+                - heading "US Solar Supplier" [level=3] [ref=e5346]
+                - paragraph [ref=e5347]: K2 Systems
+                - generic [ref=e5348]:
+                  - generic [ref=e5349]: $22.79
+                  - button "Details" [ref=e5350]:
+                    - text: Details
+                    - img
+            - generic [ref=e5351]:
+              - img "US Solar Supplier" [ref=e5353]
+              - generic [ref=e5354]:
+                - generic [ref=e5355]: SOLAR PANEL
+                - heading "US Solar Supplier" [level=3] [ref=e5356]
+                - paragraph [ref=e5357]: IronRidge
+                - generic [ref=e5358]:
+                  - generic [ref=e5359]: $92.99
+                  - button "Details" [ref=e5360]:
+                    - text: Details
+                    - img
+            - generic [ref=e5361]:
+              - img "US Solar Supplier" [ref=e5363]
+              - generic [ref=e5364]:
+                - generic [ref=e5365]: OTHER
+                - heading "US Solar Supplier" [level=3] [ref=e5366]
+                - paragraph [ref=e5367]: Panasonic
+                - generic [ref=e5368]:
+                  - generic [ref=e5369]: $159.99
+                  - button "Details" [ref=e5370]:
+                    - text: Details
+                    - img
+            - generic [ref=e5371]:
+              - img "US Solar Supplier" [ref=e5373]
+              - generic [ref=e5374]:
+                - generic [ref=e5375]: INVERTER
+                - heading "US Solar Supplier" [level=3] [ref=e5376]
+                - generic [ref=e5377]:
+                  - generic [ref=e5378]: $3,150.99
+                  - button "Details" [ref=e5379]:
+                    - text: Details
+                    - img
+            - generic [ref=e5380]:
+              - img "US Solar Supplier" [ref=e5382]
+              - generic [ref=e5383]:
+                - generic [ref=e5384]: INVERTER
+                - heading "US Solar Supplier" [level=3] [ref=e5385]
+                - generic [ref=e5386]:
+                  - generic [ref=e5387]: $3,693.98
+                  - button "Details" [ref=e5388]:
+                    - text: Details
+                    - img
+            - generic [ref=e5389]:
+              - img "US Solar Supplier" [ref=e5391]
+              - generic [ref=e5392]:
+                - generic [ref=e5393]: INVERTER
+                - heading "US Solar Supplier" [level=3] [ref=e5394]
+                - generic [ref=e5395]:
+                  - generic [ref=e5396]: $3,299.50
+                  - button "Details" [ref=e5397]:
+                    - text: Details
+                    - img
+            - generic [ref=e5398]:
+              - img "US Solar Supplier" [ref=e5400]
+              - generic [ref=e5401]:
+                - generic [ref=e5402]: INVERTER
+                - heading "US Solar Supplier" [level=3] [ref=e5403]
+                - generic [ref=e5404]:
+                  - generic [ref=e5405]: $3,294.39
+                  - button "Details" [ref=e5406]:
+                    - text: Details
+                    - img
+            - generic [ref=e5407]:
+              - img "US Solar Supplier" [ref=e5409]
+              - generic [ref=e5410]:
+                - generic [ref=e5411]: INVERTER
+                - heading "US Solar Supplier" [level=3] [ref=e5412]
+                - generic [ref=e5413]:
+                  - generic [ref=e5414]: $3,569.99
+                  - button "Details" [ref=e5415]:
+                    - text: Details
+                    - img
+            - generic [ref=e5416]:
+              - img "US Solar Supplier" [ref=e5418]
+              - generic [ref=e5419]:
+                - generic [ref=e5420]: CHARGE CONTROLLER
+                - heading "US Solar Supplier" [level=3] [ref=e5421]
+                - generic [ref=e5422]:
+                  - generic [ref=e5423]: $35.70
+                  - button "Details" [ref=e5424]:
+                    - text: Details
+                    - img
+            - generic [ref=e5425]:
+              - img "US Solar Supplier" [ref=e5427]
+              - generic [ref=e5428]:
+                - generic [ref=e5429]: WIRING
+                - heading "US Solar Supplier" [level=3] [ref=e5430]
+                - generic [ref=e5431]:
+                  - generic [ref=e5432]: $30.36
+                  - button "Details" [ref=e5433]:
+                    - text: Details
+                    - img
+            - generic [ref=e5434]:
+              - img "US Solar Supplier" [ref=e5436]
+              - generic [ref=e5437]:
+                - generic [ref=e5438]: SOLAR PANEL
+                - heading "US Solar Supplier" [level=3] [ref=e5439]
+                - paragraph [ref=e5440]: Qcells
+                - generic [ref=e5441]:
+                  - generic [ref=e5442]: $6,299.99
+                  - button "Details" [ref=e5443]:
+                    - text: Details
+                    - img
+            - generic [ref=e5444]:
+              - img "US Solar Supplier" [ref=e5446]
+              - generic [ref=e5447]:
+                - generic [ref=e5448]: BATTERY
+                - heading "US Solar Supplier" [level=3] [ref=e5449]
+                - generic [ref=e5450]:
+                  - generic [ref=e5451]: $2,949.00
+                  - button "Details" [ref=e5452]:
+                    - text: Details
+                    - img
+            - generic [ref=e5453]:
+              - img "US Solar Supplier" [ref=e5455]
+              - generic [ref=e5456]:
+                - generic [ref=e5457]: WIRING
+                - heading "US Solar Supplier" [level=3] [ref=e5458]
+                - generic [ref=e5459]:
+                  - generic [ref=e5460]: $30.36
+                  - button "Details" [ref=e5461]:
+                    - text: Details
+                    - img
+            - generic [ref=e5462]:
+              - img "Unirac 004400D 4\" Dark Standoff" [ref=e5464]
+              - generic [ref=e5465]:
+                - generic [ref=e5466]: MOUNTING
+                - heading "Unirac 004400D 4\" Dark Standoff" [level=3] [ref=e5467]
+                - paragraph [ref=e5468]: Unirac
+                - generic [ref=e5469]:
+                  - generic [ref=e5470]: $14.96
+                  - button "Details" [ref=e5471]:
+                    - text: Details
+                    - img
+            - generic [ref=e5472]:
+              - img "Unirac 307120M 44' Clear Adjustable Tilt Leg" [ref=e5474]
+              - generic [ref=e5475]:
+                - generic [ref=e5476]: SOLAR PANEL
+                - heading "Unirac 307120M 44' Clear Adjustable Tilt Leg" [level=3] [ref=e5477]
+                - paragraph [ref=e5478]: Unirac
+                - generic [ref=e5479]:
+                  - generic [ref=e5480]: $60.05
+                  - button "Details" [ref=e5481]:
+                    - text: Details
+                    - img
+            - generic [ref=e5482]:
+              - img "Unirac 404015 Wire Management Clip" [ref=e5484]
+              - generic [ref=e5485]:
+                - generic [ref=e5486]: SOLAR PANEL
+                - heading "Unirac 404015 Wire Management Clip" [level=3] [ref=e5487]
+                - paragraph [ref=e5488]: Unirac
+                - generic [ref=e5489]:
+                  - generic [ref=e5490]: $4.91
+                  - button "Details" [ref=e5491]:
+                    - text: Details
+                    - img
+            - generic [ref=e5492]:
+              - img "Unirac Ecolibrium ECOFOOT5D ES10480 Mid-support Kit" [ref=e5494]
+              - generic [ref=e5495]:
+                - generic [ref=e5496]: SOLAR PANEL
+                - heading "Unirac Ecolibrium ECOFOOT5D ES10480 Mid-support Kit" [level=3] [ref=e5497]
+                - paragraph [ref=e5498]: Unirac
+                - generic [ref=e5499]:
+                  - generic [ref=e5500]: $6.21
+                  - button "Details" [ref=e5501]:
+                    - text: Details
+                    - img
+            - generic [ref=e5502]:
+              - img "Unirac GFT 411246M 246\" (21') Mill Ground Tilt Rail" [ref=e5504]
+              - generic [ref=e5505]:
+                - generic [ref=e5506]: SOLAR PANEL
+                - heading "Unirac GFT 411246M 246\" (21') Mill Ground Tilt Rail" [level=3] [ref=e5507]
+                - paragraph [ref=e5508]: Unirac
+                - generic [ref=e5509]:
+                  - generic [ref=e5510]: $96.84
+                  - button "Details" [ref=e5511]:
+                    - text: Details
+                    - img
+            - generic [ref=e5512]:
+              - img "Unirac Nxt Horizon CCLAMPD1 Dark Mid/end Combo Clamp, 30-40mm" [ref=e5514]
+              - generic [ref=e5515]:
+                - generic [ref=e5516]: MOUNTING
+                - heading "Unirac Nxt Horizon CCLAMPD1 Dark Mid/end Combo Clamp, 30-40mm" [level=3] [ref=e5517]
+                - paragraph [ref=e5518]: Unirac
+                - generic [ref=e5519]:
+                  - generic [ref=e5520]: $7.52
+                  - button "Details" [ref=e5521]:
+                    - text: Details
+                    - img
+            - generic [ref=e5522]:
+              - img "Unirac Nxt Horizon SHCPKTM1 Slotted L-foot" [ref=e5524]
+              - generic [ref=e5525]:
+                - generic [ref=e5526]: SOLAR PANEL
+                - heading "Unirac Nxt Horizon SHCPKTM1 Slotted L-foot" [level=3] [ref=e5527]
+                - paragraph [ref=e5528]: Unirac
+                - generic [ref=e5529]:
+                  - generic [ref=e5530]: $4.96
+                  - button "Details" [ref=e5531]:
+                    - text: Details
+                    - img
+            - generic [ref=e5532]:
+              - img "Unirac Roofmount 310820 End Clamp, 30-40MM" [ref=e5534]
+              - generic [ref=e5535]:
+                - generic [ref=e5536]: SOLAR PANEL
+                - heading "Unirac Roofmount 310820 End Clamp, 30-40MM" [level=3] [ref=e5537]
+                - paragraph [ref=e5538]: Unirac
+                - generic [ref=e5539]:
+                  - generic [ref=e5540]: $5.51
+                  - button "Details" [ref=e5541]:
+                    - text: Details
+                    - img
+            - generic [ref=e5542]:
+              - img "Unirac Solarmount 302030M Mill Mid Clamp, 30-51mm" [ref=e5544]
+              - generic [ref=e5545]:
+                - generic [ref=e5546]: SOLAR PANEL
+                - heading "Unirac Solarmount 302030M Mill Mid Clamp, 30-51mm" [level=3] [ref=e5547]
+                - paragraph [ref=e5548]: Unirac
+                - generic [ref=e5549]:
+                  - generic [ref=e5550]: $4.91
+                  - button "Details" [ref=e5551]:
+                    - text: Details
+                    - img
+            - generic [ref=e5552]:
+              - img "Ureco 430W N Type 108 Cell Bifacial Solar Panel FBF430BFG-BB" [ref=e5554]
+              - generic [ref=e5555]:
+                - generic [ref=e5556]: SOLAR PANEL
+                - heading "Ureco 430W N Type 108 Cell Bifacial Solar Panel FBF430BFG-BB" [level=3] [ref=e5557]
+                - paragraph [ref=e5558]: URECO
+                - generic [ref=e5559]:
+                  - generic [ref=e5560]: $171.99
+                  - button "Details" [ref=e5561]:
+                    - text: Details
+                    - img
+            - generic [ref=e5562]:
+              - img "VSUN 450W (Pallet of 36) Bifacial TOPCon All Black Solar Panel VSUN450N-108BMHS-DG-BT" [ref=e5564]
+              - generic [ref=e5565]:
+                - generic [ref=e5566]: SOLAR PANEL
+                - heading "VSUN 450W (Pallet of 36) Bifacial TOPCon All Black Solar Panel VSUN450N-108BMHS-DG-BT" [level=3] [ref=e5567]
+                - paragraph [ref=e5568]: VSUN
+                - generic [ref=e5569]:
+                  - generic [ref=e5570]: $5,399.00
+                  - button "Details" [ref=e5571]:
+                    - text: Details
+                    - img
+            - generic [ref=e5572]:
+              - img "VSUN 450W and Fortress Power and Bundle - Envy 12kW - eForce 9.6 kWh - eWay - Guardian Gateway (Extended Warranty)" [ref=e5574]
+              - generic [ref=e5575]:
+                - generic [ref=e5576]: BATTERY
+                - heading "VSUN 450W and Fortress Power and Bundle - Envy 12kW - eForce 9.6 kWh - eWay - Guardian Gateway (Extended Warranty)" [level=3] [ref=e5577]
+                - paragraph [ref=e5578]: Fortress Power
+                - generic [ref=e5579]:
+                  - generic [ref=e5580]: $14,370.00
+                  - button "Details" [ref=e5581]:
+                    - text: Details
+                    - img
+            - generic [ref=e5582]:
+              - img "VSUN 545W (Pallet of 30) Bifacial Dual‑Glass Half‑Cut Solar Panel VSUN545‑144BMH‑DG" [ref=e5584]
+              - generic [ref=e5585]:
+                - generic [ref=e5586]: SOLAR PANEL
+                - heading "VSUN 545W (Pallet of 30) Bifacial Dual‑Glass Half‑Cut Solar Panel VSUN545‑144BMH‑DG" [level=3] [ref=e5587]
+                - paragraph [ref=e5588]: VSUN
+                - generic [ref=e5589]:
+                  - generic [ref=e5590]: $5,999.00
+                  - button "Details" [ref=e5591]:
+                    - text: Details
+                    - img
+            - generic [ref=e5592]:
+              - img "Wiley Cable Clip, ACC-F90-1 Bag of 100" [ref=e5594]
+              - generic [ref=e5595]:
+                - generic [ref=e5596]: MOUNTING
+                - heading "Wiley Cable Clip, ACC-F90-1 Bag of 100" [level=3] [ref=e5597]
+                - paragraph [ref=e5598]: S-5!
+                - generic [ref=e5599]:
+                  - generic [ref=e5600]: $63.90
+                  - button "Details" [ref=e5601]:
+                    - text: Details
+                    - img
+            - generic [ref=e5602]:
+              - img "Wire Ratchet and Crimp Tool | MC4-Style" [ref=e5604]
+              - generic [ref=e5605]:
+                - generic [ref=e5606]: WIRING
+                - heading "Wire Ratchet and Crimp Tool | MC4-Style" [level=3] [ref=e5607]
+                - paragraph [ref=e5608]: Portable Sun LLC
+                - generic [ref=e5609]:
+                  - generic [ref=e5610]: $21.99
+                  - button "Details" [ref=e5611]:
+                    - text: Details
+                    - img
+            - generic [ref=e5612]:
+              - img "ZNShine 410W ZXM7-SH108-410 10BB HALF-CELL Black Mono PERC Solar Panel" [ref=e5614]
+              - generic [ref=e5615]:
+                - generic [ref=e5616]: SOLAR PANEL
+                - heading "ZNShine 410W ZXM7-SH108-410 10BB HALF-CELL Black Mono PERC Solar Panel" [level=3] [ref=e5617]
+                - paragraph [ref=e5618]: ZNShine
+                - generic [ref=e5619]:
+                  - generic [ref=e5620]: $158.50
+                  - button "Details" [ref=e5621]:
+                    - text: Details
+                    - img
+            - generic [ref=e5622]:
+              - img "ZNShine Solar 365W ZXM6-NH120-365-M BoW Mono Solar Panel" [ref=e5624]
+              - generic [ref=e5625]:
+                - generic [ref=e5626]: SOLAR PANEL
+                - heading "ZNShine Solar 365W ZXM6-NH120-365-M BoW Mono Solar Panel" [level=3] [ref=e5627]
+                - paragraph [ref=e5628]: ZNShine
+                - generic [ref=e5629]:
+                  - generic [ref=e5630]: $99.00
+                  - button "Details" [ref=e5631]:
+                    - text: Details
+                    - img
+            - generic [ref=e5632]:
+              - img "ZNShine Solar 550W 144 Cell Bifacial Solar PanelZXM7-SHDB144-550/M-SC" [ref=e5634]
+              - generic [ref=e5635]:
+                - generic [ref=e5636]: OTHER
+                - heading "ZNShine Solar 550W 144 Cell Bifacial Solar PanelZXM7-SHDB144-550/M-SC" [level=3] [ref=e5637]
+                - paragraph [ref=e5638]: ZNShine
+                - generic [ref=e5639]:
+                  - generic [ref=e5640]: $199.99
+                  - button "Details" [ref=e5641]:
+                    - text: Details
+                    - img
+            - generic [ref=e5642]:
+              - img "ZNshine 370W ZXM6-NH120-370/M Monocrystalline Solar Panel" [ref=e5644]
+              - generic [ref=e5645]:
+                - generic [ref=e5646]: SOLAR PANEL
+                - heading "ZNshine 370W ZXM6-NH120-370/M Monocrystalline Solar Panel" [level=3] [ref=e5647]
+                - paragraph [ref=e5648]: ZNShine
+                - generic [ref=e5649]:
+                  - generic [ref=e5650]: $119.00
+                  - button "Details" [ref=e5651]:
+                    - text: Details
+                    - img
+            - generic [ref=e5652]:
+              - img "ZNshine 400W ZXM7-SH108-400/M All Black Monocrystalline Solar Panel" [ref=e5654]
+              - generic [ref=e5655]:
+                - generic [ref=e5656]: SOLAR PANEL
+                - heading "ZNshine 400W ZXM7-SH108-400/M All Black Monocrystalline Solar Panel" [level=3] [ref=e5657]
+                - paragraph [ref=e5658]: ZNShine
+                - generic [ref=e5659]:
+                  - generic [ref=e5660]: $144.99
+                  - button "Details" [ref=e5661]:
+                    - text: Details
+                    - img
+            - generic [ref=e5662]:
+              - img "ZNshine 630W N Type TOPCon ZXM7-UH156-630 Solar Panel" [ref=e5664]
+              - generic [ref=e5665]:
+                - generic [ref=e5666]: SOLAR PANEL
+                - heading "ZNshine 630W N Type TOPCon ZXM7-UH156-630 Solar Panel" [level=3] [ref=e5667]
+                - paragraph [ref=e5668]: ZNShine
+                - generic [ref=e5669]:
+                  - generic [ref=e5670]: $213.90
+                  - button "Details" [ref=e5671]:
+                    - text: Details
+                    - img
+            - generic [ref=e5672]:
+              - img "Znshine 450W P Type Double Glass Bifacial Mono PERC Solar Panel ZXM7-SHLDD120" [ref=e5674]
+              - generic [ref=e5675]:
+                - generic [ref=e5676]: SOLAR PANEL
+                - heading "Znshine 450W P Type Double Glass Bifacial Mono PERC Solar Panel ZXM7-SHLDD120" [level=3] [ref=e5677]
+                - paragraph [ref=e5678]: ZNShine
+                - generic [ref=e5679]:
+                  - generic [ref=e5680]: $152.99
+                  - button "Details" [ref=e5681]:
+                    - text: Details
+                    - img
+  - region "Notifications alt+T"
+  - alert [ref=e5682]
+```
