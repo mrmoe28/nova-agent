@@ -3,14 +3,14 @@ import { prisma } from "@/lib/prisma";
 
 /**
  * Update a BOM item with selected equipment
- * URL: /api/bom/[id]/update-equipment
+ * URL: /api/bom/[itemId]/update-equipment
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ itemId: string }> }
 ) {
   try {
-    const { id: bomItemId } = await params;
+    const { itemId: bomItemId } = await params;
     const { equipmentId } = await request.json();
 
     if (!equipmentId) {
