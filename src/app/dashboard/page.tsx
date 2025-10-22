@@ -103,7 +103,7 @@ export default function DashboardPage() {
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-[#22D3EE]/10 to-transparent" />
-        <div className="container mx-auto px-6 py-16 relative">
+        <div className="px-8 py-16 relative">
           <div className="flex items-center gap-3 mb-4">
             <div className="p-3 bg-[#22D3EE]/20 rounded-xl">
               <Zap className="h-8 w-8 text-[#22D3EE]" />
@@ -135,7 +135,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="container mx-auto px-6 py-12">
+      <div className="px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <Card className="bg-gradient-to-br from-[#1a2332] to-[#0F1629] border-[#22D3EE]/20 p-6">
             <div className="flex items-start justify-between">
