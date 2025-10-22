@@ -20,7 +20,7 @@ interface BOMItem {
   unitPriceUsd: number;
   totalPriceUsd: number;
   notes: string | null;
-  imageUrl?: string | null;
+  imageUrl: string | null;
 }
 
 interface Equipment {
@@ -106,56 +106,49 @@ export default function BOMPage() {
     }
   };
 
-  // Equipment selection handlers - UI coming in future update
-  const handleEditEquipment = (_item: BOMItem) => {
-    // setEditingItemId(item.id);
-    // Fetch equipment for this category if not already loaded
-    // if (!availableEquipment[item.category]) {
-    //   fetchEquipmentByCategory(item.category.toUpperCase());
-    // }
-    toast.info("Equipment Selection", {
-      description: "Equipment selection UI coming soon! For now, prices are pulled from your selected distributor automatically.",
-    });
+  // Equipment selection handlers
+  const handleEditEquipment = (item: BOMItem) => {
+    setEditingItem(item);
+    setDialogOpen(true);
   };
 
-  // const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => {
-  //   try {
-  //     const response = await fetch(`/api/bom/${bomItemId}/update-equipment`, {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ equipmentId }),
-  //     });
+const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => {
+  try {
+    const response = await fetch(`/api/bom/${bomItemId}/update-equipment`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ equipmentId }),
+    });
 
-  //     const data = await response.json();
+    const data = await response.json();
 
-  //     if (data.success) {
-  //       // Update local state
-  //       setBomItems(prev =>
-  //         prev.map(item =>
-  //           item.id === bomItemId ? data.bomItem : item
-  //         )
-  //       );
+    if (data.success) {
+      // Update local state
+      setBomItems(prev =>
+        prev.map(item =>
+          item.id === bomItemId ? data.bomItem : item
+        )
+      );
 
-  //       // Recalculate total
-  //       const newTotal = bomItems
-  //         .map(item => item.id === bomItemId ? data.bomItem : item)
-  //         .reduce((sum, item) => sum + item.totalPriceUsd, 0);
-  //       setTotalCost(newTotal);
+      // Recalculate total
+      const newTotal = bomItems
+        .map(item => item.id === bomItemId ? data.bomItem : item)
+        .reduce((sum, item) => sum + item.totalPriceUsd, 0);
+      setTotalCost(newTotal);
 
-  //       setEditingItemId(null);
-  //       toast.success("Equipment Updated", {
-  //         description: "BOM item has been updated with selected equipment.",
-  //       });
-  //     } else {
-  //       throw new Error(data.error);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error updating equipment:", error);
-  //     toast.error("Error", {
-  //       description: "Failed to update equipment selection.",
-  //     });
-  //   }
-  // };
+      toast.success("Equipment Updated", {
+        description: "BOM item has been updated with selected equipment.",
+      });
+    } else {
+      throw new Error(data.error);
+    }
+  } catch (error) {
+    console.error("Error updating equipment:", error);
+    toast.error("Error", {
+      description: "Failed to update equipment selection.",
+    });
+  }
+};
 
   const handleDeleteItem = async (itemId: string) => {
     try {
@@ -345,6 +338,16 @@ export default function BOMPage() {
           </Button>
         </div>
       </Card>
+
+      {/* Equipment Selection Dialog */}
+      <EquipmentSelectionDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        bomItem={editingItem}
+        distributorId={distributorId}
+        onEquipmentSelected={handleEquipmentChange}
+      />
+
       <Toaster />
     </div>
   );
