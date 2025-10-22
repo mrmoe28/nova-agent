@@ -1,11 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import BrandHeader from "@/components/BrandHeader";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "NovaAgent ⚡ – AI Energy Planner",
@@ -26,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <body
-        className={`${inter.className} min-h-screen bg-background text-foreground antialiased`}
+        className="min-h-screen bg-background text-foreground antialiased font-sans"
       >
         <ThemeProvider
           attribute="class"
