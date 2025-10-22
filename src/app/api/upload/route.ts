@@ -52,11 +52,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Use public/uploads directory for persistent file storage
-    // Files in public/ are served as static assets by Vercel
-    const publicDir = join(process.cwd(), "public", "uploads", projectId);
+    // Use /tmp directory for Vercel serverless compatibility
+    // Note: /tmp is ephemeral and cleared after function execution
+    // Files are only available during the current request
+    const tmpDir = join("/tmp", "uploads", projectId);
     try {
-      await mkdir(publicDir, { recursive: true });
+      await mkdir(tmpDir, { recursive: true });
     } catch {
       // Directory might already exist, that's fine
     }
@@ -65,10 +66,11 @@ export async function POST(request: NextRequest) {
     const timestamp = Date.now();
     const safeFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
     const fileName = `${timestamp}_${safeFileName}`;
-    const filePath = join(publicDir, fileName);
-    
-    // Store relative path for URL access
-    const urlPath = `/uploads/${projectId}/${fileName}`;
+    const filePath = join(tmpDir, fileName);
+
+    // Store file path in database (used for immediate OCR processing)
+    // Note: File will be deleted after serverless function completes
+    const urlPath = `/tmp/uploads/${projectId}/${fileName}`;
 
     // Convert file to buffer and save
     const bytes = await file.arrayBuffer();
