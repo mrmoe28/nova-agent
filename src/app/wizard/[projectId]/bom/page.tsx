@@ -187,11 +187,7 @@ const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => 
 
   const handleItemAdded = async () => {
     // Refresh BOM items without regenerating
-    const response = await fetch("/api/bom", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ projectId, forceRegenerate: false }),
-    });
+    const response = await fetch(`/api/bom?projectId=${projectId}`);
 
     const data = await response.json();
     if (data.success) {
