@@ -206,6 +206,27 @@ export async function regenerateBom(
     where: { projectId },
   });
 
+  // Auto-select first available distributor if none provided
+  if (!distributorId) {
+    const firstDistributor = await prisma.distributor.findFirst({
+      where: {
+        isActive: true,
+        equipment: {
+          some: {
+            isActive: true,
+            inStock: true,
+          },
+        },
+      },
+      select: { id: true },
+    });
+
+    if (firstDistributor) {
+      distributorId = firstDistributor.id;
+      console.log(`Auto-selected distributor ${distributorId} for BOM generation`);
+    }
+  }
+
   // Fetch real equipment from distributor if provided
   let solarPanel = null;
   let battery = null;
