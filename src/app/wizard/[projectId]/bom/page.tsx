@@ -5,9 +5,10 @@ import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EquipmentSelectionDialog } from "@/components/EquipmentSelectionDialog";
+import { AddEquipmentDialog } from "@/components/AddEquipmentDialog";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { Loader2, Trash2, Edit } from "lucide-react";
+import { Loader2, Trash2, Edit, Plus } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
 interface BOMItem {
@@ -34,6 +35,7 @@ export default function BOMPage() {
   const [distributorId, setDistributorId] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<BOMItem | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   useEffect(() => {
     generateBOM();
@@ -183,13 +185,38 @@ const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => 
     );
   }
 
+  const handleItemAdded = async () => {
+    // Refresh BOM items without regenerating
+    const response = await fetch("/api/bom", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ projectId, forceRegenerate: false }),
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      setBomItems(data.bomItems);
+      setTotalCost(data.totalCost);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-5xl">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Bill of Materials</h1>
-        <p className="mt-2 text-muted-foreground">
-          Equipment list with pricing for your solar + battery system
-        </p>
+      <div className="mb-6 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Bill of Materials</h1>
+          <p className="mt-2 text-muted-foreground">
+            Equipment list with pricing for your solar + battery system
+          </p>
+        </div>
+        <Button
+          onClick={() => setAddDialogOpen(true)}
+          disabled={!distributorId}
+          className="flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Add Item
+        </Button>
       </div>
 
       <Card className="p-6">
@@ -315,6 +342,15 @@ const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => 
         bomItem={editingItem}
         distributorId={distributorId}
         onEquipmentSelected={handleEquipmentChange}
+      />
+
+      {/* Add Equipment Dialog */}
+      <AddEquipmentDialog
+        open={addDialogOpen}
+        onOpenChange={setAddDialogOpen}
+        projectId={projectId}
+        distributorId={distributorId}
+        onItemAdded={handleItemAdded}
       />
 
       <Toaster />

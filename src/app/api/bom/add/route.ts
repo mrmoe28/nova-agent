@@ -68,6 +68,7 @@ export async function POST(request: NextRequest) {
           unitPriceUsd: equipment.unitPrice,
           totalPriceUsd: quantity * equipment.unitPrice,
           sourceUrl: equipment.sourceUrl || "",
+          imageUrl: equipment.imageUrl || null,
           notes: `Added from ${equipment.distributor.name}`,
         },
       });
