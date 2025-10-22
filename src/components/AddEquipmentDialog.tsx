@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Search, Loader2, Package, DollarSign, Star, Check, Plus } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Search, Loader2, Package, DollarSign, Star, Check, Plus, Building2 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -26,6 +27,13 @@ interface Equipment {
   category: string;
 }
 
+interface Distributor {
+  id: string;
+  name: string;
+  website: string | null;
+  logoUrl: string | null;
+}
+
 interface AddEquipmentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -38,9 +46,12 @@ export function AddEquipmentDialog({
   open,
   onOpenChange,
   projectId,
-  distributorId,
+  distributorId: initialDistributorId,
   onItemAdded,
 }: AddEquipmentDialogProps) {
+  const [distributors, setDistributors] = useState<Distributor[]>([]);
+  const [selectedDistributorId, setSelectedDistributorId] = useState<string>(initialDistributorId || "");
+  const [loadingDistributors, setLoadingDistributors] = useState(false);
   const [loading, setLoading] = useState(false);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [selectedId, setSelectedId] = useState<string>("");
@@ -48,20 +59,58 @@ export function AddEquipmentDialog({
   const [quantity, setQuantity] = useState(1);
   const [adding, setAdding] = useState(false);
 
+  // Load distributors when dialog opens
   useEffect(() => {
-    if (open && distributorId) {
-      fetchEquipment();
+    if (open) {
+      fetchDistributors();
+      // If there's an initial distributor, set it
+      if (initialDistributorId) {
+        setSelectedDistributorId(initialDistributorId);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, distributorId]);
+  }, [open]);
+
+  // Load equipment when distributor is selected
+  useEffect(() => {
+    if (open && selectedDistributorId) {
+      fetchEquipment();
+    } else {
+      setEquipment([]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, selectedDistributorId]);
+
+  const fetchDistributors = async () => {
+    setLoadingDistributors(true);
+    try {
+      const response = await fetch("/api/distributors");
+      const data = await response.json();
+
+      if (data.success) {
+        setDistributors(data.distributors || []);
+      } else {
+        toast.error("Failed to load distributors", {
+          description: data.error,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching distributors:", error);
+      toast.error("Error", {
+        description: "Failed to fetch distributors",
+      });
+    } finally {
+      setLoadingDistributors(false);
+    }
+  };
 
   const fetchEquipment = async () => {
-    if (!distributorId) return;
+    if (!selectedDistributorId) return;
 
     setLoading(true);
     try {
       const response = await fetch(
-        `/api/equipment?distributorId=${distributorId}&inStock=true`
+        `/api/equipment?distributorId=${selectedDistributorId}&inStock=true`
       );
       const data = await response.json();
 
@@ -143,24 +192,61 @@ export function AddEquipmentDialog({
         <DialogHeader>
           <DialogTitle>Add Equipment to BOM</DialogTitle>
           <DialogDescription>
-            Search and add equipment from your distributor&apos;s catalog
+            Select a distributor and search their equipment catalog
           </DialogDescription>
         </DialogHeader>
 
-        {/* Search */}
+        {/* Distributor Selection */}
         <div className="mb-4">
-          <Label htmlFor="search">Search Equipment</Label>
-          <div className="relative mt-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="search"
-              placeholder="Search by name, manufacturer, model, or category..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9"
-            />
-          </div>
+          <Label htmlFor="distributor">Select Distributor</Label>
+          <Select
+            value={selectedDistributorId}
+            onValueChange={setSelectedDistributorId}
+            disabled={loadingDistributors}
+          >
+            <SelectTrigger className="w-full mt-1">
+              <SelectValue placeholder={loadingDistributors ? "Loading distributors..." : "Choose a distributor"}>
+                {selectedDistributorId && (
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4" />
+                    {distributors.find(d => d.id === selectedDistributorId)?.name || "Select distributor"}
+                  </div>
+                )}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {distributors.map((distributor) => (
+                <SelectItem key={distributor.id} value={distributor.id}>
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-4 w-4" />
+                    <span>{distributor.name}</span>
+                    {distributor.website && (
+                      <span className="text-xs text-muted-foreground">({distributor.website})</span>
+                    )}
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
+
+        {/* Show equipment search only after distributor is selected */}
+        {selectedDistributorId && (
+          <>
+            {/* Search */}
+            <div className="mb-4">
+              <Label htmlFor="search">Search Equipment</Label>
+              <div className="relative mt-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="search"
+                  placeholder="Search by name, manufacturer, model, or category..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+            </div>
 
         {/* Quantity Input */}
         <div className="mb-4">
@@ -321,6 +407,19 @@ export function AddEquipmentDialog({
             </Button>
           </div>
         </div>
+          </>
+        )}
+
+        {/* Show message when no distributor is selected */}
+        {!selectedDistributorId && (
+          <div className="flex items-center justify-center py-12 text-center text-muted-foreground">
+            <div>
+              <Building2 className="h-16 w-16 mx-auto mb-4 opacity-50" />
+              <p className="text-lg font-medium">Select a Distributor</p>
+              <p className="text-sm mt-2">Choose a distributor above to browse their equipment catalog</p>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
