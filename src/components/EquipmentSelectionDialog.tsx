@@ -136,7 +136,7 @@ export function EquipmentSelectionDialog({
             Select {bomItem.category.charAt(0).toUpperCase() + bomItem.category.slice(1)} Equipment
           </DialogTitle>
           <DialogDescription>
-            Choose from available equipment in your distributor's catalog
+            Choose from available equipment in your distributor&apos;s catalog
           </DialogDescription>
         </DialogHeader>
 

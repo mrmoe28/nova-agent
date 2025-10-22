@@ -23,16 +23,6 @@ interface BOMItem {
   imageUrl: string | null;
 }
 
-interface Equipment {
-  id: string;
-  name: string;
-  manufacturer: string | null;
-  modelNumber: string;
-  unitPrice: number;
-  specifications: string | null;
-  imageUrl: string | null;
-}
-
 export default function BOMPage() {
   const router = useRouter();
   const params = useParams();
@@ -44,7 +34,6 @@ export default function BOMPage() {
   const [distributorId, setDistributorId] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<BOMItem | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [availableEquipment, setAvailableEquipment] = useState<Record<string, Equipment[]>>({});
 
   useEffect(() => {
     generateBOM();
@@ -83,26 +72,6 @@ export default function BOMPage() {
       });
     } finally {
       setGenerating(false);
-    }
-  };
-
-  const fetchEquipmentByCategory = async (category: string) => {
-    if (!distributorId) return;
-
-    try {
-      const response = await fetch(
-        `/api/equipment/by-category?distributorId=${distributorId}&category=${category}`
-      );
-      const data = await response.json();
-
-      if (data.success) {
-        setAvailableEquipment(prev => ({
-          ...prev,
-          [category]: data.equipment,
-        }));
-      }
-    } catch (error) {
-      console.error(`Error fetching ${category} equipment:`, error);
     }
   };
 
