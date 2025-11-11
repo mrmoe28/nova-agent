@@ -1,0 +1,22 @@
+{
+  "utilityCompany": "Hydro Power Inc",
+  "accountNumber": "HYDRO-2025",
+  "billingPeriod": {
+    "start": "2025-03-01",
+    "end": "2025-03-31"
+  },
+  "usage": {
+    "kwh": 5000,
+    "kw": 75
+  },
+  "charges": {
+    "total": 450.00,
+    "energyCharge": 400.00,
+    "demandCharge": 50.00
+  },
+  "renewableSource": {
+    "type": "hydro",
+    "capacity": 50,
+    "capacityUnit": "kW"
+  }
+}

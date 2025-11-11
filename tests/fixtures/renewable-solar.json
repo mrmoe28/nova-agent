@@ -1,0 +1,22 @@
+{
+  "utilityCompany": "Test Solar Utility",
+  "accountNumber": "12345-67890",
+  "billingPeriod": {
+    "start": "2025-01-01",
+    "end": "2025-01-31"
+  },
+  "usage": {
+    "kwh": 1500,
+    "kw": 25
+  },
+  "charges": {
+    "total": 180.00,
+    "energyCharge": 150.00,
+    "demandCharge": 30.00
+  },
+  "renewableSource": {
+    "type": "solar",
+    "capacity": 10.5,
+    "capacityUnit": "kW"
+  }
+}

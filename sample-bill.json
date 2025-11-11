@@ -1,0 +1,23 @@
+{
+  "utilityCompany": "Georgia Power",
+  "accountNumber": "02608-44013",
+  "billingPeriod": {
+    "start": "2025-08-29",
+    "end": "2025-09-30"
+  },
+  "usage": {
+    "kwh": 850.5,
+    "kw": 12.5
+  },
+  "charges": {
+    "total": 144.00,
+    "energyCharge": 85.50,
+    "demandCharge": 35.00
+  },
+  "averageDailyUsage": 26.6,
+  "renewableSource": {
+    "type": "solar",
+    "capacity": 10,
+    "capacityUnit": "kW"
+  }
+}
