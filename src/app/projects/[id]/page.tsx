@@ -32,6 +32,23 @@ import { BillAnalysisCard } from "@/components/BillAnalysisCard";
 import { BOMItemsModal } from "@/components/BOMItemsModal";
 import { BillsModal } from "@/components/BillsModal";
 import { PanelManagementModal } from "@/components/PanelManagementModal";
+import {
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell
+} from "recharts";
 
 interface Project {
   id: string;
@@ -50,6 +67,13 @@ interface Project {
     estimatedCostUsd: number;
     batteryType?: string;
     inverterType?: string;
+  };
+  analysis?: {
+    id: string;
+    monthlyUsageKwh: number;
+    peakDemandKw: number | null;
+    averageCostPerKwh: number;
+    annualCostUsd: number;
   };
   bills?: Array<{
     id: string;
@@ -99,7 +123,7 @@ export default function ProjectDetailsPage() {
   const [showBOMModal, setShowBOMModal] = useState(false);
   const [showBillsModal, setShowBillsModal] = useState(false);
   const [showPanelModal, setShowPanelModal] = useState(false);
-  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set(['cost']));
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set(['cost', 'monthlyUsage', 'costOverTime']));
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
@@ -238,6 +262,73 @@ export default function ProjectDetailsPage() {
   const laborCost = (plan?.laborHoursEst || 0) * 150;
   const permitsFees = 2500;
   const totalProjectCost = totalBomCost + laborCost + permitsFees;
+
+  // Prepare chart data
+  const prepareMonthlyUsageData = () => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const baseUsage = project.analysis?.monthlyUsageKwh || 1200;
+    
+    // Generate monthly data with seasonal variation
+    return months.map((month, index) => {
+      // Seasonal variation: higher in summer (Jun-Aug) and winter (Dec-Feb)
+      const seasonalFactor = index >= 5 && index <= 7 ? 1.2 : // Summer
+                            index === 11 || index <= 1 ? 1.15 : // Winter
+                            0.9; // Spring/Fall
+      
+      const usage = baseUsage * seasonalFactor;
+      const cost = usage * (project.analysis?.averageCostPerKwh || 0.15);
+      
+      return {
+        month,
+        usage: Math.round(usage),
+        cost: Math.round(cost * 100) / 100,
+        production: energyMetrics ? energyMetrics.monthlyProduction * seasonalFactor * 0.8 : 0, // Solar varies with season
+      };
+    });
+  };
+
+  const prepareCostSavingsData = () => {
+    const years = [];
+    const annualCost = project.analysis?.annualCostUsd || 2160;
+    const annualProduction = energyMetrics ? energyMetrics.annualProduction : 0;
+    const monthlyUsage = project.analysis?.monthlyUsageKwh || 1200;
+    const annualUsage = monthlyUsage * 12;
+    const costPerKwh = project.analysis?.averageCostPerKwh || 0.15;
+    
+    // Calculate solar coverage percentage
+    const solarCoverage = annualProduction > 0 ? Math.min((annualProduction / annualUsage) * 100, 100) : 0;
+    const annualSavings = (annualCost * solarCoverage) / 100;
+    const systemCost = project.system?.estimatedCostUsd || 0;
+    
+    for (let year = 1; year <= 25; year++) {
+      const cumulativeSavings = annualSavings * year;
+      const netSavings = cumulativeSavings - systemCost;
+      years.push({
+        year: `Year ${year}`,
+        savings: Math.round(cumulativeSavings),
+        netSavings: Math.round(netSavings),
+        cost: systemCost,
+      });
+    }
+    
+    return years;
+  };
+
+  const prepareEnergyBreakdown = () => {
+    const monthlyUsage = project.analysis?.monthlyUsageKwh || 1200;
+    const monthlyProduction = energyMetrics ? energyMetrics.monthlyProduction : 0;
+    const gridUsage = Math.max(0, monthlyUsage - monthlyProduction);
+    const solarUsage = Math.min(monthlyUsage, monthlyProduction);
+    
+    return [
+      { name: 'Solar Production', value: Math.round(solarUsage), color: '#10b981' },
+      { name: 'Grid Purchase', value: Math.round(gridUsage), color: '#ef4444' },
+    ];
+  };
+
+  const monthlyData = prepareMonthlyUsageData();
+  const savingsData = prepareCostSavingsData();
+  const energyBreakdown = prepareEnergyBreakdown();
 
   const toggleCard = (cardId: string) => {
     setExpandedCards(prev => {
@@ -856,14 +947,243 @@ export default function ProjectDetailsPage() {
         </TabsContent>
 
         <TabsContent value="energy" className="space-y-4">
+          {/* Monthly Energy Usage Chart */}
+          <Collapsible open={expandedCards.has('monthlyUsage')} onOpenChange={() => toggleCard('monthlyUsage')}>
+            <Card className="bg-white/95 backdrop-blur-sm">
+              <CollapsibleTrigger asChild>
+                <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-blue-600" />
+                      Monthly Energy Usage & Production
+                    </CardTitle>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      {expandedCards.has('monthlyUsage') ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent>
+                  {project.analysis ? (
+                    <div className="mt-4">
+                      <ResponsiveContainer width="100%" height={350}>
+                        <BarChart data={monthlyData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                          <XAxis dataKey="month" stroke="#6b7280" />
+                          <YAxis stroke="#6b7280" label={{ value: 'kWh', angle: -90, position: 'insideLeft' }} />
+                          <Tooltip 
+                            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                            formatter={(value: number) => [`${value.toLocaleString()} kWh`, '']}
+                          />
+                          <Legend />
+                          <Bar dataKey="usage" fill="#3b82f6" name="Energy Usage" radius={[8, 8, 0, 0]} />
+                          <Bar dataKey="production" fill="#10b981" name="Solar Production" radius={[8, 8, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">
+                      No energy analysis data available.
+                    </p>
+                  )}
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
+
+          {/* Energy Cost Over Time */}
+          <Collapsible open={expandedCards.has('costOverTime')} onOpenChange={() => toggleCard('costOverTime')}>
+            <Card className="bg-white/95 backdrop-blur-sm">
+              <CollapsibleTrigger asChild>
+                <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <DollarSign className="h-5 w-5 text-green-600" />
+                      Energy Cost Over Time
+                    </CardTitle>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      {expandedCards.has('costOverTime') ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent>
+                  {project.analysis ? (
+                    <div className="mt-4">
+                      <ResponsiveContainer width="100%" height={300}>
+                        <LineChart data={monthlyData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                          <XAxis dataKey="month" stroke="#6b7280" />
+                          <YAxis stroke="#6b7280" label={{ value: 'Cost ($)', angle: -90, position: 'insideLeft' }} />
+                          <Tooltip 
+                            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                            formatter={(value: number) => [formatCurrency(value), 'Monthly Cost']}
+                          />
+                          <Legend />
+                          <Line 
+                            type="monotone" 
+                            dataKey="cost" 
+                            stroke="#ef4444" 
+                            strokeWidth={3}
+                            name="Monthly Cost"
+                            dot={{ fill: '#ef4444', r: 4 }}
+                            activeDot={{ r: 6 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">
+                      No cost data available.
+                    </p>
+                  )}
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
+
+          {/* Cost Savings Projection */}
+          {project.system && (
+            <Collapsible open={expandedCards.has('savings')} onOpenChange={() => toggleCard('savings')}>
+              <Card className="bg-white/95 backdrop-blur-sm">
+                <CollapsibleTrigger asChild>
+                  <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5 text-purple-600" />
+                        25-Year Cost Savings Projection
+                      </CardTitle>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        {expandedCards.has('savings') ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent>
+                    <div className="mt-4">
+                      <ResponsiveContainer width="100%" height={350}>
+                        <AreaChart data={savingsData}>
+                          <defs>
+                            <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
+                              <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
+                            </linearGradient>
+                            <linearGradient id="colorNetSavings" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                          <XAxis dataKey="year" stroke="#6b7280" />
+                          <YAxis stroke="#6b7280" label={{ value: 'Savings ($)', angle: -90, position: 'insideLeft' }} />
+                          <Tooltip 
+                            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                            formatter={(value: number) => [formatCurrency(value), '']}
+                          />
+                          <Legend />
+                          <Area 
+                            type="monotone" 
+                            dataKey="savings" 
+                            stroke="#10b981" 
+                            fillOpacity={1}
+                            fill="url(#colorSavings)"
+                            name="Cumulative Savings"
+                          />
+                          <Area 
+                            type="monotone" 
+                            dataKey="netSavings" 
+                            stroke="#3b82f6" 
+                            fillOpacity={1}
+                            fill="url(#colorNetSavings)"
+                            name="Net Savings (After System Cost)"
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
+          )}
+
+          {/* Energy Breakdown Pie Chart */}
+          {energyMetrics && (
+            <Collapsible open={expandedCards.has('breakdown')} onOpenChange={() => toggleCard('breakdown')}>
+              <Card className="bg-white/95 backdrop-blur-sm">
+                <CollapsibleTrigger asChild>
+                  <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="flex items-center gap-2">
+                        <Zap className="h-5 w-5 text-yellow-600" />
+                        Energy Source Breakdown
+                      </CardTitle>
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        {expandedCards.has('breakdown') ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </CardHeader>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <CardContent>
+                    <div className="mt-4">
+                      <ResponsiveContainer width="100%" height={350}>
+                        <PieChart>
+                          <Pie
+                            data={energyBreakdown}
+                            cx="50%"
+                            cy="50%"
+                            labelLine={false}
+                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                            outerRadius={100}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {energyBreakdown.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip 
+                            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                            formatter={(value: number) => [`${value.toLocaleString()} kWh`, '']}
+                          />
+                          <Legend />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
+          )}
+
+          {/* Solar Production & Load Analysis */}
           <Collapsible open={expandedCards.has('energy')} onOpenChange={() => toggleCard('energy')}>
             <Card className="bg-white/95 backdrop-blur-sm">
               <CollapsibleTrigger asChild>
                 <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5" />
-                      Energy Analysis
+                      <Settings className="h-5 w-5" />
+                      System Performance Metrics
                     </CardTitle>
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                       {expandedCards.has('energy') ? (
@@ -877,61 +1197,61 @@ export default function ProjectDetailsPage() {
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <CardContent>
-              {energyMetrics ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-4">
-                    <h4 className="font-semibold">Solar Production</h4>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span>Daily Production:</span>
-                        <span className="font-semibold">
-                          {energyMetrics.dailySolarProduction.toFixed(1)} kWh
-                        </span>
+                  {energyMetrics ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                      <div className="space-y-4">
+                        <h4 className="font-semibold text-lg">Solar Production</h4>
+                        <div className="space-y-3">
+                          <div className="flex justify-between p-3 bg-green-50 rounded-lg">
+                            <span className="text-gray-700">Daily Production:</span>
+                            <span className="font-semibold text-green-700">
+                              {energyMetrics.dailySolarProduction.toFixed(1)} kWh
+                            </span>
+                          </div>
+                          <div className="flex justify-between p-3 bg-green-50 rounded-lg">
+                            <span className="text-gray-700">Monthly Production:</span>
+                            <span className="font-semibold text-green-700">
+                              {energyMetrics.monthlyProduction.toFixed(0)} kWh
+                            </span>
+                          </div>
+                          <div className="flex justify-between p-3 bg-green-50 rounded-lg">
+                            <span className="text-gray-700">Annual Production:</span>
+                            <span className="font-semibold text-green-700">
+                              {energyMetrics.annualProduction.toFixed(0)} kWh
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span>Monthly Production:</span>
-                        <span className="font-semibold">
-                          {energyMetrics.monthlyProduction.toFixed(0)} kWh
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Annual Production:</span>
-                        <span className="font-semibold">
-                          {energyMetrics.annualProduction.toFixed(0)} kWh
-                        </span>
-                      </div>
-                    </div>
-                  </div>
 
-                  <div className="space-y-4">
-                    <h4 className="font-semibold">Load Analysis</h4>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span>Critical Load:</span>
-                        <span className="font-semibold">
-                          {energyMetrics.criticalLoadKw.toFixed(1)} kW
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Backup Duration:</span>
-                        <span className="font-semibold">
-                          {project.system?.backupDurationHrs} hours
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Battery Capacity:</span>
-                        <span className="font-semibold">
-                          {project.system?.batteryKwh} kWh
-                        </span>
+                      <div className="space-y-4">
+                        <h4 className="font-semibold text-lg">Load Analysis</h4>
+                        <div className="space-y-3">
+                          <div className="flex justify-between p-3 bg-blue-50 rounded-lg">
+                            <span className="text-gray-700">Critical Load:</span>
+                            <span className="font-semibold text-blue-700">
+                              {energyMetrics.criticalLoadKw.toFixed(1)} kW
+                            </span>
+                          </div>
+                          <div className="flex justify-between p-3 bg-blue-50 rounded-lg">
+                            <span className="text-gray-700">Backup Duration:</span>
+                            <span className="font-semibold text-blue-700">
+                              {project.system?.backupDurationHrs} hours
+                            </span>
+                          </div>
+                          <div className="flex justify-between p-3 bg-blue-50 rounded-lg">
+                            <span className="text-gray-700">Battery Capacity:</span>
+                            <span className="font-semibold text-blue-700">
+                              {project.system?.batteryKwh} kWh
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-center text-muted-foreground py-8">
-                  System sizing not completed yet.
-                </p>
-              )}
+                  ) : (
+                    <p className="text-center text-muted-foreground py-8">
+                      System sizing not completed yet.
+                    </p>
+                  )}
                 </CardContent>
               </CollapsibleContent>
             </Card>

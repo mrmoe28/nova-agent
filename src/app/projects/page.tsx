@@ -657,6 +657,138 @@ export default function ProjectsPage() {
     );
   };
 
+  const renderGridView = (project: Project) => {
+    return (
+      <Card 
+        key={project.id} 
+        className="group relative overflow-hidden border-0 bg-white shadow-sm ring-1 ring-gray-950/5 transition-all duration-300 hover:shadow-lg hover:ring-gray-950/10 cursor-pointer"
+        onClick={() => router.push(`/projects/${project.id}`)}
+      >
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <Avatar className="h-10 w-10 bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0">
+                <AvatarFallback className="text-white font-semibold text-sm">
+                  {project.clientName.split(' ').map(n => n[0]).join('').slice(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-base font-semibold text-gray-900 truncate">
+                  {project.clientName}
+                </CardTitle>
+                {project.address && (
+                  <CardDescription className="text-xs text-gray-600 truncate mt-0.5">
+                    {project.address}
+                  </CardDescription>
+                )}
+                <div className="flex items-center gap-2 mt-1.5">
+                  {getStatusBadge(project.status)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div className="flex items-center gap-2 p-2 bg-blue-50 rounded-lg">
+              <FileText className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
+              <div className="min-w-0">
+                <div className="text-sm font-semibold text-gray-900">{project._count.bills}</div>
+                <div className="text-xs text-gray-600">Bills</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 p-2 bg-orange-50 rounded-lg">
+              <Archive className="h-3.5 w-3.5 text-orange-600 flex-shrink-0" />
+              <div className="min-w-0">
+                <div className="text-sm font-semibold text-gray-900">{project._count.bomItems}</div>
+                <div className="text-xs text-gray-600">BOM</div>
+              </div>
+            </div>
+          </div>
+          {project.system && (
+            <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-100">
+              <span className="text-xs font-medium text-gray-700">Est. Cost</span>
+              <div className="text-lg font-bold text-green-700">
+                {formatCurrency(project.system.estimatedCostUsd)}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
+  const renderTableView = (project: Project) => {
+    return (
+      <div
+        key={project.id}
+        className="group grid grid-cols-12 gap-4 items-center p-4 bg-white border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer"
+        onClick={() => router.push(`/projects/${project.id}`)}
+      >
+        <div className="col-span-3 flex items-center gap-3 min-w-0">
+          <Avatar className="h-10 w-10 bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0">
+            <AvatarFallback className="text-white font-semibold text-sm">
+              {project.clientName.split(' ').map(n => n[0]).join('').slice(0, 2)}
+            </AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1">
+            <div className="font-semibold text-gray-900 truncate">{project.clientName}</div>
+            {project.address && (
+              <div className="text-xs text-gray-600 truncate">{project.address}</div>
+            )}
+          </div>
+        </div>
+        <div className="col-span-2">
+          {getStatusBadge(project.status)}
+        </div>
+        <div className="col-span-2 text-sm text-gray-700">
+          <div className="flex items-center gap-1">
+            <FileText className="h-3.5 w-3.5 text-gray-500" />
+            {project._count.bills} bills
+          </div>
+        </div>
+        <div className="col-span-2 text-sm text-gray-700">
+          <div className="flex items-center gap-1">
+            <Archive className="h-3.5 w-3.5 text-gray-500" />
+            {project._count.bomItems} items
+          </div>
+        </div>
+        <div className="col-span-2 text-sm font-semibold text-gray-900">
+          {project.system ? formatCurrency(project.system.estimatedCostUsd) : "—"}
+        </div>
+        <div className="col-span-1 flex items-center justify-end gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              router.push(`/projects/${project.id}`);
+            }}
+            className="opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <Eye className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteClick(project);
+            }}
+            disabled={deletingProject === project.id}
+            className="opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-700"
+          >
+            {deletingProject === project.id ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Trash2 className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+      </div>
+    );
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -827,10 +959,32 @@ export default function ProjectsPage() {
               </div>
             </div>
 
-            {/* Projects Grid */}
-            <div className="space-y-4">
-              {projects.map((project) => renderModernCard(project))}
-            </div>
+            {/* Projects Content - Conditional Rendering Based on View Mode */}
+            {viewMode === "table" ? (
+              <div className="bg-white rounded-xl shadow-sm ring-1 ring-gray-950/5 overflow-hidden">
+                {/* Table Header */}
+                <div className="grid grid-cols-12 gap-4 items-center p-4 bg-gray-50 border-b border-gray-200 font-semibold text-sm text-gray-700">
+                  <div className="col-span-3">Project</div>
+                  <div className="col-span-2">Status</div>
+                  <div className="col-span-2">Bills</div>
+                  <div className="col-span-2">BOM Items</div>
+                  <div className="col-span-2">Est. Cost</div>
+                  <div className="col-span-1"></div>
+                </div>
+                {/* Table Rows */}
+                <div>
+                  {projects.map((project) => renderTableView(project))}
+                </div>
+              </div>
+            ) : viewMode === "grid" ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {projects.map((project) => renderGridView(project))}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {projects.map((project) => renderModernCard(project))}
+              </div>
+            )}
           </>
         )}
 
