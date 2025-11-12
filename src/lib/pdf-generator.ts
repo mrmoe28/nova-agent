@@ -127,7 +127,7 @@ export function generateNovaAgentPDF(
         .fontSize(20)
         .font("Helvetica")
         .fillColor(brandCyan)
-        .text("⚡ SOLAR & BATTERY PROPOSAL ⚡", 70, 260, { align: "center" });
+        .text("SOLAR & BATTERY PROPOSAL", 70, 260, { align: "center" });
 
       // Client name
       doc
@@ -496,15 +496,18 @@ export function generateNovaAgentPDF(
       }
 
       // ========== EQUIPMENT PAGES ==========
-      // Find main equipment items
+      // Find main equipment items (use exact match to avoid mixing categories)
       const solarPanels = bomItems.filter((item) =>
-        item.category.toLowerCase().includes("solar"),
+        item.category.toLowerCase() === "solar" || item.category.toLowerCase() === "solar_panel",
       );
       const batteries = bomItems.filter((item) =>
-        item.category.toLowerCase().includes("battery"),
+        item.category.toLowerCase() === "battery",
       );
       const inverters = bomItems.filter((item) =>
-        item.category.toLowerCase().includes("inverter"),
+        item.category.toLowerCase() === "inverter",
+      );
+      const mountingEquipment = bomItems.filter((item) =>
+        item.category.toLowerCase() === "mounting",
       );
 
       // Solar Panels Page
@@ -797,6 +800,92 @@ export function generateNovaAgentPDF(
         }
       }
 
+      // Mounting & Racking Page
+      if (mountingEquipment.length > 0) {
+        doc.addPage();
+        const mounting = mountingEquipment[0];
+
+        // Page title at top
+        doc
+          .fillColor(brandNavy)
+          .fontSize(28)
+          .font("Helvetica-Bold")
+          .text("Mounting & Racking System", 50, 50);
+
+        // Equipment name
+        doc
+          .fillColor(brandCyan)
+          .fontSize(20)
+          .font("Helvetica-Bold")
+          .text(mounting.itemName, 50, 95, { width: 500 });
+
+        yPos = 135;
+
+        // Try to fetch and display image (centered)
+        let imageHeight = 0;
+        if (mounting.imageUrl) {
+          const imageBuffer = await fetchImageBuffer(mounting.imageUrl);
+          if (imageBuffer) {
+            try {
+              const imgWidth = 280;
+              const imgX = (doc.page.width - imgWidth) / 2; // Center image
+              doc.image(imageBuffer, imgX, yPos, { width: imgWidth, fit: [imgWidth, 200] });
+              imageHeight = 210;
+              yPos += imageHeight;
+            } catch {
+              // Image failed to load, skip
+            }
+          }
+        }
+
+        // Add spacing after image
+        yPos += 20;
+
+        // Specifications in two-column layout
+        const leftColX = 70;
+        const rightColX = 320;
+        const specFontSize = 11;
+
+        doc.fillColor(textDark).fontSize(specFontSize).font("Helvetica");
+
+        // Left column
+        let leftY = yPos;
+
+        if (mounting.manufacturer) {
+          doc.font("Helvetica-Bold").text("Manufacturer:", leftColX, leftY);
+          doc.font("Helvetica").text(mounting.manufacturer, leftColX, leftY + 15, { width: 200 });
+          leftY += 40;
+        }
+
+        doc.font("Helvetica-Bold").text("Model Number:", leftColX, leftY);
+        doc.font("Helvetica").text(mounting.modelNumber, leftColX, leftY + 15, { width: 200 });
+        leftY += 40;
+
+        doc.font("Helvetica-Bold").text("Quantity:", leftColX, leftY);
+        doc.font("Helvetica").text(`${mounting.quantity} unit(s)`, leftColX, leftY + 15);
+
+        // Right column
+        let rightY = yPos;
+
+        doc.font("Helvetica-Bold").text("Unit Price:", rightColX, rightY);
+        doc.font("Helvetica").text(formatCurrency(mounting.unitPriceUsd), rightColX, rightY + 15);
+        rightY += 40;
+
+        doc.font("Helvetica-Bold").text("Total Cost:", rightColX, rightY);
+        doc.fillColor(brandCyan).fontSize(16).font("Helvetica-Bold")
+          .text(formatCurrency(mounting.totalPriceUsd), rightColX, rightY + 15);
+
+        // Notes at bottom (larger font)
+        if (mounting.notes) {
+          yPos = Math.max(leftY, rightY) + 60;
+          doc
+            .fillColor(textLight)
+            .fontSize(10)
+            .font("Helvetica")
+            .text(mounting.notes, 70, yPos, { width: 470, align: "justify" });
+        }
+      }
+
       // ========== COMPLETE BOM PAGE ==========
       if (bomItems.length > 0) {
         doc.addPage();
@@ -847,28 +936,21 @@ export function generateNovaAgentPDF(
         doc.text(formatCurrency(totalCost), 500, yPos);
       }
 
-      // ========== INSTALLATION PLAN & NEC COMPLIANCE ==========
+      // ========== NEC COMPLIANCE PAGE ==========
       if (plan) {
         doc.addPage();
         yPos = 50;
 
         doc
           .fillColor(brandNavy)
-          .fontSize(24)
+          .fontSize(28)
           .font("Helvetica-Bold")
-          .text("Installation Plan & NEC Compliance", 50, yPos);
-        yPos += 40;
+          .text("NEC Compliance Checks", 50, yPos);
+        yPos += 50;
 
         // NEC Checks
         const necChecks = JSON.parse(plan.necChecks);
-        doc
-          .fillColor(textDark)
-          .fontSize(14)
-          .font("Helvetica-Bold")
-          .text("NEC Compliance Checks", 50, yPos);
-        yPos += 25;
-
-        doc.fontSize(9).font("Helvetica");
+        doc.fontSize(10).font("Helvetica");
         necChecks.forEach(
           (check: {
             code: string;
@@ -876,7 +958,7 @@ export function generateNovaAgentPDF(
             status: string;
             notes?: string;
           }) => {
-            if (yPos > 700) {
+            if (yPos > 680) {
               doc.addPage();
               yPos = 50;
             }
@@ -890,99 +972,253 @@ export function generateNovaAgentPDF(
 
             doc
               .fillColor(textDark)
+              .fontSize(11)
               .font("Helvetica-Bold")
               .text(`${check.code}:`, 50, yPos);
             doc
               .fillColor(statusColor)
-              .text(check.status.toUpperCase(), 500, yPos);
-            yPos += 12;
+              .fontSize(10)
+              .text(check.status.toUpperCase(), 480, yPos);
+            yPos += 15;
             doc
-              .fillColor(textLight)
+              .fillColor(textDark)
+              .fontSize(10)
               .font("Helvetica")
-              .text(check.description, 50, yPos);
-            yPos += 12;
+              .text(check.description, 50, yPos, { width: 500 });
+            yPos += 15;
             if (check.notes) {
-              doc.fontSize(8).text(check.notes, 50, yPos, { width: 500 });
-              yPos += 10;
+              doc
+                .fillColor(textLight)
+                .fontSize(9)
+                .text(check.notes, 50, yPos, { width: 500 });
+              yPos += 12;
             }
-            yPos += 10;
+            yPos += 15;
           },
         );
 
-        // Warnings
+        // Warnings Section
         if (plan.warnings) {
           const warnings = JSON.parse(plan.warnings);
           if (warnings.length > 0) {
-            yPos += 10;
+            if (yPos > 600) {
+              doc.addPage();
+              yPos = 50;
+            }
+            yPos += 20;
+            
+            // Warning header with background
+            doc.fillColor("#FEF3C7").rect(50, yPos - 5, 500, 35).fill();
             doc
-              .fillColor("#F59E0B")
-              .fontSize(12)
+              .fillColor("#92400E")
+              .fontSize(16)
               .font("Helvetica-Bold")
-              .text("⚠ Warnings", 50, yPos);
-            yPos += 18;
-            doc.fontSize(9).font("Helvetica");
+              .text("⚠ Warnings", 60, yPos + 5);
+            yPos += 45;
+            
+            doc.fontSize(10).font("Helvetica");
             warnings.forEach((warning: string) => {
+              if (yPos > 700) {
+                doc.addPage();
+                yPos = 50;
+              }
               doc
                 .fillColor(textDark)
-                .text(`• ${warning}`, 60, yPos, { width: 500 });
-              yPos += 15;
+                .text(`• ${warning}`, 60, yPos, { width: 480 });
+              yPos += 18;
             });
           }
         }
+      }
+
+      // ========== INSTALLATION TIMELINE PAGE ==========
+      if (plan) {
+        doc.addPage();
+        yPos = 50;
+
+        doc
+          .fillColor(brandNavy)
+          .fontSize(28)
+          .font("Helvetica-Bold")
+          .text("Installation Timeline & Process", 50, yPos);
+        yPos += 50;
+
+        // Timeline Overview Section
+        doc
+          .fillColor(brandCyan)
+          .fontSize(18)
+          .font("Helvetica-Bold")
+          .text("Project Timeline Overview", 50, yPos);
+        yPos += 30;
+
+        // Timeline phases with visual timeline
+        const phases = [
+          { name: "Permitting & Approvals", duration: "2-4 weeks", icon: "📋" },
+          { name: "Equipment Procurement", duration: "1-2 weeks", icon: "📦" },
+          { name: "Installation", duration: plan.timeline || "1-2 weeks", icon: "🔧" },
+          { name: "Inspection & Testing", duration: "3-5 days", icon: "✓" },
+          { name: "Utility Interconnection", duration: "1-3 weeks", icon: "⚡" },
+        ];
+
+        phases.forEach((phase, index) => {
+          if (yPos > 680) {
+            doc.addPage();
+            yPos = 50;
+          }
+
+          // Phase box
+          doc.fillColor("#F0F9FF").rect(50, yPos, 500, 45).fill();
+          
+          doc
+            .fillColor(brandNavy)
+            .fontSize(12)
+            .font("Helvetica-Bold")
+            .text(`${phase.icon} Phase ${index + 1}: ${phase.name}`, 65, yPos + 10);
+          
+          doc
+            .fillColor(brandCyan)
+            .fontSize(11)
+            .font("Helvetica")
+            .text(phase.duration, 450, yPos + 10);
+          
+          yPos += 55;
+        });
+
+        yPos += 10;
+
+        // Permitting Process
+        doc
+          .fillColor(brandCyan)
+          .fontSize(18)
+          .font("Helvetica-Bold")
+          .text("Permitting Process", 50, yPos);
+        yPos += 30;
+
+        const permitSteps = [
+          "Submit building permit application to local AHJ",
+          "Provide system design drawings and equipment specifications",
+          "Address any plan review comments or corrections",
+          "Obtain approved building permit",
+          "Schedule pre-installation inspection (if required)",
+        ];
+
+        doc.fillColor(textDark).fontSize(10).font("Helvetica");
+        permitSteps.forEach((step, index) => {
+          doc.text(`${index + 1}. ${step}`, 70, yPos, { width: 470 });
+          yPos += 18;
+        });
+
+        if (plan.permitNotes) {
+          yPos += 10;
+          doc.fillColor("#FEF3C7").rect(50, yPos, 500, 60).fill();
+          doc
+            .fillColor("#92400E")
+            .fontSize(10)
+            .font("Helvetica-Bold")
+            .text("📋 Permit Notes:", 65, yPos + 10);
+          doc
+            .font("Helvetica")
+            .text(plan.permitNotes, 65, yPos + 25, { width: 470 });
+          yPos += 70;
+        }
 
         // Installation Steps
+        if (yPos > 600) {
+          doc.addPage();
+          yPos = 50;
+        } else {
+          yPos += 20;
+        }
+
+        doc
+          .fillColor(brandCyan)
+          .fontSize(18)
+          .font("Helvetica-Bold")
+          .text("Installation Steps", 50, yPos);
+        yPos += 30;
+
+        const installSteps = JSON.parse(plan.installSteps);
+        doc.fontSize(10).font("Helvetica").fillColor(textDark);
+        installSteps.forEach((step: string, index: number) => {
+          if (yPos > 700) {
+            doc.addPage();
+            yPos = 50;
+          }
+          doc.text(`${index + 1}. ${step}`, 70, yPos, { width: 470 });
+          yPos += 18;
+        });
+
+        // Labor estimate
+        if (plan.laborHoursEst) {
+          yPos += 15;
+          doc
+            .fillColor(textLight)
+            .font("Helvetica-Bold")
+            .text("Estimated Labor: ", 70, yPos, { continued: true })
+            .font("Helvetica")
+            .text(`${plan.laborHoursEst.toFixed(1)} hours`);
+          yPos += 25;
+        }
+
+        // Interconnection Process
+        if (yPos > 580) {
+          doc.addPage();
+          yPos = 50;
+        } else {
+          yPos += 20;
+        }
+
+        doc
+          .fillColor(brandCyan)
+          .fontSize(18)
+          .font("Helvetica-Bold")
+          .text("Utility Interconnection Process", 50, yPos);
+        yPos += 30;
+
+        const interconnectionSteps = [
+          "Submit interconnection application to utility company",
+          "Provide system specifications and signed contract",
+          "Utility reviews application and grid impact",
+          "Receive interconnection agreement and approval",
+          "Complete installation and pass final inspection",
+          "Utility installs bi-directional meter (if required)",
+          "Receive Permission to Operate (PTO)",
+          "System commissioning and activation",
+        ];
+
+        doc.fillColor(textDark).fontSize(10).font("Helvetica");
+        interconnectionSteps.forEach((step, index) => {
+          if (yPos > 700) {
+            doc.addPage();
+            yPos = 50;
+          }
+          doc.text(`${index + 1}. ${step}`, 70, yPos, { width: 470 });
+          yPos += 18;
+        });
+
+        // Total timeline summary
         yPos += 20;
-        if (yPos > 650) {
+        if (yPos > 680) {
           doc.addPage();
           yPos = 50;
         }
 
+        doc.fillColor("#DBEAFE").rect(50, yPos, 500, 60).fill();
         doc
-          .fillColor(textDark)
-          .fontSize(14)
+          .fillColor("#1E40AF")
+          .fontSize(13)
           .font("Helvetica-Bold")
-          .text("Installation Steps", 50, yPos);
-        yPos += 25;
-
-        const installSteps = JSON.parse(plan.installSteps);
-        doc.fontSize(9).font("Helvetica");
-        installSteps.forEach((step: string, index: number) => {
-          if (yPos > 720) {
-            doc.addPage();
-            yPos = 50;
-          }
-          doc
-            .fillColor(textDark)
-            .text(`${index + 1}. ${step}`, 50, yPos, { width: 500 });
-          yPos += 15;
-        });
-
-        // Timeline and Labor
-        yPos += 20;
-        if (plan.timeline) {
-          doc
-            .fillColor(textLight)
-            .font("Helvetica-Bold")
-            .text("Estimated Timeline: ", 50, yPos, { continued: true })
-            .font("Helvetica")
-            .text(plan.timeline);
-          yPos += 15;
-        }
-        if (plan.laborHoursEst) {
-          doc
-            .font("Helvetica-Bold")
-            .text("Labor Hours: ", 50, yPos, { continued: true })
-            .font("Helvetica")
-            .text(`${plan.laborHoursEst.toFixed(1)} hours`);
-          yPos += 15;
-        }
-        if (plan.permitNotes) {
-          doc
-            .font("Helvetica-Bold")
-            .text("Permit Notes: ", 50, yPos)
-            .font("Helvetica")
-            .text(plan.permitNotes, 50, yPos + 15, { width: 500 });
-        }
+          .text("📅 Total Project Duration: 6-12 weeks", 65, yPos + 10);
+        doc
+          .fontSize(10)
+          .font("Helvetica")
+          .fillColor("#1E3A8A")
+          .text(
+            "Timeline may vary based on permitting authority, utility responsiveness, and equipment availability.",
+            65,
+            yPos + 30,
+            { width: 470 }
+          );
       }
 
       doc.end();

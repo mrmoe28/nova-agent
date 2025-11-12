@@ -110,6 +110,16 @@ export function PanelManagementModal({
     setPanelCount(newCount);
   };
 
+  const downsizeToLimit = (maxKw: number) => {
+    // Calculate maximum number of panels to stay under the limit
+    const maxPanels = Math.floor((maxKw * 1000) / panelWattage);
+    setPanelCount(maxPanels);
+  };
+
+  const isOverLimit = (limitKw: number) => {
+    return calculateTotalKw() > limitKw;
+  };
+
   const handleSaveChanges = async () => {
     if (!system) return;
     
@@ -234,6 +244,70 @@ export function PanelManagementModal({
                     >
                       +5
                     </Button>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Permit Compliance Section */}
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold">Permit Compliance</Label>
+                  
+                  {/* Georgia 10kW Residential Limit */}
+                  {isOverLimit(10) && (
+                    <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1 text-sm">
+                          <p className="font-semibold text-red-900">
+                            System exceeds 10kW residential limit
+                          </p>
+                          <p className="text-red-700 mt-1">
+                            Current: {calculateTotalKw().toFixed(2)} kW. Must reduce to 10kW or obtain commercial permit.
+                          </p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => downsizeToLimit(10)}
+                            className="mt-2 border-red-300 text-red-700 hover:bg-red-50"
+                          >
+                            Downsize to 10kW
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Other common limits */}
+                  <div className="space-y-2">
+                    <p className="text-xs text-muted-foreground">Quick downsize options:</p>
+                    <div className="flex flex-wrap gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => downsizeToLimit(10)}
+                        disabled={!isOverLimit(10)}
+                        className={isOverLimit(10) ? "border-amber-300" : ""}
+                      >
+                        10kW (GA Residential)
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => downsizeToLimit(20)}
+                        disabled={!isOverLimit(20)}
+                      >
+                        20kW
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => downsizeToLimit(50)}
+                        disabled={!isOverLimit(50)}
+                      >
+                        50kW
+                      </Button>
+                    </div>
                   </div>
                 </div>
 

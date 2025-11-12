@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, FolderOpen, Building2, Zap, LayoutDashboard } from "lucide-react";
+import { Plus, FolderOpen, Building2, Zap, LayoutDashboard, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -26,6 +26,12 @@ export default function BrandHeader() {
       label: "Projects",
       href: "/projects",
       icon: FolderOpen,
+    },
+    {
+      label: "PTO Agent",
+      href: "https://ptoagent.app/",
+      icon: ExternalLink,
+      external: true,
     },
   ];
 
@@ -63,7 +69,7 @@ export default function BrandHeader() {
         <nav className="flex items-center gap-1 sm:gap-2">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const active = isActive(item.href);
+            const active = !item.external && isActive(item.href);
 
             return (
               <Button
@@ -76,7 +82,11 @@ export default function BrandHeader() {
                   active && "text-white bg-white/10",
                 )}
               >
-                <Link href={item.href} className="flex items-center gap-2">
+                <Link 
+                  href={item.href} 
+                  className="flex items-center gap-2"
+                  {...(item.external && { target: "_blank", rel: "noopener noreferrer" })}
+                >
                   <Icon className="h-4 w-4" />
                   <span className="hidden sm:inline">{item.label}</span>
                   {active && (
