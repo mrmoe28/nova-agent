@@ -420,20 +420,8 @@ export function generateNovaAgentPDF(
         }
       }
 
-      // Footer
-      const pageCount = doc.bufferedPageRange().count;
-      for (let i = 0; i < pageCount; i++) {
-        doc.switchToPage(i);
-        doc
-          .fontSize(8)
-          .fillColor(textLight)
-          .text(
-            `NovaAgent Energy Report - Page ${i + 1} of ${pageCount}`,
-            50,
-            doc.page.height - 50,
-            { align: "center", width: doc.page.width - 100 },
-          );
-      }
+      // Note: Footer/page numbering removed due to bufferedPageRange() issues in serverless
+      // Page numbers can be added back with on-page-create approach if needed
 
       doc.end();
     } catch (error) {
