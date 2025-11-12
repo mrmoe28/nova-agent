@@ -100,7 +100,7 @@ export function BillsModal({
     });
   };
 
-  const getExtractedSummary = (extractedData: Record<string, unknown> | undefined) => {
+  const getExtractedSummary = (extractedData: Record<string, unknown> | null | undefined) => {
     if (!extractedData) return null;
 
     // Try to extract common bill fields
