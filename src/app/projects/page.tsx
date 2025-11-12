@@ -11,18 +11,18 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { 
-  Plus, 
-  Loader2, 
-  FolderOpen, 
-  ChevronDown, 
-  ChevronRight, 
-  FileText, 
-  Zap, 
-  Trash2, 
-  Grid3X3, 
-  Table, 
-  LayoutGrid, 
+import {
+  Plus,
+  Loader2,
+  FolderOpen,
+  ChevronDown,
+  ChevronRight,
+  FileText,
+  Zap,
+  Trash2,
+  Grid3X3,
+  Table,
+  LayoutGrid,
   Building2,
   Calendar,
   DollarSign,
@@ -30,15 +30,21 @@ import {
   Target,
   Battery,
   Sun,
-  Archive
+  Archive,
+  Download,
+  ArrowRight,
+  CheckCircle2,
+  Clock,
+  AlertCircle
 } from "lucide-react";
+import { BillsModal } from "@/components/BillsModal";
 
 interface Bill {
   id: string;
   fileName: string;
   fileType: string;
-  ocrText?: string;
-  extractedData?: Record<string, unknown>;
+  ocrText?: string | null;
+  extractedData?: Record<string, unknown> | null;
   uploadedAt: string;
 }
 
@@ -122,6 +128,25 @@ export default function ProjectsPage() {
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
   const [viewMode, setViewMode] = useState<ViewMode>("cards");
   const [recalculatingCosts, setRecalculatingCosts] = useState<Set<string>>(new Set());
+  const [showBillsModal, setShowBillsModal] = useState(false);
+  const [selectedProjectForBills, setSelectedProjectForBills] = useState<Project | null>(null);
+
+  const handleViewBills = (project: Project) => {
+    setSelectedProjectForBills(project);
+    setShowBillsModal(true);
+  };
+
+  const getNextStep = (status: string) => {
+    const steps: Record<string, { label: string; icon: any; href: string; className: string }> = {
+      intake: { label: "Upload Bills", icon: FileText, href: "intake", className: "bg-blue-600 hover:bg-blue-700" },
+      analysis: { label: "Configure System", icon: Zap, href: "sizing", className: "bg-purple-600 hover:bg-purple-700" },
+      sizing: { label: "Review BOM", icon: Archive, href: "bom", className: "bg-orange-600 hover:bg-orange-700" },
+      bom: { label: "Review & Generate PDF", icon: Download, href: "review", className: "bg-green-600 hover:bg-green-700" },
+      review: { label: "Download Report", icon: Download, href: "review", className: "bg-green-600 hover:bg-green-700" },
+      complete: { label: "View Project", icon: Eye, href: "review", className: "bg-gray-600 hover:bg-gray-700" },
+    };
+    return steps[status] || steps.intake;
+  };
 
   const toggleProjectExpanded = (projectId: string) => {
     setExpandedProjects(prev => {
@@ -441,17 +466,18 @@ export default function ProjectsPage() {
               <CardContent className="pt-0">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
                   <div 
-                    className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
+                    className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors group/bill"
                     onClick={(e) => {
                       e.stopPropagation();
-                      router.push(`/projects/${project.id}?tab=bills`);
+                      handleViewBills(project);
                     }}
                   >
                     <FileText className="h-4 w-4 text-blue-600" />
-                    <div>
+                    <div className="flex-1">
                       <div className="text-lg font-semibold text-gray-900">{project._count.bills}</div>
                       <div className="text-xs text-gray-600">Bills</div>
                     </div>
+                    <Eye className="h-3.5 w-3.5 text-blue-600 opacity-0 group-hover/bill:opacity-100 transition-opacity" />
                   </div>
                   <div 
                     className="flex items-center gap-2 p-3 bg-orange-50 rounded-lg cursor-pointer hover:bg-orange-100 transition-colors"
@@ -548,22 +574,61 @@ export default function ProjectsPage() {
 
                   <Separator />
 
+                  {/* Quick Actions */}
+                  <div className="mb-4">
+                    <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2 text-sm">
+                      <Zap className="h-4 w-4 text-blue-600" />
+                      Quick Actions
+                    </h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewBills(project);
+                        }}
+                        className="justify-start"
+                      >
+                        <FileText className="mr-2 h-4 w-4" />
+                        View Bills ({project._count.bills})
+                      </Button>
+                      {project.status === "complete" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          asChild
+                          className="justify-start"
+                        >
+                          <Link href={`/wizard/${project.id}/review`}>
+                            <Download className="mr-2 h-4 w-4" />
+                            Download PDF
+                          </Link>
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+
+                  <Separator className="my-4" />
+
                   {/* Action Buttons */}
                   <div className="flex flex-wrap gap-3">
-                    <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
-                      <Link href={`/wizard/${project.id}/intake`}>
-                        <Eye className="mr-2 h-4 w-4" />
-                        {project.status === "complete" ? "View Project" : "Continue"}
-                      </Link>
-                    </Button>
-                    {project.status === "complete" && (
-                      <Button variant="outline" asChild>
-                        <Link href={`/wizard/${project.id}/review`}>
-                          <FileText className="mr-2 h-4 w-4" />
-                          Download Report
-                        </Link>
-                      </Button>
-                    )}
+                    {(() => {
+                      const nextStep = getNextStep(project.status);
+                      const StepIcon = nextStep.icon;
+                      return (
+                        <Button 
+                          asChild 
+                          className={`${nextStep.className} text-white`}
+                        >
+                          <Link href={`/wizard/${project.id}/${nextStep.href}`}>
+                            <StepIcon className="mr-2 h-4 w-4" />
+                            {nextStep.label}
+                            <ArrowRight className="ml-2 h-4 w-4" />
+                          </Link>
+                        </Button>
+                      );
+                    })()}
                     <Button 
                       variant="outline" 
                       onClick={() => handleDeleteClick(project)}
@@ -714,9 +779,59 @@ export default function ProjectsPage() {
             </Button>
           </div>
         ) : (
-          <div className="space-y-4">
-            {projects.map((project) => renderModernCard(project))}
-          </div>
+          <>
+            {/* Workflow Guide Banner */}
+            <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 shadow-sm">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                  <Zap className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Project Workflow</h3>
+                  <p className="text-sm text-gray-700 mb-4">
+                    Follow these steps to complete your energy planning projects. Click on any project card to view details or continue where you left off.
+                  </p>
+                  <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span className="text-xs font-semibold text-blue-600">1</span>
+                      </div>
+                      <span className="text-gray-700">Upload Bills</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center">
+                        <span className="text-xs font-semibold text-purple-600">2</span>
+                      </div>
+                      <span className="text-gray-700">Configure System</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center">
+                        <span className="text-xs font-semibold text-orange-600">3</span>
+                      </div>
+                      <span className="text-gray-700">Review BOM</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
+                        <span className="text-xs font-semibold text-green-600">4</span>
+                      </div>
+                      <span className="text-gray-700">Generate PDF</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
+                        <CheckCircle2 className="h-3 w-3 text-gray-600" />
+                      </div>
+                      <span className="text-gray-700">Complete</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Projects Grid */}
+            <div className="space-y-4">
+              {projects.map((project) => renderModernCard(project))}
+            </div>
+          </>
         )}
 
         {/* Delete Confirmation Dialog */}
@@ -755,6 +870,16 @@ export default function ProjectsPage() {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+
+        {/* Bills Modal */}
+        {selectedProjectForBills && (
+          <BillsModal
+            open={showBillsModal}
+            onOpenChange={setShowBillsModal}
+            projectId={selectedProjectForBills.id}
+            bills={selectedProjectForBills.bills || []}
+          />
+        )}
       </div>
     </div>
   );
