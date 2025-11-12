@@ -190,8 +190,8 @@ export function AddEquipmentDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>Add Equipment to BOM</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-gray-900">Add Equipment to BOM</DialogTitle>
+          <DialogDescription className="text-gray-600">
             Select a distributor and search their equipment catalog
           </DialogDescription>
         </DialogHeader>

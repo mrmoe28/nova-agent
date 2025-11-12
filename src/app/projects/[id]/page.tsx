@@ -619,12 +619,37 @@ export default function ProjectDetailsPage() {
 
       {/* Detailed Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5 bg-white/95 backdrop-blur-sm">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="equipment">Equipment</TabsTrigger>
-          <TabsTrigger value="bills">Bills</TabsTrigger>
-          <TabsTrigger value="energy">Energy</TabsTrigger>
-          <TabsTrigger value="installation">Installation</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-5 bg-green-600 rounded-xl p-1.5">
+          <TabsTrigger 
+            value="overview" 
+            className="text-white data-[state=active]:bg-white data-[state=active]:text-green-600 hover:bg-green-700 hover:text-white transition-all duration-200 rounded-lg"
+          >
+            Overview
+          </TabsTrigger>
+          <TabsTrigger 
+            value="equipment" 
+            className="text-white data-[state=active]:bg-white data-[state=active]:text-green-600 hover:bg-green-700 hover:text-white transition-all duration-200 rounded-lg"
+          >
+            Equipment
+          </TabsTrigger>
+          <TabsTrigger 
+            value="bills" 
+            className="text-white data-[state=active]:bg-white data-[state=active]:text-green-600 hover:bg-green-700 hover:text-white transition-all duration-200 rounded-lg"
+          >
+            Bills
+          </TabsTrigger>
+          <TabsTrigger 
+            value="energy" 
+            className="text-white data-[state=active]:bg-white data-[state=active]:text-green-600 hover:bg-green-700 hover:text-white transition-all duration-200 rounded-lg"
+          >
+            Energy
+          </TabsTrigger>
+          <TabsTrigger 
+            value="installation" 
+            className="text-white data-[state=active]:bg-white data-[state=active]:text-green-600 hover:bg-green-700 hover:text-white transition-all duration-200 rounded-lg"
+          >
+            Installation
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">

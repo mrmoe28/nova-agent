@@ -29,6 +29,7 @@ import {
   Search,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface BOMItem {
   id: string;
@@ -40,6 +41,7 @@ interface BOMItem {
   unitPriceUsd: number;
   totalPriceUsd: number;
   sourceUrl?: string;
+  imageUrl?: string | null;
   notes: string | null;
 }
 
@@ -80,6 +82,7 @@ export function BOMItemsModal({
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [addingItems, setAddingItems] = useState<Set<string>>(new Set());
 
   const fetchDistributorEquipment = async () => {
     setLoading(true);
@@ -140,6 +143,12 @@ export function BOMItemsModal({
   };
 
   const handleAddBOMItem = async (equipmentId: string, quantity: number = 1) => {
+    if (addingItems.has(equipmentId)) {
+      return; // Prevent duplicate requests
+    }
+
+    setAddingItems(prev => new Set(prev).add(equipmentId));
+    
     try {
       const response = await fetch('/api/bom/add', {
         method: 'POST',
@@ -147,8 +156,14 @@ export function BOMItemsModal({
         body: JSON.stringify({ projectId, equipmentId, quantity }),
       });
 
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Network error' }));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
-      if (data.success) {
+      
+      if (data.success && data.bomItem) {
         if (data.action === 'updated') {
           // Update existing item in the list
           const updatedItems = bomItems.map(item => 
@@ -157,19 +172,33 @@ export function BOMItemsModal({
           if (onItemsChange) {
             onItemsChange(updatedItems);
           }
-          console.log("BOM item quantity updated");
+          toast.success("Quantity Updated", {
+            description: "Item quantity increased in BOM.",
+          });
         } else {
           // Add new item to the list
           if (onItemsChange) {
             onItemsChange([...bomItems, data.bomItem]);
           }
-          console.log("BOM item added successfully");
+          toast.success("Item Added", {
+            description: "Equipment added to BOM successfully.",
+          });
         }
       } else {
-        console.error("Failed to add BOM item:", data.error);
+        throw new Error(data.error || "Failed to add BOM item");
       }
     } catch (error) {
       console.error("Error adding BOM item:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to add item to BOM";
+      toast.error("Error", {
+        description: errorMessage,
+      });
+    } finally {
+      setAddingItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(equipmentId);
+        return newSet;
+      });
     }
   };
 
@@ -177,11 +206,11 @@ export function BOMItemsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden bg-white">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-gray-900">
             <Archive className="h-5 w-5" />
             BOM Items & Available Equipment
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-gray-600">
             Manage your project&apos;s Bill of Materials and browse available equipment from distributors
           </DialogDescription>
         </DialogHeader>
@@ -190,7 +219,7 @@ export function BOMItemsModal({
           {/* Current BOM Items */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
+              <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-900">
                 <Package className="h-5 w-5" />
                 Current BOM ({bomItems.length} items)
               </h3>
@@ -201,7 +230,7 @@ export function BOMItemsModal({
 
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {bomItems.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-8 text-gray-600">
                   <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>No BOM items yet</p>
                   <p className="text-sm">Items will appear here after system sizing</p>
@@ -209,34 +238,60 @@ export function BOMItemsModal({
               ) : (
                 bomItems.map((item) => (
                   <Card key={item.id} className="p-3 bg-white border border-gray-200">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge variant="secondary" className="text-xs">
-                            {item.category}
-                          </Badge>
-                          <span className="font-medium">{item.itemName}</span>
-                        </div>
-                        <div className="text-sm text-muted-foreground space-y-1">
-                          <div>Model: {item.modelNumber}</div>
-                          {item.manufacturer && <div>Mfg: {item.manufacturer}</div>}
-                          <div className="flex items-center gap-4">
-                            <span>Qty: {item.quantity}</span>
-                            <span>{formatCurrency(item.unitPriceUsd)} each</span>
-                            <span className="font-medium">
-                              {formatCurrency(item.totalPriceUsd)} total
-                            </span>
-                          </div>
+                    <div className="flex items-start gap-3">
+                      {/* Image */}
+                      <div className="flex-shrink-0">
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt={item.itemName}
+                            className="h-20 w-20 object-contain rounded border border-gray-200 bg-gray-50"
+                            onError={(e) => {
+                              const img = e.currentTarget as HTMLImageElement;
+                              img.style.display = "none";
+                              const placeholder = img.nextElementSibling as HTMLElement;
+                              if (placeholder) {
+                                placeholder.style.display = "flex";
+                              }
+                            }}
+                          />
+                        ) : null}
+                        <div 
+                          className={`h-20 w-20 bg-gray-50 rounded border border-gray-200 flex items-center justify-center ${item.imageUrl ? 'hidden' : ''}`}
+                        >
+                          <Package className="h-8 w-8 text-gray-400" />
                         </div>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteBOMItem(item.id)}
-                        className="text-red-600 hover:text-red-800"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      
+                      <div className="flex-1 flex items-start justify-between min-w-0">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <Badge variant="secondary" className="text-xs">
+                              {item.category}
+                            </Badge>
+                            <span className="font-medium text-gray-900 truncate">{item.itemName}</span>
+                          </div>
+                          <div className="text-sm text-gray-600 space-y-1">
+                            <div>Model: {item.modelNumber}</div>
+                            {item.manufacturer && <div>Mfg: {item.manufacturer}</div>}
+                            <div className="flex items-center gap-4">
+                              <span>Qty: {item.quantity}</span>
+                              <span>{formatCurrency(item.unitPriceUsd)} each</span>
+                              <span className="font-medium">
+                                {formatCurrency(item.totalPriceUsd)} total
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteBOMItem(item.id)}
+                          className="text-red-600 hover:text-red-800 flex-shrink-0"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </Card>
                 ))
@@ -247,7 +302,7 @@ export function BOMItemsModal({
           {/* Available Equipment */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold flex items-center gap-2">
+              <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-900">
                 <Building2 className="h-5 w-5" />
                 Available Equipment ({distributorEquipment.length} items)
               </h3>
@@ -265,7 +320,7 @@ export function BOMItemsModal({
             {/* Search & Filter */}
             <div className="space-y-2">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
                 <Input
                   placeholder="Search equipment..."
                   value={searchTerm}
@@ -290,9 +345,9 @@ export function BOMItemsModal({
 
             <div className="space-y-2 max-h-96 overflow-y-auto">
               {loading ? (
-                <div className="text-center py-8">Loading equipment...</div>
+                <div className="text-center py-8 text-gray-600">Loading equipment...</div>
               ) : filteredEquipment.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="text-center py-8 text-gray-600">
                   <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>No equipment found</p>
                   <p className="text-sm">Try adjusting your search or filters</p>
@@ -300,62 +355,92 @@ export function BOMItemsModal({
               ) : (
                 filteredEquipment.map((equipment) => (
                   <Card key={equipment.id} className="p-3 bg-white border border-gray-200 hover:shadow-md transition-shadow">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Badge variant="outline" className="text-xs">
-                            {equipment.category.replace(/_/g, " ")}
-                          </Badge>
-                          <span className="font-medium">{equipment.name}</span>
-                          {!equipment.inStock && (
-                            <Badge variant="destructive" className="text-xs">
-                              Out of Stock
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="text-sm text-muted-foreground space-y-1">
-                          <div>Model: {equipment.modelNumber}</div>
-                          {equipment.manufacturer && <div>Mfg: {equipment.manufacturer}</div>}
-                          <div className="flex items-center gap-4">
-                            <span className="font-medium text-green-600">
-                              {formatCurrency(equipment.unitPrice)}
-                            </span>
-                            <span className="text-blue-600">
-                              {equipment.distributor.name}
-                            </span>
-                            {equipment.leadTimeDays && (
-                              <span>{equipment.leadTimeDays}d lead</span>
-                            )}
-                          </div>
+                    <div className="flex items-start gap-3">
+                      {/* Image */}
+                      <div className="flex-shrink-0 relative">
+                        {equipment.imageUrl ? (
+                          <img
+                            src={equipment.imageUrl}
+                            alt={equipment.name}
+                            className="h-20 w-20 object-contain rounded border border-gray-200 bg-gray-50"
+                            onError={(e) => {
+                              const img = e.currentTarget as HTMLImageElement;
+                              img.style.display = "none";
+                              const placeholder = img.nextElementSibling as HTMLElement;
+                              if (placeholder) {
+                                placeholder.style.display = "flex";
+                              }
+                            }}
+                          />
+                        ) : null}
+                        <div 
+                          className={`h-20 w-20 bg-gray-50 rounded border border-gray-200 flex items-center justify-center ${equipment.imageUrl ? 'hidden' : ''}`}
+                        >
+                          <Package className="h-8 w-8 text-gray-400" />
                         </div>
                       </div>
-                      <div className="flex gap-1">
-                        {equipment.sourceUrl && (
+                      
+                      <div className="flex-1 flex items-start justify-between min-w-0">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
+                            <Badge variant="outline" className="text-xs">
+                              {equipment.category.replace(/_/g, " ")}
+                            </Badge>
+                            <span className="font-medium text-gray-900 truncate">{equipment.name}</span>
+                            {!equipment.inStock && (
+                              <Badge variant="destructive" className="text-xs">
+                                Out of Stock
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="text-sm text-gray-600 space-y-1">
+                            <div>Model: {equipment.modelNumber}</div>
+                            {equipment.manufacturer && <div>Mfg: {equipment.manufacturer}</div>}
+                            <div className="flex items-center gap-4 flex-wrap">
+                              <span className="font-medium text-green-600">
+                                {formatCurrency(equipment.unitPrice)}
+                              </span>
+                              <span className="text-blue-600">
+                                {equipment.distributor.name}
+                              </span>
+                              {equipment.leadTimeDays && (
+                                <span>{equipment.leadTimeDays}d lead</span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex gap-1 flex-shrink-0 ml-2">
+                          {equipment.sourceUrl && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              asChild
+                            >
+                              <a 
+                                href={equipment.sourceUrl} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                title="View product page"
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                              </a>
+                            </Button>
+                          )}
                           <Button
                             variant="ghost"
                             size="sm"
-                            asChild
+                            className="text-green-600 hover:text-green-800"
+                            disabled={!equipment.inStock || addingItems.has(equipment.id)}
+                            onClick={() => handleAddBOMItem(equipment.id)}
+                            title="Add to BOM"
                           >
-                            <a 
-                              href={equipment.sourceUrl} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              title="View product page"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </a>
+                            {addingItems.has(equipment.id) ? (
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-green-600 border-t-transparent" />
+                            ) : (
+                              <Plus className="h-4 w-4" />
+                            )}
                           </Button>
-                        )}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-green-600 hover:text-green-800"
-                          disabled={!equipment.inStock}
-                          onClick={() => handleAddBOMItem(equipment.id)}
-                          title="Add to BOM"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
+                        </div>
                       </div>
                     </div>
                   </Card>

@@ -152,11 +152,11 @@ export function BillsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden bg-white">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-gray-900">
             <FileText className="h-5 w-5" />
             Uploaded Bills & Documents ({bills.length})
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-gray-600">
             View and manage all uploaded utility bills and related documents for this project
           </DialogDescription>
         </DialogHeader>

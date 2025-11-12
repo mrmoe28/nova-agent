@@ -31,6 +31,7 @@ import {
   Zap,
 } from "lucide-react";
 import DistributorDiscovery from "@/components/DistributorDiscovery";
+import { EquipmentSearchPrompt } from "@/components/EquipmentSearchPrompt";
 
 interface Distributor {
   id: string;
@@ -223,7 +224,7 @@ export default function DistributorsPage() {
 
       {/* Search and Add - Hide for discovery tab */}
       {activeTab !== "discovery" && (
-        <div className="mb-8 flex gap-3">
+        <div className="mb-8 flex gap-3 items-start">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
@@ -233,21 +234,30 @@ export default function DistributorsPage() {
               className="pl-9 bg-white border-slate-200"
             />
           </div>
-          <Button
-            onClick={() => {
-              if (activeTab === "distributors") {
-                setEditingDistributor(null);
-                setShowAddDistributor(true);
-              } else {
-                setEditingEquipment(null);
-                setShowAddEquipment(true);
-              }
-            }}
-            className="bg-blue-600 text-white"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add {activeTab === "distributors" ? "Distributor" : "Equipment"}
-          </Button>
+          <div className="flex gap-3">
+            {/* Online Search Prompt - Top Right */}
+            <EquipmentSearchPrompt
+              onDistributorAdded={() => {
+                fetchDistributors();
+                fetchEquipment();
+              }}
+            />
+            <Button
+              onClick={() => {
+                if (activeTab === "distributors") {
+                  setEditingDistributor(null);
+                  setShowAddDistributor(true);
+                } else {
+                  setEditingEquipment(null);
+                  setShowAddEquipment(true);
+                }
+              }}
+              className="bg-blue-600 text-white"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              Add {activeTab === "distributors" ? "Distributor" : "Equipment"}
+            </Button>
+          </div>
         </div>
       )}
 

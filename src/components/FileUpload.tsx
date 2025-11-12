@@ -384,9 +384,54 @@ export default function FileUpload({
               >
                 <CardContent className="p-4">
                   <div className="flex items-center gap-4">
-                    {/* File Icon */}
-                    <div className="rounded-lg bg-gray-100 dark:bg-gray-800 p-3">
-                      <FileText className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+                    {/* File Thumbnail/Icon */}
+                    <div className="flex-shrink-0">
+                      {file.fileType.toLowerCase() === 'pdf' ? (
+                        <div className="relative w-20 h-20 rounded-lg border border-gray-200 bg-gray-50 overflow-hidden">
+                          <iframe
+                            src={`/api/files/bills/${file.id}#page=1&zoom=50`}
+                            className="w-full h-full border-0"
+                            title={`Preview of ${file.fileName}`}
+                            onError={(e) => {
+                              // Fallback to icon if iframe fails
+                              const container = e.currentTarget.parentElement;
+                              if (container) {
+                                container.innerHTML = `
+                                  <div class="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-800">
+                                    <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                    </svg>
+                                  </div>
+                                `;
+                              }
+                            }}
+                          />
+                        </div>
+                      ) : file.fileType.toLowerCase().match(/^(jpg|jpeg|png|gif|webp)$/i) ? (
+                        <img
+                          src={`/api/files/bills/${file.id}`}
+                          alt={file.fileName}
+                          className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                          onError={(e) => {
+                            const img = e.currentTarget;
+                            img.style.display = 'none';
+                            const container = img.parentElement;
+                            if (container) {
+                              container.innerHTML = `
+                                <div class="w-20 h-20 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                                  <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                  </svg>
+                                </div>
+                              `;
+                            }
+                          }}
+                        />
+                      ) : (
+                        <div className="rounded-lg bg-gray-100 dark:bg-gray-800 p-3 w-20 h-20 flex items-center justify-center">
+                          <FileText className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+                        </div>
+                      )}
                     </div>
 
                     {/* File Info */}

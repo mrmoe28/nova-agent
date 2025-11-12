@@ -132,10 +132,10 @@ export function EquipmentSelectionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-gray-900">
             Select {bomItem.category.charAt(0).toUpperCase() + bomItem.category.slice(1)} Equipment
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-gray-600">
             Choose from available equipment in your distributor&apos;s catalog
           </DialogDescription>
         </DialogHeader>
