@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import {
   BarChart,
   Bar,
@@ -46,6 +47,21 @@ export default function EnergyCharts({ monthlyData, savingsData, energyBreakdown
     return (
       <div className="text-center py-8 text-sm text-muted-foreground">
         No data available for charts.
+      </div>
+    );
+  }
+
+  // Ensure we're on the client side
+  const [mounted, setMounted] = React.useState(false);
+  
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="text-center py-8 text-sm text-muted-foreground">
+        Loading charts...
       </div>
     );
   }
