@@ -32,8 +32,8 @@ interface Bill {
   fileType: string;
   filePath?: string;
   uploadedAt: string;
-  ocrText?: string;
-  extractedData?: Record<string, unknown>;
+  ocrText?: string | null;
+  extractedData?: Record<string, unknown> | null;
 }
 
 interface BillsModalProps {
