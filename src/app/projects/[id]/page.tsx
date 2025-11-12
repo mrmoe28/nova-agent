@@ -117,7 +117,7 @@ export default function ProjectDetailsPage() {
   const [bomItems, setBomItems] = useState<BOMItem[]>([]);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("energy");
   
   // Modal states
   const [showBOMModal, setShowBOMModal] = useState(false);
@@ -969,28 +969,27 @@ export default function ProjectDetailsPage() {
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <CardContent>
-                  {project.analysis ? (
-                    <div className="mt-4">
-                      <ResponsiveContainer width="100%" height={350}>
-                        <BarChart data={monthlyData}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                          <XAxis dataKey="month" stroke="#6b7280" />
-                          <YAxis stroke="#6b7280" label={{ value: 'kWh', angle: -90, position: 'insideLeft' }} />
-                          <Tooltip 
-                            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                            formatter={(value: number) => [`${value.toLocaleString()} kWh`, '']}
-                          />
-                          <Legend />
-                          <Bar dataKey="usage" fill="#3b82f6" name="Energy Usage" radius={[8, 8, 0, 0]} />
-                          <Bar dataKey="production" fill="#10b981" name="Solar Production" radius={[8, 8, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  ) : (
-                    <p className="text-center text-muted-foreground py-8">
-                      No energy analysis data available.
-                    </p>
-                  )}
+                  <div className="mt-4">
+                    <ResponsiveContainer width="100%" height={350}>
+                      <BarChart data={monthlyData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis dataKey="month" stroke="#6b7280" />
+                        <YAxis stroke="#6b7280" label={{ value: 'kWh', angle: -90, position: 'insideLeft' }} />
+                        <Tooltip 
+                          contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                          formatter={(value: number) => [`${value.toLocaleString()} kWh`, '']}
+                        />
+                        <Legend />
+                        <Bar dataKey="usage" fill="#3b82f6" name="Energy Usage" radius={[8, 8, 0, 0]} />
+                        <Bar dataKey="production" fill="#10b981" name="Solar Production" radius={[8, 8, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                    {!project.analysis && (
+                      <p className="text-center text-sm text-muted-foreground mt-2">
+                        Using estimated data. Upload bills to see actual usage.
+                      </p>
+                    )}
+                  </div>
                 </CardContent>
               </CollapsibleContent>
             </Card>
@@ -1018,35 +1017,34 @@ export default function ProjectDetailsPage() {
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <CardContent>
-                  {project.analysis ? (
-                    <div className="mt-4">
-                      <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={monthlyData}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                          <XAxis dataKey="month" stroke="#6b7280" />
-                          <YAxis stroke="#6b7280" label={{ value: 'Cost ($)', angle: -90, position: 'insideLeft' }} />
-                          <Tooltip 
-                            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                            formatter={(value: number) => [formatCurrency(value), 'Monthly Cost']}
-                          />
-                          <Legend />
-                          <Line 
-                            type="monotone" 
-                            dataKey="cost" 
-                            stroke="#ef4444" 
-                            strokeWidth={3}
-                            name="Monthly Cost"
-                            dot={{ fill: '#ef4444', r: 4 }}
-                            activeDot={{ r: 6 }}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-                  ) : (
-                    <p className="text-center text-muted-foreground py-8">
-                      No cost data available.
-                    </p>
-                  )}
+                  <div className="mt-4">
+                    <ResponsiveContainer width="100%" height={300}>
+                      <LineChart data={monthlyData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis dataKey="month" stroke="#6b7280" />
+                        <YAxis stroke="#6b7280" label={{ value: 'Cost ($)', angle: -90, position: 'insideLeft' }} />
+                        <Tooltip 
+                          contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                          formatter={(value: number) => [formatCurrency(value), 'Monthly Cost']}
+                        />
+                        <Legend />
+                        <Line 
+                          type="monotone" 
+                          dataKey="cost" 
+                          stroke="#ef4444" 
+                          strokeWidth={3}
+                          name="Monthly Cost"
+                          dot={{ fill: '#ef4444', r: 4 }}
+                          activeDot={{ r: 6 }}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                    {!project.analysis && (
+                      <p className="text-center text-sm text-muted-foreground mt-2">
+                        Using estimated data. Upload bills to see actual costs.
+                      </p>
+                    )}
+                  </div>
                 </CardContent>
               </CollapsibleContent>
             </Card>
@@ -1122,58 +1120,61 @@ export default function ProjectDetailsPage() {
           )}
 
           {/* Energy Breakdown Pie Chart */}
-          {energyMetrics && (
-            <Collapsible open={expandedCards.has('breakdown')} onOpenChange={() => toggleCard('breakdown')}>
-              <Card className="bg-white/95 backdrop-blur-sm">
-                <CollapsibleTrigger asChild>
-                  <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2">
-                        <Zap className="h-5 w-5 text-yellow-600" />
-                        Energy Source Breakdown
-                      </CardTitle>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        {expandedCards.has('breakdown') ? (
-                          <ChevronUp className="h-4 w-4" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </CardHeader>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <CardContent>
-                    <div className="mt-4">
-                      <ResponsiveContainer width="100%" height={350}>
-                        <PieChart>
-                          <Pie
-                            data={energyBreakdown}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
-                            outerRadius={100}
-                            fill="#8884d8"
-                            dataKey="value"
-                          >
-                            {energyBreakdown.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <Tooltip 
-                            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                            formatter={(value: number) => [`${value.toLocaleString()} kWh`, '']}
-                          />
-                          <Legend />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </CollapsibleContent>
-              </Card>
-            </Collapsible>
-          )}
+          <Collapsible open={expandedCards.has('breakdown')} onOpenChange={() => toggleCard('breakdown')}>
+            <Card className="bg-white/95 backdrop-blur-sm">
+              <CollapsibleTrigger asChild>
+                <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Zap className="h-5 w-5 text-yellow-600" />
+                      Energy Source Breakdown
+                    </CardTitle>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      {expandedCards.has('breakdown') ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent>
+                  <div className="mt-4">
+                    <ResponsiveContainer width="100%" height={350}>
+                      <PieChart>
+                        <Pie
+                          data={energyBreakdown}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
+                          outerRadius={100}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {energyBreakdown.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip 
+                          contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
+                          formatter={(value: number) => [`${value.toLocaleString()} kWh`, '']}
+                        />
+                        <Legend />
+                      </PieChart>
+                    </ResponsiveContainer>
+                    {!project.system && (
+                      <p className="text-center text-sm text-muted-foreground mt-2">
+                        Configure system to see solar production breakdown.
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
 
           {/* Solar Production & Load Analysis */}
           <Collapsible open={expandedCards.has('energy')} onOpenChange={() => toggleCard('energy')}>
