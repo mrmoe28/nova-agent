@@ -212,7 +212,8 @@ export default function ProjectDetailsPage() {
   const totalProjectCost = totalBomCost + laborCost + permitsFees;
 
   return (
-    <div className="max-w-7xl mx-auto p-6">
+    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
+      <div className="w-full p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
@@ -774,6 +775,7 @@ export default function ProjectDetailsPage() {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 }

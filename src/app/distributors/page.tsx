@@ -168,7 +168,8 @@ export default function DistributorsPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
+      <div className="w-full px-4 py-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-foreground">
           Distributors & Equipment
@@ -528,6 +529,7 @@ export default function DistributorsPage() {
           }}
         />
       )}
+      </div>
     </div>
   );
 }

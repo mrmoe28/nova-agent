@@ -246,7 +246,8 @@ export default function DistributorDetailPage() {
   }
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8">
+    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
+      <div className="w-full px-4 py-8">
       {/* Header */}
       <div className="mb-8">
         <Button
@@ -674,6 +675,7 @@ export default function DistributorDetailPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

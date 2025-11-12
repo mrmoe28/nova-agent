@@ -143,7 +143,8 @@ export default function ReviewPage() {
     : [];
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
+      <div className="w-full max-w-5xl mx-auto px-4 py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Project Review</h1>
         <p className="mt-2 text-muted-foreground">
@@ -389,6 +390,7 @@ export default function ReviewPage() {
             </div>
           </div>
         </Card>
+      </div>
       </div>
     </div>
   );

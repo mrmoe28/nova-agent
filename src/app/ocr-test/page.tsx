@@ -84,7 +84,8 @@ export default function OCRPage() {
   }
 
   return (
-    <div style={{ maxWidth: 1100, margin: "40px auto", padding: 16, fontFamily: "ui-sans-serif, system-ui" }}>
+    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
+      <div style={{ maxWidth: 1100, margin: "40px auto", padding: 16, fontFamily: "ui-sans-serif, system-ui" }}>
       <h1 style={{ fontSize: 28, fontWeight: 800, marginBottom: 8 }}>NovaAgent · OCR Test</h1>
       <p style={{ color: "#555", marginBottom: 20 }}>
         Upload a PDF or image. We&apos;ll parse with PyMuPDF (digital) or OCR (scans) and show results below.
@@ -304,6 +305,7 @@ export default function OCRPage() {
           </section>
         </div>
       )}
+      </div>
     </div>
   );
 }

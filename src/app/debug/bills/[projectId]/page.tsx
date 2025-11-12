@@ -111,7 +111,8 @@ export default function BillDebugPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
+      <div className="w-full px-4 py-8">
       <div className="mb-6">
         <h1 className="text-3xl font-bold mb-2">Bill Analysis Debug</h1>
         <p className="text-muted-foreground">
@@ -341,6 +342,7 @@ export default function BillDebugPage() {
           </li>
         </ul>
       </Card>
+      </div>
     </div>
   );
 }

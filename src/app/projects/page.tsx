@@ -610,8 +610,8 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-7xl px-6 py-8">
+    <div className="min-h-screen bg-gray-50 w-screen -ml-[50vw] left-1/2 relative">
+      <div className="w-full px-6 py-8">
         {/* Modern Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">

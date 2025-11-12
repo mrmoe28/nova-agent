@@ -197,7 +197,8 @@ const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => 
   };
 
   return (
-    <div className="mx-auto max-w-5xl">
+    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
+      <div className="w-full max-w-5xl mx-auto px-4 py-8">
       <div className="mb-6 flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-bold">Bill of Materials</h1>
@@ -350,6 +351,7 @@ const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => 
       />
 
       <Toaster />
+      </div>
     </div>
   );
 }

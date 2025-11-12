@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full" suppressHydrationWarning>
       <body
-        className="min-h-screen bg-background text-foreground antialiased font-sans"
+        className="min-h-screen bg-background text-foreground antialiased font-sans overflow-x-hidden"
       >
         <ThemeProvider
           attribute="class"

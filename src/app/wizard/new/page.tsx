@@ -45,7 +45,8 @@ export default function NewWizardPage() {
   };
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
+      <div className="w-full max-w-2xl mx-auto px-4 py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">Start New Energy Plan</h1>
         <p className="mt-2 text-muted-foreground">
@@ -131,6 +132,7 @@ export default function NewWizardPage() {
           </div>
         </form>
       </Card>
+      </div>
     </div>
   );
 }

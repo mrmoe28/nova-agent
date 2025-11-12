@@ -32,7 +32,8 @@ export default function TestImagesPage() {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
+      <div className="w-full px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Image Format Test</h1>
       <p className="text-muted-foreground mb-8">
         Testing SVG, JPEG, and PNG image support with Next.js Image component
@@ -125,6 +126,7 @@ export default function TestImagesPage() {
             load
           </li>
         </ul>
+      </div>
       </div>
     </div>
   );

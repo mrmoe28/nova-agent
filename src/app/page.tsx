@@ -19,6 +19,11 @@ import {
   TrendingUp,
   ArrowRight,
 } from "lucide-react";
+import { getPageConfig, type PageConfig } from "@/lib/page-config";
+import { cn } from "@/lib/utils";
+
+// Get page configuration - can be made dynamic based on route, user preferences, etc.
+const pageConfig: PageConfig = getPageConfig("default");
 
 export default function Page() {
   const features = [
@@ -90,17 +95,17 @@ export default function Page() {
   ];
 
   return (
-    <div className="relative">
+    <>
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#0A0F1C] via-[#0f1829] to-background">
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#0A0F1C] via-[#0f1829] to-background min-h-screen w-screen -ml-[50vw] left-1/2">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f15_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f15_1px,transparent_1px)] bg-[size:14px_24px]" />
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-600/20 rounded-full blur-[100px]" />
 
-        <div className="relative mx-auto max-w-full px-4 py-16 sm:px-6 sm:py-24 lg:px-8">
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-8 items-center">
+        <div className="relative w-full px-4 py-16 sm:px-6 sm:py-24 lg:px-8 min-h-screen">
+          <div className="grid gap-0 lg:grid-cols-2 lg:gap-0 items-stretch min-h-[calc(100vh-8rem)]">
             {/* Left Column - Hero Content */}
-            <div className="space-y-8">
+            <div className="space-y-8 bg-gradient-to-b from-[#0A0F1C] via-[#0f1829] to-[#0A0F1C] p-8 sm:p-12 lg:p-16 flex flex-col justify-center min-h-full">
               <div className="space-y-4">
                 <Badge
                   variant="secondary"
@@ -174,48 +179,55 @@ export default function Page() {
             </div>
 
             {/* Right Column - Quick Start Card */}
-            <div className="relative">
-              <Card className="bg-white border-gray-200 shadow-2xl">
-                <CardHeader>
-                  <CardTitle className="text-gray-900 flex items-center gap-2">
-                    <Zap className="h-5 w-5 text-cyan-600" />
+            <div className={cn("relative min-h-full flex items-stretch", pageConfig.theme.rightPanel.backgroundColor)}>
+              <Card className={cn("border-gray-200 shadow-2xl w-full flex flex-col", pageConfig.theme.rightPanel.backgroundColor)}>
+                <CardHeader className="flex-shrink-0">
+                  <CardTitle className={cn("flex items-center gap-2", pageConfig.theme.rightPanel.textColor)}>
+                    <Zap className={cn("h-5 w-5", pageConfig.theme.rightPanel.accentColor)} />
                     Quick Start Guide
                   </CardTitle>
-                  <CardDescription className="text-gray-600">
+                  <CardDescription className={cn(pageConfig.theme.rightPanel.textColor, "opacity-80")}>
                     Get your first solar system designed in 4 simple steps
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  {steps.map((step, index) => (
-                    <div
-                      key={step.number}
-                      className="flex gap-4 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors duration-200"
-                    >
-                      <div className="flex-shrink-0">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-bold">
-                          {step.number}
+                <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="space-y-4 flex-1">
+                    {steps.map((step, index) => (
+                      <div
+                        key={step.number}
+                        className={cn(
+                          "flex gap-4 p-3 rounded-lg transition-colors duration-200",
+                          pageConfig.theme.rightPanel.backgroundColor === "bg-white"
+                            ? "bg-gray-50 hover:bg-gray-100"
+                            : "bg-white/10 hover:bg-white/20"
+                        )}
+                      >
+                        <div className="flex-shrink-0">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-bold">
+                            {step.number}
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-gray-900">
-                          {step.title}
-                        </h4>
-                        <p className="text-sm text-gray-600">
-                          {step.description}
-                        </p>
-                      </div>
-                      {index < steps.length - 1 && (
-                        <div className="flex items-center">
-                          <ArrowRight className="h-4 w-4 text-gray-600" />
+                        <div className="flex-1">
+                          <h4 className={cn("font-semibold", pageConfig.theme.rightPanel.textColor)}>
+                            {step.title}
+                          </h4>
+                          <p className={cn("text-sm", pageConfig.theme.rightPanel.textColor, "opacity-80")}>
+                            {step.description}
+                          </p>
                         </div>
-                      )}
-                    </div>
-                  ))}
+                        {index < steps.length - 1 && (
+                          <div className="flex items-center">
+                            <ArrowRight className={cn("h-4 w-4", pageConfig.theme.rightPanel.textColor, "opacity-60")} />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
 
                   <Button
                     asChild
                     size="lg"
-                    className="w-full mt-4 bg-cyan-600 hover:bg-cyan-700"
+                    className="w-full mt-4 bg-cyan-600 hover:bg-cyan-700 flex-shrink-0"
                   >
                     <Link href="/wizard/new">Start Your First Project</Link>
                   </Button>
@@ -307,6 +319,6 @@ export default function Page() {
           </div>
         </div>
       </section>
-    </div>
+    </>
   );
 }
