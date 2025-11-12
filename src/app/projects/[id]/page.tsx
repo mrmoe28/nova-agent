@@ -32,23 +32,20 @@ import { BillAnalysisCard } from "@/components/BillAnalysisCard";
 import { BOMItemsModal } from "@/components/BOMItemsModal";
 import { BillsModal } from "@/components/BillsModal";
 import { PanelManagementModal } from "@/components/PanelManagementModal";
-import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell
-} from "recharts";
+import dynamic from "next/dynamic";
+
+// Dynamically import charts to avoid SSR issues with recharts
+const EnergyCharts = dynamic(
+  () => import("@/components/EnergyCharts").then(mod => ({ default: mod.EnergyCharts })),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-sm text-muted-foreground">Loading charts...</div>
+      </div>
+    )
+  }
+);
 
 interface Project {
   id: string;
@@ -117,7 +114,7 @@ export default function ProjectDetailsPage() {
   const [bomItems, setBomItems] = useState<BOMItem[]>([]);
   const [plan, setPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState("energy");
+  const [activeTab, setActiveTab] = useState("overview");
   
   // Modal states
   const [showBOMModal, setShowBOMModal] = useState(false);
@@ -688,135 +685,18 @@ export default function ProjectDetailsPage() {
                     </div>
                   </div>
 
-                  {/* Charts Section */}
-                  <div className="space-y-6 mt-6">
-                    {/* Monthly Energy Usage & Production Chart */}
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-700 mb-3">Monthly Energy Usage & Production</h4>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={monthlyData}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                          <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
-                          <YAxis stroke="#6b7280" fontSize={12} label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }} />
-                          <Tooltip 
-                            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }}
-                            formatter={(value: number) => [`${value.toLocaleString()} kWh`, '']}
-                          />
-                          <Legend wrapperStyle={{ fontSize: '12px' }} />
-                          <Bar dataKey="usage" fill="#3b82f6" name="Energy Usage" radius={[8, 8, 0, 0]} />
-                          <Bar dataKey="production" fill="#10b981" name="Solar Production" radius={[8, 8, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    {/* Energy Cost Over Time Chart */}
-                    <div>
-                      <h4 className="text-sm font-semibold text-gray-700 mb-3">Energy Cost Over Time</h4>
-                      <ResponsiveContainer width="100%" height={250}>
-                        <LineChart data={monthlyData}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                          <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
-                          <YAxis stroke="#6b7280" fontSize={12} label={{ value: 'Cost ($)', angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }} />
-                          <Tooltip 
-                            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }}
-                            formatter={(value: number) => [formatCurrency(value), 'Monthly Cost']}
-                          />
-                          <Legend wrapperStyle={{ fontSize: '12px' }} />
-                          <Line 
-                            type="monotone" 
-                            dataKey="cost" 
-                            stroke="#ef4444" 
-                            strokeWidth={3}
-                            name="Monthly Cost"
-                            dot={{ fill: '#ef4444', r: 4 }}
-                            activeDot={{ r: 6 }}
-                          />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </div>
-
-                    {/* Energy Source Breakdown and Savings - Side by Side */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {/* Energy Source Breakdown Pie Chart */}
-                      <div>
-                        <h4 className="text-sm font-semibold text-gray-700 mb-3">Energy Source Breakdown</h4>
-                        <ResponsiveContainer width="100%" height={250}>
-                          <PieChart>
-                            <Pie
-                              data={energyBreakdown}
-                              cx="50%"
-                              cy="50%"
-                              labelLine={false}
-                              label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
-                              outerRadius={80}
-                              fill="#8884d8"
-                              dataKey="value"
-                            >
-                              {energyBreakdown.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                              ))}
-                            </Pie>
-                            <Tooltip 
-                              contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }}
-                              formatter={(value: number) => [`${value.toLocaleString()} kWh`, '']}
-                            />
-                            <Legend wrapperStyle={{ fontSize: '12px' }} />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-
-                      {/* Cost Savings Projection (if system exists) */}
-                      {project.system && (
-                        <div>
-                          <h4 className="text-sm font-semibold text-gray-700 mb-3">25-Year Savings Projection</h4>
-                          <ResponsiveContainer width="100%" height={250}>
-                            <AreaChart data={savingsData.slice(0, 10)}>
-                              <defs>
-                                <linearGradient id="colorSavingsOverview" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
-                                </linearGradient>
-                                <linearGradient id="colorNetSavingsOverview" x1="0" y1="0" x2="0" y2="1">
-                                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                                </linearGradient>
-                              </defs>
-                              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                              <XAxis dataKey="year" stroke="#6b7280" fontSize={10} />
-                              <YAxis stroke="#6b7280" fontSize={10} label={{ value: 'Savings ($)', angle: -90, position: 'insideLeft', style: { fontSize: '10px' } }} />
-                              <Tooltip 
-                                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }}
-                                formatter={(value: number) => [formatCurrency(value), '']}
-                              />
-                              <Legend wrapperStyle={{ fontSize: '12px' }} />
-                              <Area 
-                                type="monotone" 
-                                dataKey="savings" 
-                                stroke="#10b981" 
-                                fillOpacity={1}
-                                fill="url(#colorSavingsOverview)"
-                                name="Cumulative Savings"
-                              />
-                              <Area 
-                                type="monotone" 
-                                dataKey="netSavings" 
-                                stroke="#3b82f6" 
-                                fillOpacity={1}
-                                fill="url(#colorNetSavingsOverview)"
-                                name="Net Savings"
-                              />
-                            </AreaChart>
-                          </ResponsiveContainer>
-                        </div>
-                      )}
-                    </div>
-
-                    {!project.analysis && (
-                      <p className="text-center text-sm text-muted-foreground py-2">
-                        Using estimated data. Upload bills to see actual usage and costs.
-                      </p>
-                    )}
-                  </div>
+                  {/* Charts Section - Dynamically loaded to avoid SSR issues */}
+                  <EnergyCharts 
+                    monthlyData={monthlyData}
+                    savingsData={savingsData}
+                    energyBreakdown={energyBreakdown}
+                    hasSystem={!!project.system}
+                  />
+                  {!project.analysis && (
+                    <p className="text-center text-sm text-muted-foreground py-2 mt-4">
+                      Using estimated data. Upload bills to see actual usage and costs.
+                    </p>
+                  )}
                 </CardContent>
               </CollapsibleContent>
             </Card>
@@ -1140,234 +1020,28 @@ export default function ProjectDetailsPage() {
         </TabsContent>
 
         <TabsContent value="energy" className="space-y-4">
-          {/* Monthly Energy Usage Chart */}
-          <Collapsible open={expandedCards.has('monthlyUsage')} onOpenChange={() => toggleCard('monthlyUsage')}>
-            <Card className="bg-white/95 backdrop-blur-sm">
-              <CollapsibleTrigger asChild>
-                <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-blue-600" />
-                      Monthly Energy Usage & Production
-                    </CardTitle>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      {expandedCards.has('monthlyUsage') ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                </CardHeader>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <CardContent>
-                  <div className="mt-4">
-                    <ResponsiveContainer width="100%" height={350}>
-                      <BarChart data={monthlyData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                        <XAxis dataKey="month" stroke="#6b7280" />
-                        <YAxis stroke="#6b7280" label={{ value: 'kWh', angle: -90, position: 'insideLeft' }} />
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                          formatter={(value: number) => [`${value.toLocaleString()} kWh`, '']}
-                        />
-                        <Legend />
-                        <Bar dataKey="usage" fill="#3b82f6" name="Energy Usage" radius={[8, 8, 0, 0]} />
-                        <Bar dataKey="production" fill="#10b981" name="Solar Production" radius={[8, 8, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                    {!project.analysis && (
-                      <p className="text-center text-sm text-muted-foreground mt-2">
-                        Using estimated data. Upload bills to see actual usage.
-                      </p>
-                    )}
-                  </div>
-                </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
-
-          {/* Energy Cost Over Time */}
-          <Collapsible open={expandedCards.has('costOverTime')} onOpenChange={() => toggleCard('costOverTime')}>
-            <Card className="bg-white/95 backdrop-blur-sm">
-              <CollapsibleTrigger asChild>
-                <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <DollarSign className="h-5 w-5 text-green-600" />
-                      Energy Cost Over Time
-                    </CardTitle>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      {expandedCards.has('costOverTime') ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                </CardHeader>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <CardContent>
-                  <div className="mt-4">
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={monthlyData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                        <XAxis dataKey="month" stroke="#6b7280" />
-                        <YAxis stroke="#6b7280" label={{ value: 'Cost ($)', angle: -90, position: 'insideLeft' }} />
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                          formatter={(value: number) => [formatCurrency(value), 'Monthly Cost']}
-                        />
-                        <Legend />
-                        <Line 
-                          type="monotone" 
-                          dataKey="cost" 
-                          stroke="#ef4444" 
-                          strokeWidth={3}
-                          name="Monthly Cost"
-                          dot={{ fill: '#ef4444', r: 4 }}
-                          activeDot={{ r: 6 }}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                    {!project.analysis && (
-                      <p className="text-center text-sm text-muted-foreground mt-2">
-                        Using estimated data. Upload bills to see actual costs.
-                      </p>
-                    )}
-                  </div>
-                </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
-
-          {/* Cost Savings Projection */}
-          {project.system && (
-            <Collapsible open={expandedCards.has('savings')} onOpenChange={() => toggleCard('savings')}>
-              <Card className="bg-white/95 backdrop-blur-sm">
-                <CollapsibleTrigger asChild>
-                  <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5 text-purple-600" />
-                        25-Year Cost Savings Projection
-                      </CardTitle>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        {expandedCards.has('savings') ? (
-                          <ChevronUp className="h-4 w-4" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </CardHeader>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <CardContent>
-                    <div className="mt-4">
-                      <ResponsiveContainer width="100%" height={350}>
-                        <AreaChart data={savingsData}>
-                          <defs>
-                            <linearGradient id="colorSavings" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                              <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
-                            </linearGradient>
-                            <linearGradient id="colorNetSavings" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                              <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
-                            </linearGradient>
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                          <XAxis dataKey="year" stroke="#6b7280" />
-                          <YAxis stroke="#6b7280" label={{ value: 'Savings ($)', angle: -90, position: 'insideLeft' }} />
-                          <Tooltip 
-                            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                            formatter={(value: number) => [formatCurrency(value), '']}
-                          />
-                          <Legend />
-                          <Area 
-                            type="monotone" 
-                            dataKey="savings" 
-                            stroke="#10b981" 
-                            fillOpacity={1}
-                            fill="url(#colorSavings)"
-                            name="Cumulative Savings"
-                          />
-                          <Area 
-                            type="monotone" 
-                            dataKey="netSavings" 
-                            stroke="#3b82f6" 
-                            fillOpacity={1}
-                            fill="url(#colorNetSavings)"
-                            name="Net Savings (After System Cost)"
-                          />
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </CollapsibleContent>
-              </Card>
-            </Collapsible>
-          )}
-
-          {/* Energy Breakdown Pie Chart */}
-          <Collapsible open={expandedCards.has('breakdown')} onOpenChange={() => toggleCard('breakdown')}>
-            <Card className="bg-white/95 backdrop-blur-sm">
-              <CollapsibleTrigger asChild>
-                <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <Zap className="h-5 w-5 text-yellow-600" />
-                      Energy Source Breakdown
-                    </CardTitle>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                      {expandedCards.has('breakdown') ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                </CardHeader>
-              </CollapsibleTrigger>
-              <CollapsibleContent>
-                <CardContent>
-                  <div className="mt-4">
-                    <ResponsiveContainer width="100%" height={350}>
-                      <PieChart>
-                        <Pie
-                          data={energyBreakdown}
-                          cx="50%"
-                          cy="50%"
-                          labelLine={false}
-                          label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
-                          outerRadius={100}
-                          fill="#8884d8"
-                          dataKey="value"
-                        >
-                          {energyBreakdown.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <Tooltip 
-                          contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px' }}
-                          formatter={(value: number) => [`${value.toLocaleString()} kWh`, '']}
-                        />
-                        <Legend />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    {!project.system && (
-                      <p className="text-center text-sm text-muted-foreground mt-2">
-                        Configure system to see solar production breakdown.
-                      </p>
-                    )}
-                  </div>
-                </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
+          {/* All Energy Charts - Dynamically loaded to avoid SSR issues */}
+          <Card className="bg-white/95 backdrop-blur-sm">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-purple-600" />
+                Energy Analysis Charts
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <EnergyCharts 
+                monthlyData={monthlyData}
+                savingsData={savingsData}
+                energyBreakdown={energyBreakdown}
+                hasSystem={!!project.system}
+              />
+              {!project.analysis && (
+                <p className="text-center text-sm text-muted-foreground py-2 mt-4">
+                  Using estimated data. Upload bills to see actual usage and costs.
+                </p>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Solar Production & Load Analysis */}
           <Collapsible open={expandedCards.has('energy')} onOpenChange={() => toggleCard('energy')}>
