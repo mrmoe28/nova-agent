@@ -45,7 +45,7 @@ export default function EnergyCharts({ monthlyData, savingsData, energyBreakdown
   // Ensure we have data before rendering
   if (!monthlyData || monthlyData.length === 0) {
     return (
-      <div className="text-center py-8 text-sm text-muted-foreground">
+      <div className="text-center py-8 text-sm text-gray-600">
         No data available for charts.
       </div>
     );
@@ -60,7 +60,7 @@ export default function EnergyCharts({ monthlyData, savingsData, energyBreakdown
 
   if (!mounted) {
     return (
-      <div className="text-center py-8 text-sm text-muted-foreground">
+      <div className="text-center py-8 text-sm text-gray-600">
         Loading charts...
       </div>
     );

@@ -467,8 +467,8 @@ export default function ProjectDetailsPage() {
                 <FileText className="h-5 w-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Bills</p>
-                <p className="text-xl font-semibold">{project.bills?.length || 0}</p>
+                <p className="text-sm text-gray-600">Bills</p>
+                <p className="text-xl font-semibold text-gray-900">{project.bills?.length || 0}</p>
               </div>
             </div>
           </CardContent>
@@ -484,11 +484,11 @@ export default function ProjectDetailsPage() {
                 <Zap className="h-5 w-5 text-yellow-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Solar</p>
-                <p className="text-xl font-semibold">
+                <p className="text-sm text-gray-600">Solar</p>
+                <p className="text-xl font-semibold text-gray-900">
                   {project.system?.totalSolarKw || 0}kW
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-gray-600">
                   {project.system?.solarPanelCount || 0} Panels
                 </p>
               </div>
@@ -503,11 +503,11 @@ export default function ProjectDetailsPage() {
                 <Battery className="h-5 w-5 text-green-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Battery</p>
-                <p className="text-xl font-semibold">
+                <p className="text-sm text-gray-600">Battery</p>
+                <p className="text-xl font-semibold text-gray-900">
                   {project.system?.batteryKwh || 0}kWh
                 </p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-gray-600">
                   {project.system?.backupDurationHrs || 0}hr Backup
                 </p>
               </div>
@@ -525,9 +525,9 @@ export default function ProjectDetailsPage() {
                 <Archive className="h-5 w-5 text-orange-600" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">BOM Items</p>
-                <p className="text-xl font-semibold">{bomItems.length}</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-sm text-gray-600">BOM Items</p>
+                <p className="text-xl font-semibold text-gray-900">{bomItems.length}</p>
+                <p className="text-xs text-gray-600">
                   {formatCurrency(bomItems.reduce((sum, item) => sum + item.totalPriceUsd, 0))} Total
                 </p>
               </div>
@@ -579,8 +579,8 @@ export default function ProjectDetailsPage() {
                       <DollarSign className="h-5 w-5 text-emerald-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Estimated Cost</p>
-                      <p className="text-xl font-semibold">
+                      <p className="text-sm text-gray-600">Estimated Cost</p>
+                      <p className="text-xl font-semibold text-gray-900">
                         {formatCurrency(totalProjectCost)}
                       </p>
                     </div>
@@ -599,16 +599,16 @@ export default function ProjectDetailsPage() {
               <CardContent className="pt-0 pb-4">
                 <div className="grid grid-cols-3 gap-4 text-sm">
                   <div>
-                    <p className="text-muted-foreground">BOM Cost</p>
-                    <p className="font-semibold">{formatCurrency(totalBomCost)}</p>
+                    <p className="text-gray-600">BOM Cost</p>
+                    <p className="font-semibold text-gray-900">{formatCurrency(totalBomCost)}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Labor</p>
-                    <p className="font-semibold">{formatCurrency(laborCost)}</p>
+                    <p className="text-gray-600">Labor</p>
+                    <p className="font-semibold text-gray-900">{formatCurrency(laborCost)}</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Permits & Fees</p>
-                    <p className="font-semibold">{formatCurrency(permitsFees)}</p>
+                    <p className="text-gray-600">Permits & Fees</p>
+                    <p className="font-semibold text-gray-900">{formatCurrency(permitsFees)}</p>
                   </div>
                 </div>
               </CardContent>
@@ -634,7 +634,7 @@ export default function ProjectDetailsPage() {
               <CollapsibleTrigger asChild>
                 <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-gray-900">
                       <TrendingUp className="h-5 w-5 text-purple-600" />
                       Energy Analysis
                     </CardTitle>
@@ -697,12 +697,12 @@ export default function ProjectDetailsPage() {
                       hasSystem={!!project.system}
                     />
                   ) : (
-                    <div className="text-center py-8 text-sm text-muted-foreground">
+                    <div className="text-center py-8 text-sm text-gray-600">
                       Preparing chart data...
                     </div>
                   )}
                   {!project.analysis && (
-                    <p className="text-center text-sm text-muted-foreground py-2 mt-4">
+                    <p className="text-center text-sm text-gray-600 py-2 mt-4">
                       Using estimated data. Upload bills to see actual usage and costs.
                     </p>
                   )}
@@ -718,10 +718,10 @@ export default function ProjectDetailsPage() {
                 <CollapsibleTrigger asChild>
                   <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
                     <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2">
-                        <Settings className="h-5 w-5" />
-                        System Configuration
-                      </CardTitle>
+                    <CardTitle className="flex items-center gap-2 text-gray-900">
+                      <Settings className="h-5 w-5" />
+                      System Configuration
+                    </CardTitle>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                         {expandedCards.has('system') ? (
                           <ChevronUp className="h-4 w-4" />
@@ -736,19 +736,19 @@ export default function ProjectDetailsPage() {
                   <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                    <h4 className="font-semibold text-sm text-gray-600 uppercase tracking-wide">
                       Solar Array
                     </h4>
                     <div className="space-y-2">
-                      <div className="flex justify-between">
+                      <div className="flex justify-between text-gray-900">
                         <span>Panel Count:</span>
                         <span className="font-semibold">{project.system.solarPanelCount}</span>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between text-gray-900">
                         <span>Panel Wattage:</span>
                         <span className="font-semibold">{project.system.solarPanelWattage}W</span>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between text-gray-900">
                         <span>Total Capacity:</span>
                         <span className="font-semibold">{project.system.totalSolarKw}kW</span>
                       </div>
@@ -756,19 +756,19 @@ export default function ProjectDetailsPage() {
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                    <h4 className="font-semibold text-sm text-gray-600 uppercase tracking-wide">
                       Battery Storage
                     </h4>
                     <div className="space-y-2">
-                      <div className="flex justify-between">
+                      <div className="flex justify-between text-gray-900">
                         <span>Capacity:</span>
                         <span className="font-semibold">{project.system.batteryKwh}kWh</span>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between text-gray-900">
                         <span>Type:</span>
                         <span className="font-semibold">{project.system.batteryType || 'Lithium'}</span>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between text-gray-900">
                         <span>Backup Duration:</span>
                         <span className="font-semibold">{project.system.backupDurationHrs}hrs</span>
                       </div>
@@ -776,15 +776,15 @@ export default function ProjectDetailsPage() {
                   </div>
 
                   <div className="space-y-4">
-                    <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                    <h4 className="font-semibold text-sm text-gray-600 uppercase tracking-wide">
                       Inverter
                     </h4>
                     <div className="space-y-2">
-                      <div className="flex justify-between">
+                      <div className="flex justify-between text-gray-900">
                         <span>Capacity:</span>
                         <span className="font-semibold">{project.system.inverterKw}kW</span>
                       </div>
-                      <div className="flex justify-between">
+                      <div className="flex justify-between text-gray-900">
                         <span>Type:</span>
                         <span className="font-semibold">{project.system.inverterType || 'Hybrid String'}</span>
                       </div>
@@ -803,7 +803,7 @@ export default function ProjectDetailsPage() {
               <CollapsibleTrigger asChild>
                 <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-gray-900">
                       <Calculator className="h-5 w-5" />
                       Cost Breakdown
                     </CardTitle>
@@ -820,22 +820,22 @@ export default function ProjectDetailsPage() {
               <CollapsibleContent>
                 <CardContent>
               <div className="space-y-4">
-                <div className="flex justify-between text-lg">
+                <div className="flex justify-between text-lg text-gray-900">
                   <span>Equipment Total:</span>
                   <span className="font-semibold">{formatCurrency(totalBomCost)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-gray-900">
                   <span>Installation Labor:</span>
                   <span className="font-semibold">
                     {formatCurrency((plan?.laborHoursEst || 0) * 150)} ({plan?.laborHoursEst || 0}hrs)
                   </span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between text-gray-900">
                   <span>Permits & Fees:</span>
                   <span className="font-semibold">{formatCurrency(2500)}</span>
                 </div>
                 <Separator />
-                <div className="flex justify-between text-xl font-bold">
+                <div className="flex justify-between text-xl font-bold text-gray-900">
                   <span>Total Project Cost:</span>
                   <span className="text-green-600">
                     {formatCurrency(totalProjectCost)}
@@ -854,7 +854,7 @@ export default function ProjectDetailsPage() {
               <CollapsibleTrigger asChild>
                 <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
                   <div className="flex items-center justify-between">
-                    <CardTitle>Bill of Materials</CardTitle>
+                    <CardTitle className="text-gray-900">Bill of Materials</CardTitle>
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                       {expandedCards.has('equipment') ? (
                         <ChevronUp className="h-4 w-4" />
@@ -872,12 +872,12 @@ export default function ProjectDetailsPage() {
                   <table className="w-full">
                     <thead>
                       <tr className="border-b">
-                        <th className="text-left py-3">Category</th>
-                        <th className="text-left py-3">Item</th>
-                        <th className="text-left py-3">Model</th>
-                        <th className="text-right py-3">Qty</th>
-                        <th className="text-right py-3">Unit Price</th>
-                        <th className="text-right py-3">Total</th>
+                        <th className="text-left py-3 text-gray-900">Category</th>
+                        <th className="text-left py-3 text-gray-900">Item</th>
+                        <th className="text-left py-3 text-gray-900">Model</th>
+                        <th className="text-right py-3 text-gray-900">Qty</th>
+                        <th className="text-right py-3 text-gray-900">Unit Price</th>
+                        <th className="text-right py-3 text-gray-900">Total</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -888,16 +888,16 @@ export default function ProjectDetailsPage() {
                           </td>
                           <td className="py-3">
                             <div>
-                              <p className="font-medium">{item.itemName}</p>
+                              <p className="font-medium text-gray-900">{item.itemName}</p>
                               {item.manufacturer && (
-                                <p className="text-sm text-muted-foreground">{item.manufacturer}</p>
+                                <p className="text-sm text-gray-600">{item.manufacturer}</p>
                               )}
                             </div>
                           </td>
-                          <td className="py-3 font-mono text-sm">{item.modelNumber}</td>
-                          <td className="py-3 text-right">{item.quantity}</td>
-                          <td className="py-3 text-right">{formatCurrency(item.unitPriceUsd)}</td>
-                          <td className="py-3 text-right font-semibold">
+                          <td className="py-3 font-mono text-sm text-gray-900">{item.modelNumber}</td>
+                          <td className="py-3 text-right text-gray-900">{item.quantity}</td>
+                          <td className="py-3 text-right text-gray-900">{formatCurrency(item.unitPriceUsd)}</td>
+                          <td className="py-3 text-right font-semibold text-gray-900">
                             {formatCurrency(item.totalPriceUsd)}
                           </td>
                         </tr>
@@ -905,10 +905,10 @@ export default function ProjectDetailsPage() {
                     </tbody>
                     <tfoot>
                       <tr className="border-t-2">
-                        <td colSpan={5} className="py-3 text-right font-semibold">
+                        <td colSpan={5} className="py-3 text-right font-semibold text-gray-900">
                           Total Equipment Cost:
                         </td>
-                        <td className="py-3 text-right text-lg font-bold">
+                        <td className="py-3 text-right text-lg font-bold text-gray-900">
                           {formatCurrency(totalBomCost)}
                         </td>
                       </tr>
@@ -916,7 +916,7 @@ export default function ProjectDetailsPage() {
                   </table>
                 </div>
               ) : (
-                <p className="text-center text-muted-foreground py-8">
+                <p className="text-center text-gray-600 py-8">
                   No equipment list generated yet.
                 </p>
               )}
@@ -945,7 +945,7 @@ export default function ProjectDetailsPage() {
                   <CollapsibleTrigger asChild>
                     <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
                       <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-2">
+                        <CardTitle className="flex items-center gap-2 text-gray-900">
                           <TrendingUp className="h-5 w-5" />
                           Usage Analysis Summary
                         </CardTitle>
@@ -965,7 +965,7 @@ export default function ProjectDetailsPage() {
                     const billsWithUsage = project.bills.filter(b => b.extractedData?.kwhUsed);
                     if (billsWithUsage.length === 0) {
                       return (
-                        <p className="text-center text-muted-foreground py-4">
+                        <p className="text-center text-gray-600 py-4">
                           No usage data available from uploaded bills.
                         </p>
                       );
@@ -1016,8 +1016,8 @@ export default function ProjectDetailsPage() {
             <Card className="bg-white/95 backdrop-blur-sm">
               <CardContent className="text-center py-12">
                 <FileText className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No Bills Uploaded</h3>
-                <p className="text-muted-foreground mb-4">
+                <h3 className="text-lg font-semibold mb-2 text-gray-900">No Bills Uploaded</h3>
+                <p className="text-gray-600 mb-4">
                   Upload utility bills to analyze energy usage and optimize system sizing.
                 </p>
                 <Button onClick={() => router.push(`/wizard/${project.id}/intake`)}>
@@ -1032,7 +1032,7 @@ export default function ProjectDetailsPage() {
           {/* All Energy Charts - Dynamically loaded to avoid SSR issues */}
           <Card className="bg-white/95 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 text-gray-900">
                 <TrendingUp className="h-5 w-5 text-purple-600" />
                 Energy Analysis Charts
               </CardTitle>
@@ -1045,7 +1045,7 @@ export default function ProjectDetailsPage() {
                 hasSystem={!!project.system}
               />
               {!project.analysis && (
-                <p className="text-center text-sm text-muted-foreground py-2 mt-4">
+                <p className="text-center text-sm text-gray-600 py-2 mt-4">
                   Using estimated data. Upload bills to see actual usage and costs.
                 </p>
               )}
@@ -1058,7 +1058,7 @@ export default function ProjectDetailsPage() {
               <CollapsibleTrigger asChild>
                 <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-gray-900">
                       <Settings className="h-5 w-5" />
                       System Performance Metrics
                     </CardTitle>
@@ -1125,7 +1125,7 @@ export default function ProjectDetailsPage() {
                       </div>
                     </div>
                   ) : (
-                    <p className="text-center text-muted-foreground py-8">
+                    <p className="text-center text-gray-600 py-8">
                       System sizing not completed yet.
                     </p>
                   )}
@@ -1141,7 +1141,7 @@ export default function ProjectDetailsPage() {
               <CollapsibleTrigger asChild>
                 <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className="flex items-center gap-2 text-gray-900">
                       <Clock className="h-5 w-5" />
                       Installation Plan
                     </CardTitle>
@@ -1161,13 +1161,13 @@ export default function ProjectDetailsPage() {
                 <div className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <h4 className="font-semibold mb-3">Project Timeline</h4>
+                      <h4 className="font-semibold mb-3 text-gray-900">Project Timeline</h4>
                       <div className="space-y-2">
-                        <div className="flex justify-between">
+                        <div className="flex justify-between text-gray-900">
                           <span>Duration:</span>
                           <span className="font-semibold">{plan.timeline}</span>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between text-gray-900">
                           <span>Labor Hours:</span>
                           <span className="font-semibold">{plan.laborHoursEst} hours</span>
                         </div>
@@ -1175,20 +1175,20 @@ export default function ProjectDetailsPage() {
                     </div>
 
                     <div>
-                      <h4 className="font-semibold mb-3">Permits</h4>
-                      <p className="text-sm text-muted-foreground">{plan.permitNotes}</p>
+                      <h4 className="font-semibold mb-3 text-gray-900">Permits</h4>
+                      <p className="text-sm text-gray-600">{plan.permitNotes}</p>
                     </div>
                   </div>
 
                   <div>
-                    <h4 className="font-semibold mb-3">Installation Steps</h4>
+                    <h4 className="font-semibold mb-3 text-gray-900">Installation Steps</h4>
                     <div className="space-y-2">
                       {plan.installSteps.map((step, index) => (
                         <div key={index} className="flex items-start gap-3">
                           <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-semibold">
                             {index + 1}
                           </div>
-                          <p>{step}</p>
+                          <p className="text-gray-900">{step}</p>
                         </div>
                       ))}
                     </div>
@@ -1208,7 +1208,7 @@ export default function ProjectDetailsPage() {
                   )}
                 </div>
               ) : (
-                <p className="text-center text-muted-foreground py-8">
+                <p className="text-center text-gray-600 py-8">
                   Installation plan not generated yet.
                 </p>
               )}
