@@ -12,6 +12,19 @@ export async function GET() {
           select: {
             id: true,
             category: true,
+            imageUrl: true,
+            name: true,
+          },
+          where: {
+            imageUrl: {
+              not: null,
+            },
+          },
+          take: 1, // Just get one item with an image for the thumbnail
+        },
+        _count: {
+          select: {
+            equipment: true, // Get total count of all equipment
           },
         },
       },
