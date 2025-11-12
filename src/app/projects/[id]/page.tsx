@@ -123,7 +123,7 @@ export default function ProjectDetailsPage() {
   const [showBOMModal, setShowBOMModal] = useState(false);
   const [showBillsModal, setShowBillsModal] = useState(false);
   const [showPanelModal, setShowPanelModal] = useState(false);
-  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set(['cost', 'monthlyUsage', 'costOverTime']));
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set(['cost', 'energyAnalysis', 'monthlyUsage', 'costOverTime']));
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
@@ -293,7 +293,6 @@ export default function ProjectDetailsPage() {
     const annualProduction = energyMetrics ? energyMetrics.annualProduction : 0;
     const monthlyUsage = project.analysis?.monthlyUsageKwh || 1200;
     const annualUsage = monthlyUsage * 12;
-    const costPerKwh = project.analysis?.averageCostPerKwh || 0.15;
     
     // Calculate solar coverage percentage
     const solarCoverage = annualProduction > 0 ? Math.min((annualProduction / annualUsage) * 100, 100) : 0;
@@ -629,6 +628,200 @@ export default function ProjectDetailsPage() {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
+          {/* Energy Analysis Section with Charts */}
+          <Collapsible open={expandedCards.has('energyAnalysis')} onOpenChange={() => toggleCard('energyAnalysis')}>
+            <Card className="bg-white/95 backdrop-blur-sm">
+              <CollapsibleTrigger asChild>
+                <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-purple-600" />
+                      Energy Analysis
+                    </CardTitle>
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      {expandedCards.has('energyAnalysis') ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </CardHeader>
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <CardContent className="pt-6">
+                  {/* Four Metric Cards */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div className="bg-white p-4 rounded-lg border border-gray-100">
+                      <div className="text-2xl font-bold text-gray-900">
+                        {(project.analysis?.monthlyUsageKwh || 1200).toLocaleString()}
+                      </div>
+                      <div className="text-xs text-gray-600">kWh/month</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {((project.analysis?.monthlyUsageKwh || 1200) / 30).toFixed(0)} kWh/day
+                      </div>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg border border-gray-100">
+                      <div className="text-2xl font-bold text-gray-900">
+                        {project.analysis?.peakDemandKw || 8.5}
+                      </div>
+                      <div className="text-xs text-gray-600">Peak kW</div>
+                      <div className="text-xs text-gray-500 mt-1">Max demand</div>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg border border-gray-100">
+                      <div className="text-2xl font-bold text-gray-900">
+                        {formatCurrency(project.analysis?.averageCostPerKwh || 0.15)}
+                      </div>
+                      <div className="text-xs text-gray-600">Avg $/kWh</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {formatCurrency((project.analysis?.annualCostUsd || 2160) / 12)}/mo
+                      </div>
+                    </div>
+                    <div className="bg-white p-4 rounded-lg border border-gray-100">
+                      <div className="text-2xl font-bold text-gray-900">
+                        {formatCurrency(project.analysis?.annualCostUsd || 2160)}
+                      </div>
+                      <div className="text-xs text-gray-600">Annual Cost</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {((project.analysis?.monthlyUsageKwh || 1200) * 12).toLocaleString()} kWh/yr
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Charts Section */}
+                  <div className="space-y-6 mt-6">
+                    {/* Monthly Energy Usage & Production Chart */}
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3">Monthly Energy Usage & Production</h4>
+                      <ResponsiveContainer width="100%" height={300}>
+                        <BarChart data={monthlyData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                          <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
+                          <YAxis stroke="#6b7280" fontSize={12} label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }} />
+                          <Tooltip 
+                            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }}
+                            formatter={(value: number) => [`${value.toLocaleString()} kWh`, '']}
+                          />
+                          <Legend wrapperStyle={{ fontSize: '12px' }} />
+                          <Bar dataKey="usage" fill="#3b82f6" name="Energy Usage" radius={[8, 8, 0, 0]} />
+                          <Bar dataKey="production" fill="#10b981" name="Solar Production" radius={[8, 8, 0, 0]} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    {/* Energy Cost Over Time Chart */}
+                    <div>
+                      <h4 className="text-sm font-semibold text-gray-700 mb-3">Energy Cost Over Time</h4>
+                      <ResponsiveContainer width="100%" height={250}>
+                        <LineChart data={monthlyData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                          <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
+                          <YAxis stroke="#6b7280" fontSize={12} label={{ value: 'Cost ($)', angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }} />
+                          <Tooltip 
+                            contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }}
+                            formatter={(value: number) => [formatCurrency(value), 'Monthly Cost']}
+                          />
+                          <Legend wrapperStyle={{ fontSize: '12px' }} />
+                          <Line 
+                            type="monotone" 
+                            dataKey="cost" 
+                            stroke="#ef4444" 
+                            strokeWidth={3}
+                            name="Monthly Cost"
+                            dot={{ fill: '#ef4444', r: 4 }}
+                            activeDot={{ r: 6 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+
+                    {/* Energy Source Breakdown and Savings - Side by Side */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {/* Energy Source Breakdown Pie Chart */}
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-700 mb-3">Energy Source Breakdown</h4>
+                        <ResponsiveContainer width="100%" height={250}>
+                          <PieChart>
+                            <Pie
+                              data={energyBreakdown}
+                              cx="50%"
+                              cy="50%"
+                              labelLine={false}
+                              label={({ name, percent }) => `${name}: ${((percent || 0) * 100).toFixed(0)}%`}
+                              outerRadius={80}
+                              fill="#8884d8"
+                              dataKey="value"
+                            >
+                              {energyBreakdown.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Pie>
+                            <Tooltip 
+                              contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }}
+                              formatter={(value: number) => [`${value.toLocaleString()} kWh`, '']}
+                            />
+                            <Legend wrapperStyle={{ fontSize: '12px' }} />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </div>
+
+                      {/* Cost Savings Projection (if system exists) */}
+                      {project.system && (
+                        <div>
+                          <h4 className="text-sm font-semibold text-gray-700 mb-3">25-Year Savings Projection</h4>
+                          <ResponsiveContainer width="100%" height={250}>
+                            <AreaChart data={savingsData.slice(0, 10)}>
+                              <defs>
+                                <linearGradient id="colorSavingsOverview" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
+                                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
+                                </linearGradient>
+                                <linearGradient id="colorNetSavingsOverview" x1="0" y1="0" x2="0" y2="1">
+                                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                                </linearGradient>
+                              </defs>
+                              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                              <XAxis dataKey="year" stroke="#6b7280" fontSize={10} />
+                              <YAxis stroke="#6b7280" fontSize={10} label={{ value: 'Savings ($)', angle: -90, position: 'insideLeft', style: { fontSize: '10px' } }} />
+                              <Tooltip 
+                                contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }}
+                                formatter={(value: number) => [formatCurrency(value), '']}
+                              />
+                              <Legend wrapperStyle={{ fontSize: '12px' }} />
+                              <Area 
+                                type="monotone" 
+                                dataKey="savings" 
+                                stroke="#10b981" 
+                                fillOpacity={1}
+                                fill="url(#colorSavingsOverview)"
+                                name="Cumulative Savings"
+                              />
+                              <Area 
+                                type="monotone" 
+                                dataKey="netSavings" 
+                                stroke="#3b82f6" 
+                                fillOpacity={1}
+                                fill="url(#colorNetSavingsOverview)"
+                                name="Net Savings"
+                              />
+                            </AreaChart>
+                          </ResponsiveContainer>
+                        </div>
+                      )}
+                    </div>
+
+                    {!project.analysis && (
+                      <p className="text-center text-sm text-muted-foreground py-2">
+                        Using estimated data. Upload bills to see actual usage and costs.
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </CollapsibleContent>
+            </Card>
+          </Collapsible>
+
           {/* System Overview */}
           {project.system && (
             <Collapsible open={expandedCards.has('system')} onOpenChange={() => toggleCard('system')}>
