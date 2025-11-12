@@ -152,6 +152,43 @@ export const AI_CONFIG = {
 } as const;
 
 // ============================================================================
+// AI ASSISTANT CONFIGURATION
+// ============================================================================
+
+/**
+ * NovaAgent AI Assistant configuration
+ * Used in: src/lib/ai-assistant-service.ts, src/app/api/chat/route.ts
+ * Hybrid Ollama + OpenAI setup for cost-effective, reliable AI assistance
+ */
+export const AI_ASSISTANT_CONFIG = {
+  /** OpenAI API key (required for fallback) */
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY || "",
+
+  /** Ollama endpoint for local inference (optional) */
+  OLLAMA_ENDPOINT: process.env.OLLAMA_ENDPOINT || "",
+
+  /** Ollama model to use locally */
+  OLLAMA_MODEL: process.env.OLLAMA_MODEL || "llama3.1:8b",
+
+  /** Default provider: "ollama" or "openai" */
+  DEFAULT_PROVIDER: (process.env.AI_DEFAULT_PROVIDER || "ollama") as
+    | "ollama"
+    | "openai",
+
+  /** OpenAI model for cloud inference */
+  OPENAI_MODEL: process.env.OPENAI_MODEL || "gpt-4o-mini",
+
+  /** Enable web search capability */
+  ENABLE_WEB_SEARCH: process.env.AI_ENABLE_WEB_SEARCH === "true",
+
+  /** Maximum conversation history messages */
+  MAX_HISTORY: parseInt(process.env.AI_MAX_HISTORY || "10"),
+
+  /** Assistant response timeout (milliseconds) */
+  RESPONSE_TIMEOUT: parseInt(process.env.AI_RESPONSE_TIMEOUT || "30000"),
+} as const;
+
+// ============================================================================
 // FILE UPLOAD CONFIGURATION
 // ============================================================================
 
@@ -237,6 +274,7 @@ export const CONFIG = {
   SCRAPER_CONFIG,
   BROWSER_CONFIG,
   AI_CONFIG,
+  AI_ASSISTANT_CONFIG,
   UPLOAD_CONFIG,
   OCR_CONFIG,
   CACHE_CONFIG,
@@ -248,6 +286,7 @@ export type SystemSizingConfig = typeof SYSTEM_SIZING;
 export type ScraperConfig = typeof SCRAPER_CONFIG;
 export type BrowserConfig = typeof BROWSER_CONFIG;
 export type AIConfig = typeof AI_CONFIG;
+export type AIAssistantConfig = typeof AI_ASSISTANT_CONFIG;
 export type UploadConfig = typeof UPLOAD_CONFIG;
 export type OCRConfig = typeof OCR_CONFIG;
 export type CacheConfig = typeof CACHE_CONFIG;
