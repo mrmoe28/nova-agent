@@ -40,7 +40,16 @@ interface EnergyChartsProps {
   hasSystem: boolean;
 }
 
-export function EnergyCharts({ monthlyData, savingsData, energyBreakdown, hasSystem }: EnergyChartsProps) {
+export default function EnergyCharts({ monthlyData, savingsData, energyBreakdown, hasSystem }: EnergyChartsProps) {
+  // Ensure we have data before rendering
+  if (!monthlyData || monthlyData.length === 0) {
+    return (
+      <div className="text-center py-8 text-sm text-muted-foreground">
+        No data available for charts.
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6 mt-6">
       {/* Monthly Energy Usage & Production Chart */}

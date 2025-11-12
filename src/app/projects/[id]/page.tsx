@@ -36,12 +36,15 @@ import dynamic from "next/dynamic";
 
 // Dynamically import charts to avoid SSR issues with recharts
 const EnergyCharts = dynamic(
-  () => import("@/components/EnergyCharts").then(mod => ({ default: mod.EnergyCharts })),
+  () => import("@/components/EnergyCharts"),
   { 
     ssr: false,
     loading: () => (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-sm text-muted-foreground">Loading charts...</div>
+      <div className="flex items-center justify-center p-8 min-h-[400px]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <div className="text-sm text-muted-foreground">Loading charts...</div>
+        </div>
       </div>
     )
   }
@@ -686,12 +689,18 @@ export default function ProjectDetailsPage() {
                   </div>
 
                   {/* Charts Section - Dynamically loaded to avoid SSR issues */}
-                  <EnergyCharts 
-                    monthlyData={monthlyData}
-                    savingsData={savingsData}
-                    energyBreakdown={energyBreakdown}
-                    hasSystem={!!project.system}
-                  />
+                  {monthlyData && monthlyData.length > 0 ? (
+                    <EnergyCharts 
+                      monthlyData={monthlyData}
+                      savingsData={savingsData}
+                      energyBreakdown={energyBreakdown}
+                      hasSystem={!!project.system}
+                    />
+                  ) : (
+                    <div className="text-center py-8 text-sm text-muted-foreground">
+                      Preparing chart data...
+                    </div>
+                  )}
                   {!project.analysis && (
                     <p className="text-center text-sm text-muted-foreground py-2 mt-4">
                       Using estimated data. Upload bills to see actual usage and costs.
