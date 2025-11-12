@@ -336,6 +336,165 @@ export function generateNovaAgentPDF(
         );
       }
 
+      // ========== ENERGY SAVINGS GRAPH PAGE ==========
+      if (analysis && system) {
+        doc.addPage();
+
+        doc
+          .fillColor(brandNavy)
+          .fontSize(28)
+          .font("Helvetica-Bold")
+          .text("Energy Savings Analysis", 50, 50);
+
+        yPos = 120;
+
+        const solarProduction = system.totalSolarKw * 4 * 30; // Monthly production estimate
+        const solarCoverage = Math.min(
+          (solarProduction / analysis.monthlyUsageKwh) * 100,
+          100,
+        );
+        const annualSavings = (analysis.annualCostUsd * solarCoverage) / 100;
+        const paybackYears = system.estimatedCostUsd / annualSavings;
+
+        // Draw savings visualization graph
+        const graphX = 70;
+        const graphY = yPos;
+        const graphWidth = 460;
+        const graphHeight = 280;
+
+        // Background
+        doc.fillColor("#F9FAFB").rect(graphX, graphY, graphWidth, graphHeight).fill();
+
+        // Title
+        doc
+          .fillColor(brandCyan)
+          .fontSize(16)
+          .font("Helvetica-Bold")
+          .text("25-Year Cumulative Savings", graphX + 20, graphY + 20);
+
+        // Draw axes
+        const chartX = graphX + 50;
+        const chartY = graphY + 60;
+        const chartWidth = graphWidth - 80;
+        const chartHeight = graphHeight - 100;
+
+        doc.strokeColor("#9CA3AF").lineWidth(1);
+        // Y-axis
+        doc.moveTo(chartX, chartY).lineTo(chartX, chartY + chartHeight).stroke();
+        // X-axis
+        doc.moveTo(chartX, chartY + chartHeight).lineTo(chartX + chartWidth, chartY + chartHeight).stroke();
+
+        // Draw bars for savings over 25 years
+        const years = [0, 5, 10, 15, 20, 25];
+        const barWidth = chartWidth / (years.length + 1);
+        const maxSavings = annualSavings * 25;
+
+        years.forEach((year, index) => {
+          const cumulativeSavings = year === 0 ? 0 : annualSavings * year;
+          const barHeight = (cumulativeSavings / maxSavings) * chartHeight;
+          const barX = chartX + (index + 1) * barWidth - barWidth / 2;
+          const barY = chartY + chartHeight - barHeight;
+
+          // Bar color (gradient from cyan to green)
+          const barColor = year < paybackYears ? "#F59E0B" : "#10B981";
+          doc.fillColor(barColor).rect(barX, barY, barWidth * 0.6, barHeight).fill();
+
+          // Year label
+          doc
+            .fillColor(textDark)
+            .fontSize(9)
+            .font("Helvetica")
+            .text(`${year}yr`, barX - 10, chartY + chartHeight + 10);
+
+          // Value label
+          if (year > 0) {
+            doc
+              .fillColor(textDark)
+              .fontSize(8)
+              .text(
+                `${formatCurrency(cumulativeSavings)}`,
+                barX - 20,
+                barY - 15,
+                { width: 60, align: "center" }
+              );
+          }
+        });
+
+        // Y-axis labels
+        doc.fillColor(textLight).fontSize(8).font("Helvetica");
+        doc.text("$0", chartX - 40, chartY + chartHeight - 5);
+        doc.text(
+          formatCurrency(maxSavings / 2),
+          chartX - 40,
+          chartY + chartHeight / 2 - 5
+        );
+        doc.text(formatCurrency(maxSavings), chartX - 40, chartY - 5);
+
+        // Breakeven line
+        if (paybackYears <= 25) {
+          const breakEvenX = chartX + ((paybackYears / 25) * chartWidth);
+          doc
+            .strokeColor("#EF4444")
+            .lineWidth(2)
+            .dash(5, { space: 3 })
+            .moveTo(breakEvenX, chartY)
+            .lineTo(breakEvenX, chartY + chartHeight)
+            .stroke()
+            .undash();
+
+          doc
+            .fillColor("#EF4444")
+            .fontSize(9)
+            .font("Helvetica-Bold")
+            .text(
+              `Breakeven: ${paybackYears.toFixed(1)}yr`,
+              breakEvenX - 35,
+              chartY - 20
+            );
+        }
+
+        yPos = graphY + graphHeight + 40;
+
+        // Key metrics below graph
+        const metricsBoxWidth = 145;
+        const metricsX1 = 70;
+        const metricsX2 = 230;
+        const metricsX3 = 390;
+
+        // Metric 1: Annual Savings
+        doc.fillColor("#D1FAE5").rect(metricsX1, yPos, metricsBoxWidth, 70).fill();
+        doc
+          .fillColor("#065F46")
+          .fontSize(11)
+          .font("Helvetica-Bold")
+          .text("Annual Savings", metricsX1 + 10, yPos + 15);
+        doc
+          .fontSize(20)
+          .text(formatCurrency(annualSavings), metricsX1 + 10, yPos + 35);
+
+        // Metric 2: Payback Period
+        doc.fillColor("#FEF3C7").rect(metricsX2, yPos, metricsBoxWidth, 70).fill();
+        doc
+          .fillColor("#92400E")
+          .fontSize(11)
+          .font("Helvetica-Bold")
+          .text("Payback Period", metricsX2 + 10, yPos + 15);
+        doc
+          .fontSize(20)
+          .text(`${paybackYears.toFixed(1)} years`, metricsX2 + 10, yPos + 35);
+
+        // Metric 3: 25-Year Savings
+        doc.fillColor("#DBEAFE").rect(metricsX3, yPos, metricsBoxWidth, 70).fill();
+        doc
+          .fillColor("#1E40AF")
+          .fontSize(11)
+          .font("Helvetica-Bold")
+          .text("25-Year Savings", metricsX3 + 10, yPos + 15);
+        doc
+          .fontSize(20)
+          .text(formatCurrency(maxSavings), metricsX3 + 10, yPos + 35);
+      }
+
       // ========== EQUIPMENT PAGES ==========
       // Find main equipment items
       const solarPanels = bomItems.filter((item) =>
@@ -353,97 +512,92 @@ export function generateNovaAgentPDF(
         doc.addPage();
         const panel = solarPanels[0];
 
+        // Page title at top
         doc
           .fillColor(brandNavy)
           .fontSize(28)
           .font("Helvetica-Bold")
           .text("Solar Panels", 50, 50);
 
-        yPos = 110;
+        // Equipment name
+        doc
+          .fillColor(brandCyan)
+          .fontSize(20)
+          .font("Helvetica-Bold")
+          .text(panel.itemName, 50, 95, { width: 500 });
 
-        // Try to fetch and display image
+        yPos = 135;
+
+        // Try to fetch and display image (centered)
+        let imageHeight = 0;
         if (panel.imageUrl) {
           const imageBuffer = await fetchImageBuffer(panel.imageUrl);
           if (imageBuffer) {
             try {
-              doc.image(imageBuffer, 150, yPos, {
-                width: 300,
-                align: "center",
-              });
-              yPos += 230;
+              const imgWidth = 280;
+              const imgX = (doc.page.width - imgWidth) / 2; // Center image
+              doc.image(imageBuffer, imgX, yPos, { width: imgWidth, fit: [imgWidth, 200] });
+              imageHeight = 210; // Reserve space for image
+              yPos += imageHeight;
             } catch {
               // Image failed to load, skip
             }
           }
         }
 
-        // Panel specifications
-        doc
-          .fillColor(brandCyan)
-          .fontSize(18)
-          .font("Helvetica-Bold")
-          .text(panel.itemName, 50, yPos);
-        yPos += 30;
+        // Add spacing after image
+        yPos += 20;
 
-        doc.fillColor(textDark).fontSize(11).font("Helvetica");
+        // Specifications in two-column layout
+        const leftColX = 70;
+        const rightColX = 320;
+        const specFontSize = 11;
+
+        doc.fillColor(textDark).fontSize(specFontSize).font("Helvetica");
+
+        // Left column
+        let leftY = yPos;
 
         if (panel.manufacturer) {
-          doc
-            .font("Helvetica-Bold")
-            .text("Manufacturer: ", 70, yPos, { continued: true })
-            .font("Helvetica")
-            .text(panel.manufacturer);
-          yPos += 20;
+          doc.font("Helvetica-Bold").text("Manufacturer:", leftColX, leftY);
+          doc.font("Helvetica").text(panel.manufacturer, leftColX, leftY + 15, { width: 200 });
+          leftY += 40;
         }
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Model: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(panel.modelNumber);
-        yPos += 20;
+        doc.font("Helvetica-Bold").text("Model Number:", leftColX, leftY);
+        doc.font("Helvetica").text(panel.modelNumber, leftColX, leftY + 15, { width: 200 });
+        leftY += 40;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Quantity: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(`${panel.quantity} panels`);
-        yPos += 20;
+        doc.font("Helvetica-Bold").text("Quantity:", leftColX, leftY);
+        doc.font("Helvetica").text(`${panel.quantity} panels`, leftColX, leftY + 15);
+        leftY += 40;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Power per Panel: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(`${system.solarPanelWattage}W`);
-        yPos += 20;
+        doc.font("Helvetica-Bold").text("Power per Panel:", leftColX, leftY);
+        doc.font("Helvetica").text(`${system.solarPanelWattage}W`, leftColX, leftY + 15);
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Total Array Power: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(`${system.totalSolarKw.toFixed(2)} kW`);
-        yPos += 20;
+        // Right column
+        let rightY = yPos;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Unit Price: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(formatCurrency(panel.unitPriceUsd));
-        yPos += 20;
+        doc.font("Helvetica-Bold").text("Total Array Power:", rightColX, rightY);
+        doc.font("Helvetica").text(`${system.totalSolarKw.toFixed(2)} kW`, rightColX, rightY + 15);
+        rightY += 40;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Total Cost: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(formatCurrency(panel.totalPriceUsd));
+        doc.font("Helvetica-Bold").text("Unit Price:", rightColX, rightY);
+        doc.font("Helvetica").text(formatCurrency(panel.unitPriceUsd), rightColX, rightY + 15);
+        rightY += 40;
 
+        doc.font("Helvetica-Bold").text("Total Cost:", rightColX, rightY);
+        doc.fillColor(brandCyan).fontSize(16).font("Helvetica-Bold")
+          .text(formatCurrency(panel.totalPriceUsd), rightColX, rightY + 15);
+
+        // Notes at bottom (larger font)
         if (panel.notes) {
-          yPos += 30;
+          yPos = Math.max(leftY, rightY) + 60;
           doc
             .fillColor(textLight)
-            .fontSize(9)
+            .fontSize(10)
             .font("Helvetica")
-            .text(panel.notes, 70, yPos, { width: 470 });
+            .text(panel.notes, 70, yPos, { width: 470, align: "justify" });
         }
       }
 
@@ -452,104 +606,96 @@ export function generateNovaAgentPDF(
         doc.addPage();
         const battery = batteries[0];
 
+        // Page title at top
         doc
           .fillColor(brandNavy)
           .fontSize(28)
           .font("Helvetica-Bold")
           .text("Battery Storage", 50, 50);
 
-        yPos = 110;
+        // Equipment name
+        doc
+          .fillColor(brandCyan)
+          .fontSize(20)
+          .font("Helvetica-Bold")
+          .text(battery.itemName, 50, 95, { width: 500 });
 
-        // Try to fetch and display image
+        yPos = 135;
+
+        // Try to fetch and display image (centered)
+        let imageHeight = 0;
         if (battery.imageUrl) {
           const imageBuffer = await fetchImageBuffer(battery.imageUrl);
           if (imageBuffer) {
             try {
-              doc.image(imageBuffer, 150, yPos, {
-                width: 300,
-                align: "center",
-              });
-              yPos += 230;
+              const imgWidth = 280;
+              const imgX = (doc.page.width - imgWidth) / 2; // Center image
+              doc.image(imageBuffer, imgX, yPos, { width: imgWidth, fit: [imgWidth, 200] });
+              imageHeight = 210;
+              yPos += imageHeight;
             } catch {
               // Image failed to load, skip
             }
           }
         }
 
-        // Battery specifications
-        doc
-          .fillColor(brandCyan)
-          .fontSize(18)
-          .font("Helvetica-Bold")
-          .text(battery.itemName, 50, yPos);
-        yPos += 30;
+        // Add spacing after image
+        yPos += 20;
 
-        doc.fillColor(textDark).fontSize(11).font("Helvetica");
+        // Specifications in two-column layout
+        const leftColX = 70;
+        const rightColX = 320;
+        const specFontSize = 11;
+
+        doc.fillColor(textDark).fontSize(specFontSize).font("Helvetica");
+
+        // Left column
+        let leftY = yPos;
 
         if (battery.manufacturer) {
-          doc
-            .font("Helvetica-Bold")
-            .text("Manufacturer: ", 70, yPos, { continued: true })
-            .font("Helvetica")
-            .text(battery.manufacturer);
-          yPos += 20;
+          doc.font("Helvetica-Bold").text("Manufacturer:", leftColX, leftY);
+          doc.font("Helvetica").text(battery.manufacturer, leftColX, leftY + 15, { width: 200 });
+          leftY += 40;
         }
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Model: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(battery.modelNumber);
-        yPos += 20;
+        doc.font("Helvetica-Bold").text("Model Number:", leftColX, leftY);
+        doc.font("Helvetica").text(battery.modelNumber, leftColX, leftY + 15, { width: 200 });
+        leftY += 40;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Quantity: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(`${battery.quantity} unit(s)`);
-        yPos += 20;
+        doc.font("Helvetica-Bold").text("Quantity:", leftColX, leftY);
+        doc.font("Helvetica").text(`${battery.quantity} unit(s)`, leftColX, leftY + 15);
+        leftY += 40;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Storage Capacity: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(`${system.batteryKwh.toFixed(2)} kWh`);
-        yPos += 20;
+        doc.font("Helvetica-Bold").text("Battery Type:", leftColX, leftY);
+        doc.font("Helvetica").text(system.batteryType, leftColX, leftY + 15);
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Battery Type: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(system.batteryType);
-        yPos += 20;
+        // Right column
+        let rightY = yPos;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Backup Duration: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(`${system.backupDurationHrs} hours`);
-        yPos += 20;
+        doc.font("Helvetica-Bold").text("Storage Capacity:", rightColX, rightY);
+        doc.font("Helvetica").text(`${system.batteryKwh.toFixed(2)} kWh`, rightColX, rightY + 15);
+        rightY += 40;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Unit Price: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(formatCurrency(battery.unitPriceUsd));
-        yPos += 20;
+        doc.font("Helvetica-Bold").text("Backup Duration:", rightColX, rightY);
+        doc.font("Helvetica").text(`${system.backupDurationHrs} hours`, rightColX, rightY + 15);
+        rightY += 40;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Total Cost: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(formatCurrency(battery.totalPriceUsd));
+        doc.font("Helvetica-Bold").text("Unit Price:", rightColX, rightY);
+        doc.font("Helvetica").text(formatCurrency(battery.unitPriceUsd), rightColX, rightY + 15);
+        rightY += 40;
 
+        doc.font("Helvetica-Bold").text("Total Cost:", rightColX, rightY);
+        doc.fillColor(brandCyan).fontSize(16).font("Helvetica-Bold")
+          .text(formatCurrency(battery.totalPriceUsd), rightColX, rightY + 15);
+
+        // Notes at bottom (larger font)
         if (battery.notes) {
-          yPos += 30;
+          yPos = Math.max(leftY, rightY) + 60;
           doc
             .fillColor(textLight)
-            .fontSize(9)
+            .fontSize(10)
             .font("Helvetica")
-            .text(battery.notes, 70, yPos, { width: 470 });
+            .text(battery.notes, 70, yPos, { width: 470, align: "justify" });
         }
       }
 
@@ -558,104 +704,96 @@ export function generateNovaAgentPDF(
         doc.addPage();
         const inverter = inverters[0];
 
+        // Page title at top
         doc
           .fillColor(brandNavy)
           .fontSize(28)
           .font("Helvetica-Bold")
           .text("Inverter", 50, 50);
 
-        yPos = 110;
+        // Equipment name
+        doc
+          .fillColor(brandCyan)
+          .fontSize(20)
+          .font("Helvetica-Bold")
+          .text(inverter.itemName, 50, 95, { width: 500 });
 
-        // Try to fetch and display image
+        yPos = 135;
+
+        // Try to fetch and display image (centered)
+        let imageHeight = 0;
         if (inverter.imageUrl) {
           const imageBuffer = await fetchImageBuffer(inverter.imageUrl);
           if (imageBuffer) {
             try {
-              doc.image(imageBuffer, 150, yPos, {
-                width: 300,
-                align: "center",
-              });
-              yPos += 230;
+              const imgWidth = 280;
+              const imgX = (doc.page.width - imgWidth) / 2; // Center image
+              doc.image(imageBuffer, imgX, yPos, { width: imgWidth, fit: [imgWidth, 200] });
+              imageHeight = 210;
+              yPos += imageHeight;
             } catch {
               // Image failed to load, skip
             }
           }
         }
 
-        // Inverter specifications
-        doc
-          .fillColor(brandCyan)
-          .fontSize(18)
-          .font("Helvetica-Bold")
-          .text(inverter.itemName, 50, yPos);
-        yPos += 30;
+        // Add spacing after image
+        yPos += 20;
 
-        doc.fillColor(textDark).fontSize(11).font("Helvetica");
+        // Specifications in two-column layout
+        const leftColX = 70;
+        const rightColX = 320;
+        const specFontSize = 11;
+
+        doc.fillColor(textDark).fontSize(specFontSize).font("Helvetica");
+
+        // Left column
+        let leftY = yPos;
 
         if (inverter.manufacturer) {
-          doc
-            .font("Helvetica-Bold")
-            .text("Manufacturer: ", 70, yPos, { continued: true })
-            .font("Helvetica")
-            .text(inverter.manufacturer);
-          yPos += 20;
+          doc.font("Helvetica-Bold").text("Manufacturer:", leftColX, leftY);
+          doc.font("Helvetica").text(inverter.manufacturer, leftColX, leftY + 15, { width: 200 });
+          leftY += 40;
         }
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Model: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(inverter.modelNumber);
-        yPos += 20;
+        doc.font("Helvetica-Bold").text("Model Number:", leftColX, leftY);
+        doc.font("Helvetica").text(inverter.modelNumber, leftColX, leftY + 15, { width: 200 });
+        leftY += 40;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Quantity: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(`${inverter.quantity} unit(s)`);
-        yPos += 20;
+        doc.font("Helvetica-Bold").text("Quantity:", leftColX, leftY);
+        doc.font("Helvetica").text(`${inverter.quantity} unit(s)`, leftColX, leftY + 15);
+        leftY += 40;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Power Rating: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(`${system.inverterKw.toFixed(2)} kW`);
-        yPos += 20;
+        doc.font("Helvetica-Bold").text("Type:", leftColX, leftY);
+        doc.font("Helvetica").text(system.inverterType, leftColX, leftY + 15);
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Type: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(system.inverterType);
-        yPos += 20;
+        // Right column
+        let rightY = yPos;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Critical Load Coverage: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(`${system.criticalLoadKw.toFixed(2)} kW`);
-        yPos += 20;
+        doc.font("Helvetica-Bold").text("Power Rating:", rightColX, rightY);
+        doc.font("Helvetica").text(`${system.inverterKw.toFixed(2)} kW`, rightColX, rightY + 15);
+        rightY += 40;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Unit Price: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(formatCurrency(inverter.unitPriceUsd));
-        yPos += 20;
+        doc.font("Helvetica-Bold").text("Critical Load Coverage:", rightColX, rightY);
+        doc.font("Helvetica").text(`${system.criticalLoadKw.toFixed(2)} kW`, rightColX, rightY + 15);
+        rightY += 40;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Total Cost: ", 70, yPos, { continued: true })
-          .font("Helvetica")
-          .text(formatCurrency(inverter.totalPriceUsd));
+        doc.font("Helvetica-Bold").text("Unit Price:", rightColX, rightY);
+        doc.font("Helvetica").text(formatCurrency(inverter.unitPriceUsd), rightColX, rightY + 15);
+        rightY += 40;
 
+        doc.font("Helvetica-Bold").text("Total Cost:", rightColX, rightY);
+        doc.fillColor(brandCyan).fontSize(16).font("Helvetica-Bold")
+          .text(formatCurrency(inverter.totalPriceUsd), rightColX, rightY + 15);
+
+        // Notes at bottom (larger font)
         if (inverter.notes) {
-          yPos += 30;
+          yPos = Math.max(leftY, rightY) + 60;
           doc
             .fillColor(textLight)
-            .fontSize(9)
+            .fontSize(10)
             .font("Helvetica")
-            .text(inverter.notes, 70, yPos, { width: 470 });
+            .text(inverter.notes, 70, yPos, { width: 470, align: "justify" });
         }
       }
 
