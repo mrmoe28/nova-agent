@@ -105,12 +105,12 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] via-[#0F1629] to-[#0A0F1C]">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] via-[#0F1629] to-[#0A0F1C] -mx-4 sm:-mx-6 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)]">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-[#22D3EE]/10 to-transparent" />
-        <div className="px-6 py-16 relative max-w-none w-full">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="py-16 relative max-w-none w-full">
+          <div className="px-6 flex items-center gap-3 mb-4">
             <div className="p-3 bg-[#22D3EE]/20 rounded-xl">
               <Zap className="h-8 w-8 text-[#22D3EE]" />
             </div>
@@ -118,10 +118,10 @@ export default function DashboardPage() {
               NovaAgent <span className="text-[#22D3EE]">AI</span>
             </h1>
           </div>
-          <p className="text-xl text-gray-300 max-w-2xl">
+          <p className="px-6 text-xl text-gray-300 max-w-2xl">
             Solar & Battery Energy Planning Platform
           </p>
-          <div className="mt-6 flex gap-4">
+          <div className="px-6 mt-6 flex gap-4">
             <Button
               onClick={() => router.push("/wizard/new")}
               className="bg-[#22D3EE] hover:bg-[#1BB5CF] text-white px-6 py-6 text-lg"
@@ -141,8 +141,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="px-6 py-12 w-full max-w-none">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+      <div className="py-12 w-full max-w-none">
+        <div className="px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <Card className="bg-gradient-to-br from-[#1a2332] to-[#0F1629] border-[#22D3EE]/20 p-6">
             <div className="flex items-start justify-between">
               <div>
@@ -209,7 +209,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Recent Projects Section */}
-        <div>
+        <div className="px-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-white flex items-center gap-3">
               <FileText className="h-6 w-6 text-[#22D3EE]" />
