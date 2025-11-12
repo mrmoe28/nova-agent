@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Mark pdf-parse as external for Server Components
-  serverExternalPackages: ['pdf-parse'],
+  // Mark pdf-parse and pdfkit as external for Server Components
+  // pdfkit needs to be external to properly bundle font files in serverless
+  serverExternalPackages: ['pdf-parse', 'pdfkit'],
   
   // Temporarily disable ESLint during build
   eslint: {
