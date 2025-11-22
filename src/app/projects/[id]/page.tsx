@@ -283,7 +283,7 @@ export default function ProjectDetailsPage() {
     const systemSpecs = calculateSystemFromBOM();
     if (!systemSpecs && !project?.system) return null;
     
-    const specs = systemSpecs || project.system;
+    const specs = systemSpecs || (project?.system || null);
     if (!specs) return null;
     
     const dailySolarProduction = specs.totalSolarKw * 4; // Assume 4 peak sun hours
