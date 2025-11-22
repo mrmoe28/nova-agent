@@ -6,6 +6,7 @@ import {
   detectCategory,
   deepCrawlForProducts,
   isProductPageUrl,
+  scrapeShopifyCollectionPage,
 } from "@/lib/scraper";
 import {
   getBrowserScraper,
@@ -162,55 +163,94 @@ export async function POST(request: NextRequest) {
         logger.info({ url }, "Detected product page - scraping directly");
         allProductLinks = [url];
       } else {
-        // URL is a category page - deep crawl to find products
-        logger.info(
-          { url },
-          "Detected category page - starting deep crawl for products",
-        );
-
-        // Add timeout protection: start timer to ensure we don't exceed function limit
-        const startTime = Date.now();
-        const SAFE_TIMEOUT_MS = 50000; // Leave 10 seconds buffer before 60s limit
-
-        const crawlResult = await logOperation(
-          logger,
-          "deep-crawl",
-          async () => {
-            const result = await deepCrawlForProducts(url, {
-              maxPages, // Configurable: Crawl up to N pages to find all products
-              maxDepth, // Configurable: Follow subcategories and sub-sublinks up to N levels deep
-              concurrency: 5, // Process 5 pages in parallel for faster crawling
-              config: {
-                rateLimit: 200, // Fast rate limit
-                timeout: 5000, // 5 second timeout
+        // Check if this is a Shopify collection page - extract products directly
+        const isShopifyCollection = url.includes("/collections/") || url.includes("shopify");
+        if (isShopifyCollection) {
+          logger.info(
+            { url },
+            "Detected Shopify collection page - extracting products directly",
+          );
+          
+          const collectionProducts = await logOperation(
+            logger,
+            "shopify-collection-scrape",
+            () =>
+              scrapeShopifyCollectionPage(url, {
+                rateLimit: 200,
+                timeout: 10000,
                 respectRobotsTxt: true,
                 maxRetries: 1,
-              },
-            });
+              }),
+            { url },
+          );
 
-            // Check if we're running out of time
-            const elapsed = Date.now() - startTime;
-            if (elapsed > SAFE_TIMEOUT_MS) {
-              logger.warn(
-                { elapsed, productLinks: result.productLinks.length },
-                "Deep crawl approaching timeout limit, stopping early",
-              );
-            }
+          if (collectionProducts.length > 0) {
+            // Use products extracted from collection page
+            scrapedProducts = collectionProducts;
+            logger.info(
+              { productsFound: collectionProducts.length },
+              "Extracted products directly from Shopify collection page",
+            );
+          } else {
+            // Fall back to deep crawl if direct extraction failed
+            logger.info(
+              { url },
+              "Direct extraction failed, falling back to deep crawl",
+            );
+          }
+        }
 
-            return result;
-          },
-          { url, maxPages, maxDepth },
-        );
+        // If we didn't get products from collection page, do deep crawl
+        if (scrapedProducts.length === 0) {
+          logger.info(
+            { url },
+            "Detected category page - starting deep crawl for products",
+          );
 
-        allProductLinks = crawlResult.productLinks;
-        logger.info(
-          {
-            productLinks: allProductLinks.length,
-            pagesVisited: crawlResult.pagesVisited.length,
-            catalogPages: crawlResult.catalogPages.length,
-          },
-          "Deep crawl completed",
-        );
+          // Add timeout protection: start timer to ensure we don't exceed function limit
+          const startTime = Date.now();
+          const SAFE_TIMEOUT_MS = 50000; // Leave 10 seconds buffer before 60s limit
+
+          const crawlResult = await logOperation(
+            logger,
+            "deep-crawl",
+            async () => {
+              const result = await deepCrawlForProducts(url, {
+                maxPages, // Configurable: Crawl up to N pages to find all products
+                maxDepth, // Configurable: Follow subcategories and sub-sublinks up to N levels deep
+                concurrency: 5, // Process 5 pages in parallel for faster crawling
+                config: {
+                  rateLimit: 200, // Fast rate limit
+                  timeout: 5000, // 5 second timeout
+                  respectRobotsTxt: true,
+                  maxRetries: 1,
+                },
+              });
+
+              // Check if we're running out of time
+              const elapsed = Date.now() - startTime;
+              if (elapsed > SAFE_TIMEOUT_MS) {
+                logger.warn(
+                  { elapsed, productLinks: result.productLinks.length },
+                  "Deep crawl approaching timeout limit, stopping early",
+                );
+              }
+
+              return result;
+            },
+            { url, maxPages, maxDepth },
+          );
+
+          allProductLinks = crawlResult.productLinks;
+          logger.info(
+            {
+              productLinks: allProductLinks.length,
+              pagesVisited: crawlResult.pagesVisited.length,
+              catalogPages: crawlResult.catalogPages.length,
+            },
+            "Deep crawl completed",
+          );
+        }
       }
     }
 

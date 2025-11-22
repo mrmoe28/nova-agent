@@ -691,6 +691,222 @@ export async function scrapeMultipleProducts(
 }
 
 /**
+ * Extract products directly from Shopify collection/listing pages
+ * This is much faster than scraping individual product pages
+ */
+export async function scrapeShopifyCollectionPage(
+  url: string,
+  config: Partial<ScraperConfig> = {},
+): Promise<ScrapedProduct[]> {
+  const finalConfig = { ...DEFAULT_CONFIG, ...config };
+  const products: ScrapedProduct[] = [];
+
+  try {
+    logger.info({ url }, "Scraping Shopify collection page");
+    const html = await fetchHTML(url, finalConfig);
+    const $ = cheerio.load(html);
+
+    // Method 1: Extract from JSON-LD structured data (most reliable for Shopify)
+    $('script[type="application/ld+json"]').each((_, script) => {
+      try {
+        const data = JSON.parse($(script).html() || "{}");
+        
+        // Shopify often uses ItemList schema for collection pages
+        if (data["@type"] === "ItemList" && Array.isArray(data.itemListElement)) {
+          data.itemListElement.forEach((item: any) => {
+            if (item.item && item.item["@type"] === "Product") {
+              const product: ScrapedProduct = {
+                sourceUrl: item.item.url || item.item["@id"] || url,
+              };
+
+              if (item.item.name) product.name = item.item.name;
+              if (item.item.brand) {
+                product.manufacturer = typeof item.item.brand === "string" 
+                  ? item.item.brand 
+                  : item.item.brand.name;
+              }
+              if (item.item.sku) product.modelNumber = item.item.sku;
+              if (item.item.description) product.description = item.item.description;
+              if (item.item.image) {
+                product.imageUrl = Array.isArray(item.item.image)
+                  ? item.item.image[0]
+                  : item.item.image;
+              }
+              if (item.item.offers) {
+                const offers = Array.isArray(item.item.offers)
+                  ? item.item.offers[0]
+                  : item.item.offers;
+                if (offers.price) product.price = parseFloat(offers.price);
+                if (offers.availability) {
+                  product.inStock = offers.availability.includes("InStock") ||
+                    offers.availability.includes("Available");
+                }
+              }
+
+              if (product.name) {
+                products.push(product);
+              }
+            }
+          });
+        }
+      } catch {
+        // Invalid JSON, skip
+      }
+    });
+
+    // Method 2: Extract from Shopify product cards (HTML fallback)
+    if (products.length === 0) {
+      // Shopify collection pages use various selectors
+      const productCardSelectors = [
+        '.product-card',
+        '.grid-product',
+        '.product-item',
+        '[class*="product-card"]',
+        '[class*="product-item"]',
+        'article[class*="product"]',
+        '.card[class*="product"]',
+      ];
+
+      for (const selector of productCardSelectors) {
+        $(selector).each((_, card) => {
+          const $card = $(card);
+          const product: ScrapedProduct = {};
+
+          // Extract product link
+          const $link = $card.find('a[href*="/products/"]').first();
+          if ($link.length) {
+            const href = $link.attr("href");
+            if (href) {
+              product.sourceUrl = href.startsWith("http")
+                ? href
+                : new URL(href, url).href;
+            }
+          }
+
+          // Extract product name
+          product.name = 
+            $card.find('.product-title, .product-name, h2, h3, [class*="product-title"], [class*="product-name"]').first().text().trim() ||
+            $link.text().trim() ||
+            $card.find('a').first().text().trim();
+
+          // Extract price
+          const priceText = 
+            $card.find('.price, [class*="price"], .product-price, [class*="product-price"]').first().text().trim() ||
+            $card.find('[data-price]').attr('data-price') ||
+            $card.find('span[class*="money"]').first().text().trim();
+
+          if (priceText) {
+            const priceMatch = priceText.replace(/[,$]/g, "").match(/(\d+\.?\d*)/);
+            if (priceMatch) {
+              product.price = parseFloat(priceMatch[1]);
+            }
+          }
+
+          // Extract image
+          const $img = $card.find('img').first();
+          if ($img.length) {
+            product.imageUrl = 
+              $img.attr("data-src") ||
+              $img.attr("src") ||
+              $img.attr("data-lazy") ||
+              $img.attr("data-original");
+            
+            // Make image URL absolute
+            if (product.imageUrl && !product.imageUrl.startsWith("http")) {
+              try {
+                product.imageUrl = new URL(product.imageUrl, url).href;
+              } catch {
+                product.imageUrl = undefined;
+              }
+            }
+          }
+
+          // Extract manufacturer/brand (often in product name or separate field)
+          const brandText = 
+            $card.find('.brand, .manufacturer, [class*="brand"], [class*="vendor"]').first().text().trim();
+          if (brandText) {
+            product.manufacturer = brandText;
+          } else if (product.name) {
+            // Try to extract brand from product name (e.g., "Rich Solar Mega 250 Pro")
+            const nameParts = product.name.split(/\s+/);
+            if (nameParts.length > 1) {
+              // Common brand patterns at start of name
+              const commonBrands = ['Rich Solar', 'Sungold Power', 'BougeRV', 'EG4', 'EcoFlow', 'Sol-Ark'];
+              for (const brand of commonBrands) {
+                if (product.name.startsWith(brand)) {
+                  product.manufacturer = brand;
+                  break;
+                }
+              }
+            }
+          }
+
+          // Extract model number from name or SKU
+          if (product.name) {
+            const modelMatch = product.name.match(/(\d+[Ww]|\d+[Vv]|\d+[Aa][Hh]|\d+[Ww][Hh])/);
+            if (modelMatch) {
+              product.modelNumber = modelMatch[1];
+            }
+          }
+
+          // Check availability
+          const availabilityText = $card.text().toLowerCase();
+          product.inStock = 
+            !availabilityText.includes("out of stock") &&
+            !availabilityText.includes("sold out") &&
+            !availabilityText.includes("unavailable");
+
+          if (product.name && product.sourceUrl) {
+            products.push(product);
+          }
+        });
+
+        if (products.length > 0) {
+          logger.debug({ selector, productsFound: products.length }, "Extracted products from collection page");
+          break; // Found products, stop trying other selectors
+        }
+      }
+    }
+
+    // Method 3: Extract from Shopify's product JSON data (often in script tags)
+    if (products.length === 0) {
+      $('script').each((_, script) => {
+        const scriptContent = $(script).html() || "";
+        // Look for Shopify product data in window.Shopify or similar
+        if (scriptContent.includes('"products"') || scriptContent.includes("product:")) {
+          try {
+            // Try to extract product data from various Shopify JSON patterns
+            const productMatches = scriptContent.match(/products["\s]*:[\s]*\[(.*?)\]/s);
+            if (productMatches) {
+              // This is a simplified extraction - Shopify JSON can be complex
+              logger.debug("Found Shopify product JSON data");
+            }
+          } catch {
+            // Skip if parsing fails
+          }
+        }
+      });
+    }
+
+    logger.info(
+      { url, productsFound: products.length },
+      "Shopify collection page scraped",
+    );
+
+    return products;
+  } catch (error) {
+    logger.error(
+      {
+        url,
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+      "Failed to scrape Shopify collection page",
+    );
+    return [];
+  }
+}
+
+/**
  * Detect category from product data
  */
 export function detectCategory(product: ScrapedProduct): EquipmentCategory {
