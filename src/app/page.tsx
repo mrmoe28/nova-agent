@@ -221,7 +221,7 @@ export default function Page() {
                 <Button
                   asChild
                   size="lg"
-                  className="bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 text-white font-semibold shadow-2xl shadow-violet-500/50 hover:shadow-violet-500/70 transition-all duration-300 text-base px-8 py-6"
+                  className="bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 text-white font-semibold shadow-2xl shadow-violet-500/50 transition-all duration-300 text-base px-8 py-6"
                 >
                   <Link href="/wizard/new" className="flex items-center justify-center gap-2">
                     <Sparkles className="h-5 w-5" />
@@ -234,7 +234,7 @@ export default function Page() {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="border-violet-500/30 text-white hover:bg-violet-500/10 hover:border-violet-500/50 transition-all duration-300 text-base px-8 py-6 backdrop-blur-sm"
+                  className="border-violet-500/30 text-white transition-all duration-300 text-base px-8 py-6 backdrop-blur-sm"
                 >
                   <Link href="/projects">View Projects</Link>
                 </Button>

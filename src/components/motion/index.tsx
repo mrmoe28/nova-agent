@@ -259,8 +259,6 @@ export function MotionButton({
 }: MotionButtonProps) {
   return (
     <motion.button
-      whileHover={!disabled ? { scale: 1.05 } : {}}
-      whileTap={!disabled ? { scale: 0.95 } : {}}
       onClick={onClick}
       disabled={disabled}
       className={className}

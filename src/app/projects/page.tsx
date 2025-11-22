@@ -407,7 +407,7 @@ export default function ProjectsPage() {
                       e.stopPropagation();
                       router.push(`/projects/${project.id}`);
                     }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-violet-100 dark:hover:bg-violet-900/30"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                   >
                     <Eye className="h-4 w-4 mr-1" />
                     View Details
@@ -420,7 +420,7 @@ export default function ProjectsPage() {
                       handleDeleteClick(project);
                     }}
                     disabled={deletingProject === project.id}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-red-100 text-red-600"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 text-red-600"
                   >
                     {deletingProject === project.id ? (
                       <Loader2 className="h-4 w-4 animate-spin" />

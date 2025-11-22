@@ -525,7 +525,7 @@ export default function ProjectDetailsPage() {
               variant="ghost"
               size="sm"
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="text-white hover:bg-white/10"
+              className="text-white"
             >
               <MoreVertical className="h-4 w-4" />
             </Button>
