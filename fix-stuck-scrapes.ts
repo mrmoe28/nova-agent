@@ -31,7 +31,9 @@ async function main() {
   if (stuckJobs.length > 0) {
     console.log("Marking as failed:");
     for (const job of stuckJobs) {
-      const elapsed = Math.round((Date.now() - job.startedAt.getTime()) / 1000 / 60);
+      const elapsed = job.startedAt
+        ? Math.round((Date.now() - job.startedAt.getTime()) / 1000 / 60)
+        : 0;
       console.log(`   - ${job.distributor?.name || "Unknown"} (stuck for ${elapsed}m)`);
       
       await prisma.crawlJob.update({
