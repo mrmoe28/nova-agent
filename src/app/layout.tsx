@@ -4,6 +4,7 @@ import BrandHeader from "@/components/BrandHeader";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AIAssistantWidget } from "@/components/AIAssistantWidget";
+import { CommandPalette } from "@/components/command-palette";
 
 export const metadata: Metadata = {
   title: "NovaAgent ⚡ – AI Energy Planner",
@@ -36,6 +37,7 @@ export default function RootLayout({
           <main className="w-full">{children}</main>
           <Toaster />
           <AIAssistantWidget />
+          <CommandPalette />
         </ThemeProvider>
       </body>
     </html>

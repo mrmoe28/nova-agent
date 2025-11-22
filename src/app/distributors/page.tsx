@@ -3,12 +3,15 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { DistributorCardSkeleton, EquipmentCardSkeleton } from "@/components/skeleton-loaders";
+import { EmptyState } from "@/components/empty-state";
 import {
   Select,
   SelectContent,
@@ -270,18 +273,56 @@ export default function DistributorsPage() {
           }}
         />
       ) : activeTab === "distributors" ? (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredDistributors.map((distributor) => {
+        <>
+          {loading ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {[...Array(6)].map((_, i) => (
+                <DistributorCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : filteredDistributors.length === 0 ? (
+            <EmptyState
+              icon={Building2}
+              title="No distributors found"
+              description={
+                searchQuery
+                  ? `No distributors match "${searchQuery}". Try a different search term.`
+                  : "Get started by adding your first distributor or discovering new ones."
+              }
+              action={
+                <div className="flex gap-3">
+                  <Button
+                    onClick={() => setActiveTab("discovery")}
+                    variant="outline"
+                  >
+                    <Zap className="mr-2 h-4 w-4" />
+                    Discover Distributors
+                  </Button>
+                  <Button onClick={() => setShowAddDistributor(true)}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Manually
+                  </Button>
+                </div>
+              }
+            />
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {filteredDistributors.map((distributor, index) => {
             const thumbnailEquipment = distributor.equipment?.find(
               (eq) => eq.imageUrl
             );
             
-            return (
-              <Card
-                key={distributor.id}
-                className="overflow-hidden bg-white border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 cursor-pointer group"
-                onClick={() => router.push(`/distributors/${distributor.id}`)}
-              >
+                return (
+                  <motion.div
+                    key={distributor.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: index * 0.05 }}
+                  >
+                    <Card
+                      className="overflow-hidden bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group"
+                      onClick={() => router.push(`/distributors/${distributor.id}`)}
+                    >
                 {/* Thumbnail Image */}
                 <div className="relative w-full h-48 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
                   {thumbnailEquipment?.imageUrl ? (
@@ -370,17 +411,49 @@ export default function DistributorsPage() {
                     </div>
                   )}
                 </div>
-              </Card>
-            );
-          })}
-        </div>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </div>
+          )}
+        </>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredEquipment.map((item) => (
-            <Card
-              key={item.id}
-              className="group p-0 bg-white border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-blue-300"
-            >
+        <>
+          {loading ? (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {[...Array(8)].map((_, i) => (
+                <EquipmentCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : filteredEquipment.length === 0 ? (
+            <EmptyState
+              icon={Package}
+              title="No equipment found"
+              description={
+                searchQuery
+                  ? `No equipment matches "${searchQuery}". Try a different search term.`
+                  : "No equipment available. Add equipment to distributors or scrape their websites."
+              }
+              action={
+                <Button onClick={() => setShowAddEquipment(true)}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Equipment
+                </Button>
+              }
+            />
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              {filteredEquipment.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <Card
+                    className="group p-0 bg-white border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:border-primary/50"
+                  >
               {/* Product Image */}
               <div className="relative w-full h-48 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
                 {item.imageUrl ? (
@@ -527,10 +600,13 @@ export default function DistributorsPage() {
                     </p>
                   </div>
                 )}
-              </div>
-            </Card>
-          ))}
-        </div>
+                </div>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Add/Edit Distributor Modal */}

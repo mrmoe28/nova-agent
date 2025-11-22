@@ -3,11 +3,14 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { EquipmentCardSkeleton } from "@/components/skeleton-loaders";
+import { EmptyState } from "@/components/empty-state";
 import {
   Select,
   SelectContent,
@@ -483,25 +486,49 @@ export default function DistributorDetailPage() {
           )}
         </div>
 
-        {distributor.equipment.length === 0 ? (
-          <Card className="p-8 text-center">
-            <p className="text-muted-foreground">
-              No equipment found. Try scraping the website to import products.
-            </p>
-          </Card>
+        {loading ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {[...Array(8)].map((_, i) => (
+              <EquipmentCardSkeleton key={i} />
+            ))}
+          </div>
+        ) : distributor.equipment.length === 0 ? (
+          <EmptyState
+            icon={Package}
+            title="No equipment found"
+            description="Try scraping the website to import products from this distributor."
+            action={
+              distributor.website && (
+                <Button onClick={handleRescrape} disabled={scraping}>
+                  <RefreshCw className={`mr-2 h-4 w-4 ${scraping ? "animate-spin" : ""}`} />
+                  {scraping ? "Scraping..." : "Scrape Website"}
+                </Button>
+              )
+            }
+          />
         ) : filteredEquipment.length === 0 ? (
-          <Card className="p-8 text-center">
-            <p className="text-muted-foreground">
-              No equipment found in this category.
-            </p>
-          </Card>
+          <EmptyState
+            icon={Package}
+            title="No equipment in this category"
+            description="Try selecting a different category or view all equipment."
+            action={
+              <Button onClick={() => setSelectedCategory("all")} variant="outline">
+                View All Categories
+              </Button>
+            }
+          />
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filteredEquipment.map((item) => (
-              <Card
+            {filteredEquipment.map((item, index) => (
+              <motion.div
                 key={item.id}
-                className="group p-0 bg-white border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-blue-300 cursor-pointer"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
               >
+                <Card
+                  className="group p-0 bg-white border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:border-primary/50 cursor-pointer"
+                >
                 {/* Product Image */}
                 <div className="relative w-full h-48 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
                   {item.imageUrl ? (
@@ -627,7 +654,8 @@ export default function DistributorDetailPage() {
                     </div>
                   )}
                 </div>
-              </Card>
+                </Card>
+              </motion.div>
             ))}
           </div>
         )}

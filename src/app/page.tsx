@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -193,8 +196,11 @@ export default function Page() {
                 <CardContent className="space-y-3 flex-1 flex flex-col justify-between">
                   <div className="space-y-3 flex-1">
                     {steps.map((step, index) => (
-                      <div
+                      <motion.div
                         key={step.number}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: index * 0.1 }}
                         className="flex gap-4 p-4 rounded-xl bg-[#0A0F1C]/60 hover:bg-[#0A0F1C]/80 transition-all duration-200 border border-gray-800/30 hover:border-cyan-500/30"
                       >
                         <div className="flex-shrink-0">
@@ -210,7 +216,7 @@ export default function Page() {
                             {step.description}
                           </p>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
 
@@ -251,13 +257,18 @@ export default function Page() {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature) => {
+            {features.map((feature, index) => {
               const Icon = feature.icon;
               return (
-                <Card
+                <motion.div
                   key={feature.title}
-                  className="group relative overflow-hidden transition-all duration-200 hover:shadow-lg hover:scale-[1.02]"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3, delay: index * 0.1 }}
                 >
+                  <Card
+                    className="group relative overflow-hidden transition-all duration-200 hover:shadow-xl hover:scale-[1.02] border-2 hover:border-primary/50"
+                  >
                   <CardHeader>
                     <div className="flex items-center justify-between mb-2">
                       <div className="rounded-lg bg-cyan-50 dark:bg-cyan-950/20 p-3">
@@ -272,7 +283,8 @@ export default function Page() {
                       {feature.description}
                     </CardDescription>
                   </CardHeader>
-                </Card>
+                  </Card>
+                </motion.div>
               );
             })}
           </div>
