@@ -1,0 +1,28 @@
+{
+  "framework": "nextjs",
+  "regions": ["iad1"],
+  "functions": {
+    "src/app/api/distributors/discover/route.ts": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
+    "src/app/api/distributors/bulk-import/route.ts": {
+      "maxDuration": 300,
+      "memory": 1024
+    },
+    "src/app/api/distributors/scrape-from-url/route.ts": {
+      "maxDuration": 60,
+      "memory": 512
+    },
+    "src/app/api/cron/scrape-distributors/route.ts": {
+      "maxDuration": 300,
+      "memory": 1024
+    }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/scrape-distributors",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}

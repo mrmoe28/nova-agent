@@ -1,0 +1,69 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "NovaAgent AI Solar & Battery Energy Planner" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img [ref=e6]
+        - generic [ref=e8]:
+          - generic [ref=e9]:
+            - text: NovaAgent
+            - generic [ref=e10]: AI
+          - generic [ref=e11]: Solar & Battery Energy Planner
+      - navigation [ref=e12]:
+        - link "Dashboard" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - img
+          - generic [ref=e14]: Dashboard
+        - link "Distributors" [ref=e15] [cursor=pointer]:
+          - /url: /distributors
+          - img
+          - generic [ref=e16]: Distributors
+        - link "Projects" [ref=e17] [cursor=pointer]:
+          - /url: /projects
+          - img
+          - generic [ref=e18]: Projects
+        - button "Toggle theme" [ref=e20]:
+          - generic [ref=e21]: Toggle theme
+          - img
+        - link "New Project" [ref=e22] [cursor=pointer]:
+          - /url: /wizard/new
+          - img
+          - generic [ref=e23]: New Project
+  - main [ref=e24]:
+    - generic [ref=e26]:
+      - generic [ref=e27]:
+        - generic [ref=e29]:
+          - heading "Projects" [level=1] [ref=e30]
+          - paragraph [ref=e31]: Manage your energy planning projects with intelligent insights
+        - generic [ref=e32]:
+          - generic [ref=e33]:
+            - generic [ref=e34]:
+              - img [ref=e35]
+              - combobox [ref=e39]:
+                - generic: Default Pricing
+                - img [ref=e40]
+            - generic [ref=e42]:
+              - button [ref=e43]:
+                - img
+              - button [ref=e44]:
+                - img
+              - button [ref=e45]:
+                - img
+          - link "New Project" [ref=e46] [cursor=pointer]:
+            - /url: /wizard/new
+            - img
+            - text: New Project
+      - generic [ref=e47]:
+        - img [ref=e49]
+        - heading "No projects yet" [level=3] [ref=e51]
+        - paragraph [ref=e52]: Get started by creating your first energy planning project and unlock intelligent insights for your clients
+        - link "Create Your First Project" [ref=e53] [cursor=pointer]:
+          - /url: /wizard/new
+          - img
+          - text: Create Your First Project
+  - region "Notifications alt+T"
+  - alert [ref=e54]
+```

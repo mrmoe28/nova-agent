@@ -1,0 +1,20 @@
+{
+  "utilityCompany": "Wind Energy Co",
+  "accountNumber": "WIND-001",
+  "billingPeriod": {
+    "start": "2025-02-01",
+    "end": "2025-02-28"
+  },
+  "usage": {
+    "kwh": 2500,
+    "kw": 40
+  },
+  "charges": {
+    "total": 300.00
+  },
+  "renewableSource": {
+    "type": "wind",
+    "capacity": 2.5,
+    "capacityUnit": "MW"
+  }
+}

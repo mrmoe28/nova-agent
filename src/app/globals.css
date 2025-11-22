@@ -32,3 +32,29 @@ body {
     "Segoe UI",
     sans-serif;
 }
+
+/* Ensure input text is always visible */
+input,
+textarea,
+select {
+  color: #000000 !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #4b5563 !important;
+  opacity: 1 !important;
+}
+
+/* Dark theme overrides */
+.dark input,
+.dark textarea,
+.dark select {
+  color: #ffffff !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #9ca3af !important;
+  opacity: 1 !important;
+}

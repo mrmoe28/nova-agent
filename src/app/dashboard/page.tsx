@@ -105,11 +105,11 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] via-[#0F1629] to-[#0A0F1C] w-screen -ml-[50vw] left-1/2 relative">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] via-[#0F1629] to-[#0A0F1C]">
       {/* Hero Section */}
       <div className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-[#22D3EE]/10 to-transparent" />
-        <div className="py-16 relative max-w-none w-full">
+        <div className="py-16 relative max-w-7xl mx-auto w-full">
           <div className="px-6 flex items-center gap-3 mb-4">
             <div className="p-3 bg-[#22D3EE]/20 rounded-xl">
               <Zap className="h-8 w-8 text-[#22D3EE]" />
@@ -141,7 +141,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="py-12 w-full max-w-none">
+      <div className="py-12 w-full max-w-7xl mx-auto">
         <div className="px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <Card className="bg-gradient-to-br from-[#1a2332] to-[#0F1629] border-[#22D3EE]/20 p-6">
             <div className="flex items-start justify-between">

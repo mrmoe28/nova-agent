@@ -1,0 +1,19 @@
+{
+  "utilityCompany": "Invalid Energy",
+  "accountNumber": "INV-001",
+  "billingPeriod": {
+    "start": "2025-04-01",
+    "end": "2025-04-30"
+  },
+  "usage": {
+    "kwh": 1000
+  },
+  "charges": {
+    "total": 120.00
+  },
+  "renewableSource": {
+    "type": "nuclear",
+    "capacity": -50,
+    "capacityUnit": "kW"
+  }
+}

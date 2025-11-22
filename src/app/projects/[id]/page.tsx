@@ -218,12 +218,76 @@ export default function ProjectDetailsPage() {
     return "System Pending";
   };
 
-  const calculateEnergyMetrics = () => {
-    if (!project?.system) return null;
+  // Calculate system specs from BOM items (actual equipment selected)
+  const calculateSystemFromBOM = () => {
+    if (bomItems.length === 0) return null;
+
+    // Extract solar panels
+    const solarPanels = bomItems.filter(item => 
+      item.category.toLowerCase().includes('solar') || 
+      item.category === 'SOLAR_PANEL'
+    );
     
-    const { totalSolarKw, batteryKwh, backupDurationHrs } = project.system;
-    const dailySolarProduction = totalSolarKw * 4; // Assume 4 peak sun hours
-    const criticalLoadKw = batteryKwh / Math.max(backupDurationHrs, 1);
+    // Extract batteries
+    const batteries = bomItems.filter(item => 
+      item.category.toLowerCase().includes('battery') || 
+      item.category === 'BATTERY'
+    );
+    
+    // Extract inverters
+    const inverters = bomItems.filter(item => 
+      item.category.toLowerCase().includes('inverter') || 
+      item.category === 'INVERTER'
+    );
+
+    // Calculate total solar capacity
+    let totalSolarKw = 0;
+    let solarPanelCount = 0;
+    solarPanels.forEach(panel => {
+      // Try to extract wattage from model number or name
+      const wattageMatch = (panel.modelNumber + ' ' + panel.itemName).match(/(\d+)\s*w/i);
+      const wattage = wattageMatch ? parseInt(wattageMatch[1]) : 400; // Default to 400W
+      totalSolarKw += (panel.quantity * wattage) / 1000;
+      solarPanelCount += panel.quantity;
+    });
+
+    // Calculate total battery capacity
+    let totalBatteryKwh = 0;
+    batteries.forEach(battery => {
+      // Try to extract kWh from model number or name
+      const kwhMatch = (battery.modelNumber + ' ' + battery.itemName).match(/(\d+\.?\d*)\s*kwh/i);
+      const kwh = kwhMatch ? parseFloat(kwhMatch[1]) : 10; // Default to 10kWh
+      totalBatteryKwh += kwh * battery.quantity;
+    });
+
+    // Calculate total inverter capacity
+    let totalInverterKw = 0;
+    inverters.forEach(inverter => {
+      // Try to extract kW from model number or name
+      const kwMatch = (inverter.modelNumber + ' ' + inverter.itemName).match(/(\d+\.?\d*)\s*kw/i);
+      const kw = kwMatch ? parseFloat(kwMatch[1]) : 5; // Default to 5kW
+      totalInverterKw += kw * inverter.quantity;
+    });
+
+    return {
+      totalSolarKw: totalSolarKw || (project?.system?.totalSolarKw || 0),
+      solarPanelCount: solarPanelCount || (project?.system?.solarPanelCount || 0),
+      batteryKwh: totalBatteryKwh || (project?.system?.batteryKwh || 0),
+      inverterKw: totalInverterKw || (project?.system?.inverterKw || 0),
+      backupDurationHrs: project?.system?.backupDurationHrs || 24,
+    };
+  };
+
+  const calculateEnergyMetrics = () => {
+    // Use BOM-based calculations if available, otherwise fall back to system table
+    const systemSpecs = calculateSystemFromBOM();
+    if (!systemSpecs && !project?.system) return null;
+    
+    const specs = systemSpecs || project.system;
+    if (!specs) return null;
+    
+    const dailySolarProduction = specs.totalSolarKw * 4; // Assume 4 peak sun hours
+    const criticalLoadKw = specs.batteryKwh / Math.max(specs.backupDurationHrs, 1);
     
     return {
       dailySolarProduction,
@@ -257,11 +321,15 @@ export default function ProjectDetailsPage() {
     );
   }
 
+  const systemFromBOM = calculateSystemFromBOM();
   const energyMetrics = calculateEnergyMetrics();
   const totalBomCost = bomItems.reduce((sum, item) => sum + item.totalPriceUsd, 0);
-  const laborCost = (plan?.laborHoursEst || 0) * 150;
-  const permitsFees = 2500;
-  const totalProjectCost = totalBomCost + laborCost + permitsFees;
+  
+  // Only use BOM cost - no hardcoded labor or permit fees
+  const totalProjectCost = totalBomCost;
+  
+  // Use BOM-calculated system specs for display
+  const displaySystem = systemFromBOM || project.system;
 
   // Prepare chart data
   const prepareMonthlyUsageData = () => {
@@ -486,10 +554,10 @@ export default function ProjectDetailsPage() {
               <div>
                 <p className="text-sm text-gray-600">Solar</p>
                 <p className="text-xl font-semibold text-gray-900">
-                  {project.system?.totalSolarKw || 0}kW
+                  {displaySystem?.totalSolarKw ? displaySystem.totalSolarKw.toFixed(2) : '0.00'}kW
                 </p>
                 <p className="text-xs text-gray-600">
-                  {project.system?.solarPanelCount || 0} Panels
+                  {displaySystem?.solarPanelCount || 0} Panels
                 </p>
               </div>
             </div>
@@ -505,10 +573,10 @@ export default function ProjectDetailsPage() {
               <div>
                 <p className="text-sm text-gray-600">Battery</p>
                 <p className="text-xl font-semibold text-gray-900">
-                  {project.system?.batteryKwh || 0}kWh
+                  {displaySystem?.batteryKwh ? displaySystem.batteryKwh.toFixed(2) : '0.00'}kWh
                 </p>
                 <p className="text-xs text-gray-600">
-                  {project.system?.backupDurationHrs || 0}hr Backup
+                  {displaySystem?.backupDurationHrs || 0}hr Backup
                 </p>
               </div>
             </div>
@@ -736,8 +804,8 @@ export default function ProjectDetailsPage() {
             </Card>
           </Collapsible>
 
-          {/* System Overview */}
-          {project.system && (
+          {/* System Overview - Display from BOM */}
+          {displaySystem && (
             <Collapsible open={expandedCards.has('system')} onOpenChange={() => toggleCard('system')}>
               <Card className="bg-white/95 backdrop-blur-sm">
                 <CollapsibleTrigger asChild>
@@ -745,7 +813,7 @@ export default function ProjectDetailsPage() {
                     <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2 text-gray-900">
                       <Settings className="h-5 w-5" />
-                      System Configuration
+                      System Configuration {systemFromBOM && <Badge variant="outline" className="ml-2 text-xs">From BOM</Badge>}
                     </CardTitle>
                       <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                         {expandedCards.has('system') ? (
@@ -767,15 +835,11 @@ export default function ProjectDetailsPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between text-gray-900">
                         <span>Panel Count:</span>
-                        <span className="font-semibold">{project.system.solarPanelCount}</span>
-                      </div>
-                      <div className="flex justify-between text-gray-900">
-                        <span>Panel Wattage:</span>
-                        <span className="font-semibold">{project.system.solarPanelWattage}W</span>
+                        <span className="font-semibold">{displaySystem.solarPanelCount || 0}</span>
                       </div>
                       <div className="flex justify-between text-gray-900">
                         <span>Total Capacity:</span>
-                        <span className="font-semibold">{project.system.totalSolarKw}kW</span>
+                        <span className="font-semibold">{displaySystem.totalSolarKw ? displaySystem.totalSolarKw.toFixed(2) : '0.00'} kW</span>
                       </div>
                     </div>
                   </div>
@@ -787,15 +851,11 @@ export default function ProjectDetailsPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between text-gray-900">
                         <span>Capacity:</span>
-                        <span className="font-semibold">{project.system.batteryKwh}kWh</span>
-                      </div>
-                      <div className="flex justify-between text-gray-900">
-                        <span>Type:</span>
-                        <span className="font-semibold">{project.system.batteryType || 'Lithium'}</span>
+                        <span className="font-semibold">{displaySystem.batteryKwh ? displaySystem.batteryKwh.toFixed(2) : '0.00'} kWh</span>
                       </div>
                       <div className="flex justify-between text-gray-900">
                         <span>Backup Duration:</span>
-                        <span className="font-semibold">{project.system.backupDurationHrs}hrs</span>
+                        <span className="font-semibold">{displaySystem.backupDurationHrs || 24} hrs</span>
                       </div>
                     </div>
                   </div>
@@ -807,11 +867,7 @@ export default function ProjectDetailsPage() {
                     <div className="space-y-2">
                       <div className="flex justify-between text-gray-900">
                         <span>Capacity:</span>
-                        <span className="font-semibold">{project.system.inverterKw}kW</span>
-                      </div>
-                      <div className="flex justify-between text-gray-900">
-                        <span>Type:</span>
-                        <span className="font-semibold">{project.system.inverterType || 'Hybrid String'}</span>
+                        <span className="font-semibold">{displaySystem.inverterKw ? displaySystem.inverterKw.toFixed(2) : '0.00'} kW</span>
                       </div>
                     </div>
                   </div>
@@ -822,7 +878,7 @@ export default function ProjectDetailsPage() {
             </Collapsible>
           )}
 
-          {/* Cost Breakdown */}
+          {/* Cost Breakdown - BOM Only */}
           <Collapsible open={expandedCards.has('costBreakdown')} onOpenChange={() => toggleCard('costBreakdown')}>
             <Card className="bg-white/95 backdrop-blur-sm">
               <CollapsibleTrigger asChild>
@@ -830,7 +886,7 @@ export default function ProjectDetailsPage() {
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2 text-gray-900">
                       <Calculator className="h-5 w-5" />
-                      Cost Breakdown
+                      Equipment Cost
                     </CardTitle>
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                       {expandedCards.has('costBreakdown') ? (
@@ -845,27 +901,13 @@ export default function ProjectDetailsPage() {
               <CollapsibleContent>
                 <CardContent>
               <div className="space-y-4">
-                <div className="flex justify-between text-lg text-gray-900">
-                  <span>Equipment Total:</span>
-                  <span className="font-semibold">{formatCurrency(totalBomCost)}</span>
-                </div>
-                <div className="flex justify-between text-gray-900">
-                  <span>Installation Labor:</span>
-                  <span className="font-semibold">
-                    {formatCurrency((plan?.laborHoursEst || 0) * 150)} ({plan?.laborHoursEst || 0}hrs)
-                  </span>
-                </div>
-                <div className="flex justify-between text-gray-900">
-                  <span>Permits & Fees:</span>
-                  <span className="font-semibold">{formatCurrency(2500)}</span>
-                </div>
-                <Separator />
                 <div className="flex justify-between text-xl font-bold text-gray-900">
-                  <span>Total Project Cost:</span>
+                  <span>Total Equipment Cost:</span>
                   <span className="text-green-600">
-                    {formatCurrency(totalProjectCost)}
+                    {formatCurrency(totalBomCost)}
                   </span>
                 </div>
+                <p className="text-sm text-gray-600">Based on selected BOM items only</p>
               </div>
                 </CardContent>
               </CollapsibleContent>
