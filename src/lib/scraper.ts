@@ -54,13 +54,7 @@ export function isProductPageUrl(url: string): boolean {
     // Remove trailing slash for consistent matching
     const cleanPath = pathname.replace(/\/$/, "");
 
-    // Shopify product URLs (common pattern: /products/product-slug)
-    // Check this FIRST before category patterns
-    if (/^\/products\/[^\/]+/.test(cleanPath) && !/^\/products\/(new|featured|best-sellers|clearance)$/.test(cleanPath)) {
-      return true;
-    }
-
-    // Category page indicators (shorter, generic paths)
+    // Category page indicators (check these FIRST to avoid false positives)
     const categoryPatterns = [
       /^\/(shop|catalog|store|category|collection|collections|batteries|solar-panels|inverters|all-products|browse)$/,
       /^\/collections\//, // Shopify collections (category pages)
@@ -74,6 +68,8 @@ export function isProductPageUrl(url: string): boolean {
       /_bc_fsnf=/, // BigCommerce filter
       /\?.*brand=/, // Brand filters
       /^\/pages\//, // Static pages
+      // NEW: Generic category names in /products/ path (1 level deep only)
+      /^\/products\/(solar-panels|solar-inverters|inverters|batteries|battery|solar-racking|racking|mounting|energy-storage|ev-charging|monitoring|balance-system|electrical|wiring|cables|accessories)$/i,
     ];
 
     // If it matches category patterns, it's NOT a product page
@@ -82,6 +78,35 @@ export function isProductPageUrl(url: string): boolean {
         (pattern) => pattern.test(pathname) || pattern.test(url),
       )
     ) {
+      return false;
+    }
+
+    // Shopify-style product URLs (must be 2+ levels deep to avoid categories)
+    // Example: /products/solar-inverters/m/enphase-energy-275 (product)
+    // vs: /products/solar-inverters (category)
+    const productsMatch = cleanPath.match(/^\/products\/([^\/]+)(?:\/(.+))?$/);
+    if (productsMatch) {
+      const [, category, productSlug] = productsMatch;
+
+      // If there's a second segment (productSlug), it's likely a product page
+      // Example: /products/solar-inverters/m/enphase-275
+      if (productSlug) {
+        return true;
+      }
+
+      // If only 1 segment after /products/, check if it's a specific product
+      // Look for patterns that indicate it's a product, not a category
+      const hasProductIndicators =
+        /[a-z0-9]+-[a-z0-9]+-[a-z0-9]+/.test(category) || // 3+ dashes (eg4-lifepower4-48v-200ah)
+        /-\d{2,}(ah|v|kw|w)/i.test(category) || // Contains specs (-100ah, -48v, -5kw)
+        /\d{3,}/.test(category) || // Contains 3+ digit model numbers
+        /(^|\-)(iq|se|iq8|micro|eg4|ll-s|lifepower|wallbox|powerwall)/i.test(category); // Known product prefixes
+
+      if (hasProductIndicators) {
+        return true;
+      }
+
+      // Otherwise it's a category page
       return false;
     }
 
