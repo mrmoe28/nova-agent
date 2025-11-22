@@ -307,12 +307,15 @@ export async function POST(request: NextRequest) {
       };
 
       const validProducts = scrapedProducts.filter((p) => {
-        // Must have name and price
+        // Must have name
         if (!p.name) {
           validationReasons.noName++;
           return false;
         }
-        if (!p.price) {
+        
+        // Price is required UNLESS we have a sourceUrl (can scrape detail page later)
+        // This allows listing page products without prices to be saved
+        if (!p.price && !p.sourceUrl) {
           validationReasons.noPrice++;
           return false;
         }
@@ -426,7 +429,8 @@ export async function POST(request: NextRequest) {
               specifications: product.specifications
                 ? JSON.stringify(product.specifications)
                 : null,
-              unitPrice: product.price!,
+              // Use price if available, otherwise 0 (can be updated when detail page is scraped)
+              unitPrice: product.price || 0,
               imageUrl: product.imageUrl || null,
               sourceUrl: product.sourceUrl || null,
               dataSheetUrl: product.dataSheetUrl || null,
@@ -452,7 +456,8 @@ export async function POST(request: NextRequest) {
                 specifications: product.specifications
                   ? JSON.stringify(product.specifications)
                   : null,
-                unitPrice: product.price!,
+                // Only update price if we have a new price, otherwise keep existing
+                unitPrice: product.price !== undefined ? product.price : existing.unitPrice,
                 imageUrl: product.imageUrl || existing.imageUrl, // Preserve old image if new scrape has none
                 sourceUrl: product.sourceUrl || existing.sourceUrl,
                 dataSheetUrl: product.dataSheetUrl || null,
