@@ -14,6 +14,8 @@
     "lint": "eslint",
     "migrate": "prisma migrate deploy",
     "monitor:deploy": "node deployment-monitor.js",
+    "seed:distributors": "node seed-distributors.js",
+    "check:distributors": "node check-distributors.js",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
