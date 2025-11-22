@@ -103,11 +103,12 @@ async function main() {
     console.log("   No scrape history found");
   } else {
     scrapeHistory.forEach((history) => {
+      const isSuccess = history.status === "success";
       console.log(
-        `   ${history.success ? "✅" : "❌"} ${history.distributor.name}`,
+        `   ${isSuccess ? "✅" : "❌"} ${history.distributor?.name || "Unknown"}`,
       );
       console.log(
-        `      ${history.scrapedAt.toLocaleString()} - ${history.itemsScraped} items`,
+        `      ${history.scrapedAt.toLocaleString()} - ${history.itemsSaved} items saved (${history.itemsFound} found)`,
       );
       if (history.errorMessage) {
         console.log(`      Error: ${history.errorMessage}`);
@@ -140,9 +141,9 @@ async function main() {
     });
 
     recentFailures.forEach((job) => {
-      console.log(`   ${job.distributor.name}:`);
+      console.log(`   ${job.distributor?.name || "Unknown"}:`);
       console.log(`      ${job.errorMessage || "Unknown error"}`);
-      console.log(`      ${job.startedAt.toLocaleString()}`);
+      console.log(`      ${job.startedAt?.toLocaleString() || "Unknown time"}`);
     });
   }
 
