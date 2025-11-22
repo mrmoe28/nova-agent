@@ -266,8 +266,6 @@ export async function regenerateBom(
           specifications: true,
           imageUrl: true,
           createdAt: true,
-        },
-        include: {
           distributor: {
             select: {
               name: true,

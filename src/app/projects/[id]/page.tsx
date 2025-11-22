@@ -665,19 +665,10 @@ export default function ProjectDetailsPage() {
             </CollapsibleTrigger>
             <CollapsibleContent>
               <CardContent className="pt-0 pb-4">
-                <div className="grid grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <p className="text-gray-600">BOM Cost</p>
-                    <p className="font-semibold text-gray-900">{formatCurrency(totalBomCost)}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Labor</p>
-                    <p className="font-semibold text-gray-900">{formatCurrency(laborCost)}</p>
-                  </div>
-                  <div>
-                    <p className="text-gray-600">Permits & Fees</p>
-                    <p className="font-semibold text-gray-900">{formatCurrency(permitsFees)}</p>
-                  </div>
+                <div className="text-center">
+                  <p className="text-sm text-gray-600 mb-2">Total Equipment Cost</p>
+                  <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalBomCost)}</p>
+                  <p className="text-xs text-gray-500 mt-1">Based on selected BOM items</p>
                 </div>
               </CardContent>
             </CollapsibleContent>
