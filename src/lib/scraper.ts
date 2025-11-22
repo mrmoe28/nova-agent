@@ -1023,7 +1023,50 @@ export async function deepCrawlForProducts(
                 .length > 0,
           );
 
-          // Extract all links from this page
+          // Shopify-specific: Extract product links from product grid/cards
+          // Shopify uses specific selectors like .product-card, .grid-product, etc.
+          const shopifyProductSelectors = [
+            'a[href*="/products/"]', // Direct Shopify product links
+            '.product-card a',
+            '.grid-product a',
+            '.product-item a',
+            '.product a',
+            '[class*="product-card"] a',
+            '[class*="product-item"] a',
+            '[class*="grid-product"] a',
+            '.card a[href*="/products/"]',
+            'article a[href*="/products/"]',
+          ];
+
+          // First, try Shopify-specific selectors for better accuracy
+          shopifyProductSelectors.forEach((selector) => {
+            $(selector).each((_, element) => {
+              const $link = $(element);
+              const href = $link.attr("href");
+              if (!href) return;
+
+              try {
+                const absoluteUrl = href.startsWith("http")
+                  ? href
+                  : new URL(href, url).href;
+                const linkObj = new URL(absoluteUrl);
+
+                // Only include same domain and valid product URLs
+                if (
+                  linkObj.hostname === baseHostname &&
+                  isProductPageUrl(absoluteUrl) &&
+                  !absoluteUrl.includes("#") &&
+                  !absoluteUrl.includes("javascript:")
+                ) {
+                  pageProductLinks.push(absoluteUrl);
+                }
+              } catch {
+                // Invalid URL, skip
+              }
+            });
+          });
+
+          // Also extract all links from this page (fallback for non-Shopify sites)
           $("a[href]").each((_, link) => {
             const $link = $(link);
             const href = $link.attr("href");
@@ -1070,6 +1113,8 @@ export async function deepCrawlForProducts(
                 "/dp/",
                 "/gp/",
                 "/itm/",
+                // Shopify product pattern (most important)
+                /^\/products\/[^\/]+$/,
                 // Category + item patterns (e.g., /batteries/eg4-lifepower4)
                 /\/(solar|battery|batteries|inverter|panel|charger|cable|mount|bracket)s?\/[^\/]+$/,
                 // SKU-like patterns
@@ -1116,12 +1161,19 @@ export async function deepCrawlForProducts(
                 linkHref.includes(k),
               );
 
+              // Shopify pagination patterns
+              const isShopifyPagination = 
+                /[?&]page=\d+/.test(linkHref) || // ?page=2 or &page=2
+                /\/page\/\d+/.test(pathname) || // /page/2
+                (linkText.match(/^\d+$/) && $(link).closest('.pagination, [class*="pagination"]').length > 0); // Number in pagination
+
               // Also look for numeric pages and "next" links
               const isNextLink =
                 linkText.includes("next") ||
                 linkText.includes("more") ||
                 linkHref.includes("next") ||
-                /page[\/=]\d+/.test(linkHref);
+                /page[\/=]\d+/.test(linkHref) ||
+                isShopifyPagination;
 
               // Detect subcategory links (common patterns)
               const isSubcategoryLink =
