@@ -78,7 +78,7 @@ export const bounceTransition: Transition = {
 // ============================================
 
 interface MotionDivProps {
-  children: ReactNode;
+  children?: ReactNode;
   className?: string;
   variants?: Variants;
   transition?: Transition;
@@ -193,10 +193,8 @@ export function MotionStagger({
       {React.Children.map(children, (child, index) => (
         <motion.div
           key={index}
-          variants={{
-            ...staggerItem,
-            transition: { delay: index * staggerDelay },
-          }}
+          variants={staggerItem}
+          transition={{ delay: index * staggerDelay }}
         >
           {child}
         </motion.div>
