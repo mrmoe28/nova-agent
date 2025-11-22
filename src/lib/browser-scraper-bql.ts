@@ -17,13 +17,23 @@ export class BrowserScraperBQL {
   constructor() {
     const token = process.env.BROWSERLESS_TOKEN;
     if (!token) {
-      throw new Error(
-        "BROWSERLESS_TOKEN not configured. Please set your Browserless API token.",
+      const error = new Error(
+        "BROWSERLESS_TOKEN not configured. Please set your Browserless API token in Vercel environment variables.",
       );
+      logger.error(
+        {
+          envKeys: Object.keys(process.env).filter((k) =>
+            k.includes("BROWSER"),
+          ),
+        },
+        "BROWSERLESS_TOKEN missing",
+      );
+      throw error;
     }
 
     this.endpoint = BROWSER_CONFIG.BROWSERLESS_ENDPOINT;
     this.token = token;
+    logger.info("BrowserScraperBQL initialized successfully");
   }
 
   /**

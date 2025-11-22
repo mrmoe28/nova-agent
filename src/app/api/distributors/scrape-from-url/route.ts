@@ -220,20 +220,60 @@ export async function POST(request: NextRequest) {
 
       // Use browser scraper if requested (bypasses bot detection)
       if (useBrowser) {
-        const browserScraper = await getBrowserScraper();
-        scrapedProducts = await logOperation(
-          logger,
-          "scrape-products-browser",
-          () =>
-            browserScraper.scrapeMultipleProducts(productUrls, {
-              rateLimit: 1000,
-              timeout: 10000,
-            }),
-          { count: productUrls.length, method: "browser" },
-        );
+        // Check if BROWSERLESS_TOKEN is configured
+        if (!process.env.BROWSERLESS_TOKEN) {
+          logger.warn(
+            "BROWSERLESS_TOKEN not configured, falling back to standard scraping",
+          );
+          // Fall back to standard scraping
+          scrapedProducts = await logOperation(
+            logger,
+            "scrape-products",
+            () =>
+              scrapeMultipleProducts(productUrls, {
+                rateLimit: 200,
+                timeout: 5000,
+                respectRobotsTxt: true,
+                maxRetries: 1,
+              }),
+            { count: productUrls.length, method: "fetch" },
+          );
+        } else {
+          try {
+            const browserScraper = await getBrowserScraper();
+            scrapedProducts = await logOperation(
+              logger,
+              "scrape-products-browser",
+              () =>
+                browserScraper.scrapeMultipleProducts(productUrls, {
+                  rateLimit: 1000,
+                  timeout: 10000,
+                }),
+              { count: productUrls.length, method: "browser" },
+            );
 
-        // Clean up browser
-        await closeBrowserScraper();
+            // Clean up browser
+            await closeBrowserScraper();
+          } catch (error: unknown) {
+            logger.error(
+              { error: error instanceof Error ? error.message : String(error) },
+              "Browser scraper failed, falling back to standard scraping",
+            );
+            // Fall back to standard scraping
+            scrapedProducts = await logOperation(
+              logger,
+              "scrape-products",
+              () =>
+                scrapeMultipleProducts(productUrls, {
+                  rateLimit: 200,
+                  timeout: 5000,
+                  respectRobotsTxt: true,
+                  maxRetries: 1,
+                }),
+              { count: productUrls.length, method: "fetch" },
+            );
+          }
+        }
       } else {
         // Regular fetch-based scraping (fast)
         scrapedProducts = await logOperation(
@@ -635,6 +675,11 @@ export async function POST(request: NextRequest) {
        error.message.includes("504") ||
        elapsed > SAFE_TIMEOUT_MS);
 
+    // Check if this is a BROWSERLESS_TOKEN error
+    const isBrowserlessError = 
+      error instanceof Error && 
+      error.message.includes("BROWSERLESS_TOKEN");
+
     logger.error(
       {
         error: error instanceof Error ? error.message : "Unknown error",
@@ -642,6 +687,8 @@ export async function POST(request: NextRequest) {
         crawlJobId,
         elapsed,
         isTimeout,
+        isBrowserlessError,
+        hasToken: !!process.env.BROWSERLESS_TOKEN,
       },
       "Scrape operation failed",
     );
@@ -689,15 +736,22 @@ export async function POST(request: NextRequest) {
     }
 
     // Return proper JSON error response (not HTML)
+    let errorMessage = error instanceof Error ? error.message : "Failed to scrape URL";
+    
+    if (isBrowserlessError) {
+      errorMessage = "BROWSERLESS_TOKEN not configured. Please set your Browserless API token in Vercel environment variables. Go to: Project Settings → Environment Variables → Add BROWSERLESS_TOKEN. Make sure it's set for Production, Preview, and Development environments.";
+    } else if (isTimeout) {
+      errorMessage = "Scraping operation timed out. Try reducing maxPages or maxDepth, or use the scheduled cron job for comprehensive scraping.";
+    }
+    
     return NextResponse.json(
       {
         success: false,
-        error: isTimeout
-          ? "Scraping operation timed out. Try reducing maxPages or maxDepth, or use the scheduled cron job for comprehensive scraping."
-          : error instanceof Error ? error.message : "Failed to scrape URL",
+        error: errorMessage,
         crawlJobId,
         elapsedMs: elapsed,
         isTimeout,
+        isBrowserlessError,
       },
       { status: isTimeout ? 504 : 500 },
     );
