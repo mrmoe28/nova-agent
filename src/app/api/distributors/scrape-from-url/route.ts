@@ -48,6 +48,8 @@ export async function POST(request: NextRequest) {
       distributorId,
       useBrowser = false,
       useAI = false,
+      maxPages = 200, // Maximum pages to crawl (default: 200)
+      maxDepth = 3, // Maximum link depth to follow (default: 3)
     } = body;
 
     if (!url) {
@@ -159,8 +161,9 @@ export async function POST(request: NextRequest) {
           "deep-crawl",
           () =>
             deepCrawlForProducts(url, {
-              maxPages: 100, // Crawl up to 100 pages to find all products
-              maxDepth: 2, // Increased depth to find products in subcategories
+              maxPages, // Configurable: Crawl up to N pages to find all products
+              maxDepth, // Configurable: Follow subcategories and sub-sublinks up to N levels deep
+              concurrency: 5, // Process 5 pages in parallel for faster crawling
               config: {
                 rateLimit: 200, // Fast rate limit
                 timeout: 5000, // 5 second timeout
@@ -168,7 +171,7 @@ export async function POST(request: NextRequest) {
                 maxRetries: 1,
               },
             }),
-          { url, maxPages: 100, maxDepth: 2 },
+          { url, maxPages, maxDepth },
         );
 
         allProductLinks = crawlResult.productLinks;

@@ -1123,8 +1123,21 @@ export async function deepCrawlForProducts(
                 linkHref.includes("next") ||
                 /page[\/=]\d+/.test(linkHref);
 
+              // Detect subcategory links (common patterns)
+              const isSubcategoryLink =
+                // Path-based subcategories (e.g., /products/solar-panels/monocrystalline)
+                pathname.split("/").length >= 3 &&
+                !isProductPageUrl(absoluteUrl) &&
+                // Common subcategory indicators
+                (linkText.length > 3 && linkText.length < 50) ||
+                // Breadcrumb-style links
+                $(link).closest("nav, .breadcrumb, .categories, .subcategories").length > 0 ||
+                // Category menu links
+                $(link).closest("[class*='category'], [class*='subcategory'], [class*='menu']").length > 0;
+
+              // Follow catalog, pagination, next, and subcategory links
               if (
-                (isCatalogLink || isPaginationLink || isNextLink) &&
+                (isCatalogLink || isPaginationLink || isNextLink || isSubcategoryLink) &&
                 depth < maxDepth
               ) {
                 pageNextUrls.push({ url: absoluteUrl, depth: depth + 1 });
