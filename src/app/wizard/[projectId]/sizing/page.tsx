@@ -14,6 +14,9 @@ interface Distributor {
   id: string;
   name: string;
   equipment?: { id: string; category: string }[];
+  _count?: {
+    equipment: number;
+  };
 }
 
 export default function SizingPage() {
@@ -146,16 +149,19 @@ export default function SizingPage() {
                 <SelectValue placeholder={loadingDistributors ? "Loading distributors..." : "Select a distributor for pricing"} />
               </SelectTrigger>
               <SelectContent>
-                {distributors.map((distributor) => (
-                  <SelectItem key={distributor.id} value={distributor.id}>
-                    {distributor.name}
-                    {distributor.equipment && distributor.equipment.length > 0 && (
-                      <span className="text-muted-foreground ml-2">
-                        ({distributor.equipment.length} products)
-                      </span>
-                    )}
-                  </SelectItem>
-                ))}
+                {distributors.map((distributor) => {
+                  const equipmentCount = distributor._count?.equipment || 0;
+                  return (
+                    <SelectItem key={distributor.id} value={distributor.id}>
+                      {distributor.name}
+                      {equipmentCount > 0 && (
+                        <span className="text-muted-foreground ml-2">
+                          ({equipmentCount} {equipmentCount === 1 ? "product" : "products"})
+                        </span>
+                      )}
+                    </SelectItem>
+                  );
+                })}
               </SelectContent>
             </Select>
             <p className="text-xs text-muted-foreground">
