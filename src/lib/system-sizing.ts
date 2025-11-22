@@ -247,6 +247,9 @@ export async function regenerateBom(
 
   if (distributorId) {
     try {
+      const { DEFAULT_EQUIPMENT_CONFIG, SELECTION_STRATEGY } = await import("./default-equipment-config");
+      const { selectEquipment } = await import("./equipment-selector");
+
       const equipment = await prisma.equipment.findMany({
         where: {
           distributorId,
@@ -262,22 +265,38 @@ export async function regenerateBom(
           unitPrice: true,
           specifications: true,
           imageUrl: true,
+          createdAt: true,
+        },
+        include: {
+          distributor: {
+            select: {
+              name: true,
+            },
+          },
         },
       });
 
-      // Find best match for each category
+      // Find best match for each category using configured preferences
       const solarPanels = equipment.filter((e) => e.category === "SOLAR_PANEL");
       const batteries = equipment.filter((e) => e.category === "BATTERY");
       const inverters = equipment.filter((e) => e.category === "INVERTER");
       const mountingSystems = equipment.filter((e) => e.category === "MOUNTING");
       const electricalSystems = equipment.filter((e) => e.category === "ELECTRICAL");
 
-      // Pick first available item from each category
-      solarPanel = solarPanels[0];
-      battery = batteries[0];
-      inverter = inverters[0];
-      mounting = mountingSystems[0];
-      electrical = electricalSystems[0];
+      // Select equipment based on configured preferences
+      solarPanel = selectEquipment(solarPanels, DEFAULT_EQUIPMENT_CONFIG.solarPanel, SELECTION_STRATEGY);
+      battery = selectEquipment(batteries, DEFAULT_EQUIPMENT_CONFIG.battery, SELECTION_STRATEGY);
+      inverter = selectEquipment(inverters, DEFAULT_EQUIPMENT_CONFIG.inverter, SELECTION_STRATEGY);
+      mounting = selectEquipment(mountingSystems, DEFAULT_EQUIPMENT_CONFIG.mounting, SELECTION_STRATEGY);
+      electrical = selectEquipment(electricalSystems, DEFAULT_EQUIPMENT_CONFIG.electrical, SELECTION_STRATEGY);
+
+      console.log("Selected equipment based on preferences:", {
+        solarPanel: solarPanel?.name,
+        battery: battery?.name,
+        inverter: inverter?.name,
+        mounting: mounting?.name,
+        electrical: electrical?.name,
+      });
     } catch (error) {
       console.error("Error fetching distributor equipment:", error);
     }
