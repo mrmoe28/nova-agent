@@ -307,6 +307,8 @@ export async function POST(request: NextRequest) {
     // Step 4: Optionally save to database
     let savedDistributor: Awaited<ReturnType<typeof prisma.distributor.create>> | null = null;
     const savedEquipment: Awaited<ReturnType<typeof prisma.equipment.create>>[] = [];
+    let newProductsCount = 0;
+    let updatedProductsCount = 0;
 
     if (saveToDatabase) {
       // Create or update distributor
@@ -526,6 +528,10 @@ export async function POST(request: NextRequest) {
           }
         }
 
+        // Store counts for logging outside the block
+        newProductsCount = toCreate.length;
+        updatedProductsCount = toUpdate.length;
+
         logger.info(
           { toCreate: toCreate.length, toUpdate: toUpdate.length },
           "Separated products for batch processing",
@@ -724,10 +730,6 @@ export async function POST(request: NextRequest) {
         );
       }
     }
-
-    // Calculate how many were actually new vs updated
-    const newProductsCount = toCreate.length;
-    const updatedProductsCount = toUpdate.length;
 
     logger.info(
       {
