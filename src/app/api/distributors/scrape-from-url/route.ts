@@ -447,20 +447,45 @@ export async function POST(request: NextRequest) {
 
     // Update CrawlJob to completed status
     if (crawlJobId) {
-      await prisma.crawlJob.update({
-        where: { id: crawlJobId },
-        data: {
-          status: "completed",
-          productsProcessed: scrapedProducts.length,
-          productsUpdated: savedEquipment.length,
-          completedAt: new Date(),
-          metadata: JSON.stringify({
-            totalProductLinks: allProductLinks.length,
-            companyName: companyInfo.name,
-          }),
-        },
-      });
-      logger.info({ crawlJobId, status: "completed" }, "Crawl job completed");
+      try {
+        // Check if crawl job still exists before updating
+        const existingJob = await prisma.crawlJob.findUnique({
+          where: { id: crawlJobId },
+        });
+
+        if (existingJob) {
+          await prisma.crawlJob.update({
+            where: { id: crawlJobId },
+            data: {
+              status: "completed",
+              productsProcessed: scrapedProducts.length,
+              productsUpdated: savedEquipment.length,
+              completedAt: new Date(),
+              metadata: JSON.stringify({
+                totalProductLinks: allProductLinks.length,
+                companyName: companyInfo.name,
+              }),
+            },
+          });
+          logger.info({ crawlJobId, status: "completed" }, "Crawl job completed");
+        } else {
+          logger.warn(
+            { crawlJobId },
+            "CrawlJob not found for update (may have been cleaned up)",
+          );
+        }
+      } catch (updateError) {
+        logger.error(
+          {
+            crawlJobId,
+            error:
+              updateError instanceof Error
+                ? updateError.message
+                : "Unknown error",
+          },
+          "Failed to update crawl job status",
+        );
+      }
     }
 
     logger.info(
@@ -503,15 +528,27 @@ export async function POST(request: NextRequest) {
     // Update CrawlJob to failed status
     if (crawlJobId) {
       try {
-        await prisma.crawlJob.update({
+        // Check if crawl job still exists before updating
+        const existingJob = await prisma.crawlJob.findUnique({
           where: { id: crawlJobId },
-          data: {
-            status: "failed",
-            errorMessage:
-              error instanceof Error ? error.message : "Unknown error",
-            completedAt: new Date(),
-          },
         });
+
+        if (existingJob) {
+          await prisma.crawlJob.update({
+            where: { id: crawlJobId },
+            data: {
+              status: "failed",
+              errorMessage:
+                error instanceof Error ? error.message : "Unknown error",
+              completedAt: new Date(),
+            },
+          });
+        } else {
+          logger.warn(
+            { crawlJobId },
+            "CrawlJob not found for failure update (may have been cleaned up)",
+          );
+        }
       } catch (updateError) {
         logger.error({ updateError }, "Failed to update CrawlJob status");
       }
