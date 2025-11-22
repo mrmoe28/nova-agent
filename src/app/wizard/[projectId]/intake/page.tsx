@@ -110,7 +110,8 @@ export default function IntakePage() {
             Please upload at least one bill to continue
           </p>
         )}
-      </Card>
+        </Card>
+      </MotionCard>
       </div>
     </div>
   );
