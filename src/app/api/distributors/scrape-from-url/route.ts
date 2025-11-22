@@ -688,13 +688,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Return proper JSON error response (not HTML)
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : "Failed to scrape URL",
+        error: isTimeout
+          ? "Scraping operation timed out. Try reducing maxPages or maxDepth, or use the scheduled cron job for comprehensive scraping."
+          : error instanceof Error ? error.message : "Failed to scrape URL",
         crawlJobId,
+        elapsedMs: elapsed,
+        isTimeout,
       },
-      { status: 500 },
+      { status: isTimeout ? 504 : 500 },
     );
   }
 }
