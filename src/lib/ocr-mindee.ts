@@ -52,16 +52,17 @@ export async function performMindeeOCR(
       throw new Error("Failed to parse document with Mindee.");
     }
 
-    const { document, pages } = apiResponse;
+    // Extract document data
+    const document = apiResponse.document as any;
     
-    // The full text is available from all pages
-    const fullText = pages.map((page: any) => page.toString()).join("\n");
+    // The full text is available from the document toString
+    const fullText = document.toString ? document.toString() : JSON.stringify(document);
     
-    // The structured data is in the 'prediction' field of the document
-    const prediction = document.prediction;
+    // The structured data - use the entire document object
+    const prediction = document.inference?.prediction || document;
 
     // Use document-level confidence
-    const confidence = document.inference.confidence || 0;
+    const confidence = document.inference?.confidence || 0.8;
 
     console.log("Successfully processed document with Mindee.");
 
