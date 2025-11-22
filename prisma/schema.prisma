@@ -1,0 +1,564 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EquipmentCategory {
+  SOLAR_PANEL
+  BATTERY
+  INVERTER
+  CHARGE_CONTROLLER
+  MOUNTING
+  WIRING
+  ELECTRICAL
+  MONITORING
+  ACCESSORIES
+  OTHER
+}
+
+enum ProjectStatus {
+  intake
+  analysis
+  sizing
+  bom
+  plan
+  review
+  complete
+}
+
+model Bill {
+  id            String   @id @default(cuid())
+  projectId     String
+  fileName      String
+  fileType      String   // pdf, image, csv
+  filePath      String
+  uploadedAt    DateTime @default(now())
+  ocrText       String?
+  extractedData String?  // JSON string
+
+  project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  enhancedBill  EnhancedBill?
+
+  @@index([projectId])
+}
+
+model Analysis {
+  id                 String   @id @default(cuid())
+  projectId          String   @unique
+  monthlyUsageKwh    Float
+  peakDemandKw       Float?
+  averageCostPerKwh  Float
+  annualCostUsd      Float
+  recommendations    String   // JSON string
+  createdAt          DateTime @default(now())
+
+  project            Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model System {
+  id                String   @id @default(cuid())
+  projectId         String   @unique
+  solarPanelCount   Int
+  solarPanelWattage Int
+  totalSolarKw      Float
+  batteryKwh        Float
+  batteryType       String   // lithium, lead-acid
+  inverterKw        Float
+  inverterType      String
+  backupDurationHrs Int
+  criticalLoadKw    Float
+  estimatedCostUsd  Float
+  createdAt         DateTime @default(now())
+
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model BOMItem {
+  id            String  @id @default(cuid())
+  projectId     String
+  category      String  // solar, battery, inverter, mounting, electrical
+  itemName      String
+  manufacturer  String?
+  modelNumber   String
+  quantity      Int
+  unitPriceUsd  Float
+  totalPriceUsd Float
+  imageUrl      String? // Product image URL
+  sourceUrl     String?
+  notes         String?
+
+  project       Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Plan {
+  id              String   @id @default(cuid())
+  projectId       String   @unique
+  necChecks       String   // JSON array of checks
+  warnings        String?  // JSON array of warnings
+  installSteps    String   // JSON array of steps
+  timeline        String?
+  laborHoursEst   Float?
+  permitNotes     String?
+  finalPdfPath    String?
+  createdAt       DateTime @default(now())
+
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Distributor {
+  id              String      @id @default(cuid())
+  name            String
+  contactName     String?
+  email           String?
+  phone           String?
+  website         String?
+  address         String?
+  notes           String?
+  logoUrl         String?     // Company logo
+  rating          Float?      // Average rating 0-5
+  shippingInfo    String?     // Shipping policies
+  paymentTerms    String?     // Payment terms
+  lastScrapedAt   DateTime?   // Last time scraped
+  scrapeMetadata  String?     // JSON metadata from scraping
+  isActive        Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  equipment         Equipment[]
+  equipmentCatalogs EquipmentCatalog[]
+  scrapeHistory     ScrapeHistory[]
+  crawlJobs         CrawlJob[]
+
+  @@index([name])
+  @@index([website])
+}
+
+model Equipment {
+  id              String              @id @default(cuid())
+  distributorId   String
+  category        EquipmentCategory   @default(OTHER)
+  name            String
+  manufacturer    String?
+  modelNumber     String
+  description     String?
+  specifications  String?     // JSON string for detailed specs
+  unitPrice       Float
+  imageUrl        String?
+  dataSheetUrl    String?
+  sourceUrl       String?     // Original product page URL
+  rating          Float?      // Product rating 0-5
+  reviewCount     Int?        // Number of reviews
+  warranty        String?     // Warranty information
+  isActive        Boolean     @default(true)
+  inStock         Boolean     @default(true)
+  leadTimeDays    Int?
+  lastScrapedAt   DateTime?   // Last time this product was scraped
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  distributor         Distributor         @relation(fields: [distributorId], references: [id], onDelete: Cascade)
+  priceSnapshots      PriceSnapshot[]
+  equipmentCatalogs   EquipmentCatalog[]  // Enhanced catalog entries referencing this equipment
+
+  @@index([distributorId])
+  @@index([category])
+  @@index([modelNumber])
+  @@index([manufacturer])
+}
+
+// Track price history for equipment over time
+model PriceSnapshot {
+  id          String      @id @default(cuid())
+  equipmentId String
+  price       Float
+  currency    String      @default("USD")
+  capturedAt  DateTime    @default(now())
+
+  equipment   Equipment   @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+
+  @@index([equipmentId])
+  @@index([capturedAt])
+}
+
+// Track crawl job execution and status
+model CrawlJob {
+  id                String       @id @default(cuid())
+  type              String       // 'full' | 'category' | 'product' | 'distributor'
+  status            String       @default("pending") // 'pending' | 'running' | 'completed' | 'failed'
+  targetUrl         String?
+  distributorId     String?
+  productsProcessed Int          @default(0)
+  productsUpdated   Int          @default(0)
+  errorMessage      String?
+  metadata          String?      // JSON string for additional data
+  startedAt         DateTime?
+  completedAt       DateTime?
+  createdAt         DateTime     @default(now())
+
+  distributor       Distributor? @relation(fields: [distributorId], references: [id], onDelete: SetNull)
+
+  @@index([type])
+  @@index([status])
+  @@index([distributorId])
+  @@index([startedAt])
+}
+
+// Track scraping history for auditing and debugging
+model ScrapeHistory {
+  id              String      @id @default(cuid())
+  distributorId   String
+  url             String      // URL that was scraped
+  status          String      // success, partial, failed
+  itemsFound      Int         @default(0)
+  itemsSaved      Int         @default(0)
+  errorMessage    String?
+  metadata        String?     // JSON metadata
+  scrapedAt       DateTime    @default(now())
+
+  distributor     Distributor @relation(fields: [distributorId], references: [id], onDelete: Cascade)
+
+  @@index([distributorId])
+  @@index([scrapedAt])
+}
+
+// ==================== ENHANCED ENERGY ANALYSIS MODELS ====================
+
+// Utility companies and service territories
+model Utility {
+  id               String   @id @default(cuid())
+  name             String
+  state            String
+  serviceTerritory Json?
+  regulatoryBody   String?
+  websiteUrl       String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  tariffs          Tariff[]
+
+  @@index([state])
+}
+
+// Tariff structures and rate schedules
+model Tariff {
+  id               String    @id @default(cuid())
+  utilityId        String
+  tariffName       String
+  effectiveDate    DateTime
+  endDate          DateTime?
+  sector           String    @default("residential")
+  voltage          String?
+  phaseWiring      String?
+  rateStructure    Json      // Flexible rate structure
+  source           String    // openei, genability, utility_api, manual
+  sourceId         String?
+  lastUpdated      DateTime  @default(now())
+  serviceTerritory Json?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  utility          Utility       @relation(fields: [utilityId], references: [id], onDelete: Restrict)
+  enhancedBills    EnhancedBill[]
+
+  @@index([utilityId, sector])
+  @@index([effectiveDate, endDate])
+}
+
+// Extended bill data with enhanced parsing and validation
+model EnhancedBill {
+  id               String   @id @default(cuid())
+  projectId        String
+  originalBillId   String   @unique
+  parsedData       Json     // ParsedBillData structure
+  lineItems        Json     // Array of BillLineItem
+  ocrResult        Json?    // OCRResult structure
+  parseConfidence  Float    @default(0)
+  totalVariance    Float    @default(0)
+  validationResult Json     // BillValidationResult structure
+  tariffId         String?
+  rateSchedule     String?
+  processingMethod String
+  processingTime   Int      // milliseconds
+  correlationId    String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  originalBill     Bill     @relation(fields: [originalBillId], references: [id], onDelete: Cascade)
+  tariff           Tariff?  @relation(fields: [tariffId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([parseConfidence])
+}
+
+// Customer load profiles and usage patterns
+model LoadProfile {
+  id                String   @id @default(cuid())
+  projectId         String
+  profileType       String   @default("monthly") // monthly, hourly, 15_minute
+  dataPoints        Json     // Array of timestamped usage data
+  annualKwh         Float
+  peakKw            Float
+  loadFactor        Float
+  onPeakKwh         Float?
+  midPeakKwh        Float?
+  offPeakKwh        Float?
+  dataCompleteness  Float    @default(0)
+  estimationMethod  String?
+  confidence        Float    @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, profileType])
+}
+
+// Critical load circuits for backup sizing
+model CriticalLoadProfile {
+  id                    String   @id @default(cuid())
+  projectId             String   @unique
+  circuits              Json     // Array of circuit definitions
+  totalCriticalKw       Float
+  averageDailyKwh       Float
+  peakSimultaneousKw    Float
+  diversityFactor       Float    @default(1.0)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  project               Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// Solar resource data for locations
+model SolarResource {
+  id                   String   @id @default(cuid())
+  latitude             Float
+  longitude            Float
+  timezone             String
+  ghi                  Float[]  // Global Horizontal Irradiance (monthly)
+  dni                  Float[]  // Direct Normal Irradiance
+  dhi                  Float[]  // Diffuse Horizontal Irradiance
+  temperature          Float[]  // Monthly temperatures
+  source               String   // nsrdb, pvwatts, sam, etc.
+  dataYear             Int
+  spatialResolution    Float?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  productionEstimates  ProductionEstimate[]
+
+  @@index([latitude, longitude])
+}
+
+// Production estimates with detailed modeling
+model ProductionEstimate {
+  id                      String   @id @default(cuid())
+  projectId               String
+  systemSizeKw            Float
+  configuration           Json     // SystemConfiguration structure
+  solarResourceId         String
+  annualProduction        Float    // kWh
+  monthlyProduction       Float[]  // 12 months
+  hourlyProduction        Float[]  // Optional 8760 hours
+  specificYield           Float    // kWh/kW/year
+  performanceRatio        Float
+  capacityFactor          Float
+  year1Degradation        Float    @default(0.005)
+  annualDegradation       Float    @default(0.007)
+  productionProfile25Years Float[]
+  modelingMethod          String   // pvwatts, sam, aurora, etc.
+  confidence              Float    @default(0)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+
+  project                 Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  solarResource           SolarResource @relation(fields: [solarResourceId], references: [id], onDelete: Restrict)
+  sizingRecommendations   SizingRecommendation[]
+
+  @@index([projectId])
+}
+
+// Enhanced equipment catalog with full specifications
+model EquipmentCatalog {
+  id               String   @id @default(cuid())
+  category         String   // solar_panel, inverter, battery, mounting, electrical
+  manufacturer     String
+  model            String
+  description      String?
+  specifications   Json     // Flexible technical specifications
+  certifications   String[] // Array of certification names
+  necCompliant     Boolean  @default(false)
+  ulListed         Boolean  @default(false)
+  distributorId    String?
+  equipmentId      String?  // Reference to original Equipment record
+  currentPrice     Float?
+  availability     String   @default("unknown") // in_stock, limited, backordered, discontinued
+  leadTime         Int?     // Days
+  dataSource       String   // manufacturer, distributor, certified_database
+  lastVerified     DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  distributor              Distributor?           @relation(fields: [distributorId], references: [id], onDelete: SetNull)
+  equipment                Equipment?             @relation(fields: [equipmentId], references: [id], onDelete: SetNull)
+  batteryPerformanceModels BatteryPerformanceModel[]
+
+  @@index([category, manufacturer])
+  @@index([distributorId])
+  @@index([equipmentId])
+}
+
+// Battery performance models
+model BatteryPerformanceModel {
+  id                    String   @id @default(cuid())
+  projectId             String
+  equipmentCatalogId    String
+  batterySpecs          Json     // BatterySpecs structure
+  dispatchMode          String   @default("self_consumption")
+  dailyCycles           Float
+  seasonalEfficiency    Float[]
+  temperatureEffects    Boolean  @default(true)
+  warrantyYears         Int
+  warrantyThroughput    Float    // kWh
+  replacementCost       Float?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  project               Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  equipmentCatalog      EquipmentCatalog @relation(fields: [equipmentCatalogId], references: [id], onDelete: Restrict)
+  sizingRecommendations SizingRecommendation[]
+
+  @@index([projectId])
+}
+
+// Enhanced system sizing recommendations
+model SizingRecommendation {
+  id                         String   @id @default(cuid())
+  projectId                  String
+  solarSizeKw               Float
+  batterySizeKwh            Float
+  inverterSizeKw            Float
+  selectedEquipment         Json     // Equipment selection details
+  productionEstimateId      String?
+  batteryPerformanceModelId String?
+  systemCost                Float
+  annualSavings             Float
+  paybackPeriod             Float
+  roi25Year                 Float
+  netPresentValue           Float
+  utilityAnalysis           Json     // Bill projections, export analysis
+  backupCapability          Json     // Autonomy, covered loads
+  confidence                Float    @default(0)
+  alternativeOptions        Json?    // Alternative sizing options
+  methodology               String   // Description of sizing approach
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+
+  project                   Project                  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  productionEstimate        ProductionEstimate?      @relation(fields: [productionEstimateId], references: [id], onDelete: SetNull)
+  batteryPerformanceModel   BatteryPerformanceModel? @relation(fields: [batteryPerformanceModelId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+}
+
+// Test fixtures for validation
+model ValidationFixture {
+  id               String    @id @default(cuid())
+  name             String
+  description      String
+  testInputs       Json      // Test scenario inputs
+  expectedOutputs  Json      // Expected results
+  allowedVariances Json      // Tolerance settings
+  source           String    @default("synthetic") // real_project, synthetic, benchmark
+  validationStatus String    @default("pending")   // passing, failing, warning
+  lastValidated    DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([validationStatus])
+}
+
+// Project quality metrics and monitoring
+model ProjectMetrics {
+  id                            String   @id @default(cuid())
+  projectId                     String   @unique
+  billParsingAccuracy           Float    @default(0)
+  ocrConfidence                 Float    @default(0)
+  totalBillVariance             Float    @default(0)
+  detectedAnomalies             Int      @default(0)
+  productionModelConfidence     Float    @default(0)
+  equipmentMatchConfidence      Float    @default(0)
+  financialProjectionAccuracy  Float?
+  actualVsPredictedProduction   Float?
+  actualVsPredictedSavings      Float?
+  actualVsPredictedUsage        Float?
+  overallConfidence             Float    @default(0)
+  riskFactors                   String[] // Array of risk factor descriptions
+  recommendationsQuality        String   @default("medium") // high, medium, low
+  createdAt                     DateTime @default(now())
+  updatedAt                     DateTime @updatedAt
+
+  project                       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([overallConfidence])
+}
+
+// System alerts and monitoring
+model SystemAlert {
+  id               String    @id @default(cuid())
+  projectId        String?
+  type             String    // bill_parsing_error, ocr_low_confidence, etc.
+  severity         String    // info, warning, error, critical
+  message          String
+  details          Json?
+  suggestedActions String[]  // Array of suggested action descriptions
+  status           String    @default("open") // open, acknowledged, resolved, false_positive
+  resolvedBy       String?
+  resolvedAt       DateTime?
+  resolutionNotes  String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  project          Project?  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([status, severity])
+  @@index([createdAt])
+}
+
+// Enhanced Project model with comprehensive relationships
+model Project {
+  id                        String                    @id @default(cuid())
+  clientName                String
+  address                   String?
+  phone                     String?
+  email                     String?
+  status                    ProjectStatus             @default(intake)
+  createdAt                 DateTime                  @default(now())
+  updatedAt                 DateTime                  @updatedAt
+
+  // Existing relationships
+  bills                     Bill[]
+  analysis                  Analysis?
+  bomItems                  BOMItem[]
+  system                    System?
+  plan                      Plan?
+
+  // New enhanced relationships
+  enhancedBills             EnhancedBill[]
+  loadProfiles              LoadProfile[]
+  criticalLoadProfile       CriticalLoadProfile?
+  productionEstimates       ProductionEstimate[]
+  batteryPerformanceModels  BatteryPerformanceModel[]
+  sizingRecommendations     SizingRecommendation[]
+  projectMetrics            ProjectMetrics?
+  systemAlerts              SystemAlert[]
+}
