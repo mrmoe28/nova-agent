@@ -4,6 +4,13 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import {
+  MotionDiv,
+  MotionCard,
+  MotionStagger,
+  fadeInUp,
+  smoothTransition,
+} from "@/components/motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -138,12 +145,12 @@ export default function ProjectsPage() {
 
   const getNextStep = (status: string) => {
     const steps: Record<string, { label: string; icon: any; href: string; className: string }> = {
-      intake: { label: "Upload Bills", icon: FileText, href: "intake", className: "bg-blue-600 hover:bg-blue-700" },
-      analysis: { label: "Configure System", icon: Zap, href: "sizing", className: "bg-purple-600 hover:bg-purple-700" },
-      sizing: { label: "Review BOM", icon: Archive, href: "bom", className: "bg-orange-600 hover:bg-orange-700" },
-      bom: { label: "Review & Generate PDF", icon: Download, href: "review", className: "bg-green-600 hover:bg-green-700" },
-      review: { label: "Download Report", icon: Download, href: "review", className: "bg-green-600 hover:bg-green-700" },
-      complete: { label: "View Project", icon: Eye, href: "review", className: "bg-gray-600 hover:bg-gray-700" },
+      intake: { label: "Upload Bills", icon: FileText, href: "intake", className: "bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-700 hover:to-purple-700" },
+      analysis: { label: "Configure System", icon: Zap, href: "sizing", className: "bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-700 hover:to-fuchsia-700" },
+      sizing: { label: "Review BOM", icon: Archive, href: "bom", className: "bg-gradient-to-r from-fuchsia-600 to-pink-600 hover:from-fuchsia-700 hover:to-pink-700" },
+      bom: { label: "Review & Generate PDF", icon: Download, href: "review", className: "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700" },
+      review: { label: "Download Report", icon: Download, href: "review", className: "bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700" },
+      complete: { label: "View Project", icon: Eye, href: "review", className: "bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800" },
     };
     return steps[status] || steps.intake;
   };
@@ -180,37 +187,37 @@ export default function ProjectsPage() {
       intake: { 
         variant: "secondary" as const, 
         label: "Intake", 
-        color: "bg-blue-100 text-blue-800 border-blue-200",
+        color: "bg-violet-100 dark:bg-violet-950/30 text-violet-800 dark:text-violet-300 border-violet-200 dark:border-violet-800",
         icon: FileText
       },
       analysis: { 
         variant: "outline" as const, 
         label: "Analysis", 
-        color: "bg-yellow-100 text-yellow-800 border-yellow-200",
+        color: "bg-purple-100 dark:bg-purple-950/30 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800",
         icon: Target
       },
       sizing: { 
         variant: "outline" as const, 
         label: "Sizing", 
-        color: "bg-purple-100 text-purple-800 border-purple-200",
+        color: "bg-fuchsia-100 dark:bg-fuchsia-950/30 text-fuchsia-800 dark:text-fuchsia-300 border-fuchsia-200 dark:border-fuchsia-800",
         icon: Zap
       },
       bom: { 
         variant: "outline" as const, 
         label: "BOM", 
-        color: "bg-orange-100 text-orange-800 border-orange-200",
+        color: "bg-pink-100 dark:bg-pink-950/30 text-pink-800 dark:text-pink-300 border-pink-200 dark:border-pink-800",
         icon: Archive
       },
       review: { 
         variant: "outline" as const, 
         label: "Review", 
-        color: "bg-indigo-100 text-indigo-800 border-indigo-200",
+        color: "bg-indigo-100 dark:bg-indigo-950/30 text-indigo-800 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800",
         icon: Eye
       },
       complete: { 
         variant: "default" as const, 
         label: "Complete", 
-        color: "bg-green-100 text-green-800 border-green-200",
+        color: "bg-emerald-100 dark:bg-emerald-950/30 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800",
         icon: Target
       },
     };
@@ -387,7 +394,7 @@ export default function ProjectsPage() {
     const isRecalculating = recalculatingCosts.has(project.id);
     
     return (
-      <Card key={project.id} className="group relative overflow-hidden border-0 bg-white shadow-sm ring-1 ring-gray-950/5 transition-all duration-300 hover:shadow-lg hover:ring-gray-950/10">
+      <Card className="group relative overflow-hidden border-0 bg-white dark:bg-gray-900 shadow-sm ring-1 ring-violet-500/10 transition-all duration-300 hover:shadow-lg hover:ring-violet-500/20">
         <Collapsible open={isExpanded} onOpenChange={() => toggleProjectExpanded(project.id)}>
           <CollapsibleTrigger asChild>
             <div className="cursor-pointer">
@@ -400,7 +407,7 @@ export default function ProjectsPage() {
                       e.stopPropagation();
                       router.push(`/projects/${project.id}`);
                     }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-blue-100"
+                    className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-violet-100 dark:hover:bg-violet-900/30"
                   >
                     <Eye className="h-4 w-4 mr-1" />
                     View Details
@@ -424,7 +431,7 @@ export default function ProjectsPage() {
                 </div>
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3 flex-1">
-                    <Avatar className="h-12 w-12 bg-gradient-to-br from-blue-500 to-purple-600">
+                    <Avatar className="h-12 w-12 bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600">
                       <AvatarFallback className="text-white font-semibold">
                         {project.clientName.split(' ').map(n => n[0]).join('').slice(0, 2)}
                       </AvatarFallback>
@@ -432,7 +439,7 @@ export default function ProjectsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <CardTitle 
-                          className="text-lg font-semibold text-gray-900 truncate hover:text-blue-600 transition-colors cursor-pointer"
+                          className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate hover:text-violet-600 dark:hover:text-violet-400 transition-colors cursor-pointer"
                           onClick={(e) => {
                             e.stopPropagation();
                             router.push(`/projects/${project.id}`);
@@ -807,21 +814,23 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-background">
       <div className="w-full max-w-7xl mx-auto px-6 py-8">
         {/* Modern Header */}
-        <div className="mb-8">
+        <MotionDiv variants={fadeInUp} transition={smoothTransition} className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
-              <p className="mt-2 text-gray-600">
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+                Projects
+              </h1>
+              <p className="mt-2 text-gray-600 dark:text-gray-300">
                 Manage your energy planning projects with intelligent insights
               </p>
             </div>
           </div>
 
           {/* Controls Bar */}
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm ring-1 ring-gray-950/5">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 glass-card bg-white dark:bg-gray-900/50 p-4 rounded-xl shadow-sm ring-1 ring-violet-500/10">
             <div className="flex items-center gap-4">
               {/* Distributor Selection */}
               <div className="flex items-center gap-3">
@@ -847,14 +856,14 @@ export default function ProjectsPage() {
               </div>
 
               {/* View Toggle */}
-              <div className="flex items-center bg-gray-200 rounded-lg p-1 gap-1">
+              <div className="flex items-center bg-gray-200 dark:bg-gray-800 rounded-lg p-1 gap-1">
                 <Button
                   size="sm"
                   onClick={() => setViewMode("cards")}
-                  className={`h-8 px-3 border-0 ${
+                  className={`h-8 px-3 border-0 transition-all ${
                     viewMode === "cards" 
-                      ? "bg-blue-600 text-white shadow-sm" 
-                      : "bg-white text-gray-700 shadow-sm"
+                      ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-sm" 
+                      : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 shadow-sm"
                   }`}
                 >
                   <LayoutGrid className="h-4 w-4" />
@@ -862,10 +871,10 @@ export default function ProjectsPage() {
                 <Button
                   size="sm"
                   onClick={() => setViewMode("grid")}
-                  className={`h-8 px-3 border-0 ${
+                  className={`h-8 px-3 border-0 transition-all ${
                     viewMode === "grid" 
-                      ? "bg-blue-600 text-white shadow-sm" 
-                      : "bg-white text-gray-700 shadow-sm"
+                      ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-sm" 
+                      : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 shadow-sm"
                   }`}
                 >
                   <Grid3X3 className="h-4 w-4" />
@@ -873,10 +882,10 @@ export default function ProjectsPage() {
                 <Button
                   size="sm"
                   onClick={() => setViewMode("table")}
-                  className={`h-8 px-3 border-0 ${
+                  className={`h-8 px-3 border-0 transition-all ${
                     viewMode === "table" 
-                      ? "bg-blue-600 text-white shadow-sm" 
-                      : "bg-white text-gray-700 shadow-sm"
+                      ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-sm" 
+                      : "bg-white dark:bg-gray-700 text-gray-700 dark:text-gray-300 shadow-sm"
                   }`}
                 >
                   <Table className="h-4 w-4" />
@@ -884,14 +893,14 @@ export default function ProjectsPage() {
               </div>
             </div>
 
-            <Button asChild className="bg-blue-600 text-white shadow-sm border-0">
+            <Button asChild className="bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 text-white shadow-lg shadow-violet-500/30 border-0">
               <Link href="/wizard/new">
                 <Plus className="mr-2 h-4 w-4 text-white" />
                 New Project
               </Link>
             </Button>
           </div>
-        </div>
+        </MotionDiv>
 
         {/* Projects Content */}
         {projects.length === 0 ? (
@@ -903,7 +912,7 @@ export default function ProjectsPage() {
             <p className="text-gray-600 mb-8 max-w-md">
               Get started by creating your first energy planning project and unlock intelligent insights for your clients
             </p>
-            <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+            <Button asChild className="bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 text-white shadow-lg shadow-violet-500/30">
               <Link href="/wizard/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Your First Project
@@ -913,11 +922,12 @@ export default function ProjectsPage() {
         ) : (
           <>
             {/* Workflow Guide Banner */}
-            <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                  <Zap className="h-6 w-6 text-white" />
-                </div>
+            <MotionDiv variants={fadeInUp} transition={{...smoothTransition, delay: 0.1}}>
+              <div className="mb-6 bg-gradient-to-r from-violet-50 via-purple-50 to-fuchsia-50 dark:from-violet-950/20 dark:via-purple-950/20 dark:to-fuchsia-950/20 border border-violet-200 dark:border-violet-800 rounded-xl p-6 shadow-sm">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-violet-600 via-purple-600 to-fuchsia-600 rounded-lg flex items-center justify-center">
+                    <Zap className="h-6 w-6 text-white" />
+                  </div>
                 <div className="flex-1">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Project Workflow</h3>
                   <p className="text-sm text-gray-700 mb-4">
@@ -925,39 +935,40 @@ export default function ProjectsPage() {
                   </p>
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <div className="flex items-center gap-2 text-sm">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="text-xs font-semibold text-blue-600">1</span>
+                      <div className="w-6 h-6 rounded-full bg-violet-100 dark:bg-violet-950/30 flex items-center justify-center">
+                        <span className="text-xs font-semibold text-violet-600 dark:text-violet-400">1</span>
                       </div>
-                      <span className="text-gray-700">Upload Bills</span>
+                      <span className="text-gray-700 dark:text-gray-300">Upload Bills</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center">
-                        <span className="text-xs font-semibold text-purple-600">2</span>
+                      <div className="w-6 h-6 rounded-full bg-purple-100 dark:bg-purple-950/30 flex items-center justify-center">
+                        <span className="text-xs font-semibold text-purple-600 dark:text-purple-400">2</span>
                       </div>
-                      <span className="text-gray-700">Configure System</span>
+                      <span className="text-gray-700 dark:text-gray-300">Configure System</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center">
-                        <span className="text-xs font-semibold text-orange-600">3</span>
+                      <div className="w-6 h-6 rounded-full bg-fuchsia-100 dark:bg-fuchsia-950/30 flex items-center justify-center">
+                        <span className="text-xs font-semibold text-fuchsia-600 dark:text-fuchsia-400">3</span>
                       </div>
-                      <span className="text-gray-700">Review BOM</span>
+                      <span className="text-gray-700 dark:text-gray-300">Review BOM</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
-                        <span className="text-xs font-semibold text-green-600">4</span>
+                      <div className="w-6 h-6 rounded-full bg-indigo-100 dark:bg-indigo-950/30 flex items-center justify-center">
+                        <span className="text-xs font-semibold text-indigo-600 dark:text-indigo-400">4</span>
                       </div>
-                      <span className="text-gray-700">Generate PDF</span>
+                      <span className="text-gray-700 dark:text-gray-300">Generate PDF</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
-                        <CheckCircle2 className="h-3 w-3 text-gray-600" />
+                      <div className="w-6 h-6 rounded-full bg-emerald-100 dark:bg-emerald-950/30 flex items-center justify-center">
+                        <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
                       </div>
-                      <span className="text-gray-700">Complete</span>
+                      <span className="text-gray-700 dark:text-gray-300">Complete</span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+            </MotionDiv>
 
             {/* Projects Content - Conditional Rendering Based on View Mode */}
             {viewMode === "table" ? (
@@ -977,13 +988,21 @@ export default function ProjectsPage() {
                 </div>
               </div>
             ) : viewMode === "grid" ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {projects.map((project) => renderGridView(project))}
-              </div>
+              <MotionStagger className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {projects.map((project) => (
+                  <MotionCard key={project.id} delay={0}>
+                    {renderGridView(project)}
+                  </MotionCard>
+                ))}
+              </MotionStagger>
             ) : (
-              <div className="space-y-4">
-                {projects.map((project) => renderModernCard(project))}
-              </div>
+              <MotionStagger className="space-y-4">
+                {projects.map((project) => (
+                  <MotionCard key={project.id} delay={0}>
+                    {renderModernCard(project)}
+                  </MotionCard>
+                ))}
+              </MotionStagger>
             )}
           </>
         )}

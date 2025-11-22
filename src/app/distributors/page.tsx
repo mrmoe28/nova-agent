@@ -3,8 +3,14 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import {
+  MotionDiv,
+  MotionCard,
+  MotionStagger,
+  fadeInUp,
+  smoothTransition,
+} from "@/components/motion";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -177,24 +183,24 @@ export default function DistributorsPage() {
   return (
     <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
       <div className="w-full px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">
+      <MotionDiv variants={fadeInUp} transition={smoothTransition} className="mb-8">
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
           Distributors & Equipment
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Manage your distributor network and equipment catalog
         </p>
-      </div>
+      </MotionDiv>
 
       {/* Tabs */}
       <div className="mb-8 border-b border-border">
         <div className="flex gap-8">
           <button
             onClick={() => setActiveTab("distributors")}
-            className={`pb-4 text-sm font-semibold border-b-2 ${
+            className={`pb-4 text-sm font-semibold border-b-2 transition-colors ${
               activeTab === "distributors"
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-slate-600"
+                ? "border-violet-600 text-violet-600 dark:border-violet-400 dark:text-violet-400"
+                : "border-transparent text-slate-600 dark:text-slate-400"
             }`}
           >
             <Building2 className="inline-block mr-2 h-4 w-4" />
@@ -202,10 +208,10 @@ export default function DistributorsPage() {
           </button>
           <button
             onClick={() => setActiveTab("equipment")}
-            className={`pb-4 text-sm font-semibold border-b-2 ${
+            className={`pb-4 text-sm font-semibold border-b-2 transition-colors ${
               activeTab === "equipment"
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-slate-600"
+                ? "border-violet-600 text-violet-600 dark:border-violet-400 dark:text-violet-400"
+                : "border-transparent text-slate-600 dark:text-slate-400"
             }`}
           >
             <Package className="inline-block mr-2 h-4 w-4" />
@@ -213,10 +219,10 @@ export default function DistributorsPage() {
           </button>
           <button
             onClick={() => setActiveTab("discovery")}
-            className={`pb-4 text-sm font-semibold border-b-2 ${
+            className={`pb-4 text-sm font-semibold border-b-2 transition-colors ${
               activeTab === "discovery"
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-slate-600"
+                ? "border-violet-600 text-violet-600 dark:border-violet-400 dark:text-violet-400"
+                : "border-transparent text-slate-600 dark:text-slate-400"
             }`}
           >
             <Zap className="inline-block mr-2 h-4 w-4" />
@@ -255,7 +261,7 @@ export default function DistributorsPage() {
                   setShowAddEquipment(true);
                 }
               }}
-              className="bg-blue-600 text-white"
+              className="bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 text-white shadow-lg shadow-violet-500/30"
             >
               <Plus className="mr-2 h-4 w-4" />
               Add {activeTab === "distributors" ? "Distributor" : "Equipment"}
@@ -306,21 +312,16 @@ export default function DistributorsPage() {
               }
             />
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <MotionStagger className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredDistributors.map((distributor, index) => {
             const thumbnailEquipment = distributor.equipment?.find(
               (eq) => eq.imageUrl
             );
             
                 return (
-                  <motion.div
-                    key={distributor.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.05 }}
-                  >
+                  <MotionCard key={distributor.id} delay={index * 0.05}>
                     <Card
-                      className="overflow-hidden bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group"
+                      className="overflow-hidden bg-white dark:bg-gray-900 border border-violet-500/20 dark:border-violet-800/30 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group"
                       onClick={() => router.push(`/distributors/${distributor.id}`)}
                     >
                 {/* Thumbnail Image */}
@@ -412,10 +413,10 @@ export default function DistributorsPage() {
                   )}
                 </div>
                     </Card>
-                  </motion.div>
+                  </MotionCard>
                 );
               })}
-            </div>
+            </MotionStagger>
           )}
         </>
       ) : (
@@ -443,16 +444,11 @@ export default function DistributorsPage() {
               }
             />
           ) : (
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <MotionStagger className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredEquipment.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3, delay: index * 0.05 }}
-                >
+                <MotionCard key={item.id} delay={index * 0.05}>
                   <Card
-                    className="group p-0 bg-white border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:border-primary/50"
+                    className="group p-0 bg-white dark:bg-gray-900 border border-violet-500/20 dark:border-violet-800/30 overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:border-violet-500/50"
                   >
               {/* Product Image */}
               <div className="relative w-full h-48 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
@@ -586,7 +582,7 @@ export default function DistributorsPage() {
 
                 {/* Price */}
                 <div className="pt-2 border-t border-slate-100">
-                  <span className="text-2xl font-bold text-blue-600">
+                  <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
                     ${item.unitPrice.toLocaleString()}
                   </span>
                 </div>
@@ -602,9 +598,9 @@ export default function DistributorsPage() {
                 )}
                 </div>
                   </Card>
-                </motion.div>
+                </MotionCard>
               ))}
-            </div>
+            </MotionStagger>
           )}
         </>
       )}
@@ -827,7 +823,7 @@ function DistributorForm({
                   type="button"
                   onClick={handleScrapeUrl}
                   disabled={scraping || !scrapeUrl}
-                  className="bg-blue-600 text-white"
+                  className="bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 text-white"
                 >
                   {scraping ? (
                     <>
@@ -977,7 +973,7 @@ function DistributorForm({
             <Button
               type="submit"
               disabled={saving}
-              className="bg-blue-600 text-white"
+              className="bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 text-white"
             >
               {saving ? "Saving..." : "Save"}
             </Button>
@@ -1321,12 +1317,12 @@ function EquipmentForm({
               </Button>
 
               {imageFile && (
-                <Button
-                  type="button"
-                  onClick={handleImageUpload}
-                  disabled={uploadingImage}
-                  className="bg-blue-600 text-white"
-                >
+                  <Button
+                    type="button"
+                    onClick={handleImageUpload}
+                    disabled={uploadingImage}
+                    className="bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 text-white"
+                  >
                   {uploadingImage ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -1396,7 +1392,7 @@ function EquipmentForm({
             <Button
               type="submit"
               disabled={saving}
-              className="bg-blue-600 text-white"
+              className="bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 text-white"
             >
               {saving ? "Saving..." : "Save"}
             </Button>

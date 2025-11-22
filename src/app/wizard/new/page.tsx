@@ -7,6 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
+import {
+  MotionDiv,
+  MotionCard,
+  fadeInUp,
+  smoothTransition,
+} from "@/components/motion";
 
 export default function NewWizardPage() {
   const router = useRouter();
@@ -45,16 +51,19 @@ export default function NewWizardPage() {
   };
 
   return (
-    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
+    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-gradient-to-b from-background to-gray-50 dark:to-gray-900">
       <div className="w-full max-w-2xl mx-auto px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Start New Energy Plan</h1>
+      <MotionDiv variants={fadeInUp} transition={smoothTransition} className="mb-6">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+          Start New Energy Plan
+        </h1>
         <p className="mt-2 text-muted-foreground">
           Enter client information to begin the NovaAgent workflow
         </p>
-      </div>
+      </MotionDiv>
 
-      <Card className="p-6">
+      <MotionCard delay={0.1}>
+        <Card className="glass-card p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="clientName">
@@ -119,7 +128,7 @@ export default function NewWizardPage() {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading} className="flex-1">
+            <Button type="submit" disabled={loading} className="flex-1 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 text-white shadow-lg shadow-violet-500/30">
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

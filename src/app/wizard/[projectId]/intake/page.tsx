@@ -6,6 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import FileUpload from "@/components/FileUpload";
+import {
+  MotionDiv,
+  MotionCard,
+  fadeInUp,
+  smoothTransition,
+} from "@/components/motion";
 
 export default function IntakePage() {
   const router = useRouter();
@@ -57,16 +63,19 @@ export default function IntakePage() {
   };
 
   return (
-    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
+    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-gradient-to-b from-background to-gray-50 dark:to-gray-900">
       <div className="w-full max-w-4xl mx-auto px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Bill Upload & Intake</h1>
+      <MotionDiv variants={fadeInUp} transition={smoothTransition} className="mb-6">
+        <h1 className="text-2xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 bg-clip-text text-transparent">
+          Bill Upload & Intake
+        </h1>
         <p className="mt-2 text-muted-foreground">
           Upload power bills (PDF, images, or CSV) for analysis
         </p>
-      </div>
+      </MotionDiv>
 
-      <Card className="p-6">
+      <MotionCard delay={0.1}>
+        <Card className="glass-card p-6">
         <FileUpload
           projectId={projectId}
           onUploadComplete={handleUploadComplete}
@@ -84,7 +93,7 @@ export default function IntakePage() {
           <Button
             onClick={handleContinue}
             disabled={processing || !hasFiles}
-            className="flex-1"
+            className="flex-1 bg-gradient-to-r from-violet-600 via-purple-600 to-fuchsia-600 hover:from-violet-700 hover:via-purple-700 hover:to-fuchsia-700 text-white shadow-lg shadow-violet-500/30"
           >
             {processing ? (
               <>
