@@ -1164,7 +1164,12 @@ export async function deepCrawlForProducts(
                 (isProductLink || hasProductClass || isInsideProductContainer) &&
                 isProductPageUrl(absoluteUrl)
               ) {
-                pageProductLinks.push(absoluteUrl);
+                // Normalize URL (remove query params, fragments, trailing slashes)
+                const normalizedUrl = absoluteUrl.split('?')[0].split('#')[0].replace(/\/$/, '');
+                // Only add if not already found via Shopify selectors
+                if (!shopifyProductLinks.has(normalizedUrl)) {
+                  pageProductLinks.push(normalizedUrl);
+                }
               }
 
               // Enhanced catalog/pagination detection
