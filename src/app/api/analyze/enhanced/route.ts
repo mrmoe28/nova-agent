@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { geocodeAddress } from "@/lib/geocoding";
 import { getPVWattsProduction } from "@/lib/pvwatts";
 import { getApplicableIncentives } from "@/lib/incentives";
+import { calculateLCOE, calculateNPV, calculateIRR } from "@/lib/finance";
 
 export async function POST(request: NextRequest) {
   try {
@@ -138,15 +139,50 @@ export async function POST(request: NextRequest) {
         }
     }
 
-    // 8. Final Recommendations
+    // 8. Calculate Advanced Financial Metrics
+    const lifetimeYears = 25;
+    const annualOandMCost = grossSystemCost * 0.01; // 1% of system cost annually
+    const lifetimeProductionKwh = annualSolarProductionKwh * lifetimeYears;
+    
+    const lcoe = calculateLCOE({
+        netSystemCost,
+        lifetimeProductionKwh,
+        annualOandMCost,
+        lifetimeYears,
+    });
+
+    const annualCashFlows = Array(lifetimeYears).fill(estimatedAnnualSavingsUsd - annualOandMCost);
+    const npv = calculateNPV({
+        initialInvestment: -netSystemCost,
+        cashFlows: annualCashFlows,
+        discountRate: 0.05, // 5% discount rate
+    });
+
+    // Simple ROI calculation: (Total Returns - Investment) / Investment * 100
+    const totalReturns = estimatedAnnualSavingsUsd * lifetimeYears;
+    const roi = ((totalReturns - netSystemCost) / netSystemCost) * 100;
+
+    // Simple payback period: Investment / Annual Cash Flow
+    const annualCashFlow = estimatedAnnualSavingsUsd - annualOandMCost;
+    const paybackPeriod = annualCashFlow > 0 ? netSystemCost / annualCashFlow : Infinity;
+
+    // Calculate IRR
+    const cashFlows = [-netSystemCost, ...annualCashFlows];
+    const irr = calculateIRR(cashFlows);
+
+    // 9. Final Recommendations
     const recommendations = [
         `Recommended system size: ${systemCapacityKw.toFixed(2)} kW`,
         `Estimated annual production: ${Math.round(annualSolarProductionKwh)} kWh`,
         `This could offset ~${energyOffsetPercentage.toFixed(0)}% of your annual electricity usage.`,
-        `Estimated annual savings: ${estimatedAnnualSavingsUsd.toFixed(2)}`,
-        `Estimated net system cost after incentives: ${netSystemCost.toFixed(2)} (includes ~${totalIncentivesValue.toFixed(0)} in incentives)`,
+        `Estimated annual savings: $${estimatedAnnualSavingsUsd.toFixed(2)}`,
+        `Estimated net system cost after incentives: $${netSystemCost.toFixed(2)} (includes ~$${totalIncentivesValue.toFixed(0)} in incentives)`,
+        `Levelized Cost of Energy (LCOE): $${lcoe.toFixed(4)}/kWh`,
+        `Net Present Value (NPV): $${npv.toFixed(2)}`,
+        `Return on Investment (ROI): ${roi.toFixed(1)}%`,
+        `Simple payback period: ${paybackPeriod !== Infinity ? paybackPeriod.toFixed(1) + ' years' : 'N/A'}`,
         ...appliedIncentives,
-    ];
+    ].filter(Boolean); // Remove null values
 
     const analysisData = {
         latitude: coordinates.latitude,
@@ -154,31 +190,24 @@ export async function POST(request: NextRequest) {
         annualSolarProductionKwh,
         energyOffsetPercentage,
         estimatedAnnualSavingsUsd,
-        grossSystemCost,
-        netSystemCost,
-        totalIncentivesValue,
         recommendations: JSON.stringify(recommendations),
     };
 
-    // 9. Save the enhanced analysis to the database
-    // This part is commented out until the database migration issue is resolved by a developer.
-    /*
-    // TODO: UNCOMMENT THIS BLOCK AFTER DATABASE MIGRATION IS FIXED
+    // 10. Save the enhanced analysis to the database
     console.log("Saving enhanced analysis to database...");
     const updatedAnalysis = await prisma.analysis.update({
         where: { projectId },
         data: analysisData,
     });
     console.log("Successfully saved enhanced analysis.");
-    */
 
-    // Return the calculated data without saving it
+    // Return the calculated data
     const finalAnalysisResult = {
         projectId,
         monthlyUsageKwh,
         averageCostPerKwh,
         ...analysisData,
-        persisted: false, 
+        persisted: true, 
     };
 
     return NextResponse.json({

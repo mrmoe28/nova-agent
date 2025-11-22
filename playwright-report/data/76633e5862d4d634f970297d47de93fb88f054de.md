@@ -1,0 +1,50 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "NovaAgent AI Solar & Battery Energy Planner" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img [ref=e6]
+        - generic [ref=e8]:
+          - generic [ref=e9]:
+            - text: NovaAgent
+            - generic [ref=e10]: AI
+          - generic [ref=e11]: Solar & Battery Energy Planner
+      - navigation [ref=e12]:
+        - link "Dashboard" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - img
+          - generic [ref=e14]: Dashboard
+        - link "Distributors" [ref=e15] [cursor=pointer]:
+          - /url: /distributors
+          - img
+          - generic [ref=e16]: Distributors
+        - link "Projects" [ref=e17] [cursor=pointer]:
+          - /url: /projects
+          - img
+          - generic [ref=e18]: Projects
+        - link "PTO Agent" [ref=e20] [cursor=pointer]:
+          - /url: https://ptoagent.app/
+          - img
+          - generic [ref=e21]: PTO Agent
+        - button "Toggle theme" [ref=e22]:
+          - generic [ref=e23]: Toggle theme
+          - img
+        - link "New Project" [ref=e24] [cursor=pointer]:
+          - /url: /wizard/new
+          - img
+          - generic [ref=e25]: New Project
+  - main [ref=e26]:
+    - generic [ref=e27]:
+      - heading "Project Not Found" [level=2] [ref=e28]
+      - paragraph [ref=e29]: The requested project could not be found.
+      - button "Back to Projects" [ref=e30]:
+        - img
+        - text: Back to Projects
+  - region "Notifications alt+T"
+  - button "Open AI Assistant" [ref=e31]:
+    - img
+  - alert [ref=e32]
+```

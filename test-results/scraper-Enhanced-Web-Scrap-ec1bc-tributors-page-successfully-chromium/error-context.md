@@ -1,0 +1,73 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "NovaAgent AI Solar & Battery Energy Planner" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - img [ref=e6]
+        - generic [ref=e8]:
+          - generic [ref=e9]:
+            - text: NovaAgent
+            - generic [ref=e10]: AI
+          - generic [ref=e11]: Solar & Battery Energy Planner
+      - navigation [ref=e12]:
+        - link "Dashboard" [ref=e13] [cursor=pointer]:
+          - /url: /dashboard
+          - img
+          - generic [ref=e14]: Dashboard
+        - link "Distributors" [ref=e15] [cursor=pointer]:
+          - /url: /distributors
+          - img
+          - generic [ref=e16]: Distributors
+        - link "Projects" [ref=e18] [cursor=pointer]:
+          - /url: /projects
+          - img
+          - generic [ref=e19]: Projects
+        - link "PTO Agent" [ref=e20] [cursor=pointer]:
+          - /url: https://ptoagent.app/
+          - img
+          - generic [ref=e21]: PTO Agent
+        - button "Toggle theme" [ref=e22]:
+          - generic [ref=e23]: Toggle theme
+          - img
+        - link "New Project" [ref=e24] [cursor=pointer]:
+          - /url: /wizard/new
+          - img
+          - generic [ref=e25]: New Project
+  - main [ref=e26]:
+    - generic [ref=e28]:
+      - generic [ref=e29]:
+        - heading "Distributors & Equipment" [level=1] [ref=e30]
+        - paragraph [ref=e31]: Manage your distributor network and equipment catalog
+      - generic [ref=e33]:
+        - button "Distributors (0)" [ref=e34]:
+          - img [ref=e35]
+          - text: Distributors (0)
+        - button "Equipment (0)" [ref=e39]:
+          - img [ref=e40]
+          - text: Equipment (0)
+        - button "Discover New" [ref=e44]:
+          - img [ref=e45]
+          - text: Discover New
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - img [ref=e49]
+          - textbox "Search distributors..." [ref=e52]
+        - generic [ref=e53]:
+          - generic [ref=e55]:
+            - generic [ref=e56]:
+              - img [ref=e57]
+              - textbox "Search equipment online (e.g., 'solar panels 400W')" [ref=e60]
+            - button "Search Web" [ref=e61]:
+              - img
+              - text: Search Web
+          - button "Add Distributor" [ref=e62]:
+            - img
+            - text: Add Distributor
+  - region "Notifications alt+T"
+  - button "Open AI Assistant" [ref=e63]:
+    - img
+  - alert [ref=e64]
+```
