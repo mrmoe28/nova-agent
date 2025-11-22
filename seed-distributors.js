@@ -4,28 +4,28 @@ const prisma = new PrismaClient();
 const sampleDistributors = [
   {
     name: "SolarPro Supply",
-    website: "https://example.com/solarpro",
+    website: null, // No website - prevents scraping errors
     email: "sales@solarpro.example.com",
     phone: "1-800-SOLAR-01",
     isActive: true,
   },
   {
     name: "Green Energy Wholesale",
-    website: "https://example.com/greenenergy",
+    website: null, // No website - prevents scraping errors
     email: "contact@greenenergy.example.com",
     phone: "1-800-GREEN-99",
     isActive: true,
   },
   {
     name: "Battery & Solar Direct",
-    website: "https://example.com/batterydirect",
+    website: null, // No website - prevents scraping errors
     email: "info@batterydirect.example.com",
     phone: "1-888-BATTERY",
     isActive: true,
   },
   {
     name: "Renewable Equipment Co",
-    website: "https://example.com/renewableequip",
+    website: null, // No website - prevents scraping errors
     email: "sales@renewableequip.example.com",
     phone: "1-877-RENEW-01",
     isActive: true,

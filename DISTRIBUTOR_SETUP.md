@@ -38,10 +38,13 @@ npm run check:distributors
 The database was empty of distributors, causing the dropdown to show "Select a distributor for pricing" but have no options to select.
 
 ### Solution
-1. Created `seed-distributors.js` - Seeds sample distributors
+1. Created `seed-distributors.js` - Seeds sample distributors (without websites)
 2. Created `check-distributors.js` - Checks distributor status
-3. Added npm scripts for easy access
-4. Seeded 4 sample distributors to the database
+3. Created `fix-distributor-websites.js` - Removes invalid placeholder URLs
+4. Added npm scripts for easy access
+5. Seeded 4 sample distributors to the database
+
+**Important:** Sample distributors have `website: null` to prevent scraping errors. When you add real distributors, provide actual website URLs.
 
 ---
 
@@ -134,6 +137,12 @@ Note: "(0 products)" means no equipment is assigned yet. You'll need to add equi
 2. Verify API is running: `curl http://localhost:3000/api/distributors`
 3. Refresh the page
 4. Check if distributors are marked as `isActive: true`
+
+### "Rescrape failing with HTTP 404 errors"
+**Problem:** Distributors have placeholder `example.com` URLs that don't exist  
+**Solution:** Run `npm run fix:distributor-websites` to remove invalid URLs
+
+This sets `website: null` for distributors with placeholder URLs. The scraper will skip them automatically.
 
 ### "Created distributors but need to remove them"
 **Solution:** Use the Distributors page UI to delete, or use Prisma Studio:
