@@ -143,7 +143,7 @@ export default function DashboardPage() {
             <Button
               onClick={() => router.push("/projects")}
               variant="outline"
-              className="border-violet-500/30 text-white hover:bg-violet-500/10 px-6 py-6 text-lg backdrop-blur-sm"
+              className="border-violet-500/30 text-white hover:bg-violet-500/10 px-6 py-6 text-lg"
             >
               View Projects
             </Button>
@@ -155,7 +155,7 @@ export default function DashboardPage() {
       <div className="py-12 w-full max-w-7xl mx-auto">
         <MotionStagger className="px-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <MotionCard delay={0}>
-            <Card className="glass-card bg-gradient-to-br from-violet-950/40 to-purple-950/40 border-violet-500/20 p-6">
+            <Card className="bg-gradient-to-br from-violet-950/90 to-purple-950/90 border-violet-500/20 p-6">
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-gray-300 text-sm mb-2">Total Projects</p>

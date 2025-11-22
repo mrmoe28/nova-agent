@@ -117,14 +117,14 @@ export default function Page() {
         {/* Animated grid background */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#8b5cf620_1px,transparent_1px),linear-gradient(to_bottom,#8b5cf620_1px,transparent_1px)] bg-[size:14px_24px]" />
         
-        {/* Animated gradient orbs */}
+        {/* Animated gradient orbs - reduced opacity and removed blur to ensure text visibility */}
         <MotionDiv
-          className="absolute top-0 right-0 w-[600px] h-[600px] bg-violet-500/30 rounded-full blur-[120px]"
+          className="absolute top-0 right-0 w-[600px] h-[600px] bg-violet-500/10 rounded-full -z-10"
           variants={{
             initial: { scale: 0.8, opacity: 0 },
             animate: {
               scale: [1, 1.2, 1],
-              opacity: [0.3, 0.5, 0.3],
+              opacity: [0.1, 0.15, 0.1],
             },
           }}
           transition={{
@@ -134,12 +134,12 @@ export default function Page() {
           }}
         />
         <MotionDiv
-          className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/30 rounded-full blur-[100px]"
+          className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-purple-600/10 rounded-full -z-10"
           variants={{
             initial: { scale: 0.8, opacity: 0 },
             animate: {
               scale: [1, 1.3, 1],
-              opacity: [0.3, 0.5, 0.3],
+              opacity: [0.1, 0.15, 0.1],
             },
           }}
           transition={{
@@ -150,12 +150,12 @@ export default function Page() {
           }}
         />
         <MotionDiv
-          className="absolute top-1/2 left-1/2 w-[400px] h-[400px] bg-fuchsia-500/20 rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2"
+          className="absolute top-1/2 left-1/2 w-[400px] h-[400px] bg-fuchsia-500/8 rounded-full -translate-x-1/2 -translate-y-1/2 -z-10"
           variants={{
             initial: { scale: 0.8, opacity: 0 },
             animate: {
               scale: [1, 1.4, 1],
-              opacity: [0.2, 0.4, 0.2],
+              opacity: [0.08, 0.12, 0.08],
             },
           }}
           transition={{
@@ -166,7 +166,7 @@ export default function Page() {
           }}
         />
 
-        <div className="relative w-full px-4 py-16 sm:px-6 sm:py-24 lg:px-8 min-h-screen max-w-7xl mx-auto">
+        <div className="relative z-10 w-full px-4 py-16 sm:px-6 sm:py-24 lg:px-8 min-h-screen max-w-7xl mx-auto">
           <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center min-h-[calc(100vh-8rem)]">
             {/* Left Column - Hero Content */}
             <MotionDiv
@@ -281,7 +281,7 @@ export default function Page() {
                 delay={0.3}
                 className="w-full max-w-md"
               >
-                <Card className="border-violet-500/20 shadow-2xl w-full flex flex-col rounded-2xl glass-card bg-gradient-to-br from-violet-950/40 to-purple-950/40">
+                <Card className="border-violet-500/20 shadow-2xl w-full flex flex-col rounded-2xl bg-gradient-to-br from-violet-950/90 to-purple-950/90 backdrop-blur-0">
                   <CardHeader className="flex-shrink-0 space-y-2">
                     <CardTitle className="flex items-center gap-2 text-white text-xl">
                       <FloatingAnimation>

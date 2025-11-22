@@ -490,10 +490,10 @@ export default function ProjectDetailsPage() {
 
   return (
     <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-gradient-to-b from-[#0A0F1C] via-[#0f1829] to-[#0A0F1C]">
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f15_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f15_1px,transparent_1px)] bg-[size:14px_24px]" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-[120px]" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-600/20 rounded-full blur-[100px]" />
-      <div className="relative w-full p-6">
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f15_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f15_1px,transparent_1px)] bg-[size:14px_24px] -z-10" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-violet-500/8 rounded-full -z-10" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-purple-600/8 rounded-full -z-10" />
+      <div className="relative z-10 w-full p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">

@@ -63,7 +63,7 @@ export default function NewWizardPage() {
       </MotionDiv>
 
       <MotionCard delay={0.1}>
-        <Card className="glass-card p-6">
+        <Card className="bg-white dark:bg-gray-900 p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="clientName">

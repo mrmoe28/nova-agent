@@ -75,7 +75,7 @@ export default function IntakePage() {
       </MotionDiv>
 
       <MotionCard delay={0.1}>
-        <Card className="glass-card p-6">
+        <Card className="bg-white dark:bg-gray-900 p-6">
         <FileUpload
           projectId={projectId}
           onUploadComplete={handleUploadComplete}

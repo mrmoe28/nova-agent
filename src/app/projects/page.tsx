@@ -830,7 +830,7 @@ export default function ProjectsPage() {
           </div>
 
           {/* Controls Bar */}
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 glass-card bg-white dark:bg-gray-900/50 p-4 rounded-xl shadow-sm ring-1 ring-violet-500/10">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 bg-white dark:bg-gray-900 p-4 rounded-xl shadow-sm ring-1 ring-violet-500/10">
             <div className="flex items-center gap-4">
               {/* Distributor Selection */}
               <div className="flex items-center gap-3">
