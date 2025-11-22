@@ -13,6 +13,7 @@ import {
 } from "@/lib/browser-scraper-bql";
 import { getAIScraper } from "@/lib/ai-agent-scraper";
 import { createLogger, logOperation } from "@/lib/logger";
+import { clearAllCaches } from "@/lib/cache";
 
 const logger = createLogger("scrape-api");
 
@@ -67,6 +68,13 @@ export async function POST(request: NextRequest) {
       { url, saveToDatabase, scrapeProducts, maxProducts, useBrowser, useAI },
       "Starting scrape job",
     );
+
+    // Clear caches when rescraping to ensure fresh data
+    // This prevents stale cached product data from being returned
+    if (distributorId) {
+      logger.info("Clearing product and HTML caches for fresh scrape");
+      clearAllCaches();
+    }
 
     // Create a CrawlJob record to track this scraping operation
     const crawlJob = await prisma.crawlJob.create({
@@ -429,35 +437,87 @@ export async function POST(request: NextRequest) {
         // TypeScript type narrowing: savedDistributor is non-null here
         const distributor = savedDistributor;
 
-        // Step 2: Batch check for existing equipment
-        const sourceUrls = validProducts
-          .map((p) => p.sourceUrl)
-          .filter(Boolean) as string[];
-
-        const existingBySourceUrl = await prisma.equipment.findMany({
+        // Step 2: Batch check for existing equipment using multiple strategies
+        // Get all existing equipment for this distributor to check against
+        const allExistingEquipment = await prisma.equipment.findMany({
           where: {
             distributorId: distributor.id,
-            sourceUrl: { in: sourceUrls },
           },
         });
 
-        const existingMap = new Map(
-          existingBySourceUrl.map((e) => [e.sourceUrl, e]),
-        );
+        // Create lookup maps for fast matching
+        const sourceUrlMap = new Map<string, typeof allExistingEquipment[0]>();
+        const nameModelMap = new Map<string, typeof allExistingEquipment[0]>();
+        const nameManufacturerMap = new Map<string, typeof allExistingEquipment[0]>();
+
+        for (const eq of allExistingEquipment) {
+          // Index by sourceUrl (most reliable)
+          if (eq.sourceUrl) {
+            sourceUrlMap.set(eq.sourceUrl, eq);
+          }
+
+          // Index by name + modelNumber (for products without sourceUrl)
+          const normalizedName = eq.name?.toLowerCase().trim() || "";
+          const normalizedModel = eq.modelNumber?.toLowerCase().trim() || "";
+          const normalizedManufacturer = eq.manufacturer?.toLowerCase().trim() || "";
+
+          if (normalizedName && normalizedModel) {
+            const key = `${normalizedName}::${normalizedModel}`;
+            if (!nameModelMap.has(key)) {
+              nameModelMap.set(key, eq);
+            }
+          }
+
+          // Index by name + manufacturer (fallback)
+          if (normalizedName && normalizedManufacturer) {
+            const key = `${normalizedName}::${normalizedManufacturer}`;
+            if (!nameManufacturerMap.has(key)) {
+              nameManufacturerMap.set(key, eq);
+            }
+          }
+        }
 
         logger.debug(
-          { existing: existingMap.size, new: validProducts.length - existingMap.size },
-          "Checked existing equipment",
+          { 
+            totalExisting: allExistingEquipment.length,
+            indexedBySourceUrl: sourceUrlMap.size,
+            indexedByNameModel: nameModelMap.size,
+            indexedByNameManufacturer: nameManufacturerMap.size,
+          },
+          "Indexed existing equipment for matching",
         );
 
         // Step 3: Separate into new and existing products
         const toCreate: typeof validProducts = [];
-        const toUpdate: Array<{ product: typeof validProducts[0]; existing: typeof existingBySourceUrl[0] }> = [];
+        const toUpdate: Array<{ product: typeof validProducts[0]; existing: typeof allExistingEquipment[0] }> = [];
 
         for (const product of validProducts) {
-          const existing = product.sourceUrl
-            ? existingMap.get(product.sourceUrl)
-            : null;
+          let existing: typeof allExistingEquipment[0] | null = null;
+
+          // Strategy 1: Match by sourceUrl (most reliable)
+          if (product.sourceUrl) {
+            existing = sourceUrlMap.get(product.sourceUrl) || null;
+          }
+
+          // Strategy 2: If no sourceUrl match, try name + modelNumber
+          if (!existing) {
+            const normalizedName = product.name?.toLowerCase().trim() || "";
+            const normalizedModel = product.modelNumber?.toLowerCase().trim() || "";
+            if (normalizedName && normalizedModel) {
+              const key = `${normalizedName}::${normalizedModel}`;
+              existing = nameModelMap.get(key) || null;
+            }
+          }
+
+          // Strategy 3: Fall back to name + manufacturer
+          if (!existing) {
+            const normalizedName = product.name?.toLowerCase().trim() || "";
+            const normalizedManufacturer = product.manufacturer?.toLowerCase().trim() || "";
+            if (normalizedName && normalizedManufacturer) {
+              const key = `${normalizedName}::${normalizedManufacturer}`;
+              existing = nameManufacturerMap.get(key) || null;
+            }
+          }
 
           if (existing) {
             toUpdate.push({ product, existing });
@@ -471,11 +531,46 @@ export async function POST(request: NextRequest) {
           "Separated products for batch processing",
         );
 
-        // Log why count might not increase
+        // Log detailed breakdown for debugging
         if (toCreate.length === 0 && toUpdate.length > 0) {
           logger.info(
-            { updated: toUpdate.length },
+            { 
+              updated: toUpdate.length,
+              totalScraped: validProducts.length,
+              message: "All scraped products already exist - updating existing records (count won't increase). This could mean: 1) No new products were added to the website, 2) The scraper is only finding previously scraped products, or 3) New products don't have sourceUrls and are matching existing products by name/model."
+            },
             "All products already exist - updating existing records (count won't increase)",
+          );
+        }
+
+        // Log sample of new products for debugging
+        if (toCreate.length > 0) {
+          logger.info(
+            { 
+              newProductsCount: toCreate.length,
+              sampleNewProducts: toCreate.slice(0, 5).map(p => ({
+                name: p.name,
+                sourceUrl: p.sourceUrl,
+                modelNumber: p.modelNumber,
+                manufacturer: p.manufacturer,
+              }))
+            },
+            "Found new products to create",
+          );
+        }
+
+        // Log sample of updated products for debugging
+        if (toUpdate.length > 0) {
+          logger.info(
+            { 
+              updatedProductsCount: toUpdate.length,
+              sampleUpdatedProducts: toUpdate.slice(0, 5).map(({ product, existing }) => ({
+                name: product.name,
+                sourceUrl: product.sourceUrl || existing.sourceUrl,
+                matchedBy: product.sourceUrl ? 'sourceUrl' : (product.modelNumber ? 'name+model' : 'name+manufacturer'),
+              }))
+            },
+            "Found existing products to update",
           );
         }
 
@@ -630,11 +725,23 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Calculate how many were actually new vs updated
+    const newProductsCount = toCreate.length;
+    const updatedProductsCount = toUpdate.length;
+
     logger.info(
       {
         productsFound: scrapedProducts.length,
         productsSaved: savedEquipment.length,
+        newProductsCreated: newProductsCount,
+        existingProductsUpdated: updatedProductsCount,
         distributorId: savedDistributor?.id,
+        totalProductLinks: allProductLinks.length,
+        message: newProductsCount === 0 && updatedProductsCount > 0
+          ? "No new products found - all scraped products already exist in database. This could mean: 1) No new products were added to the website, 2) The scraper is only finding previously scraped products, or 3) New products are matching existing ones by name/model."
+          : newProductsCount > 0
+            ? `${newProductsCount} new products were created successfully.`
+            : "All scraped products were saved successfully.",
       },
       "Scrape operation completed successfully",
     );
