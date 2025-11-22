@@ -185,3 +185,4 @@ I'll help you fix any deployment or runtime issues!
 **Vercel**: 🟡 Should be deploying automatically now
 **Database**: ✅ Ready (5 distributors, 81 equipment items)
 
+

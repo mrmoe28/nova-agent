@@ -297,9 +297,29 @@ export async function POST(request: NextRequest) {
 
       // Save products with price snapshots (OPTIMIZED: batch processing)
       // Step 1: Filter valid products
-      const validProducts = scrapedProducts.filter(
-        (p) => p.name && p.price,
-      );
+      const distributorName = savedDistributor?.name?.toLowerCase().trim() || "";
+      const validProducts = scrapedProducts.filter((p) => {
+        // Must have name and price
+        if (!p.name || !p.price) return false;
+        
+        // Reject products where name matches distributor name (common scraping error)
+        const productNameLower = p.name.toLowerCase().trim();
+        if (distributorName && productNameLower === distributorName) {
+          logger.debug(
+            { productName: p.name, distributorName },
+            "Rejecting product with distributor name",
+          );
+          return false;
+        }
+        
+        // Reject very short names (likely not real product names)
+        if (productNameLower.length < 3) {
+          logger.debug({ productName: p.name }, "Rejecting product with very short name");
+          return false;
+        }
+        
+        return true;
+      });
 
       logger.info(
         { total: scrapedProducts.length, valid: validProducts.length },

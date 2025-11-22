@@ -15,6 +15,9 @@ export async function GET(
       where: { id },
       include: {
         equipment: {
+          where: {
+            isActive: true,
+          },
           orderBy: { name: "asc" },
         },
       },
