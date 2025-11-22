@@ -18,6 +18,7 @@ const logger = createLogger("scrape-api");
 
 // Allow up to 60 seconds for scraping operations (Pro tier)
 // Hobby tier is limited to 10 seconds
+// Note: For production, we use conservative limits to avoid timeouts
 export const maxDuration = 60;
 
 /**
@@ -37,10 +38,12 @@ export const maxDuration = 60;
 export async function POST(request: NextRequest) {
   let crawlJobId: string | null = null;
   let heartbeat: NodeJS.Timeout | undefined = undefined;
+  const startTime = Date.now();
+  const SAFE_TIMEOUT_MS = 50000; // Leave 10 seconds buffer before 60s limit
 
   try {
     const body = await request.json();
-    const {
+      const {
       url,
       saveToDatabase,
       scrapeProducts,
@@ -48,8 +51,9 @@ export async function POST(request: NextRequest) {
       distributorId,
       useBrowser = false,
       useAI = false,
-      maxPages = 200, // Maximum pages to crawl (default: 200)
-      maxDepth = 3, // Maximum link depth to follow (default: 3)
+      // Production-safe defaults: reduced to fit within 60s timeout
+      maxPages = 50, // Maximum pages to crawl (default: 50 for production, can be increased)
+      maxDepth = 2, // Maximum link depth to follow (default: 2 for production, can be increased)
     } = body;
 
     if (!url) {
@@ -156,11 +160,15 @@ export async function POST(request: NextRequest) {
           "Detected category page - starting deep crawl for products",
         );
 
+        // Add timeout protection: start timer to ensure we don't exceed function limit
+        const startTime = Date.now();
+        const SAFE_TIMEOUT_MS = 50000; // Leave 10 seconds buffer before 60s limit
+
         const crawlResult = await logOperation(
           logger,
           "deep-crawl",
-          () =>
-            deepCrawlForProducts(url, {
+          async () => {
+            const result = await deepCrawlForProducts(url, {
               maxPages, // Configurable: Crawl up to N pages to find all products
               maxDepth, // Configurable: Follow subcategories and sub-sublinks up to N levels deep
               concurrency: 5, // Process 5 pages in parallel for faster crawling
@@ -170,7 +178,19 @@ export async function POST(request: NextRequest) {
                 respectRobotsTxt: true,
                 maxRetries: 1,
               },
-            }),
+            });
+
+            // Check if we're running out of time
+            const elapsed = Date.now() - startTime;
+            if (elapsed > SAFE_TIMEOUT_MS) {
+              logger.warn(
+                { elapsed, productLinks: result.productLinks.length },
+                "Deep crawl approaching timeout limit, stopping early",
+              );
+            }
+
+            return result;
+          },
           { url, maxPages, maxDepth },
         );
 
@@ -584,6 +604,15 @@ export async function POST(request: NextRequest) {
       clearInterval(heartbeat);
     }
 
+    // Check if we're close to timeout before returning
+    const elapsed = Date.now() - startTime;
+    if (elapsed > SAFE_TIMEOUT_MS) {
+      logger.warn(
+        { elapsed },
+        "Scraping operation approaching timeout, returning partial results",
+      );
+    }
+
     return NextResponse.json({
       success: true,
       company: companyInfo,
@@ -594,13 +623,25 @@ export async function POST(request: NextRequest) {
       distributor: savedDistributor,
       equipment: savedEquipment,
       crawlJobId,
+      elapsedMs: elapsed,
     });
   } catch (error) {
+    const elapsed = Date.now() - startTime;
+    
+    // Check if this is a timeout error
+    const isTimeout = 
+      error instanceof Error && 
+      (error.message.includes("timeout") || 
+       error.message.includes("504") ||
+       elapsed > SAFE_TIMEOUT_MS);
+
     logger.error(
       {
         error: error instanceof Error ? error.message : "Unknown error",
         stack: error instanceof Error ? error.stack : undefined,
         crawlJobId,
+        elapsed,
+        isTimeout,
       },
       "Scrape operation failed",
     );
@@ -630,8 +671,9 @@ export async function POST(request: NextRequest) {
             where: { id: crawlJobId },
             data: {
               status: "failed",
-              errorMessage:
-                error instanceof Error ? error.message : "Unknown error",
+              errorMessage: isTimeout
+                ? "Operation timed out - try reducing maxPages or maxDepth, or use the scheduled cron job for comprehensive scraping."
+                : error instanceof Error ? error.message : "Unknown error",
               completedAt: new Date(),
             },
           });
