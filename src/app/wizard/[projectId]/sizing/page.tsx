@@ -123,8 +123,8 @@ export default function SizingPage() {
   };
 
   return (
-    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
-      <div className="w-full max-w-2xl mx-auto px-4 py-8">
+    <div className="min-h-screen">
+      <div className="container max-w-2xl mx-auto px-4 py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold">System Sizing & Configuration</h1>
         <p className="mt-2 text-muted-foreground">
