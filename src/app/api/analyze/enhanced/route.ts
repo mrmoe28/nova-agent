@@ -93,7 +93,13 @@ export async function POST(request: NextRequest) {
         lat: coordinates.latitude,
         lon: coordinates.longitude,
         system_capacity: systemCapacityKw,
-        tilt: coordinates.latitude,
+        tilt: Math.min(90, Math.max(0, coordinates.latitude)), // Clamp to valid range
+        azimuth: 180, // South-facing (default)
+        array_type: 1, // Fixed roof mount
+        module_type: 0, // Standard
+        losses: 14, // Standard losses
+        radius: 0,
+        dataset: "NSRDB",
     });
 
     const annualSolarProductionKwh = pvWattsOutput.ac_annual;

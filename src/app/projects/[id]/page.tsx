@@ -699,10 +699,15 @@ export default function ProjectDetailsPage() {
                       <DollarSign className="h-5 w-5 text-emerald-600" />
                     </div>
                     <div>
-                      <p className="text-sm text-gray-600">Estimated Cost</p>
+                      <p className="text-sm text-gray-600">Estimated Net Cost</p>
                       <p className="text-xl font-semibold text-gray-900">
-                        {formatCurrency(totalProjectCost)}
+                        {loadingEnhancedAnalysis ? '...' : formatCurrency(enhancedAnalysis?.netSystemCost ?? totalBomCost)}
                       </p>
+                      {enhancedAnalysis && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {formatCurrency(enhancedAnalysis.grossSystemCost)} Gross - {formatCurrency(enhancedAnalysis.totalIncentivesValue)} Incentives
+                        </p>
+                      )}
                     </div>
                   </div>
                   <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -718,9 +723,17 @@ export default function ProjectDetailsPage() {
             <CollapsibleContent>
               <CardContent className="pt-0 pb-4">
                 <div className="text-center">
-                  <p className="text-sm text-gray-600 mb-2">Total Equipment Cost</p>
+                  <p className="text-sm text-gray-600 mb-2">Total Equipment Cost (BOM)</p>
                   <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalBomCost)}</p>
-                  <p className="text-xs text-gray-500 mt-1">Based on selected BOM items</p>
+                   {enhancedAnalysis && (
+                    <>
+                      <Separator className="my-2" />
+                      <p className="text-sm text-gray-600 mb-2">Total Incentives</p>
+                      <p className="text-2xl font-bold text-green-600">
+                        - {formatCurrency(enhancedAnalysis.totalIncentivesValue)}
+                      </p>
+                    </>
+                  )}
                 </div>
               </CardContent>
             </CollapsibleContent>
@@ -772,7 +785,7 @@ export default function ProjectDetailsPage() {
                   <div className="flex items-center justify-between">
                     <CardTitle className="flex items-center gap-2 text-gray-900">
                       <TrendingUp className="h-5 w-5 text-purple-600" />
-                      Energy Analysis
+                      Enhanced Energy Analysis
                     </CardTitle>
                     <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                       {expandedCards.has('energyAnalysis') ? (
@@ -786,61 +799,69 @@ export default function ProjectDetailsPage() {
               </CollapsibleTrigger>
               <CollapsibleContent>
                 <CardContent className="pt-6">
-                  {/* Four Metric Cards */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                    <div className="bg-white p-4 rounded-lg border border-gray-100">
-                      <div className="text-2xl font-bold text-gray-900">
-                        {(project.analysis?.monthlyUsageKwh || 1200).toLocaleString()}
+                  {loadingEnhancedAnalysis ? (
+                     <div className="flex items-center justify-center p-8 min-h-[200px]">
+                        <div className="text-center">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                          <div className="text-sm text-muted-foreground">Running enhanced analysis...</div>
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-600">kWh/month</div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {((project.analysis?.monthlyUsageKwh || 1200) / 30).toFixed(0)} kWh/day
+                  ) : enhancedAnalysis ? (
+                    <>
+                      {/* Four Metric Cards */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div className="bg-white p-4 rounded-lg border border-gray-100">
+                          <div className="text-2xl font-bold text-gray-900">
+                            {Math.round(enhancedAnalysis.annualSolarProductionKwh).toLocaleString()}
+                          </div>
+                          <div className="text-xs text-gray-600">Est. Production</div>
+                          <div className="text-xs text-gray-500 mt-1">kWh/yr (PVWatts)</div>
+                        </div>
+                        <div className="bg-white p-4 rounded-lg border border-gray-100">
+                          <div className="text-2xl font-bold text-gray-900">
+                            {enhancedAnalysis.energyOffsetPercentage.toFixed(0)}%
+                          </div>
+                          <div className="text-xs text-gray-600">Energy Offset</div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {formatCurrency(enhancedAnalysis.estimatedAnnualSavingsUsd)} saved/yr
+                          </div>
+                        </div>
+                        <div className="bg-white p-4 rounded-lg border border-gray-100">
+                          <div className="text-2xl font-bold text-gray-900">
+                            {formatCurrency(enhancedAnalysis.lcoe ?? 0)}
+                          </div>
+                          <div className="text-xs text-gray-600">LCOE</div>
+                           <div className="text-xs text-gray-500 mt-1">per kWh</div>
+                        </div>
+                        <div className="bg-white p-4 rounded-lg border border-gray-100">
+                          <div className="text-2xl font-bold text-green-600">
+                            {enhancedAnalysis.irr ? `${(enhancedAnalysis.irr * 100).toFixed(1)}%` : 'N/A'}
+                          </div>
+                          <div className="text-xs text-gray-600">IRR</div>
+                          <div className="text-xs text-gray-500 mt-1">
+                            NPV: {formatCurrency(enhancedAnalysis.npv ?? 0)}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg border border-gray-100">
-                      <div className="text-2xl font-bold text-gray-900">
-                        {project.analysis?.peakDemandKw || 8.5}
-                      </div>
-                      <div className="text-xs text-gray-600">Peak kW</div>
-                      <div className="text-xs text-gray-500 mt-1">Max demand</div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg border border-gray-100">
-                      <div className="text-2xl font-bold text-gray-900">
-                        {formatCurrency(project.analysis?.averageCostPerKwh || 0.15)}
-                      </div>
-                      <div className="text-xs text-gray-600">Avg $/kWh</div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {formatCurrency((project.analysis?.annualCostUsd || 2160) / 12)}/mo
-                      </div>
-                    </div>
-                    <div className="bg-white p-4 rounded-lg border border-gray-100">
-                      <div className="text-2xl font-bold text-gray-900">
-                        {formatCurrency(project.analysis?.annualCostUsd || 2160)}
-                      </div>
-                      <div className="text-xs text-gray-600">Annual Cost</div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {((project.analysis?.monthlyUsageKwh || 1200) * 12).toLocaleString()} kWh/yr
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Charts Section - Dynamically loaded to avoid SSR issues */}
-                  {monthlyData && monthlyData.length > 0 ? (
-                    <EnergyCharts 
-                      monthlyData={monthlyData}
-                      savingsData={savingsData}
-                      energyBreakdown={energyBreakdown}
-                      hasSystem={!!project.system}
-                    />
+                      {/* Charts Section */}
+                      {monthlyData && monthlyData.length > 0 ? (
+                        <EnergyCharts 
+                          monthlyData={monthlyData}
+                          savingsData={savingsData}
+                          energyBreakdown={energyBreakdown}
+                          hasSystem={!!enhancedAnalysis.annualSolarProductionKwh}
+                        />
+                      ) : (
+                        <div className="text-center py-8 text-sm text-gray-600">
+                          Preparing chart data...
+                        </div>
+                      )}
+                    </>
                   ) : (
-                    <div className="text-center py-8 text-sm text-gray-600">
-                      Preparing chart data...
+                    <div className="text-center text-gray-600 py-8">
+                      Could not load enhanced analysis.
                     </div>
-                  )}
-                  {!project.analysis && (
-                    <p className="text-center text-sm text-gray-600 py-2 mt-4">
-                      Using estimated data. Upload bills to see actual usage and costs.
-                    </p>
                   )}
                 </CardContent>
               </CollapsibleContent>
