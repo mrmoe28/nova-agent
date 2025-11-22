@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { prisma } from "@/lib/prisma";
+import { performMindeeOCR } from "@/lib/ocr-mindee";
 import { performOCR as performMicroserviceOCR } from "@/lib/ocr-microservice";
 import { performOCR as performFallbackOCR } from "@/lib/ocr";
 import { parseBillText, validateRenewableSource } from "@/lib/ocr";
@@ -95,22 +96,42 @@ export async function POST(request: NextRequest) {
 
     console.log(`Processing OCR for ${fileName}...`);
     try {
-      // Try microservice first, fall back to built-in OCR if unavailable
-      let ocrResult;
-      try {
-        ocrResult = await performMicroserviceOCR(filePath, fileType);
-        console.log("Used OCR microservice for extraction");
-      } catch (microserviceError) {
-        console.log("OCR microservice unavailable, using fallback OCR");
-        ocrResult = await performFallbackOCR(filePath, fileType);
-        console.log("Used fallback OCR for extraction");
-      }
-      ocrText = ocrResult.text;
-      ocrConfidence = ocrResult.confidence || 0;
+      let parsedData: any;
 
-      // Only parse bill data if we have actual OCR text
-      if (ocrText && ocrText.trim().length > 0) {
-        const parsedData = parseBillText(ocrText);
+      try {
+        // Tier 1: Attempt Mindee OCR
+        const mindeeResult = await performMindeeOCR(filePath, fileType);
+        console.log("Used Mindee OCR for extraction");
+        ocrText = mindeeResult.text;
+        ocrConfidence = mindeeResult.confidence;
+        // Use the structured data directly from Mindee
+        parsedData = mindeeResult.data;
+      } catch (mindeeError) {
+        console.warn("Mindee OCR failed, falling back.", mindeeError);
+        // If Mindee fails, proceed with the existing fallback logic
+        let fallbackResult;
+        try {
+          // Tier 2: Attempt OCR Microservice
+          fallbackResult = await performMicroserviceOCR(filePath, fileType);
+          console.log("Used OCR microservice for extraction");
+        } catch (microserviceError) {
+          // Tier 3: Attempt Fallback OCR
+          console.warn("OCR microservice unavailable, using final fallback OCR", microserviceError);
+          fallbackResult = await performFallbackOCR(filePath, fileType);
+          console.log("Used final fallback OCR for extraction");
+        }
+        
+        ocrText = fallbackResult.text;
+        ocrConfidence = fallbackResult.confidence || 0;
+
+        // Only parse bill data if we have actual OCR text from fallbacks
+        if (ocrText && ocrText.trim().length > 0) {
+          parsedData = parseBillText(ocrText);
+        }
+      }
+
+      // If any OCR method produced data, stringify and validate it
+      if (parsedData) {
         extractedData = JSON.stringify(parsedData);
 
         // Validate renewable source data if present
@@ -136,18 +157,13 @@ export async function POST(request: NextRequest) {
           `OCR completed with ${ocrConfidence} confidence, extracted ${Object.keys(parsedData).length} fields`,
         );
       } else {
-        console.log("OCR returned empty text, no data to parse");
+        console.log("All OCR methods failed or returned empty text, no data to parse");
       }
     } catch (ocrError) {
-      console.error("OCR processing failed:", ocrError);
+      console.error("Overall OCR processing failed:", ocrError);
       // Do not set fake data - leave ocrText and extractedData as null
       // File will still be saved but without OCR data
       console.log("File will be saved without OCR data due to processing failure");
-      
-      // Check if it's an OCR service unavailable error
-      if (ocrError instanceof Error && ocrError.message.includes("OCR microservice is not running")) {
-        console.log("OCR service is not available - file will be saved without OCR processing");
-      }
     }
 
     // Save to database with URL path for web access

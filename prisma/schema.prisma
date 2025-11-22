@@ -50,16 +50,23 @@ model Bill {
 }
 
 model Analysis {
-  id                 String   @id @default(cuid())
-  projectId          String   @unique
-  monthlyUsageKwh    Float
-  peakDemandKw       Float?
-  averageCostPerKwh  Float
-  annualCostUsd      Float
-  recommendations    String   // JSON string
-  createdAt          DateTime @default(now())
+  id                          String   @id @default(cuid())
+  projectId                   String   @unique
+  monthlyUsageKwh             Float
+  peakDemandKw                Float?
+  averageCostPerKwh           Float
+  annualCostUsd               Float
+  recommendations             String   // JSON string
+  createdAt                   DateTime @default(now())
 
-  project            Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  // Enhanced fields for PVWatts analysis
+  latitude                    Float?
+  longitude                   Float?
+  annualSolarProductionKwh    Float?
+  energyOffsetPercentage      Float?
+  estimatedAnnualSavingsUsd   Float?
+
+  project                     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }
 
 model System {
