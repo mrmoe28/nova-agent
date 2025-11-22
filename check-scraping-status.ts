@@ -32,7 +32,7 @@ async function main() {
     console.log("   No crawl jobs found");
   } else {
     crawlJobs.forEach((job) => {
-      const duration = job.completedAt
+      const duration = job.completedAt && job.startedAt
         ? Math.round(
             (job.completedAt.getTime() - job.startedAt.getTime()) / 1000,
           )
@@ -42,7 +42,7 @@ async function main() {
         `   ${job.status === "completed" ? "✅" : job.status === "failed" ? "❌" : "⏳"} ${distributorName} - ${job.status}`,
       );
       console.log(
-        `      Started: ${job.startedAt.toLocaleString()}, Products: ${job.productsScraped}`,
+        `      Started: ${job.startedAt?.toLocaleString() || "Unknown"}, Products: ${job.productsProcessed}`,
       );
       if (duration) {
         console.log(`      Duration: ${duration}s`);
