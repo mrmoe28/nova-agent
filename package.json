@@ -13,6 +13,7 @@
     "postinstall": "prisma generate",
     "lint": "eslint",
     "migrate": "prisma migrate deploy",
+    "monitor:deploy": "node deployment-monitor.js",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",

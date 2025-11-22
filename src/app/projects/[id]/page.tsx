@@ -85,6 +85,26 @@ interface Project {
   }>;
 }
 
+// Define a new interface for the enhanced analysis data
+interface EnhancedAnalysis {
+  projectId: string;
+  monthlyUsageKwh: number;
+  averageCostPerKwh: number;
+  latitude: number;
+  longitude: number;
+  annualSolarProductionKwh: number;
+  energyOffsetPercentage: number;
+  estimatedAnnualSavingsUsd: number;
+  grossSystemCost: number;
+  netSystemCost: number;
+  totalIncentivesValue: number;
+  lcoe: number | null;
+  npv: number | null;
+  irr: number | null;
+  recommendations: string;
+  persisted: boolean;
+}
+
 interface BOMItem {
   id: string;
   category: string;
@@ -118,6 +138,9 @@ export default function ProjectDetailsPage() {
   const [plan, setPlan] = useState<Plan | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
+
+  const [enhancedAnalysis, setEnhancedAnalysis] = useState<EnhancedAnalysis | null>(null);
+  const [loadingEnhancedAnalysis, setLoadingEnhancedAnalysis] = useState(false);
   
   // Modal states
   const [showBOMModal, setShowBOMModal] = useState(false);
@@ -172,6 +195,35 @@ export default function ProjectDetailsPage() {
   useEffect(() => {
     fetchProjectDetails();
   }, [fetchProjectDetails]);
+
+  // Fetch enhanced analysis
+  useEffect(() => {
+    const fetchEnhancedAnalysis = async () => {
+      if (!projectId || !project) return;
+      setLoadingEnhancedAnalysis(true);
+      try {
+        const response = await fetch(`/api/analyze/enhanced`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ projectId }),
+        });
+        const data = await response.json();
+        if (data.success) {
+          setEnhancedAnalysis(data.analysis);
+        } else {
+          console.error("Failed to fetch enhanced analysis:", data.error);
+          setEnhancedAnalysis(null);
+        }
+      } catch (error) {
+        console.error("Error fetching enhanced analysis:", error);
+        setEnhancedAnalysis(null);
+      } finally {
+        setLoadingEnhancedAnalysis(false);
+      }
+    };
+
+    fetchEnhancedAnalysis();
+  }, [projectId, project]);
 
   // Handle URL tab parameter to auto-open modals
   // Close dropdown when clicking outside
