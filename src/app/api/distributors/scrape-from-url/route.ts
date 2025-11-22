@@ -74,6 +74,22 @@ export async function POST(request: NextRequest) {
     crawlJobId = crawlJob.id;
     logger.info({ crawlJobId }, "Created crawl job");
 
+    // Set up heartbeat to keep job alive and prevent cleanup
+    const heartbeat = setInterval(async () => {
+      if (crawlJobId) {
+        try {
+          await prisma.crawlJob.update({
+            where: { id: crawlJobId },
+            data: { startedAt: new Date() }, // Update timestamp to show activity
+          });
+          logger.debug({ crawlJobId }, "Heartbeat: Job still alive");
+        } catch (error) {
+          logger.warn({ crawlJobId }, "Heartbeat failed, job may have been deleted");
+          clearInterval(heartbeat);
+        }
+      }
+    }, 60000); // Every 60 seconds
+
     // Step 1: Scrape company information
     const companyInfo = await logOperation(
       logger,
@@ -497,6 +513,11 @@ export async function POST(request: NextRequest) {
       "Scrape operation completed successfully",
     );
 
+    // Clear heartbeat on success
+    if (typeof heartbeat !== "undefined") {
+      clearInterval(heartbeat);
+    }
+
     return NextResponse.json({
       success: true,
       company: companyInfo,
@@ -517,6 +538,11 @@ export async function POST(request: NextRequest) {
       },
       "Scrape operation failed",
     );
+
+    // Clear heartbeat on error
+    if (typeof heartbeat !== "undefined") {
+      clearInterval(heartbeat);
+    }
 
     // Clean up browser if it was used
     try {

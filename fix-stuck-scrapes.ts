@@ -10,14 +10,15 @@ async function main() {
 
   await prisma.$connect();
 
-  // 1. Find jobs stuck in "running" status for > 5 minutes
-  const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+  // 1. Find jobs stuck in "running" status for > 30 minutes
+  // Increased from 5 min to 30 min to allow long scraping operations to complete
+  const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
   
   const stuckJobs = await prisma.crawlJob.findMany({
     where: {
       status: "running",
       startedAt: {
-        lt: fiveMinutesAgo,
+        lt: thirtyMinutesAgo,
       },
     },
     include: {
@@ -46,23 +47,34 @@ async function main() {
   }
 
   // 2. Clean up orphaned crawl jobs (distributor deleted)
+  // Only delete orphans older than 1 hour to avoid deleting jobs from active scraping
+  const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+  
   const orphanedJobs = await prisma.crawlJob.findMany({
     where: {
-      distributor: null,
+      distributorId: null,
+      createdAt: {
+        lt: oneHourAgo,
+      },
     },
   });
 
   if (orphanedJobs.length > 0) {
-    console.log(`Found ${orphanedJobs.length} orphaned crawl jobs (deleted distributors)`);
+    console.log(`Found ${orphanedJobs.length} old orphaned crawl jobs (>1 hour old)`);
     console.log("Deleting orphaned jobs...");
     
     await prisma.crawlJob.deleteMany({
       where: {
-        distributor: null,
+        distributorId: null,
+        createdAt: {
+          lt: oneHourAgo,
+        },
       },
     });
     
     console.log(`✅ Deleted ${orphanedJobs.length} orphaned jobs\n`);
+  } else {
+    console.log("No old orphaned jobs found\n");
   }
 
   // 3. Show current status
