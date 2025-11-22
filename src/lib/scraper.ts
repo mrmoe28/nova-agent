@@ -876,7 +876,8 @@ export async function scrapeShopifyCollectionPage(
         if (scriptContent.includes('"products"') || scriptContent.includes("product:")) {
           try {
             // Try to extract product data from various Shopify JSON patterns
-            const productMatches = scriptContent.match(/products["\s]*:[\s]*\[(.*?)\]/s);
+            // Use [\s\S] instead of . with s flag for ES2017 compatibility
+            const productMatches = scriptContent.match(/products["\s]*:[\s]*\[([\s\S]*?)\]/);
             if (productMatches) {
               // This is a simplified extraction - Shopify JSON can be complex
               logger.debug("Found Shopify product JSON data");
