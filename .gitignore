@@ -54,3 +54,5 @@ test-*.js
 /public/uploads/**
 !/public/uploads/**/.gitkeep
 venv/
+
+.vercel
