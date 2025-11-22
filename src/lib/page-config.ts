@@ -38,7 +38,7 @@ export const defaultPageConfig: PageConfig = {
       accentColor: "text-cyan-400",
     },
     rightPanel: {
-      backgroundColor: "bg-gradient-to-b from-[#0A0F1C] via-[#0f1829] to-[#0A0F1C]",
+      backgroundColor: "bg-[#0A0F1C]",
       textColor: "text-white",
       accentColor: "text-cyan-400",
     },

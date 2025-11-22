@@ -95,34 +95,34 @@ export default function Page() {
   ];
 
   return (
-    <>
+    <div className="-mx-4 sm:-mx-6">
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#0A0F1C] via-[#0f1829] to-background min-h-screen w-screen -ml-[50vw] left-1/2">
+      <section className="relative overflow-hidden bg-gradient-to-b from-[#0A0F1C] via-[#0f1829] to-background min-h-screen">
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f15_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f15_1px,transparent_1px)] bg-[size:14px_24px]" />
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-[120px]" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-600/20 rounded-full blur-[100px]" />
 
-        <div className="relative w-full px-4 py-16 sm:px-6 sm:py-24 lg:px-8 min-h-screen">
-          <div className="grid gap-0 lg:grid-cols-2 lg:gap-0 items-stretch min-h-[calc(100vh-8rem)]">
+        <div className="relative w-full px-4 py-16 sm:px-6 sm:py-24 lg:px-8 min-h-screen max-w-7xl mx-auto">
+          <div className="grid gap-8 lg:grid-cols-2 lg:gap-12 items-center min-h-[calc(100vh-8rem)]">
             {/* Left Column - Hero Content */}
-            <div className="space-y-8 bg-gradient-to-b from-[#0A0F1C] via-[#0f1829] to-[#0A0F1C] p-8 sm:p-12 lg:p-16 flex flex-col justify-center min-h-full">
-              <div className="space-y-4">
+            <div className="space-y-8 flex flex-col justify-center">
+              <div className="space-y-6">
                 <Badge
                   variant="secondary"
-                  className="bg-cyan-500/10 text-cyan-300 border-cyan-500/20 px-3 py-1"
+                  className="bg-cyan-500/10 text-cyan-300 border-cyan-500/20 px-3 py-1 inline-flex items-center w-fit"
                 >
                   <Zap className="h-3 w-3 mr-1" />
                   AI-Powered Energy Planning
                 </Badge>
 
-                <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                <h1 className="text-5xl font-bold tracking-tight text-white sm:text-6xl lg:text-7xl leading-tight">
                   Design Solar Systems
-                  <span className="block bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+                  <span className="block bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent mt-2">
                     in Minutes
                   </span>
                 </h1>
 
-                <p className="text-lg text-gray-300 max-w-2xl">
+                <p className="text-xl text-gray-300 max-w-xl leading-relaxed">
                   AI Energy Planner for Solar & Battery Systems. Analyze power
                   bills, size PV and storage, build a BOM, run NEC checks, and
                   generate professional PDFs—end to end.
@@ -130,13 +130,13 @@ export default function Page() {
               </div>
 
               {/* CTA Buttons */}
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   asChild
                   size="lg"
-                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-200"
+                  className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold shadow-xl shadow-cyan-500/30 hover:shadow-cyan-500/50 transition-all duration-200 text-base px-8 py-6"
                 >
-                  <Link href="/wizard/new" className="flex items-center gap-2">
+                  <Link href="/wizard/new" className="flex items-center justify-center gap-2">
                     <Sparkles className="h-5 w-5" />
                     Start New Project
                     <ArrowRight className="h-4 w-4" />
@@ -147,22 +147,22 @@ export default function Page() {
                   asChild
                   variant="outline"
                   size="lg"
-                  className="border-cyan-500/30 text-white hover:bg-cyan-500/10"
+                  className="border-cyan-500/30 text-white hover:bg-cyan-500/10 hover:border-cyan-500/50 transition-all duration-200 text-base px-8 py-6"
                 >
                   <Link href="/projects">View Projects</Link>
                 </Button>
               </div>
 
               {/* Stats */}
-              <div className="flex flex-wrap gap-8 pt-4">
+              <div className="flex flex-wrap gap-8 sm:gap-12 pt-6">
                 <div>
-                  <div className="text-3xl font-bold text-cyan-400">30min</div>
+                  <div className="text-4xl font-bold text-cyan-400 mb-1">30min</div>
                   <div className="text-sm text-gray-400">
                     Average Project Time
                   </div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-cyan-400">
+                  <div className="text-4xl font-bold text-cyan-400 mb-1">
                     NEC 2023
                   </div>
                   <div className="text-sm text-gray-400">
@@ -170,7 +170,7 @@ export default function Page() {
                   </div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-cyan-400">
+                  <div className="text-4xl font-bold text-cyan-400 mb-1">
                     1-Click
                   </div>
                   <div className="text-sm text-gray-400">PDF Export</div>
@@ -179,47 +179,37 @@ export default function Page() {
             </div>
 
             {/* Right Column - Quick Start Card */}
-            <div className={cn("relative min-h-full flex items-stretch", pageConfig.theme.rightPanel.backgroundColor)}>
-              <Card className={cn("border-gray-200 shadow-2xl w-full flex flex-col", pageConfig.theme.rightPanel.backgroundColor)}>
-                <CardHeader className="flex-shrink-0">
-                  <CardTitle className={cn("flex items-center gap-2", pageConfig.theme.rightPanel.textColor)}>
-                    <Zap className={cn("h-5 w-5", pageConfig.theme.rightPanel.accentColor)} />
+            <div className={cn("relative min-h-full flex items-center justify-center p-8")}>
+              <Card className={cn("border-gray-800/50 shadow-2xl w-full max-w-md flex flex-col rounded-2xl bg-[#0f1829]/80 backdrop-blur-sm")}>
+                <CardHeader className="flex-shrink-0 space-y-2">
+                  <CardTitle className="flex items-center gap-2 text-white text-xl">
+                    <Zap className="h-5 w-5 text-cyan-400" />
                     Quick Start Guide
                   </CardTitle>
-                  <CardDescription className={cn(pageConfig.theme.rightPanel.textColor, "opacity-80")}>
+                  <CardDescription className="text-gray-400">
                     Get your first solar system designed in 4 simple steps
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4 flex-1 flex flex-col justify-between">
-                  <div className="space-y-4 flex-1">
+                <CardContent className="space-y-3 flex-1 flex flex-col justify-between">
+                  <div className="space-y-3 flex-1">
                     {steps.map((step, index) => (
                       <div
                         key={step.number}
-                        className={cn(
-                          "flex gap-4 p-3 rounded-lg transition-colors duration-200",
-                          pageConfig.theme.rightPanel.backgroundColor === "bg-white"
-                            ? "bg-gray-50 hover:bg-gray-100"
-                            : "bg-white/10 hover:bg-white/20"
-                        )}
+                        className="flex gap-4 p-4 rounded-xl bg-[#0A0F1C]/60 hover:bg-[#0A0F1C]/80 transition-all duration-200 border border-gray-800/30 hover:border-cyan-500/30"
                       >
                         <div className="flex-shrink-0">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-bold">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 text-white font-bold text-sm shadow-lg shadow-cyan-500/20">
                             {step.number}
                           </div>
                         </div>
                         <div className="flex-1">
-                          <h4 className={cn("font-semibold", pageConfig.theme.rightPanel.textColor)}>
+                          <h4 className="font-semibold text-white mb-1">
                             {step.title}
                           </h4>
-                          <p className={cn("text-sm", pageConfig.theme.rightPanel.textColor, "opacity-80")}>
+                          <p className="text-sm text-gray-400">
                             {step.description}
                           </p>
                         </div>
-                        {index < steps.length - 1 && (
-                          <div className="flex items-center">
-                            <ArrowRight className={cn("h-4 w-4", pageConfig.theme.rightPanel.textColor, "opacity-60")} />
-                          </div>
-                        )}
                       </div>
                     ))}
                   </div>
@@ -227,9 +217,12 @@ export default function Page() {
                   <Button
                     asChild
                     size="lg"
-                    className="w-full mt-4 bg-cyan-600 hover:bg-cyan-700 flex-shrink-0"
+                    className="w-full mt-6 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold shadow-lg shadow-cyan-500/25 hover:shadow-cyan-500/40 transition-all duration-200"
                   >
-                    <Link href="/wizard/new">Start Your First Project</Link>
+                    <Link href="/wizard/new" className="flex items-center justify-center gap-2">
+                      <Sparkles className="h-5 w-5" />
+                      Start Your First Project
+                    </Link>
                   </Button>
                 </CardContent>
               </Card>
@@ -239,8 +232,8 @@ export default function Page() {
       </section>
 
       {/* Features Section */}
-      <section className="py-16 sm:py-24 bg-background">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <section className="py-16 sm:py-24 bg-background px-4 sm:px-6">
+        <div className="mx-auto max-w-7xl">
           <div className="text-center mb-12">
             <Badge
               variant="secondary"
@@ -287,8 +280,8 @@ export default function Page() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-cyan-600 to-blue-700">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center">
+      <section className="py-16 bg-gradient-to-r from-cyan-600 to-blue-700 px-4 sm:px-6">
+        <div className="mx-auto max-w-7xl text-center">
           <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl mb-4">
             Ready to Design Your Next Solar System?
           </h2>
@@ -319,6 +312,6 @@ export default function Page() {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 }
