@@ -36,6 +36,7 @@ export const maxDuration = 60;
  */
 export async function POST(request: NextRequest) {
   let crawlJobId: string | null = null;
+  let heartbeat: NodeJS.Timeout | undefined = undefined;
 
   try {
     const body = await request.json();
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
     logger.info({ crawlJobId }, "Created crawl job");
 
     // Set up heartbeat to keep job alive and prevent cleanup
-    const heartbeat = setInterval(async () => {
+    heartbeat = setInterval(async () => {
       if (crawlJobId) {
         try {
           await prisma.crawlJob.update({
@@ -514,7 +515,7 @@ export async function POST(request: NextRequest) {
     );
 
     // Clear heartbeat on success
-    if (typeof heartbeat !== "undefined") {
+    if (heartbeat) {
       clearInterval(heartbeat);
     }
 
@@ -540,7 +541,7 @@ export async function POST(request: NextRequest) {
     );
 
     // Clear heartbeat on error
-    if (typeof heartbeat !== "undefined") {
+    if (heartbeat) {
       clearInterval(heartbeat);
     }
 
