@@ -1039,6 +1039,7 @@ export async function deepCrawlForProducts(
           ];
 
           // First, try Shopify-specific selectors for better accuracy
+          const shopifyProductLinks = new Set<string>(); // Deduplicate
           shopifyProductSelectors.forEach((selector) => {
             $(selector).each((_, element) => {
               const $link = $(element);
@@ -1058,13 +1059,26 @@ export async function deepCrawlForProducts(
                   !absoluteUrl.includes("#") &&
                   !absoluteUrl.includes("javascript:")
                 ) {
-                  pageProductLinks.push(absoluteUrl);
+                  // Normalize URL (remove query params, fragments, trailing slashes)
+                  const normalizedUrl = absoluteUrl.split('?')[0].split('#')[0].replace(/\/$/, '');
+                  shopifyProductLinks.add(normalizedUrl);
                 }
               } catch {
                 // Invalid URL, skip
               }
             });
           });
+          
+          // Add Shopify product links to the page product links
+          shopifyProductLinks.forEach((link) => pageProductLinks.push(link));
+          
+          logger.debug(
+            { 
+              shopifyProductsFound: shopifyProductLinks.size,
+              url 
+            },
+            "Extracted Shopify product links"
+          );
 
           // Also extract all links from this page (fallback for non-Shopify sites)
           $("a[href]").each((_, link) => {
