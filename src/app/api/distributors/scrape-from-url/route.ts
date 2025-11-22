@@ -298,13 +298,29 @@ export async function POST(request: NextRequest) {
       // Save products with price snapshots (OPTIMIZED: batch processing)
       // Step 1: Filter valid products
       const distributorName = savedDistributor?.name?.toLowerCase().trim() || "";
+      const validationReasons = {
+        noName: 0,
+        noPrice: 0,
+        matchesDistributorName: 0,
+        tooShort: 0,
+        valid: 0,
+      };
+
       const validProducts = scrapedProducts.filter((p) => {
         // Must have name and price
-        if (!p.name || !p.price) return false;
+        if (!p.name) {
+          validationReasons.noName++;
+          return false;
+        }
+        if (!p.price) {
+          validationReasons.noPrice++;
+          return false;
+        }
         
         // Reject products where name matches distributor name (common scraping error)
         const productNameLower = p.name.toLowerCase().trim();
         if (distributorName && productNameLower === distributorName) {
+          validationReasons.matchesDistributorName++;
           logger.debug(
             { productName: p.name, distributorName },
             "Rejecting product with distributor name",
@@ -314,12 +330,25 @@ export async function POST(request: NextRequest) {
         
         // Reject very short names (likely not real product names)
         if (productNameLower.length < 3) {
+          validationReasons.tooShort++;
           logger.debug({ productName: p.name }, "Rejecting product with very short name");
           return false;
         }
         
+        validationReasons.valid++;
         return true;
       });
+
+      // Log validation breakdown
+      logger.info(
+        {
+          total: scrapedProducts.length,
+          valid: validProducts.length,
+          rejected: scrapedProducts.length - validProducts.length,
+          reasons: validationReasons,
+        },
+        "Product validation breakdown",
+      );
 
       logger.info(
         { total: scrapedProducts.length, valid: validProducts.length },
@@ -375,6 +404,14 @@ export async function POST(request: NextRequest) {
           { toCreate: toCreate.length, toUpdate: toUpdate.length },
           "Separated products for batch processing",
         );
+
+        // Log why count might not increase
+        if (toCreate.length === 0 && toUpdate.length > 0) {
+          logger.info(
+            { updated: toUpdate.length },
+            "All products already exist - updating existing records (count won't increase)",
+          );
+        }
 
         // Step 4: Batch create new equipment
         if (toCreate.length > 0) {
