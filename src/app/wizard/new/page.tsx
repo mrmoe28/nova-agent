@@ -140,7 +140,8 @@ export default function NewWizardPage() {
             </Button>
           </div>
         </form>
-      </Card>
+        </Card>
+      </MotionCard>
       </div>
     </div>
   );
