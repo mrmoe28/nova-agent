@@ -40,6 +40,7 @@ import {
   ExternalLink,
   Pencil,
   RefreshCw,
+  Trash2,
 } from "lucide-react";
 
 interface Distributor {
@@ -229,6 +230,31 @@ export default function DistributorDetailPage() {
     }
   };
 
+  const handleDeleteDistributor = async () => {
+    if (!distributor) return;
+    
+    if (!confirm(`Are you sure you want to delete "${distributor.name}"? This will also delete all associated equipment. This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/distributors/${distributor.id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        alert("Distributor deleted successfully");
+        router.push("/distributors");
+      } else {
+        const data = await response.json();
+        alert(`Failed to delete distributor: ${data.error || "Unknown error"}`);
+      }
+    } catch (error) {
+      console.error("Error deleting distributor:", error);
+      alert("Failed to delete distributor");
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -355,6 +381,15 @@ export default function DistributorDetailPage() {
                   {scraping ? "Scraping..." : "Rescrape"}
                 </Button>
               )}
+              <Button
+                variant="outline"
+                onClick={handleDeleteDistributor}
+                disabled={scraping}
+                className="border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </Button>
             </div>
           </div>
         </div>

@@ -30,78 +30,51 @@ export interface DefaultEquipmentConfig {
 /**
  * Default equipment selection preferences
  * 
- * Edit these values to change which equipment gets auto-selected for BOMs:
+ * ⚠️ IMPORTANT: Equipment selection is now MANDATORY.
+ * This config is only used as a suggestion/filter when equipment is being selected.
+ * Users must explicitly select equipment - no auto-selection will occur.
  * 
- * Example configurations:
+ * These preferences can help filter available equipment options, but equipment
+ * must still be manually selected by the user in the UI.
  * 
- * // Select by manufacturer:
+ * Example configurations (for filtering only):
+ * 
+ * // Filter by manufacturer:
  * solarPanel: { manufacturer: "Trina" }
  * 
- * // Select by model number:
+ * // Filter by model number:
  * inverter: { modelNumber: "IQ8PLUS" }
  * 
- * // Select by name pattern:
+ * // Filter by name pattern:
  * battery: { namePattern: "Tesla Powerwall" }
  * 
- * // Select by price range and manufacturer:
+ * // Filter by price range and manufacturer:
  * mounting: { manufacturer: "IronRidge", minPrice: 200, maxPrice: 500 }
  * 
- * // Select from specific distributor:
+ * // Filter from specific distributor:
  * electrical: { distributorName: "CED Greentech", maxPrice: 3000 }
  */
 export const DEFAULT_EQUIPMENT_CONFIG: DefaultEquipmentConfig = {
-  // Solar Panel Preferences
-  // Leave empty {} to use first available, or specify criteria:
-  solarPanel: {
-    // manufacturer: "Trina",
-    // modelNumber: "TSM-DE21",
-    // namePattern: "bifacial",
-    // minPrice: 100,
-    // maxPrice: 300,
-  },
-
-  // Battery Preferences  
-  battery: {
-    // manufacturer: "SimpliPhi",
-    // modelNumber: "PHI",
-    // namePattern: "LFP",
-    // minPrice: 5000,
-    // maxPrice: 15000,
-  },
-
-  // Inverter Preferences
-  inverter: {
-    // manufacturer: "Enphase",
-    // modelNumber: "IQ8",
-    // namePattern: "microinverter",
-    // minPrice: 100,
-    // maxPrice: 500,
-  },
-
-  // Mounting System Preferences
-  mounting: {
-    // manufacturer: "IronRidge",
-    // namePattern: "rail",
-    // minPrice: 200,
-    // maxPrice: 600,
-  },
-
-  // Electrical Components Preferences
-  electrical: {
-    // manufacturer: "Schneider",
-    // namePattern: "disconnect",
-    // maxPrice: 3000,
-  },
+  // All preferences are empty by default - no auto-selection
+  // Users must explicitly select equipment in the UI
+  solarPanel: {},
+  battery: {},
+  inverter: {},
+  mounting: {},
+  electrical: {},
 };
 
 /**
  * Selection strategy: how to prioritize equipment when multiple matches are found
+ * 
+ * ⚠️ NOTE: This is only used for filtering/sorting available options.
+ * Equipment must still be explicitly selected by the user.
  */
 export type SelectionStrategy = 
-  | "cheapest"      // Select lowest price
-  | "expensive"     // Select highest price  
-  | "first"         // Select first match (database order)
-  | "newest";       // Select most recently added
+  | "cheapest"      // Sort by lowest price
+  | "expensive"     // Sort by highest price  
+  | "first"         // Sort by database order
+  | "newest";       // Sort by most recently added
 
 export const SELECTION_STRATEGY: SelectionStrategy = "first";
 

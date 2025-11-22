@@ -61,14 +61,18 @@ export function isProductPageUrl(url: string): boolean {
     }
 
     // Category page indicators (shorter, generic paths)
+    // IMPORTANT: Category pages like /solar-panels or /collections/solar-panels are category pages
+    // BUT product pages like /solar-panels/product-name or /products/solar-panel-name are product pages
     const categoryPatterns = [
+      // Exact category page matches (no product name after)
       /^\/(shop|catalog|store|category|collection|collections|batteries|solar-panels|inverters|all-products|browse)$/,
-      /^\/collections\//, // Shopify collections (category pages)
+      // Shopify collection pages (category pages, but may contain product listings)
+      /^\/collections\/[^\/]+$/, // /collections/solar-panels (category)
       /^\/(shop|catalog)\/(new|featured|best-sellers|clearance)$/,
       /^\/(all-products|shop)\/.+\/$/, // Category subdirectories with trailing slash
       /^\/(kits-bundles|kits|bundles)\//, // Kit/bundle category pages
-      /^\/(all-products|kits-bundles|shop)\/(kits|bundles|batteries|panels|inverters|chargers|cables)/, // Common category paths
-      /\/(complete-off-grid|complete-hybrid|complete-grid-tie|new-arrivals)\//, // Specific category paths
+      /^\/(all-products|kits-bundles|shop)\/(kits|bundles|batteries|panels|inverters|chargers|cables)$/, // Category pages (exact match, no product name)
+      /\/(complete-off-grid|complete-hybrid|complete-grid-tie|new-arrivals)\/$/, // Category pages with trailing slash
       /^\/[^\/]+\/(wall-mount|server-rack|stackable|free-standing|12-volt|24-volt|48-volt)$/,
       /page[\/=]\d+/, // Pagination
       /_bc_fsnf=/, // BigCommerce filter
@@ -91,6 +95,12 @@ export function isProductPageUrl(url: string): boolean {
       /\/(product|item|detail|p|pd|dp|gp|itm)\//,
       /-\d{2,}ah|-\d{2,}v|-\d+kw/, // Contains specs like -100ah, -48v, -5kw
       /\/(eg4|bigbattery|canadian-solar|pytes|enphase|ecoflow|anker|jackery)-[a-z0-9-]+$/, // Brand-specific products
+      // Solar panel product patterns: /solar-panels/product-name or /collections/solar-panels/product-name
+      /^\/(solar-panels|batteries|inverters|panels)\/[^\/]+$/, // Category/product-name (product page)
+      /^\/collections\/[^\/]+\/[^\/]+$/, // /collections/category/product-name (product page)
+      // Product pages with model numbers or SKUs
+      /\/[a-z0-9-]+\/\d{4,}/, // Contains product ID (4+ digits)
+      /\/[a-z0-9-]+-[a-z0-9-]+-[a-z0-9-]+$/, // 3+ dash-separated segments (likely product)
     ];
 
     // If it matches product patterns, it's a product page
@@ -693,208 +703,390 @@ export async function scrapeMultipleProducts(
 /**
  * Extract products directly from Shopify collection/listing pages
  * This is much faster than scraping individual product pages
+ * NOW HANDLES PAGINATION - scrapes ALL pages to get ALL products
  */
 export async function scrapeShopifyCollectionPage(
   url: string,
   config: Partial<ScraperConfig> = {},
 ): Promise<ScrapedProduct[]> {
   const finalConfig = { ...DEFAULT_CONFIG, ...config };
-  const products: ScrapedProduct[] = [];
+  const allProducts: ScrapedProduct[] = [];
+  const visitedPages = new Set<string>();
+  const pageQueue: string[] = [url];
+  const maxPages = 100; // Safety limit to prevent infinite loops
 
   try {
-    logger.info({ url }, "Scraping Shopify collection page");
-    const html = await fetchHTML(url, finalConfig);
-    const $ = cheerio.load(html);
+    logger.info({ url }, "Scraping Shopify collection page with pagination support");
 
-    // Method 1: Extract from JSON-LD structured data (most reliable for Shopify)
-    $('script[type="application/ld+json"]').each((_, script) => {
-      try {
-        const data = JSON.parse($(script).html() || "{}");
-        
-        // Shopify often uses ItemList schema for collection pages
-        if (data["@type"] === "ItemList" && Array.isArray(data.itemListElement)) {
-          data.itemListElement.forEach((item: any) => {
-            if (item.item && item.item["@type"] === "Product") {
-              const product: ScrapedProduct = {
-                sourceUrl: item.item.url || item.item["@id"] || url,
-              };
+    while (pageQueue.length > 0 && visitedPages.size < maxPages) {
+      const currentUrl = pageQueue.shift();
+      if (!currentUrl || visitedPages.has(currentUrl)) {
+        continue;
+      }
 
-              if (item.item.name) product.name = item.item.name;
-              if (item.item.brand) {
-                product.manufacturer = typeof item.item.brand === "string" 
-                  ? item.item.brand 
-                  : item.item.brand.name;
-              }
-              if (item.item.sku) product.modelNumber = item.item.sku;
-              if (item.item.description) product.description = item.item.description;
-              if (item.item.image) {
-                product.imageUrl = Array.isArray(item.item.image)
-                  ? item.item.image[0]
-                  : item.item.image;
-              }
-              if (item.item.offers) {
-                const offers = Array.isArray(item.item.offers)
-                  ? item.item.offers[0]
-                  : item.item.offers;
-                if (offers.price) product.price = parseFloat(offers.price);
-                if (offers.availability) {
-                  product.inStock = offers.availability.includes("InStock") ||
-                    offers.availability.includes("Available");
+      visitedPages.add(currentUrl);
+      logger.debug({ url: currentUrl, pageNumber: visitedPages.size }, "Scraping collection page");
+
+      const html = await fetchHTML(currentUrl, finalConfig);
+      const $ = cheerio.load(html);
+      const pageProducts: ScrapedProduct[] = [];
+
+      // Method 1: Extract from JSON-LD structured data (most reliable for Shopify)
+      $('script[type="application/ld+json"]').each((_, script) => {
+        try {
+          const data = JSON.parse($(script).html() || "{}");
+          
+          // Shopify often uses ItemList schema for collection pages
+          if (data["@type"] === "ItemList" && Array.isArray(data.itemListElement)) {
+            data.itemListElement.forEach((item: any) => {
+              if (item.item && item.item["@type"] === "Product") {
+                const product: ScrapedProduct = {
+                  sourceUrl: item.item.url || item.item["@id"] || currentUrl,
+                };
+
+                if (item.item.name) product.name = item.item.name;
+                if (item.item.brand) {
+                  product.manufacturer = typeof item.item.brand === "string" 
+                    ? item.item.brand 
+                    : item.item.brand.name;
+                }
+                if (item.item.sku) product.modelNumber = item.item.sku;
+                if (item.item.description) product.description = item.item.description;
+                if (item.item.image) {
+                  product.imageUrl = Array.isArray(item.item.image)
+                    ? item.item.image[0]
+                    : item.item.image;
+                }
+                if (item.item.offers) {
+                  const offers = Array.isArray(item.item.offers)
+                    ? item.item.offers[0]
+                    : item.item.offers;
+                  if (offers.price) product.price = parseFloat(offers.price);
+                  if (offers.availability) {
+                    product.inStock = offers.availability.includes("InStock") ||
+                      offers.availability.includes("Available");
+                  }
+                }
+
+                if (product.name && product.sourceUrl) {
+                  // Deduplicate by sourceUrl
+                  if (!pageProducts.some(p => p.sourceUrl === product.sourceUrl)) {
+                    pageProducts.push(product);
+                  }
                 }
               }
+            });
+          }
+        } catch {
+          // Invalid JSON, skip
+        }
+      });
 
-              if (product.name) {
-                products.push(product);
+      // Method 2: Extract from Shopify product cards (HTML fallback)
+      if (pageProducts.length === 0) {
+        // Shopify collection pages use various selectors - try ALL of them to get maximum coverage
+        const productCardSelectors = [
+          '.product-card',
+          '.grid-product',
+          '.product-item',
+          '[class*="product-card"]',
+          '[class*="product-item"]',
+          'article[class*="product"]',
+          '.card[class*="product"]',
+          '.product-grid-item',
+          '[data-product-id]',
+          '.product-tile',
+        ];
+
+        for (const selector of productCardSelectors) {
+          $(selector).each((_, card) => {
+            const $card = $(card);
+            const product: ScrapedProduct = {};
+
+            // Extract product link - try multiple patterns
+            const $link = $card.find('a[href*="/products/"]').first();
+            if (!$link.length) {
+              // Try alternative link patterns
+              $card.find('a[href]').each((_, a) => {
+                const href = $(a).attr("href");
+                if (href && (href.includes("/products/") || href.includes("/product/"))) {
+                  if (!product.sourceUrl) {
+                    product.sourceUrl = href.startsWith("http")
+                      ? href
+                      : new URL(href, currentUrl).href;
+                  }
+                }
+              });
+            } else {
+              const href = $link.attr("href");
+              if (href) {
+                product.sourceUrl = href.startsWith("http")
+                  ? href
+                  : new URL(href, currentUrl).href;
+              }
+            }
+
+            // Extract product name
+            product.name = 
+              $card.find('.product-title, .product-name, h2, h3, [class*="product-title"], [class*="product-name"]').first().text().trim() ||
+              $link.text().trim() ||
+              $card.find('a').first().text().trim();
+
+            // Extract price
+            const priceText = 
+              $card.find('.price, [class*="price"], .product-price, [class*="product-price"]').first().text().trim() ||
+              $card.find('[data-price]').attr('data-price') ||
+              $card.find('span[class*="money"]').first().text().trim();
+
+            if (priceText) {
+              const priceMatch = priceText.replace(/[,$]/g, "").match(/(\d+\.?\d*)/);
+              if (priceMatch) {
+                product.price = parseFloat(priceMatch[1]);
+              }
+            }
+
+            // Extract image
+            const $img = $card.find('img').first();
+            if ($img.length) {
+              product.imageUrl = 
+                $img.attr("data-src") ||
+                $img.attr("src") ||
+                $img.attr("data-lazy") ||
+                $img.attr("data-original");
+              
+              // Make image URL absolute
+              if (product.imageUrl && !product.imageUrl.startsWith("http")) {
+                try {
+                  product.imageUrl = new URL(product.imageUrl, currentUrl).href;
+                } catch {
+                  product.imageUrl = undefined;
+                }
+              }
+            }
+
+            // Extract manufacturer/brand
+            const brandText = 
+              $card.find('.brand, .manufacturer, [class*="brand"], [class*="vendor"]').first().text().trim();
+            if (brandText) {
+              product.manufacturer = brandText;
+            } else if (product.name) {
+              // Try to extract brand from product name
+              const nameParts = product.name.split(/\s+/);
+              if (nameParts.length > 1) {
+                const commonBrands = ['Rich Solar', 'Sungold Power', 'BougeRV', 'EG4', 'EcoFlow', 'Sol-Ark', 'Renogy', 'Victron', 'Battle Born'];
+                for (const brand of commonBrands) {
+                  if (product.name.startsWith(brand)) {
+                    product.manufacturer = brand;
+                    break;
+                  }
+                }
+              }
+            }
+
+            // Extract model number from name or SKU
+            if (product.name) {
+              const modelMatch = product.name.match(/(\d+[Ww]|\d+[Vv]|\d+[Aa][Hh]|\d+[Ww][Hh]|\d+[Xx][Pp])/);
+              if (modelMatch) {
+                product.modelNumber = modelMatch[1];
+              }
+            }
+
+            // Check availability
+            const availabilityText = $card.text().toLowerCase();
+            product.inStock = 
+              !availabilityText.includes("out of stock") &&
+              !availabilityText.includes("sold out") &&
+              !availabilityText.includes("unavailable");
+
+            if (product.name && product.sourceUrl) {
+              // Deduplicate by sourceUrl
+              if (!pageProducts.some(p => p.sourceUrl === product.sourceUrl)) {
+                pageProducts.push(product);
               }
             }
           });
+
+          if (pageProducts.length > 0) {
+            logger.debug({ selector, productsFound: pageProducts.length, page: currentUrl }, "Extracted products from collection page");
+            // Don't break - continue trying other selectors to get ALL products
+          }
         }
-      } catch {
-        // Invalid JSON, skip
       }
-    });
 
-    // Method 2: Extract from Shopify product cards (HTML fallback)
-    if (products.length === 0) {
-      // Shopify collection pages use various selectors
-      const productCardSelectors = [
-        '.product-card',
-        '.grid-product',
-        '.product-item',
-        '[class*="product-card"]',
-        '[class*="product-item"]',
-        'article[class*="product"]',
-        '.card[class*="product"]',
-      ];
+      // Method 3: Extract ALL product links directly from the page (comprehensive fallback)
+      // This ensures we don't miss any products even if they're not in standard card containers
+      $('a[href*="/products/"]').each((_, link) => {
+        const $link = $(link);
+        const href = $link.attr("href");
+        if (!href) return;
 
-      for (const selector of productCardSelectors) {
-        $(selector).each((_, card) => {
-          const $card = $(card);
-          const product: ScrapedProduct = {};
+        try {
+          const absoluteUrl = href.startsWith("http")
+            ? href
+            : new URL(href, currentUrl).href;
 
-          // Extract product link
-          const $link = $card.find('a[href*="/products/"]').first();
-          if ($link.length) {
-            const href = $link.attr("href");
-            if (href) {
-              product.sourceUrl = href.startsWith("http")
-                ? href
-                : new URL(href, url).href;
-            }
+          // Check if we already have this product
+          if (pageProducts.some(p => p.sourceUrl === absoluteUrl)) {
+            return;
           }
 
-          // Extract product name
-          product.name = 
-            $card.find('.product-title, .product-name, h2, h3, [class*="product-title"], [class*="product-name"]').first().text().trim() ||
+          // Extract product name from link text or nearby elements
+          const productName = 
             $link.text().trim() ||
-            $card.find('a').first().text().trim();
+            $link.find('img').attr('alt') ||
+            $link.closest('.product-card, .product-item, [class*="product"]').find('.product-title, h2, h3').first().text().trim();
 
-          // Extract price
-          const priceText = 
-            $card.find('.price, [class*="price"], .product-price, [class*="product-price"]').first().text().trim() ||
-            $card.find('[data-price]').attr('data-price') ||
-            $card.find('span[class*="money"]').first().text().trim();
+          if (productName && productName.length > 3) {
+            const product: ScrapedProduct = {
+              sourceUrl: absoluteUrl,
+              name: productName,
+            };
 
-          if (priceText) {
-            const priceMatch = priceText.replace(/[,$]/g, "").match(/(\d+\.?\d*)/);
-            if (priceMatch) {
-              product.price = parseFloat(priceMatch[1]);
-            }
-          }
-
-          // Extract image
-          const $img = $card.find('img').first();
-          if ($img.length) {
-            product.imageUrl = 
-              $img.attr("data-src") ||
-              $img.attr("src") ||
-              $img.attr("data-lazy") ||
-              $img.attr("data-original");
-            
-            // Make image URL absolute
-            if (product.imageUrl && !product.imageUrl.startsWith("http")) {
-              try {
-                product.imageUrl = new URL(product.imageUrl, url).href;
-              } catch {
-                product.imageUrl = undefined;
-              }
-            }
-          }
-
-          // Extract manufacturer/brand (often in product name or separate field)
-          const brandText = 
-            $card.find('.brand, .manufacturer, [class*="brand"], [class*="vendor"]').first().text().trim();
-          if (brandText) {
-            product.manufacturer = brandText;
-          } else if (product.name) {
-            // Try to extract brand from product name (e.g., "Rich Solar Mega 250 Pro")
-            const nameParts = product.name.split(/\s+/);
-            if (nameParts.length > 1) {
-              // Common brand patterns at start of name
-              const commonBrands = ['Rich Solar', 'Sungold Power', 'BougeRV', 'EG4', 'EcoFlow', 'Sol-Ark'];
-              for (const brand of commonBrands) {
-                if (product.name.startsWith(brand)) {
-                  product.manufacturer = brand;
-                  break;
+            // Try to extract additional info from parent container
+            const $parent = $link.closest('.product-card, .product-item, [class*="product"], article, .card');
+            if ($parent.length) {
+              // Extract price
+              const priceText = $parent.find('.price, [class*="price"]').first().text().trim();
+              if (priceText) {
+                const priceMatch = priceText.replace(/[,$]/g, "").match(/(\d+\.?\d*)/);
+                if (priceMatch) {
+                  product.price = parseFloat(priceMatch[1]);
                 }
               }
+
+              // Extract image
+              const $img = $parent.find('img').first();
+              if ($img.length) {
+                product.imageUrl = 
+                  $img.attr("data-src") ||
+                  $img.attr("src") ||
+                  $img.attr("data-lazy") ||
+                  $img.attr("data-original");
+                if (product.imageUrl && !product.imageUrl.startsWith("http")) {
+                  try {
+                    product.imageUrl = new URL(product.imageUrl, currentUrl).href;
+                  } catch {
+                    product.imageUrl = undefined;
+                  }
+                }
+              }
+
+              // Check availability
+              const availabilityText = $parent.text().toLowerCase();
+              product.inStock = 
+                !availabilityText.includes("out of stock") &&
+                !availabilityText.includes("sold out") &&
+                !availabilityText.includes("unavailable");
+            }
+
+            // Deduplicate
+            if (!pageProducts.some(p => p.sourceUrl === product.sourceUrl)) {
+              pageProducts.push(product);
             }
           }
-
-          // Extract model number from name or SKU
-          if (product.name) {
-            const modelMatch = product.name.match(/(\d+[Ww]|\d+[Vv]|\d+[Aa][Hh]|\d+[Ww][Hh])/);
-            if (modelMatch) {
-              product.modelNumber = modelMatch[1];
-            }
-          }
-
-          // Check availability
-          const availabilityText = $card.text().toLowerCase();
-          product.inStock = 
-            !availabilityText.includes("out of stock") &&
-            !availabilityText.includes("sold out") &&
-            !availabilityText.includes("unavailable");
-
-          if (product.name && product.sourceUrl) {
-            products.push(product);
-          }
-        });
-
-        if (products.length > 0) {
-          logger.debug({ selector, productsFound: products.length }, "Extracted products from collection page");
-          break; // Found products, stop trying other selectors
-        }
-      }
-    }
-
-    // Method 3: Extract from Shopify's product JSON data (often in script tags)
-    if (products.length === 0) {
-      $('script').each((_, script) => {
-        const scriptContent = $(script).html() || "";
-        // Look for Shopify product data in window.Shopify or similar
-        if (scriptContent.includes('"products"') || scriptContent.includes("product:")) {
-          try {
-            // Try to extract product data from various Shopify JSON patterns
-            // Use [\s\S] instead of . with s flag for ES2017 compatibility
-            const productMatches = scriptContent.match(/products["\s]*:[\s]*\[([\s\S]*?)\]/);
-            if (productMatches) {
-              // This is a simplified extraction - Shopify JSON can be complex
-              logger.debug("Found Shopify product JSON data");
-            }
-          } catch {
-            // Skip if parsing fails
-          }
+        } catch {
+          // Invalid URL, skip
         }
       });
+
+      // Method 4: Extract from Shopify's product JSON data (often in script tags)
+      if (pageProducts.length === 0) {
+        $('script').each((_, script) => {
+          const scriptContent = $(script).html() || "";
+          // Look for Shopify product data in window.Shopify or similar
+          if (scriptContent.includes('"products"') || scriptContent.includes("product:")) {
+            try {
+              // Try to extract product data from various Shopify JSON patterns
+              const productMatches = scriptContent.match(/products["\s]*:[\s]*\[([\s\S]*?)\]/);
+              if (productMatches) {
+                logger.debug("Found Shopify product JSON data");
+                // TODO: Parse Shopify JSON product data if needed
+              }
+            } catch {
+              // Skip if parsing fails
+            }
+          }
+        });
+      }
+
+      // Add products from this page to the total (deduplicate by sourceUrl)
+      pageProducts.forEach(product => {
+        if (!allProducts.some(p => p.sourceUrl === product.sourceUrl)) {
+          allProducts.push(product);
+        }
+      });
+
+      logger.debug(
+        { url: currentUrl, pageProducts: pageProducts.length, totalProducts: allProducts.length },
+        "Scraped collection page",
+      );
+
+      // Find pagination links to scrape next pages
+      const paginationLinks: string[] = [];
+      
+      // Shopify pagination patterns
+      $('a[href]').each((_, link) => {
+        const $link = $(link);
+        const href = $link.attr("href");
+        if (!href) return;
+
+        try {
+          const absoluteUrl = href.startsWith("http")
+            ? href
+            : new URL(href, currentUrl).href;
+          const linkObj = new URL(absoluteUrl);
+          const linkPath = linkObj.pathname.toLowerCase();
+          const linkHref = href.toLowerCase();
+
+          // Check if this is a pagination link for the same collection
+          const isPaginationLink = 
+            // Shopify pagination: ?page=2, ?page=3, etc.
+            (linkHref.includes("?page=") || linkHref.includes("&page=")) &&
+            // Make sure it's for the same collection (same base path)
+            (linkPath === new URL(currentUrl).pathname.toLowerCase() || 
+             linkPath.includes("/collections/")) &&
+            // Not already visited
+            !visitedPages.has(absoluteUrl);
+
+          // Also check for "Next" links
+          const linkText = $link.text().toLowerCase().trim();
+          const isNextLink = 
+            (linkText === "next" || linkText === "→" || linkText.includes("next")) &&
+            (linkHref.includes("?page=") || linkHref.includes("&page=")) &&
+            !visitedPages.has(absoluteUrl);
+
+          if (isPaginationLink || isNextLink) {
+            paginationLinks.push(absoluteUrl);
+          }
+        } catch {
+          // Invalid URL, skip
+        }
+      });
+
+      // Add pagination links to queue
+      paginationLinks.forEach(link => {
+        if (!pageQueue.includes(link) && !visitedPages.has(link)) {
+          pageQueue.push(link);
+        }
+      });
+
+      // Rate limiting between pages
+      if (pageQueue.length > 0 && finalConfig.rateLimit) {
+        await sleep(finalConfig.rateLimit);
+      }
     }
 
     logger.info(
-      { url, productsFound: products.length },
-      "Shopify collection page scraped",
+      { 
+        url, 
+        totalProducts: allProducts.length,
+        pagesScraped: visitedPages.size,
+        uniqueProducts: allProducts.length
+      },
+      "Shopify collection page scraped with pagination",
     );
 
-    return products;
+    return allProducts;
   } catch (error) {
     logger.error(
       {
@@ -1255,6 +1447,37 @@ export async function deepCrawlForProducts(
             'article a[href*="/products/"]',
           ];
 
+          // Generic product grid selectors for non-Shopify sites (BigCommerce, WooCommerce, custom)
+          // These help extract products from category pages like /solar-panels
+          const genericProductSelectors = [
+            // Product grid containers
+            '.product-grid a',
+            '.products-grid a',
+            '.product-list a',
+            '.products-list a',
+            '[class*="product-grid"] a',
+            '[class*="products-grid"] a',
+            '[class*="product-list"] a',
+            // Product cards/items
+            '.product-card a',
+            '.product-item a',
+            '.product-tile a',
+            '[class*="product-card"] a',
+            '[class*="product-item"] a',
+            '[class*="product-tile"] a',
+            // Category-specific: solar panels, batteries, etc.
+            '.solar-panel a',
+            '.battery a',
+            '[class*="solar"] a',
+            '[class*="panel"] a',
+            // Common e-commerce patterns
+            'article.product a',
+            'div.product a',
+            'li.product a',
+            '[data-product-id] a',
+            '[data-product-url]',
+          ];
+
           // First, try Shopify-specific selectors for better accuracy
           const shopifyProductLinks = new Set<string>(); // Deduplicate
           shopifyProductSelectors.forEach((selector) => {
@@ -1286,15 +1509,50 @@ export async function deepCrawlForProducts(
             });
           });
           
-          // Add Shopify product links to the page product links
-          shopifyProductLinks.forEach((link) => pageProductLinks.push(link));
+          // Also try generic product selectors for non-Shopify sites
+          // This helps extract products from category pages like /solar-panels
+          const genericProductLinks = new Set<string>();
+          genericProductSelectors.forEach((selector) => {
+            $(selector).each((_, element) => {
+              const $link = $(element);
+              const href = $link.attr("href") || $link.attr("data-product-url");
+              if (!href) return;
+
+              try {
+                const absoluteUrl = href.startsWith("http")
+                  ? href
+                  : new URL(href, url).href;
+                const linkObj = new URL(absoluteUrl);
+
+                // Only include same domain and valid product URLs
+                if (
+                  linkObj.hostname === baseHostname &&
+                  isProductPageUrl(absoluteUrl) &&
+                  !absoluteUrl.includes("#") &&
+                  !absoluteUrl.includes("javascript:")
+                ) {
+                  // Normalize URL (remove query params, fragments, trailing slashes)
+                  const normalizedUrl = absoluteUrl.split('?')[0].split('#')[0].replace(/\/$/, '');
+                  genericProductLinks.add(normalizedUrl);
+                }
+              } catch {
+                // Invalid URL, skip
+              }
+            });
+          });
+          
+          // Combine all product links (deduplicated)
+          const allProductLinks = new Set([...shopifyProductLinks, ...genericProductLinks]);
+          allProductLinks.forEach((link) => pageProductLinks.push(link));
           
           logger.debug(
             { 
               shopifyProductsFound: shopifyProductLinks.size,
+              genericProductsFound: genericProductLinks.size,
+              totalProductsFound: allProductLinks.size,
               url 
             },
-            "Extracted Shopify product links"
+            "Extracted product links from category page"
           );
 
           // Also extract all links from this page (fallback for non-Shopify sites)
@@ -1346,13 +1604,18 @@ export async function deepCrawlForProducts(
                 "/itm/",
                 // Shopify product pattern (most important)
                 /^\/products\/[^\/]+$/,
-                // Category + item patterns (e.g., /batteries/eg4-lifepower4)
-                /\/(solar|battery|batteries|inverter|panel|charger|cable|mount|bracket)s?\/[^\/]+$/,
+                // Category + item patterns (e.g., /batteries/eg4-lifepower4, /solar-panels/product-name)
+                // This matches product pages within category paths
+                /^\/(solar-panels|batteries|inverters|panels|solar|battery|charger|cable|mount|bracket)s?\/[^\/]+$/,
+                // Shopify collection product pages: /collections/category/product-name
+                /^\/collections\/[^\/]+\/[^\/]+$/,
                 // SKU-like patterns
                 /-\d{3,}/, // ends with dash and 3+ digits
                 /[a-z]+-[a-z0-9]+-[a-z0-9]+/, // multi-dash separated (e.g., eg4-lifepower4-48v)
                 // Brand name patterns for batteries/solar (Solaris shop and similar)
-                /(byd|ecoflow|enphase|eg4|simpliphi|pytes|lith|lithion|tesla|lg|samsung)-/i,
+                /(byd|ecoflow|enphase|eg4|simpliphi|pytes|lith|lithion|tesla|lg|samsung|canadian-solar|rec|q-cells|longi|jinko|sunpower|panasonic)-/i,
+                // Product pages with model numbers
+                /\/[a-z0-9-]+\/\d{4,}/, // Contains product ID (4+ digits)
               ];
 
               const isProductLink = productPatterns.some((pattern) => {
@@ -1411,6 +1674,16 @@ export async function deepCrawlForProducts(
                 /page[\/=]\d+/.test(linkHref) ||
                 isShopifyPagination;
 
+              // Detect category pages that should be crawled for products
+              // This includes /solar-panels, /collections/solar-panels, etc.
+              const isCategoryPage = 
+                // Exact category page matches (no product name)
+                /^\/(solar-panels|batteries|inverters|panels|shop|catalog|store|category|collections)$/.test(pathname) ||
+                // Shopify collection pages: /collections/category-name (without product name)
+                /^\/collections\/[^\/]+$/.test(pathname) ||
+                // Category subdirectories
+                /^\/(all-products|shop|kits-bundles)\/(solar-panels|batteries|inverters|panels|kits|bundles)$/.test(pathname);
+
               // Detect subcategory links (common patterns)
               const isSubcategoryLink =
                 // Path-based subcategories (e.g., /products/solar-panels/monocrystalline)
@@ -1423,10 +1696,12 @@ export async function deepCrawlForProducts(
                 // Category menu links
                 $(link).closest("[class*='category'], [class*='subcategory'], [class*='menu']").length > 0;
 
-              // Follow catalog, pagination, next, and subcategory links
+              // Follow catalog, pagination, next, subcategory, and category page links
+              // Category pages like /solar-panels should be crawled to find product links
               if (
-                (isCatalogLink || isPaginationLink || isNextLink || isSubcategoryLink) &&
-                depth < maxDepth
+                (isCatalogLink || isPaginationLink || isNextLink || isSubcategoryLink || isCategoryPage) &&
+                depth < maxDepth &&
+                !isProductPageUrl(absoluteUrl) // Don't follow product pages as category pages
               ) {
                 pageNextUrls.push({ url: absoluteUrl, depth: depth + 1 });
               }

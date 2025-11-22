@@ -52,6 +52,8 @@ export default function ReviewPage() {
   const [project, setProject] = useState<ProjectData | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [bomItems, setBomItems] = useState<any[]>([]);
+  const [distributorId, setDistributorId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     fetchProject();
@@ -65,6 +67,18 @@ export default function ReviewPage() {
 
       if (data.success) {
         setProject(data.project);
+        setBomItems(data.project.bomItems || []);
+        
+        // Try to get distributor from BOM items
+        if (data.project.bomItems && data.project.bomItems.length > 0) {
+          // Fetch distributor from first BOM item's equipment if available
+          // For now, we'll need to get it from the BOM API
+          const bomResponse = await fetch(`/api/bom?projectId=${projectId}`);
+          const bomData = await bomResponse.json();
+          if (bomData.success && bomData.distributorId) {
+            setDistributorId(bomData.distributorId);
+          }
+        }
       } else {
         alert(`Error: ${data.error}`);
       }
@@ -171,74 +185,118 @@ export default function ReviewPage() {
           </div>
           
           {project.system && !editing && (
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <p className="text-sm text-muted-foreground">Solar Array</p>
-                <p className="text-lg font-semibold">
-                  {project.system.solarPanelCount > 0 ? (
-                    <>
-                      {project.system.solarPanelCount} ×{" "}
-                      {project.system.solarPanelWattage}W ={" "}
-                      {project.system.totalSolarKw.toFixed(2)} kW
-                    </>
-                  ) : (
-                    <span className="text-muted-foreground">No Solar Panels</span>
-                  )}
-                </p>
+            <div className="space-y-6">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p className="text-sm text-muted-foreground">Solar Array</p>
+                  <p className="text-lg font-semibold">
+                    {project.system.solarPanelCount > 0 ? (
+                      <>
+                        {project.system.solarPanelCount} ×{" "}
+                        {project.system.solarPanelWattage}W ={" "}
+                        {project.system.totalSolarKw.toFixed(2)} kW
+                      </>
+                    ) : (
+                      <span className="text-muted-foreground">No Solar Panels</span>
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Battery Storage</p>
+                  <p className="text-lg font-semibold">
+                    {project.system.batteryKwh > 0 ? (
+                      `${project.system.batteryKwh.toFixed(2)} kWh`
+                    ) : (
+                      <span className="text-muted-foreground">No Battery Storage</span>
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Inverter</p>
+                  <p className="text-lg font-semibold">
+                    {project.system.inverterKw > 0 ? (
+                      `${project.system.inverterKw.toFixed(2)} kW`
+                    ) : (
+                      <span className="text-muted-foreground">No Inverter</span>
+                    )}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Backup Duration</p>
+                  <p className="text-lg font-semibold">
+                    {project.system.backupDurationHrs > 0 ? (
+                      `${project.system.backupDurationHrs} hours`
+                    ) : (
+                      <span className="text-muted-foreground">No Backup</span>
+                    )}
+                  </p>
+                </div>
+                <div className="sm:col-span-2">
+                  <p className="text-sm text-muted-foreground">Estimated Cost</p>
+                  <p className="text-2xl font-bold text-primary">
+                    {formatCurrency(project.system.estimatedCostUsd)}
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Battery Storage</p>
-                <p className="text-lg font-semibold">
-                  {project.system.batteryKwh > 0 ? (
-                    `${project.system.batteryKwh.toFixed(2)} kWh`
-                  ) : (
-                    <span className="text-muted-foreground">No Battery Storage</span>
-                  )}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Inverter</p>
-                <p className="text-lg font-semibold">
-                  {project.system.inverterKw > 0 ? (
-                    `${project.system.inverterKw.toFixed(2)} kW`
-                  ) : (
-                    <span className="text-muted-foreground">No Inverter</span>
-                  )}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Backup Duration</p>
-                <p className="text-lg font-semibold">
-                  {project.system.backupDurationHrs > 0 ? (
-                    `${project.system.backupDurationHrs} hours`
-                  ) : (
-                    <span className="text-muted-foreground">No Backup</span>
-                  )}
-                </p>
-              </div>
-              <div className="sm:col-span-2">
-                <p className="text-sm text-muted-foreground">Estimated Cost</p>
-                <p className="text-2xl font-bold text-primary">
-                  {formatCurrency(project.system.estimatedCostUsd)}
-                </p>
-              </div>
+
+              {/* Selected Equipment Details */}
+              {bomItems.length > 0 && (
+                <div className="mt-6 pt-6 border-t">
+                  <h3 className="text-md font-semibold mb-4">Selected Equipment</h3>
+                  <div className="space-y-3">
+                    {bomItems.map((item, idx) => (
+                      <div key={idx} className="flex items-start justify-between p-3 bg-muted rounded-lg">
+                        <div className="flex-1">
+                          <p className="font-medium">{item.itemName}</p>
+                          {item.manufacturer && (
+                            <p className="text-sm text-muted-foreground">
+                              {item.manufacturer} {item.modelNumber && `- ${item.modelNumber}`}
+                            </p>
+                          )}
+                          {item.notes && (
+                            <p className="text-xs text-muted-foreground mt-1">{item.notes}</p>
+                          )}
+                        </div>
+                        <div className="text-right ml-4">
+                          <p className="font-semibold">Qty: {item.quantity}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {formatCurrency(item.unitPriceUsd)} each
+                          </p>
+                          <p className="text-sm font-medium mt-1">
+                            {formatCurrency(item.totalPriceUsd)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
           {editing && (
             <EquipmentEditorEnhanced
               projectId={projectId}
-              distributorId="dist-1"
+              distributorId={distributorId} // Use distributor from BOM items or allow selection
               monthlyUsageKwh={900}
               onSave={async (systemData) => {
                 setSaving(true);
                 try {
+                  // Extract equipment IDs from selected products
+                  const selectedEquipmentIds = systemData.selectedProducts ? {
+                    solarPanelId: systemData.selectedProducts.solarPanels?.product?.id,
+                    batteryId: systemData.selectedProducts.battery?.product?.id,
+                    inverterId: systemData.selectedProducts.inverter?.product?.id,
+                    mountingId: systemData.selectedProducts.mounting?.product?.id,
+                    electricalId: systemData.selectedProducts.electrical?.product?.id,
+                  } : undefined;
+
                   const response = await fetch(`/api/projects/${projectId}/system`, {
                     method: "PATCH",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                       solarPanelCount: systemData.selectedProducts?.solarPanels?.quantity || 0,
-                      solarPanelWattage: systemData.selectedProducts?.solarPanels?.product.specifications.wattage || 400,
+                      solarPanelWattage: systemData.selectedProducts?.solarPanels?.product?.specifications?.wattage || 400,
                       totalSolarKw: systemData.totalSolarKw,
                       batteryKwh: systemData.batteryKwh,
                       inverterKw: systemData.inverterKw,
@@ -248,7 +306,9 @@ export default function ReviewPage() {
                       inverterType: "Hybrid String Inverter",
                       criticalLoadKw: 3,
                       selectedProducts: systemData.selectedProducts,
-                      customSpecs: systemData.customSpecs
+                      customSpecs: systemData.customSpecs,
+                      selectedEquipmentIds,
+                      distributorId: systemData.distributorId || distributorId,
                     }),
                   });
 

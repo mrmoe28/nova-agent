@@ -21,6 +21,8 @@ export async function PATCH(
       batteryType = "lithium",
       inverterType = "Hybrid String Inverter",
       criticalLoadKw,
+      selectedEquipmentIds,
+      distributorId,
     } = body;
 
     // Validate required fields
@@ -78,7 +80,18 @@ export async function PATCH(
       data: { updatedAt: new Date() },
     });
 
-    await refreshBomAndPlan(projectId, true);
+    // Regenerate BOM with selected equipment IDs if provided
+    if (selectedEquipmentIds && distributorId) {
+      try {
+        const { regenerateBom } = await import("@/lib/system-sizing");
+        await regenerateBom(projectId, true, distributorId, selectedEquipmentIds);
+      } catch (error) {
+        console.error("Error regenerating BOM with selected equipment:", error);
+        // Continue even if BOM regeneration fails - system is still updated
+      }
+    } else {
+      await refreshBomAndPlan(projectId, true);
+    }
 
     return NextResponse.json({
       success: true,

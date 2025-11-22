@@ -7,14 +7,13 @@ import {
   deepCrawlForProducts,
   isProductPageUrl,
   scrapeShopifyCollectionPage,
+  type ScrapedCompany,
+  type ScrapedProduct,
 } from "@/lib/scraper";
-import {
-  getBrowserScraper,
-  closeBrowserScraper,
-} from "@/lib/browser-scraper-bql";
 import { getAIScraper } from "@/lib/ai-agent-scraper";
 import { createLogger, logOperation } from "@/lib/logger";
 import { clearAllCaches } from "@/lib/cache";
+import { getBrowserScraper, closeBrowserScraper } from "@/lib/browser-scraper-bql";
 
 const logger = createLogger("scrape-api");
 
@@ -107,7 +106,7 @@ export async function POST(request: NextRequest) {
     }, 60000); // Every 60 seconds
 
     // Step 1: Scrape company information
-    const companyInfo = await logOperation(
+    const companyInfo: ScrapedCompany = await logOperation(
       logger,
       "scrape-company-info",
       () =>
@@ -241,15 +240,17 @@ export async function POST(request: NextRequest) {
             { url, maxPages, maxDepth },
           );
 
-          allProductLinks = crawlResult.productLinks;
-          logger.info(
-            {
-              productLinks: allProductLinks.length,
-              pagesVisited: crawlResult.pagesVisited.length,
-              catalogPages: crawlResult.catalogPages.length,
-            },
-            "Deep crawl completed",
-          );
+          if (crawlResult) {
+            allProductLinks = crawlResult.productLinks;
+            logger.info(
+              {
+                productLinks: allProductLinks.length,
+                pagesVisited: crawlResult.pagesVisited.length,
+                catalogPages: crawlResult.catalogPages.length,
+              },
+              "Deep crawl completed",
+            );
+          }
         }
       }
     }
@@ -368,13 +369,12 @@ export async function POST(request: NextRequest) {
           lastScrapedAt: new Date(),
         };
 
+        // Update fields from companyInfo if they exist
         if (companyInfo.name) updateData.name = companyInfo.name;
-        if (companyInfo.contactName)
-          updateData.contactName = companyInfo.contactName;
+        if (companyInfo.contactName) updateData.contactName = companyInfo.contactName;
         if (companyInfo.email) updateData.email = companyInfo.email;
         if (companyInfo.phone) updateData.phone = companyInfo.phone;
-        if (companyInfo.website || url)
-          updateData.website = companyInfo.website || url;
+        if (companyInfo.website || url) updateData.website = companyInfo.website || url;
         if (companyInfo.address) updateData.address = companyInfo.address;
         if (companyInfo.description) updateData.notes = companyInfo.description;
         if (companyInfo.logoUrl) updateData.logoUrl = companyInfo.logoUrl;
@@ -906,3 +906,4 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+

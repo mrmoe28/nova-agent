@@ -204,6 +204,13 @@ export async function regenerateBom(
   projectId: string,
   skipStatusUpdate = false,
   distributorId?: string,
+  selectedEquipmentIds?: {
+    solarPanelId?: string;
+    batteryId?: string;
+    inverterId?: string;
+    mountingId?: string;
+    electricalId?: string;
+  },
 ) {
   const system = await prisma.system.findUnique({
     where: { projectId },
@@ -217,172 +224,226 @@ export async function regenerateBom(
     where: { projectId },
   });
 
-  // Auto-select first available distributor if none provided
-  if (!distributorId) {
-    const firstDistributor = await prisma.distributor.findFirst({
-      where: {
-        isActive: true,
-        equipment: {
-          some: {
-            isActive: true,
-            inStock: true,
+  // Equipment must be explicitly selected - no auto-selection
+  if (!selectedEquipmentIds && !distributorId) {
+    // Try to get distributor from existing BOM items
+    const existingBom = await prisma.bOMItem.findFirst({
+      where: { projectId },
+      include: {
+        project: {
+          include: {
+            bomItems: {
+              include: {
+                // We'll need to track equipmentId in BOMItem
+                // For now, we'll require distributorId
+              },
+            },
           },
         },
       },
-      select: { id: true },
     });
-
-    if (firstDistributor) {
-      distributorId = firstDistributor.id;
-      console.log(`Auto-selected distributor ${distributorId} for BOM generation`);
+    
+    if (!distributorId) {
+      throw new SizingError(
+        "Distributor and equipment selection required. Please select a distributor and explicitly choose equipment before generating BOM. No default equipment will be used.",
+        400
+      );
     }
   }
 
-  // Fetch real equipment from distributor if provided
+  // Fetch selected equipment by IDs if provided
   let solarPanel = null;
   let battery = null;
   let inverter = null;
   let mounting = null;
   let electrical = null;
 
-  if (distributorId) {
+  if (selectedEquipmentIds && distributorId) {
     try {
-      const { DEFAULT_EQUIPMENT_CONFIG, SELECTION_STRATEGY } = await import("./default-equipment-config");
-      const { selectEquipment } = await import("./equipment-selector");
+      const equipmentIds = [
+        selectedEquipmentIds.solarPanelId,
+        selectedEquipmentIds.batteryId,
+        selectedEquipmentIds.inverterId,
+        selectedEquipmentIds.mountingId,
+        selectedEquipmentIds.electricalId,
+      ].filter((id): id is string => !!id);
 
-      const equipment = await prisma.equipment.findMany({
-        where: {
-          distributorId,
-          isActive: true,
-          inStock: true,
-        },
-        select: {
-          id: true,
-          category: true,
-          name: true,
-          manufacturer: true,
-          modelNumber: true,
-          unitPrice: true,
-          specifications: true,
-          imageUrl: true,
-          createdAt: true,
-          distributor: {
-            select: {
-              name: true,
+      if (equipmentIds.length > 0) {
+        const equipment = await prisma.equipment.findMany({
+          where: {
+            id: { in: equipmentIds },
+            distributorId,
+            isActive: true,
+            inStock: true,
+          },
+          select: {
+            id: true,
+            category: true,
+            name: true,
+            manufacturer: true,
+            modelNumber: true,
+            unitPrice: true,
+            specifications: true,
+            imageUrl: true,
+            createdAt: true,
+            distributor: {
+              select: {
+                name: true,
+              },
             },
           },
-        },
-      });
+        });
 
-      // Find best match for each category using configured preferences
-      const solarPanels = equipment.filter((e) => e.category === "SOLAR_PANEL");
-      const batteries = equipment.filter((e) => e.category === "BATTERY");
-      const inverters = equipment.filter((e) => e.category === "INVERTER");
-      const mountingSystems = equipment.filter((e) => e.category === "MOUNTING");
-      const electricalSystems = equipment.filter((e) => e.category === "ELECTRICAL");
+        // Map equipment by category
+        solarPanel = equipment.find((e) => e.id === selectedEquipmentIds.solarPanelId && e.category === "SOLAR_PANEL") || null;
+        battery = equipment.find((e) => e.id === selectedEquipmentIds.batteryId && e.category === "BATTERY") || null;
+        inverter = equipment.find((e) => e.id === selectedEquipmentIds.inverterId && e.category === "INVERTER") || null;
+        mounting = equipment.find((e) => e.id === selectedEquipmentIds.mountingId && e.category === "MOUNTING") || null;
+        electrical = equipment.find((e) => e.id === selectedEquipmentIds.electricalId && e.category === "ELECTRICAL") || null;
 
-      // Select equipment based on configured preferences
-      solarPanel = selectEquipment(solarPanels, DEFAULT_EQUIPMENT_CONFIG.solarPanel, SELECTION_STRATEGY);
-      battery = selectEquipment(batteries, DEFAULT_EQUIPMENT_CONFIG.battery, SELECTION_STRATEGY);
-      inverter = selectEquipment(inverters, DEFAULT_EQUIPMENT_CONFIG.inverter, SELECTION_STRATEGY);
-      mounting = selectEquipment(mountingSystems, DEFAULT_EQUIPMENT_CONFIG.mounting, SELECTION_STRATEGY);
-      electrical = selectEquipment(electricalSystems, DEFAULT_EQUIPMENT_CONFIG.electrical, SELECTION_STRATEGY);
-
-      console.log("Selected equipment based on preferences:", {
-        solarPanel: solarPanel?.name,
-        battery: battery?.name,
-        inverter: inverter?.name,
-        mounting: mounting?.name,
-        electrical: electrical?.name,
-      });
+        console.log("Using user-selected equipment:", {
+          solarPanel: solarPanel?.name,
+          battery: battery?.name,
+          inverter: inverter?.name,
+          mounting: mounting?.name,
+          electrical: electrical?.name,
+        });
+      }
     } catch (error) {
-      console.error("Error fetching distributor equipment:", error);
+      console.error("Error fetching selected equipment:", error);
+      throw new SizingError(
+        "Failed to fetch selected equipment. Please verify equipment is available and try again.",
+        500
+      );
     }
   }
 
-  // Solar Panel - use real product or fallback to defaults
-  const solarUnitPrice = solarPanel
-    ? solarPanel.unitPrice
-    : (SYSTEM_SIZING.SOLAR_PANEL_WATTAGE * SYSTEM_SIZING.SOLAR_COST_PER_WATT) / 2;
+  // Require real equipment - no hardcoded fallbacks
+  // Equipment must be explicitly selected by the user
+  if (!distributorId) {
+    throw new SizingError(
+      "Distributor must be selected. Please select a distributor with available equipment before generating BOM.",
+      400
+    );
+  }
 
-  // Battery - calculate price based on kWh capacity
-  const batteryUnitPrice = battery
-    ? battery.unitPrice
-    : system.batteryKwh * SYSTEM_SIZING.BATTERY_COST_PER_KWH;
+  // Validate that required equipment is available
+  const missingEquipment: string[] = [];
+  if (system.solarPanelCount > 0 && !solarPanel) {
+    missingEquipment.push("Solar Panels");
+  }
+  if (system.batteryKwh > 0 && !battery) {
+    missingEquipment.push("Battery Storage");
+  }
+  if (system.inverterKw > 0 && !inverter) {
+    missingEquipment.push("Inverter");
+  }
+  if (system.solarPanelCount > 0 && !mounting) {
+    missingEquipment.push("Mounting System");
+  }
+  if (!electrical) {
+    missingEquipment.push("Electrical Components");
+  }
 
-  // Inverter - calculate price based on kW capacity
-  const inverterUnitPrice = inverter
-    ? inverter.unitPrice
-    : system.inverterKw * SYSTEM_SIZING.INVERTER_COST_PER_KW;
+  if (missingEquipment.length > 0) {
+    throw new SizingError(
+      `Equipment selection required. Please select the following equipment from your distributor: ${missingEquipment.join(", ")}. Equipment must be explicitly selected - no default equipment will be used.`,
+      400
+    );
+  }
 
-  // Mounting - use real product or fallback
-  const mountingUnitPrice = mounting ? mounting.unitPrice : 300;
+  // Build BOM items only from real selected equipment
+  const bomItems = [];
 
-  // Electrical - use real product or fallback
-  const electricalUnitPrice = electrical ? electrical.unitPrice : 2000;
-
-  const bomItems = [
-    {
+  // Solar Panel - only if panels are needed and equipment is selected
+  if (system.solarPanelCount > 0 && solarPanel) {
+    bomItems.push({
       projectId,
       category: "solar" as const,
-      itemName: solarPanel?.name || "Solar Panel - Monocrystalline",
-      manufacturer: solarPanel?.manufacturer || "SolarTech",
-      modelNumber: solarPanel?.modelNumber || "ST-400W",
+      itemName: solarPanel.name,
+      manufacturer: solarPanel.manufacturer || null,
+      modelNumber: solarPanel.modelNumber || "N/A",
       quantity: system.solarPanelCount,
-      unitPriceUsd: solarUnitPrice,
-      totalPriceUsd: system.solarPanelCount * solarUnitPrice,
-      imageUrl: solarPanel?.imageUrl || null,
-      notes: solarPanel?.specifications || "400W high-efficiency panels",
-    },
-    {
+      unitPriceUsd: solarPanel.unitPrice,
+      totalPriceUsd: system.solarPanelCount * solarPanel.unitPrice,
+      imageUrl: solarPanel.imageUrl || null,
+      notes: typeof solarPanel.specifications === 'string' 
+        ? solarPanel.specifications 
+        : JSON.stringify(solarPanel.specifications) || null,
+    });
+  }
+
+  // Battery - only if battery is needed and equipment is selected
+  if (system.batteryKwh > 0 && battery) {
+    bomItems.push({
       projectId,
       category: "battery" as const,
-      itemName: battery?.name || "Lithium Battery Storage System",
-      manufacturer: battery?.manufacturer || "PowerStore",
-      modelNumber: battery?.modelNumber || `PS-${Math.ceil(system.batteryKwh)}kWh`,
+      itemName: battery.name,
+      manufacturer: battery.manufacturer || null,
+      modelNumber: battery.modelNumber || "N/A",
       quantity: 1,
-      unitPriceUsd: batteryUnitPrice,
-      totalPriceUsd: batteryUnitPrice,
-      imageUrl: battery?.imageUrl || null,
-      notes: battery?.specifications || `${system.batteryKwh.toFixed(1)}kWh capacity`,
-    },
-    {
+      unitPriceUsd: battery.unitPrice,
+      totalPriceUsd: battery.unitPrice,
+      imageUrl: battery.imageUrl || null,
+      notes: typeof battery.specifications === 'string' 
+        ? battery.specifications 
+        : JSON.stringify(battery.specifications) || null,
+    });
+  }
+
+  // Inverter - only if inverter is needed and equipment is selected
+  if (system.inverterKw > 0 && inverter) {
+    bomItems.push({
       projectId,
       category: "inverter" as const,
-      itemName: inverter?.name || "Hybrid String Inverter",
-      manufacturer: inverter?.manufacturer || "InverterPro",
-      modelNumber: inverter?.modelNumber || `IP-${Math.ceil(system.inverterKw)}K`,
+      itemName: inverter.name,
+      manufacturer: inverter.manufacturer || null,
+      modelNumber: inverter.modelNumber || "N/A",
       quantity: 1,
-      unitPriceUsd: inverterUnitPrice,
-      totalPriceUsd: inverterUnitPrice,
-      imageUrl: inverter?.imageUrl || null,
-      notes: inverter?.specifications || `${system.inverterKw.toFixed(1)}kW capacity`,
-    },
-    {
+      unitPriceUsd: inverter.unitPrice,
+      totalPriceUsd: inverter.unitPrice,
+      imageUrl: inverter.imageUrl || null,
+      notes: typeof inverter.specifications === 'string' 
+        ? inverter.specifications 
+        : JSON.stringify(inverter.specifications) || null,
+    });
+  }
+
+  // Mounting - only if panels are needed and equipment is selected
+  if (system.solarPanelCount > 0 && mounting) {
+    bomItems.push({
       projectId,
       category: "mounting" as const,
-      itemName: mounting?.name || "Roof Mounting Rails & Hardware",
-      manufacturer: mounting?.manufacturer || "MountTech",
-      modelNumber: mounting?.modelNumber || "MT-RAIL-KIT",
-      quantity: Math.ceil(system.solarPanelCount / 4),
-      unitPriceUsd: mountingUnitPrice,
-      totalPriceUsd: Math.ceil(system.solarPanelCount / 4) * mountingUnitPrice,
-      imageUrl: mounting?.imageUrl || null,
-      notes: mounting?.specifications || "Aluminum rails with stainless hardware",
-    },
-    {
+      itemName: mounting.name,
+      manufacturer: mounting.manufacturer || null,
+      modelNumber: mounting.modelNumber || "N/A",
+      quantity: Math.ceil(system.solarPanelCount / 4), // Approximate mounting kits needed
+      unitPriceUsd: mounting.unitPrice,
+      totalPriceUsd: Math.ceil(system.solarPanelCount / 4) * mounting.unitPrice,
+      imageUrl: mounting.imageUrl || null,
+      notes: typeof mounting.specifications === 'string' 
+        ? mounting.specifications 
+        : JSON.stringify(mounting.specifications) || null,
+    });
+  }
+
+  // Electrical - always required
+  if (electrical) {
+    bomItems.push({
       projectId,
       category: "electrical" as const,
-      itemName: electrical?.name || "Electrical BOS Components",
-      manufacturer: electrical?.manufacturer || "Various",
-      modelNumber: electrical?.modelNumber || "BOS-COMPLETE",
+      itemName: electrical.name,
+      manufacturer: electrical.manufacturer || null,
+      modelNumber: electrical.modelNumber || "N/A",
       quantity: 1,
-      unitPriceUsd: electricalUnitPrice,
-      totalPriceUsd: electricalUnitPrice,
-      imageUrl: electrical?.imageUrl || null,
-      notes: electrical?.specifications || "DC/AC disconnects, combiner box, conduit, wire",
-    },
-  ];
+      unitPriceUsd: electrical.unitPrice,
+      totalPriceUsd: electrical.unitPrice,
+      imageUrl: electrical.imageUrl || null,
+      notes: typeof electrical.specifications === 'string' 
+        ? electrical.specifications 
+        : JSON.stringify(electrical.specifications) || null,
+    });
+  }
 
   await prisma.bOMItem.createMany({
     data: bomItems,

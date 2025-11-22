@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { projectId, skipStatusUpdate = false, distributorId } = body;
+    const { projectId, skipStatusUpdate = false, distributorId, selectedEquipmentIds } = body;
 
     if (!projectId) {
       return NextResponse.json(
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await regenerateBom(projectId, skipStatusUpdate, distributorId);
+    const result = await regenerateBom(projectId, skipStatusUpdate, distributorId, selectedEquipmentIds);
 
     return NextResponse.json({
       success: true,
