@@ -54,18 +54,26 @@ export function isProductPageUrl(url: string): boolean {
     // Remove trailing slash for consistent matching
     const cleanPath = pathname.replace(/\/$/, "");
 
+    // Shopify product URLs (common pattern: /products/product-slug)
+    // Check this FIRST before category patterns
+    if (/^\/products\/[^\/]+/.test(cleanPath) && !/^\/products\/(new|featured|best-sellers|clearance)$/.test(cleanPath)) {
+      return true;
+    }
+
     // Category page indicators (shorter, generic paths)
     const categoryPatterns = [
-      /^\/(shop|products|catalog|store|category|collection|batteries|solar-panels|inverters|all-products|browse)$/,
-      /^\/(shop|products|catalog|batteries|solar-panels|inverters|all-products)\/(new|featured|best-sellers|clearance)$/,
-      /^\/(all-products|products|shop)\/.+\/$/, // Category subdirectories with trailing slash
+      /^\/(shop|catalog|store|category|collection|collections|batteries|solar-panels|inverters|all-products|browse)$/,
+      /^\/collections\//, // Shopify collections (category pages)
+      /^\/(shop|catalog)\/(new|featured|best-sellers|clearance)$/,
+      /^\/(all-products|shop)\/.+\/$/, // Category subdirectories with trailing slash
       /^\/(kits-bundles|kits|bundles)\//, // Kit/bundle category pages
-      /^\/(all-products|products|kits-bundles|shop)\/(kits|bundles|batteries|panels|inverters|chargers|cables)/, // Common category paths
+      /^\/(all-products|kits-bundles|shop)\/(kits|bundles|batteries|panels|inverters|chargers|cables)/, // Common category paths
       /\/(complete-off-grid|complete-hybrid|complete-grid-tie|new-arrivals)\//, // Specific category paths
       /^\/[^\/]+\/(wall-mount|server-rack|stackable|free-standing|12-volt|24-volt|48-volt)$/,
       /page[\/=]\d+/, // Pagination
       /_bc_fsnf=/, // BigCommerce filter
       /\?.*brand=/, // Brand filters
+      /^\/pages\//, // Static pages
     ];
 
     // If it matches category patterns, it's NOT a product page
@@ -82,7 +90,7 @@ export function isProductPageUrl(url: string): boolean {
       /\/[a-z0-9]+-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+/, // 4+ segments with dashes (eg4-ll-s-lithium-battery)
       /\/(product|item|detail|p|pd|dp|gp|itm)\//,
       /-\d{2,}ah|-\d{2,}v|-\d+kw/, // Contains specs like -100ah, -48v, -5kw
-      /\/(eg4|bigbattery|canadian-solar|pytes|enphase)-[a-z0-9-]+$/, // Brand-specific products
+      /\/(eg4|bigbattery|canadian-solar|pytes|enphase|ecoflow|anker|jackery)-[a-z0-9-]+$/, // Brand-specific products
     ];
 
     // If it matches product patterns, it's a product page
