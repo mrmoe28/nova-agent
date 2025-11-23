@@ -21,7 +21,13 @@ export type PageType = 'PRODUCT' | 'CATEGORY' | 'UNKNOWN';
  * @param url - Page URL
  * @returns PageType enum
  */
-export function detectPageType($: cheerio.CheerioAPI, url: string): PageType {
+// Cheerio's `load` can return a `Root` type, which is compatible with the
+// `CheerioAPI` surface we use (querying, traversing). Accept both to avoid
+// type mismatches when calling from different modules.
+export function detectPageType(
+  $: cheerio.CheerioAPI | cheerio.Root,
+  url: string,
+): PageType {
   logger.debug({ url }, 'Starting page type detection');
 
   // 1. Strong Signal: Check for JSON-LD Schema (Standard E-commerce)
