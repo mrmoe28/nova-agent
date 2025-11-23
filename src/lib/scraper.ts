@@ -362,43 +362,54 @@ function extractProductData($: cheerio.Root, url: string): ScrapedProduct {
       }
 
       const data = JSON.parse(jsonText);
-      // Check if it's a Product schema
-      if (
-        data["@type"] === "Product" ||
-        data["@context"]?.includes("schema.org")
-      ) {
-        if (data.name) product.name = data.name;
-        if (data.image) {
-          // Handle both string and array formats
-          product.imageUrl = Array.isArray(data.image)
-            ? data.image[0]
-            : data.image;
+
+      // Only treat entries that are explicitly Product schemas as product data.
+      // Many sites (including Renewable Outdoors) embed Organization JSON-LD
+      // which previously caused the product name to be set to the company name,
+      // and those products were later filtered out as invalid.
+      const type = data["@type"];
+      const isProductSchema =
+        (typeof type === "string" && type.toLowerCase() === "product") ||
+        (Array.isArray(type) &&
+          type.some(
+            (t) => typeof t === "string" && t.toLowerCase() === "product",
+          ));
+
+      if (!isProductSchema) {
+        return; // Skip non-product JSON-LD (e.g. Organization, WebSite)
+      }
+
+      if (data.name) product.name = data.name;
+      if (data.image) {
+        // Handle both string and array formats
+        product.imageUrl = Array.isArray(data.image)
+          ? data.image[0]
+          : data.image;
+      }
+      if (data.offers) {
+        const offers = Array.isArray(data.offers)
+          ? data.offers[0]
+          : data.offers;
+        if (offers.price) product.price = parseFloat(offers.price);
+        if (offers.priceCurrency)
+          product.specifications = {
+            ...product.specifications,
+            currency: offers.priceCurrency,
+          };
+        if (offers.availability) {
+          product.inStock =
+            offers.availability.includes("InStock") ||
+            offers.availability.includes("Available");
         }
-        if (data.offers) {
-          const offers = Array.isArray(data.offers)
-            ? data.offers[0]
-            : data.offers;
-          if (offers.price) product.price = parseFloat(offers.price);
-          if (offers.priceCurrency)
-            product.specifications = {
-              ...product.specifications,
-              currency: offers.priceCurrency,
-            };
-          if (offers.availability) {
-            product.inStock =
-              offers.availability.includes("InStock") ||
-              offers.availability.includes("Available");
-          }
-        }
-        if (data.description) product.description = data.description;
-        if (data.sku) product.modelNumber = data.sku;
-        if (data.brand)
-          product.manufacturer =
-            typeof data.brand === "string" ? data.brand : data.brand.name;
-        if (data.aggregateRating) {
-          const rating = data.aggregateRating;
-          if (rating.ratingValue) product.inStock = true; // Usually means popular/available
-        }
+      }
+      if (data.description) product.description = data.description;
+      if (data.sku) product.modelNumber = data.sku;
+      if (data.brand)
+        product.manufacturer =
+          typeof data.brand === "string" ? data.brand : data.brand.name;
+      if (data.aggregateRating) {
+        const rating = data.aggregateRating;
+        if (rating.ratingValue) product.inStock = true; // Usually means popular/available
       }
     } catch {
       // Invalid JSON, skip
