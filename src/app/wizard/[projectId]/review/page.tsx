@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, Download, CheckCircle2, AlertTriangle, Edit3, FileText, Calendar, Building2, Zap, ClipboardList, Users, DollarSign, Search } from "lucide-react";
+import { Loader2, Download, CheckCircle2, AlertTriangle, Edit3, FileText, Calendar, Building2, Zap, ClipboardList, Users, DollarSign, Search, Shield, FileEdit, TrendingUp } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import dynamic from "next/dynamic";
 
@@ -59,6 +59,9 @@ export default function ReviewPage() {
   const [inspections, setInspections] = useState<any[]>([]);
   const [crew, setCrew] = useState<any[]>([]);
   const [costBreakdown, setCostBreakdown] = useState<any>(null);
+  const [risks, setRisks] = useState<any[]>([]);
+  const [changeOrders, setChangeOrders] = useState<any[]>([]);
+  const [progress, setProgress] = useState<any>(null);
 
   useEffect(() => {
     fetchProject();
@@ -133,6 +136,27 @@ export default function ReviewPage() {
       if (costRes.ok) {
         const costData = await costRes.json();
         if (costData.success) setCostBreakdown(costData.costBreakdown);
+      }
+
+      // Fetch risks
+      const risksRes = await fetch(`/api/plans/${projectId}/risks`);
+      if (risksRes.ok) {
+        const risksData = await risksRes.json();
+        if (risksData.success) setRisks(risksData.risks);
+      }
+
+      // Fetch change orders
+      const changeOrdersRes = await fetch(`/api/plans/${projectId}/change-orders`);
+      if (changeOrdersRes.ok) {
+        const changeOrdersData = await changeOrdersRes.json();
+        if (changeOrdersData.success) setChangeOrders(changeOrdersData.changeOrders);
+      }
+
+      // Fetch progress
+      const progressRes = await fetch(`/api/plans/${projectId}/progress`);
+      if (progressRes.ok) {
+        const progressData = await progressRes.json();
+        if (progressData.success) setProgress(progressData.progress);
       }
     } catch (error) {
       console.error("Error fetching enhanced data:", error);
@@ -641,6 +665,123 @@ export default function ReviewPage() {
                   <span className="text-lg font-bold text-primary">{formatCurrency(costBreakdown.total)}</span>
                 </div>
               )}
+            </div>
+          </Card>
+        )}
+
+        {/* Progress Summary */}
+        {progress && (
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Installation Progress</h2>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-sm font-medium">Overall Progress</span>
+                  <span className="text-sm font-bold text-primary">
+                    {progress.progressPercentage}%
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2.5">
+                  <div
+                    className="bg-primary h-2.5 rounded-full transition-all"
+                    style={{ width: `${progress.progressPercentage}%` }}
+                  />
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <p className="text-sm text-muted-foreground">Phase</p>
+                  <p className="font-semibold capitalize">
+                    {progress.phase?.replace("_", " ") || "Pre-Install"}
+                  </p>
+                </div>
+                {progress.taskStats && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Tasks</p>
+                    <p className="font-semibold">
+                      {progress.taskStats.completed} / {progress.taskStats.total} completed
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {/* Risk Management */}
+        {risks.length > 0 && (
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Shield className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Risk Management</h2>
+            </div>
+            <div className="space-y-3">
+              {risks.map((risk: any) => (
+                <div key={risk.id} className="p-3 rounded-lg border">
+                  <div className="flex items-start justify-between mb-2">
+                    <p className="font-medium">{risk.title}</p>
+                    <div className="flex gap-2">
+                      <span className={`text-xs px-2 py-1 rounded ${
+                        risk.severity === "high" || risk.severity === "critical" ? "bg-red-100 text-red-800" :
+                        risk.severity === "medium" ? "bg-yellow-100 text-yellow-800" :
+                        "bg-blue-100 text-blue-800"
+                      }`}>
+                        {risk.severity}
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Impact: {risk.impact}
+                  </p>
+                  {risk.mitigation && (
+                    <p className="text-sm">
+                      <span className="font-medium">Mitigation:</span> {risk.mitigation}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        {/* Change Orders */}
+        {changeOrders.length > 0 && (
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <FileEdit className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Change Orders</h2>
+            </div>
+            <div className="space-y-3">
+              {changeOrders.map((co: any) => (
+                <div key={co.id} className="p-3 rounded-lg border">
+                  <div className="flex items-start justify-between mb-2">
+                    <p className="font-medium">{co.description}</p>
+                    <span className={`text-xs px-2 py-1 rounded ${
+                      co.status === "approved" ? "bg-green-100 text-green-800" :
+                      co.status === "pending" ? "bg-yellow-100 text-yellow-800" :
+                      "bg-gray-100 text-gray-800"
+                    }`}>
+                      {co.status}
+                    </span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    Reason: {co.reason}
+                  </p>
+                  <div className="flex gap-4 text-sm">
+                    <span className="font-medium">
+                      Cost Change: {formatCurrency(co.costChange)}
+                    </span>
+                    {co.scheduleImpact > 0 && (
+                      <span className="text-muted-foreground">
+                        Schedule Impact: +{co.scheduleImpact} days
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </Card>
         )}
