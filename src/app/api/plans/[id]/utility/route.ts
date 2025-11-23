@@ -4,11 +4,12 @@ import { prisma } from "@/lib/prisma";
 // GET - Get utility interconnection status
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: Promise<{ id: string }> }
+  ) {
   try {
+    const { id } = await params;
     const plan = await prisma.plan.findUnique({
-      where: { projectId: params.id },
+      where: { projectId: id },
       select: {
         utilityStatus: true,
         utilityName: true,
@@ -50,9 +51,10 @@ export async function GET(
 // PATCH - Update utility interconnection status
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: Promise<{ id: string }> }
+  ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const {
       utilityStatus,
@@ -82,7 +84,7 @@ export async function PATCH(
       updateData.netMeteringType = netMeteringType;
 
     const plan = await prisma.plan.update({
-      where: { projectId: params.id },
+      where: { projectId: id },
       data: updateData,
     });
 
@@ -117,15 +119,16 @@ export async function PATCH(
 // POST - Submit utility interconnection application
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: Promise<{ id: string }> }
+  ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { utilityName, utilityAccount, interconnectionLimit, netMeteringType } =
       body;
 
     const plan = await prisma.plan.update({
-      where: { projectId: params.id },
+      where: { projectId: id },
       data: {
         utilityStatus: "application_submitted",
         applicationDate: new Date(),

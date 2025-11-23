@@ -4,14 +4,15 @@ import { prisma } from "@/lib/prisma";
 // GET - Get a specific inspection
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string; inspectionId: string } }
-) {
+  { params }: { params: Promise<{ id: string; inspectionId: string }> }
+  ) {
   try {
+    const { id, inspectionId } = await params;
     const inspection = await prisma.planInspection.findUnique({
-      where: { id: params.inspectionId },
+      where: { id: inspectionId },
     });
 
-    if (!inspection || inspection.planId !== params.id) {
+    if (!inspection || inspection.planId !== id) {
       return NextResponse.json(
         { success: false, error: "Inspection not found" },
         { status: 404 }
@@ -44,7 +45,7 @@ export async function GET(
 // PATCH - Update an inspection
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; inspectionId: string } }
+  { params }: { params: Promise<{ id: string; inspectionId: string }> }
 ) {
   try {
     const body = await request.json();
@@ -61,10 +62,10 @@ export async function PATCH(
 
     // Verify inspection belongs to plan
     const existingInspection = await prisma.planInspection.findUnique({
-      where: { id: params.inspectionId },
+      where: { id: inspectionId },
     });
 
-    if (!existingInspection || existingInspection.planId !== params.id) {
+    if (!existingInspection || existingInspection.planId !== id) {
       return NextResponse.json(
         { success: false, error: "Inspection not found" },
         { status: 404 }
@@ -95,13 +96,13 @@ export async function PATCH(
     if (photos !== undefined) updateData.photos = JSON.stringify(photos);
 
     const inspection = await prisma.planInspection.update({
-      where: { id: params.inspectionId },
+      where: { id: inspectionId },
       data: updateData,
     });
 
     // Update plan inspection status based on all inspections
     const allInspections = await prisma.planInspection.findMany({
-      where: { planId: params.id },
+      where: { planId: id },
     });
 
     const hasFailed = allInspections.some((i) => i.status === "failed");
@@ -146,15 +147,15 @@ export async function PATCH(
 // DELETE - Delete an inspection
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; inspectionId: string } }
+  { params }: { params: Promise<{ id: string; inspectionId: string }> }
 ) {
   try {
     // Verify inspection belongs to plan
     const existingInspection = await prisma.planInspection.findUnique({
-      where: { id: params.inspectionId },
+      where: { id: inspectionId },
     });
 
-    if (!existingInspection || existingInspection.planId !== params.id) {
+    if (!existingInspection || existingInspection.planId !== id) {
       return NextResponse.json(
         { success: false, error: "Inspection not found" },
         { status: 404 }
@@ -162,7 +163,7 @@ export async function DELETE(
     }
 
     await prisma.planInspection.delete({
-      where: { id: params.inspectionId },
+      where: { id: inspectionId },
     });
 
     return NextResponse.json({

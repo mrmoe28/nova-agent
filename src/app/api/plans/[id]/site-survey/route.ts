@@ -4,11 +4,12 @@ import { prisma } from "@/lib/prisma";
 // GET - Get site survey data
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: Promise<{ id: string }> }
+  ) {
   try {
+    const { id } = await params;
     const plan = await prisma.plan.findUnique({
-      where: { projectId: params.id },
+      where: { projectId: id },
       select: {
         siteSurvey: true,
         roofType: true,
@@ -57,7 +58,7 @@ export async function GET(
 // PATCH - Update site survey data
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json();
@@ -83,7 +84,7 @@ export async function PATCH(
       updateData.structuralNotes = structuralNotes;
 
     const plan = await prisma.plan.update({
-      where: { projectId: params.id },
+      where: { projectId: id },
       data: updateData,
     });
 

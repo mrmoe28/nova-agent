@@ -166,7 +166,7 @@ model Plan {
   laborHoursEst   Float?
   finalPdfPath    String?
   createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  updatedAt       DateTime @default(now()) @updatedAt
 
   project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   tasks           PlanTask[]

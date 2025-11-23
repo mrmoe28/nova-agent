@@ -7,14 +7,15 @@ import { existsSync } from "fs";
 // GET - Get all documents for a plan
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: Promise<{ id: string }> }
+  ) {
   try {
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
     const type = searchParams.get("type");
 
-    const where: any = { planId: params.id };
+    const where: any = { planId: id };
     if (category) where.category = category;
     if (type) where.type = type;
 
@@ -45,7 +46,7 @@ export async function GET(
 // POST - Upload a document
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const formData = await request.formData();
@@ -66,7 +67,7 @@ export async function POST(
 
     // Verify plan exists
     const plan = await prisma.plan.findUnique({
-      where: { projectId: params.id },
+      where: { projectId: id },
     });
 
     if (!plan) {
@@ -77,7 +78,7 @@ export async function POST(
     }
 
     // Create upload directory if it doesn't exist
-    const uploadDir = join(process.cwd(), "uploads", "plans", params.id);
+    const uploadDir = join(process.cwd(), "uploads", "plans", id);
     if (!existsSync(uploadDir)) {
       await mkdir(uploadDir, { recursive: true });
     }
@@ -95,7 +96,7 @@ export async function POST(
     // Save document record
     const document = await prisma.planDocument.create({
       data: {
-        planId: params.id,
+        planId: id,
         type,
         category,
         fileName: file.name,

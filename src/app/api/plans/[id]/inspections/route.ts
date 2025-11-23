@@ -4,14 +4,15 @@ import { prisma } from "@/lib/prisma";
 // GET - Get all inspections for a plan
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: Promise<{ id: string }> }
+  ) {
   try {
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type");
     const status = searchParams.get("status");
 
-    const where: any = { planId: params.id };
+    const where: any = { planId: id };
     if (type) where.type = type;
     if (status) where.status = status;
 
@@ -49,7 +50,7 @@ export async function GET(
 // POST - Create a new inspection
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json();
@@ -71,7 +72,7 @@ export async function POST(
 
     // Verify plan exists
     const plan = await prisma.plan.findUnique({
-      where: { projectId: params.id },
+      where: { projectId: id },
     });
 
     if (!plan) {
@@ -83,7 +84,7 @@ export async function POST(
 
     const inspection = await prisma.planInspection.create({
       data: {
-        planId: params.id,
+        planId: id,
         type,
         scheduledDate: scheduledDate ? new Date(scheduledDate) : null,
         inspector: inspector || null,
@@ -97,7 +98,7 @@ export async function POST(
     // Update plan inspection status if this is the first inspection
     if (!plan.inspections) {
       await prisma.plan.update({
-        where: { projectId: params.id },
+        where: { projectId: id },
         data: { inspectionStatus: "pending" },
       });
     }

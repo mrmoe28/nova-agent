@@ -4,11 +4,12 @@ import { prisma } from "@/lib/prisma";
 // GET - Get change orders
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const plan = await prisma.plan.findUnique({
-      where: { projectId: params.id },
+      where: { projectId: id },
       select: {
         changeOrders: true,
       },
@@ -43,9 +44,10 @@ export async function GET(
 // POST - Create a new change order
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const {
       description,
@@ -68,7 +70,7 @@ export async function POST(
     }
 
     const plan = await prisma.plan.findUnique({
-      where: { projectId: params.id },
+      where: { projectId: id },
     });
 
     if (!plan) {
@@ -117,7 +119,7 @@ export async function POST(
     }
 
     const updatedPlan = await prisma.plan.update({
-      where: { projectId: params.id },
+      where: { projectId: id },
       data: updateData,
     });
 
@@ -143,9 +145,10 @@ export async function POST(
 // PATCH - Update change order status
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { changeOrderId, status, approvedBy } = body;
 
@@ -160,7 +163,7 @@ export async function PATCH(
     }
 
     const plan = await prisma.plan.findUnique({
-      where: { projectId: params.id },
+      where: { projectId: id },
     });
 
     if (!plan) {
@@ -229,7 +232,7 @@ export async function PATCH(
     }
 
     const updatedPlan = await prisma.plan.update({
-      where: { projectId: params.id },
+      where: { projectId: id },
       data: updateData,
     });
 

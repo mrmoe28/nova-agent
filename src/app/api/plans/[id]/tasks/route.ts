@@ -4,14 +4,15 @@ import { prisma } from "@/lib/prisma";
 // GET - Get all tasks for a plan
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: Promise<{ id: string }> }
+  ) {
   try {
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const phase = searchParams.get("phase");
     const status = searchParams.get("status");
 
-    const where: any = { planId: params.id };
+    const where: any = { planId: id };
     if (phase) where.phase = phase;
     if (status) where.status = status;
 
@@ -48,7 +49,7 @@ export async function GET(
 // POST - Create a new task
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json();
@@ -74,7 +75,7 @@ export async function POST(
 
     // Verify plan exists
     const plan = await prisma.plan.findUnique({
-      where: { projectId: params.id },
+      where: { projectId: id },
     });
 
     if (!plan) {
@@ -86,7 +87,7 @@ export async function POST(
 
     const task = await prisma.planTask.create({
       data: {
-        planId: params.id,
+        planId: id,
         title,
         description,
         phase,

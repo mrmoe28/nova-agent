@@ -4,14 +4,15 @@ import { prisma } from "@/lib/prisma";
 // GET - Get a specific task
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string; taskId: string } }
-) {
+  { params }: { params: Promise<{ id: string; taskId: string }> }
+  ) {
   try {
+    const { id, taskId } = await params;
     const task = await prisma.planTask.findUnique({
-      where: { id: params.taskId },
+      where: { id: taskId },
     });
 
-    if (!task || task.planId !== params.id) {
+    if (!task || task.planId !== id) {
       return NextResponse.json(
         { success: false, error: "Task not found" },
         { status: 404 }
@@ -41,7 +42,7 @@ export async function GET(
 // PATCH - Update a task
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string; taskId: string } }
+  { params }: { params: Promise<{ id: string; taskId: string }> }
 ) {
   try {
     const body = await request.json();
@@ -61,10 +62,10 @@ export async function PATCH(
 
     // Verify task belongs to plan
     const existingTask = await prisma.planTask.findUnique({
-      where: { id: params.taskId },
+      where: { id: taskId },
     });
 
-    if (!existingTask || existingTask.planId !== params.id) {
+    if (!existingTask || existingTask.planId !== id) {
       return NextResponse.json(
         { success: false, error: "Task not found" },
         { status: 404 }
@@ -98,7 +99,7 @@ export async function PATCH(
     if (notes !== undefined) updateData.notes = notes;
 
     const task = await prisma.planTask.update({
-      where: { id: params.taskId },
+      where: { id: taskId },
       data: updateData,
     });
 
@@ -125,15 +126,15 @@ export async function PATCH(
 // DELETE - Delete a task
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string; taskId: string } }
+  { params }: { params: Promise<{ id: string; taskId: string }> }
 ) {
   try {
     // Verify task belongs to plan
     const existingTask = await prisma.planTask.findUnique({
-      where: { id: params.taskId },
+      where: { id: taskId },
     });
 
-    if (!existingTask || existingTask.planId !== params.id) {
+    if (!existingTask || existingTask.planId !== id) {
       return NextResponse.json(
         { success: false, error: "Task not found" },
         { status: 404 }
@@ -141,7 +142,7 @@ export async function DELETE(
     }
 
     await prisma.planTask.delete({
-      where: { id: params.taskId },
+      where: { id: taskId },
     });
 
     return NextResponse.json({

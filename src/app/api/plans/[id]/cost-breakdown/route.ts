@@ -4,11 +4,12 @@ import { prisma } from "@/lib/prisma";
 // GET - Get cost breakdown
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+  { params }: { params: Promise<{ id: string }> }
+  ) {
   try {
+    const { id } = await params;
     const plan = await prisma.plan.findUnique({
-      where: { projectId: params.id },
+      where: { projectId: id },
       select: {
         costBreakdown: true,
         budgetVariance: true,
@@ -47,7 +48,7 @@ export async function GET(
 // PATCH - Update cost breakdown
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const body = await request.json();
@@ -63,7 +64,7 @@ export async function PATCH(
     }
 
     const plan = await prisma.plan.update({
-      where: { projectId: params.id },
+      where: { projectId: id },
       data: updateData,
     });
 

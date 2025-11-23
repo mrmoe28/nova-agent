@@ -4,11 +4,12 @@ import { prisma } from "@/lib/prisma";
 // GET - Get installation progress summary
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const plan = await prisma.plan.findUnique({
-      where: { projectId: params.id },
+      where: { projectId: id },
       select: {
         installationPhase: true,
         installStartDate: true,
@@ -26,7 +27,7 @@ export async function GET(
 
     // Get task statistics
     const tasks = await prisma.planTask.findMany({
-      where: { planId: params.id },
+      where: { planId: id },
     });
 
     const taskStats = {
@@ -44,7 +45,7 @@ export async function GET(
 
     // Get inspection statistics
     const inspections = await prisma.planInspection.findMany({
-      where: { planId: params.id },
+      where: { planId: id },
     });
 
     const inspectionStats = {

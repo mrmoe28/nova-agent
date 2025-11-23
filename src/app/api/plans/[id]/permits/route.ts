@@ -4,11 +4,12 @@ import { prisma } from "@/lib/prisma";
 // GET - Get permit status and details
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const plan = await prisma.plan.findUnique({
-      where: { projectId: params.id },
+      where: { projectId: id },
       select: {
         permitStatus: true,
         permitNumber: true,
@@ -53,9 +54,10 @@ export async function GET(
 // PATCH - Update permit status and details
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const {
       permitStatus,
@@ -83,7 +85,7 @@ export async function PATCH(
     if (permitNotes !== undefined) updateData.permitNotes = permitNotes;
 
     const plan = await prisma.plan.update({
-      where: { projectId: params.id },
+      where: { projectId: id },
       data: updateData,
     });
 
@@ -114,14 +116,15 @@ export async function PATCH(
 // POST - Submit permit application
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { ahjName, ahjContact, permitDocuments } = body;
 
     const plan = await prisma.plan.update({
-      where: { projectId: params.id },
+      where: { projectId: id },
       data: {
         permitStatus: "submitted",
         permitSubmitDate: new Date(),

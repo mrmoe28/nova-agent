@@ -4,11 +4,12 @@ import { prisma } from "@/lib/prisma";
 // GET - Get risks and contingencies
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const plan = await prisma.plan.findUnique({
-      where: { projectId: params.id },
+      where: { projectId: id },
       select: {
         risks: true,
         contingencies: true,
@@ -43,9 +44,10 @@ export async function GET(
 // PATCH - Update risks and contingencies
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { risks, contingencies } = body;
 
@@ -59,7 +61,7 @@ export async function PATCH(
     }
 
     const plan = await prisma.plan.update({
-      where: { projectId: params.id },
+      where: { projectId: id },
       data: updateData,
     });
 
@@ -84,9 +86,10 @@ export async function PATCH(
 // POST - Add a new risk
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     const { title, severity, probability, impact, mitigation } = body;
 
@@ -101,7 +104,7 @@ export async function POST(
     }
 
     const plan = await prisma.plan.findUnique({
-      where: { projectId: params.id },
+      where: { projectId: id },
     });
 
     if (!plan) {
@@ -126,7 +129,7 @@ export async function POST(
     existingRisks.push(newRisk);
 
     const updatedPlan = await prisma.plan.update({
-      where: { projectId: params.id },
+      where: { projectId: id },
       data: {
         risks: JSON.stringify(existingRisks),
       },
