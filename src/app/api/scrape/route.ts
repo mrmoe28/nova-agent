@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { scrapeUrl } from "@/lib/scrape-url";
+import { categorizeProduct } from "@/lib/categorize-product";
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,10 +34,13 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ success: false, error: "Could not parse name or price" }, { status: 422 });
         }
 
+        // Automatically categorize the product
+        const category = categorizeProduct(data.name, data.description);
+
         equipment = await prisma.equipment.create({
             data: {
                 distributorId,
-                category: 'Detected Product', // You can add your categorize logic here
+                category,
                 name: data.name,
                 description: data.description,
                 unitPrice: data.price,
@@ -45,7 +49,7 @@ export async function POST(request: NextRequest) {
                 specifications: JSON.stringify({ source: 'Auto-scraped' })
             }
         });
-        console.log(`Saved equipment: ${equipment.name}`);
+        console.log(`Saved equipment: ${equipment.name} as ${category}`);
     }
 
     return NextResponse.json({
