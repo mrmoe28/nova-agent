@@ -52,6 +52,8 @@ export async function POST(request: NextRequest) {
       equipment = await prisma.equipment.create({
         data: {
           distributorId,
+          // Use name as a fallback model number so we satisfy the non-null constraint
+          modelNumber: data.name.substring(0, 50),
           category,
           name: data.name,
           description: data.description,
