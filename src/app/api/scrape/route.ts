@@ -1,85 +1,66 @@
-import * as cheerio from 'cheerio';
-import { detectPageType } from '@/lib/page-detection';
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { scrapeUrl } from "@/lib/scraper";
 
-// Standard interface for our scraped data
-export interface ScrapedData {
-  type: 'PRODUCT' | 'CATEGORY';
-  url: string;
-  name?: string;
-  price?: number;
-  description?: string;
-  image?: string;
-  inStock?: boolean;
-  links?: string[]; // For category pages
-}
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { url, distributorId, saveToDatabase } = body;
 
-// Helper to clean price strings (e.g., "$1,299.00" -> 1299.00)
-function parsePrice(text: string): number | undefined {
-  const clean = text.replace(/[^0-9.]/g, '');
-  const num = parseFloat(clean);
-  return isNaN(num) ? undefined : num;
-}
+    if (!url) {
+      return NextResponse.json({ success: false, error: "URL is required" }, { status: 400 });
+    }
 
-export async function scrapeUrl(url: string): Promise<ScrapedData> {
-  const response = await fetch(url, {
-    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; NovaAgent/1.0)' }
-  });
-  
-  if (!response.ok) throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
-  const html = await response.text();
-  const $ = cheerio.load(html);
+    console.log(`Processing URL: ${url}`);
+    
+    // 1. Scrape the single URL
+    const data = await scrapeUrl(url);
 
-  // 1. DETECT PAGE TYPE using robust detection (Schema.org, URL patterns, visual heuristics)
-  const pageType = detectPageType($, url);
+    // 2. Handle Category Pages (Do NOT save, just return links)
+    if (data.type === 'CATEGORY') {
+        return NextResponse.json({
+            success: true,
+            type: 'CATEGORY',
+            message: `Found ${data.links?.length} product links.`,
+            links: data.links // Frontend should loop over these and call API for each
+        });
+    }
 
-  if (pageType === 'CATEGORY') {
-    // --- CATEGORY PAGE LOGIC ---
-    // Extract all product links to process later
-    const links = new Set<string>();
-    $('a[href]').each((_, el) => {
-      const href = $(el).attr('href');
-      if (href && (href.includes('/products/') || href.includes('/item/'))) {
-        // Normalize URL
-        try {
-          const fullUrl = new URL(href, url).toString();
-          links.add(fullUrl);
-        } catch (e) {}
-      }
+    // 3. Handle Product Pages (Save to DB)
+    let equipment = null;
+    if (saveToDatabase && distributorId && data.type === 'PRODUCT') {
+        if (!data.name || !data.price) {
+            return NextResponse.json({ success: false, error: "Could not parse name or price" }, { status: 422 });
+        }
+
+        equipment = await prisma.equipment.create({
+            data: {
+                distributorId,
+                category: 'Detected Product', // You can add your categorize logic here
+                name: data.name,
+                description: data.description,
+                unitPrice: data.price,
+                imageUrl: data.image,
+                inStock: data.inStock || true,
+                specifications: JSON.stringify({ source: 'Auto-scraped' })
+            }
+        });
+        console.log(`Saved equipment: ${equipment.name}`);
+    }
+
+    return NextResponse.json({
+        success: true,
+        type: 'PRODUCT',
+        product: data,
+        equipment
     });
 
-    return { type: 'CATEGORY', url, links: Array.from(links) };
+  } catch (error) {
+    console.error("Scrape API error:", error);
+    return NextResponse.json(
+      { success: false, error: error instanceof Error ? error.message : "Failed to scrape" },
+      { status: 500 }
+    );
   }
-
-  // --- PRODUCT PAGE LOGIC ---
-  // Try multiple common selectors for robustness
-  const name = $('h1').first().text().trim() || $('meta[property="og:title"]').attr('content');
-  
-  let price = undefined;
-  const priceSelectors = ['[property="og:price:amount"]', '.price', '.product-price', '.money', '[itemprop="price"]'];
-  for (const sel of priceSelectors) {
-    const val = $(sel).first().text().trim() || $(sel).attr('content');
-    if (val) {
-        const parsed = parsePrice(val);
-        if (parsed) { price = parsed; break; }
-    }
-  }
-
-  const description = $('meta[name="description"]').attr('content') || 
-                      $('[itemprop="description"]').first().text().trim();
-  
-  const image = $('meta[property="og:image"]').attr('content') || 
-                $('img[itemprop="image"]').attr('src');
-
-  const inStock = !($(':contains("Out of stock")').length > 0 || 
-                    $(':contains("Sold Out")').length > 0);
-
-  return {
-    type: 'PRODUCT',
-    url,
-    name,
-    price,
-    description,
-    image,
-    inStock
-  };
 }
+
