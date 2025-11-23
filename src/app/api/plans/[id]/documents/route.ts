@@ -49,6 +49,7 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const formData = await request.formData();
     const file = formData.get("file") as File;
     const type = formData.get("type") as string;
@@ -100,7 +101,7 @@ export async function POST(
         type,
         category,
         fileName: file.name,
-        filePath: `/uploads/plans/${params.id}/${fileName}`,
+        filePath: `/uploads/plans/${id}/${fileName}`,
         uploadedBy: uploadedBy || null,
       },
     });
