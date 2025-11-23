@@ -220,13 +220,33 @@ const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => 
   }
 
   const handleItemAdded = async () => {
+    // Small delay to ensure database transaction is committed
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
     // Refresh BOM items without regenerating
-    const response = await fetch(`/api/bom?projectId=${projectId}`);
-
-    const data = await response.json();
-    if (data.success) {
-      setBomItems(data.bomItems);
-      setTotalCost(data.totalCost);
+    try {
+      const response = await fetch(`/api/bom?projectId=${projectId}`);
+      const data = await response.json();
+      
+      if (data.success && data.bomItems) {
+        // Force state update with new array reference to ensure re-render
+        // This ensures React detects the change even if item count is the same
+        setBomItems([...data.bomItems]);
+        setTotalCost(data.totalCost);
+        
+        // Log for debugging
+        console.log(`BOM items refreshed: ${data.bomItems.length} items`);
+      } else {
+        console.error("Failed to refresh BOM items:", data.error);
+        toast.error("Error", {
+          description: "Failed to refresh BOM items. Please refresh the page.",
+        });
+      }
+    } catch (error) {
+      console.error("Error refreshing BOM items:", error);
+      toast.error("Error", {
+        description: "Failed to refresh BOM items. Please refresh the page.",
+      });
     }
   };
 
