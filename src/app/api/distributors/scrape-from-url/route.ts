@@ -10,6 +10,7 @@ import {
 import {
   getBrowserScraper,
   closeBrowserScraper,
+  BrowserScraperBQL,
 } from "@/lib/browser-scraper-bql";
 import { getAIScraper } from "@/lib/ai-agent-scraper";
 import { createLogger, logOperation } from "@/lib/logger";
@@ -286,7 +287,7 @@ export async function POST(request: NextRequest) {
           );
         } else {
           // Browser scraper with guaranteed cleanup via try-finally
-          let browserScraper = null;
+          let browserScraper: BrowserScraperBQL | null = null;
           try {
             // Check if we're running out of time before starting browser scraping
             const timeBeforeBrowser = Date.now() - startTime;
