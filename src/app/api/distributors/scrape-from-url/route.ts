@@ -37,6 +37,30 @@ const QUICK_CRAWL_CONFIG = {
   maxRetries: 2,
 } as const;
 
+function normalizeScrapeUrl(rawUrl?: string): string | null {
+  if (!rawUrl) return null;
+
+  let trimmed = rawUrl.trim();
+  const urlMatches = trimmed.match(/https?:\/\/[^\s"'<>]+/gi);
+  if (urlMatches?.length) {
+    trimmed = urlMatches.reduce((longest, current) =>
+      current.length > longest.length ? current : longest,
+    );
+  }
+
+  if (!/^https?:\/\//i.test(trimmed)) {
+    trimmed = `https://${trimmed}`;
+  }
+
+  try {
+    const urlObj = new URL(trimmed);
+    urlObj.hash = "";
+    return urlObj.toString();
+  } catch {
+    return null;
+  }
+}
+
 // Allow up to 60 seconds for scraping operations (Pro tier)
 // Hobby tier is limited to 10 seconds
 // Note: For production, we use conservative limits to avoid timeouts
@@ -64,8 +88,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-      const {
-      url,
+    const {
+      url: rawUrl,
       saveToDatabase,
       scrapeProducts,
       maxProducts = 999, // Default to unlimited (high number)
@@ -77,9 +101,11 @@ export async function POST(request: NextRequest) {
       maxDepth = 2, // Maximum link depth to follow (default: 2 for production, can be increased)
     } = body;
 
+    const url = normalizeScrapeUrl(rawUrl);
+
     if (!url) {
       return NextResponse.json(
-        { success: false, error: "URL is required" },
+        { success: false, error: "Valid URL is required" },
         { status: 400 },
       );
     }
