@@ -314,7 +314,7 @@ export async function POST(request: NextRequest) {
                 logger,
                 "scrape-products-browser",
                 () =>
-                  browserScraper.scrapeMultipleProducts(productUrls, {
+                  browserScraper!.scrapeMultipleProducts(productUrls, {
                     rateLimit: 1000,
                     timeout: 10000,
                   }),
