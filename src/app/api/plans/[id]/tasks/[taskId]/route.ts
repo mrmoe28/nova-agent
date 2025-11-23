@@ -45,6 +45,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string; taskId: string }> }
 ) {
   try {
+    const { id, taskId } = await params;
     const body = await request.json();
     const {
       title,
