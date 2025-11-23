@@ -231,8 +231,6 @@ export default function DistributorDetailPage() {
   };
 
   const handleDeleteEquipment = async (equipmentId: string) => {
-    if (!confirm("Are you sure you want to delete this equipment item?")) return;
-
     try {
       const response = await fetch(`/api/equipment/${equipmentId}`, {
         method: "DELETE",
