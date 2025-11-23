@@ -40,6 +40,7 @@ import {
   ExternalLink,
   Pencil,
   RefreshCw,
+  Trash2,
 } from "lucide-react";
 
 interface Distributor {
@@ -226,6 +227,25 @@ export default function DistributorDetailPage() {
       alert("Failed to scrape new URL");
     } finally {
       setScraping(false);
+    }
+  };
+
+  const handleDeleteEquipment = async (equipmentId: string) => {
+    if (!confirm("Are you sure you want to delete this equipment item?")) return;
+
+    try {
+      const response = await fetch(`/api/equipment/${equipmentId}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        await fetchDistributor();
+      } else {
+        alert("Failed to delete equipment");
+      }
+    } catch (error) {
+      console.error("Error deleting equipment:", error);
+      alert("Failed to delete equipment");
     }
   };
 
@@ -559,7 +579,7 @@ export default function DistributorDetailPage() {
                   )}
 
                   {/* Stock Badge Overlay */}
-                  <div className="absolute top-2 right-2">
+                  <div className="absolute top-2 left-2">
                     <Badge
                       variant={item.inStock ? "default" : "destructive"}
                       className={
@@ -570,6 +590,21 @@ export default function DistributorDetailPage() {
                     >
                       {item.inStock ? "In Stock" : "Out of Stock"}
                     </Badge>
+                  </div>
+
+                  {/* Action Buttons Overlay */}
+                  <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteEquipment(item.id);
+                      }}
+                      className="h-8 w-8 p-0 bg-white border border-red-300 shadow-md"
+                    >
+                      <Trash2 className="h-3.5 w-3.5 text-red-600" />
+                    </Button>
                   </div>
 
                   {/* Category Badge */}

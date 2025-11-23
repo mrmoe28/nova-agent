@@ -722,7 +722,35 @@ export async function scrapeMultipleProducts(
  * Detect category from product data
  */
 export function detectCategory(product: ScrapedProduct): EquipmentCategory {
-  return categorizeProduct(product.name ?? "Unknown Product", product.description ?? null);
+  // Build a richer context string that includes:
+  // - Product name
+  // - Description
+  // - URL path segments (collections like /batteries, /rigid-solar-panels, /hybrid-inverters)
+  const parts: string[] = [];
+
+  if (product.name) parts.push(product.name);
+  if (product.description) parts.push(product.description);
+
+  if (product.sourceUrl) {
+    try {
+      const url = new URL(product.sourceUrl);
+      const pathSegments = url.pathname
+        .split("/")
+        .filter(Boolean)
+        .map((segment) => segment.replace(/[-_]/g, " "));
+
+      if (pathSegments.length > 0) {
+        parts.push(pathSegments.join(" "));
+      }
+    } catch {
+      // Ignore invalid URLs and fall back to name/description only
+    }
+  }
+
+  const combinedText =
+    parts.join(" ").trim() || "Unknown Product";
+
+  return categorizeProduct(combinedText, null);
 }
 
 /**

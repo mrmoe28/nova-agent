@@ -12,7 +12,7 @@ export function categorizeProduct(
 
   // Solar Panel keywords
   if (
-    /\b(solar panel|photovoltaic|pv module|pv panel|monocrystalline|polycrystalline|bifacial panel)\b/i.test(
+    /\b(solar panel|photovoltaic|pv module|pv panel|monocrystalline|polycrystalline|bifacial panel|rigid solar panel|flexible solar panel)\b/i.test(
       text
     )
   ) {
@@ -21,7 +21,7 @@ export function categorizeProduct(
 
   // Battery keywords
   if (
-    /\b(battery|batteries|energy storage|lithium|lifepo4|lead acid|agm|gel battery|powerwall|storage system)\b/i.test(
+    /\b(battery|batteries|energy storage|lithium|lifepo4|lead acid|agm|gel battery|powerwall|storage system|battery bank)\b/i.test(
       text
     )
   ) {
@@ -30,7 +30,7 @@ export function categorizeProduct(
 
   // Inverter keywords
   if (
-    /\b(inverter|micro-inverter|microinverter|string inverter|hybrid inverter|grid-tie|off-grid inverter)\b/i.test(
+    /\b(inverter|micro-inverter|microinverter|string inverter|hybrid inverter|grid-tie|off-grid inverter|all-in-one inverter|hybrid-inverters?)\b/i.test(
       text
     )
   ) {

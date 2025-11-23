@@ -366,6 +366,8 @@ export async function POST(request: NextRequest) {
         noPrice: 0,
         matchesDistributorName: 0,
         tooShort: 0,
+        scrapeFailed: 0,
+        nonResidential: 0,
         valid: 0,
       };
 
@@ -393,11 +395,61 @@ export async function POST(request: NextRequest) {
           );
           return false;
         }
+
+        // Reject placeholder products that came from failed scrapes
+        // scrapeMultipleProducts returns { name: `Error: ${url}`, sourceUrl: url }
+        // when a product page fails; we never want these to overwrite real items.
+        if (p.name.startsWith("Error:")) {
+          validationReasons.scrapeFailed++;
+          logger.debug(
+            { productName: p.name, sourceUrl: p.sourceUrl },
+            "Rejecting product from failed scrape (placeholder Error: name)",
+          );
+          return false;
+        }
         
         // Reject very short names (likely not real product names)
         if (productNameLower.length < 3) {
           validationReasons.tooShort++;
           logger.debug({ productName: p.name }, "Rejecting product with very short name");
+          return false;
+        }
+
+        // Residential solar only: filter out camping/overlanding/tent/portable-station gear
+        const text = [
+          p.name,
+          p.description,
+          p.sourceUrl,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+        const nonResidentialPatterns = [
+          /tent/,
+          /awning/,
+          /overland/,
+          /overlanding/,
+          /rooftop tent/,
+          /roof top tent/,
+          /hub tent/,
+          /camp/,
+          /camping/,
+          /sleeping bag/,
+          /cot/,
+          /portable power station/,
+          /power station/,
+          /cooler/,
+          /fridge/,
+          /freezer/,
+        ];
+
+        if (nonResidentialPatterns.some((re) => re.test(text))) {
+          validationReasons.nonResidential++;
+          logger.debug(
+            { productName: p.name, sourceUrl: p.sourceUrl },
+            "Rejecting non-residential / camping product",
+          );
           return false;
         }
         
