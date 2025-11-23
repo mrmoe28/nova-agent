@@ -33,11 +33,11 @@ const equipmentSchema = z.object({
   manufacturer: z.string().optional(),
   modelNumber: z.string().min(1, "Model number is required"),
   description: z.string().optional(),
-  unitPrice: z.coerce.number().min(0, "Price must be positive"),
+  unitPrice: z.number().min(0, "Price must be positive"),
   imageUrl: z.string().optional(),
   dataSheetUrl: z.string().url("Invalid URL").optional().or(z.literal("")),
   inStock: z.boolean(),
-  leadTimeDays: z.coerce.number().min(0).optional().or(z.literal("")),
+  leadTimeDays: z.number().min(0).optional(),
 });
 
 type EquipmentFormData = z.infer<typeof equipmentSchema>;
@@ -73,7 +73,7 @@ export function EquipmentForm({
       imageUrl: equipment?.imageUrl || "",
       dataSheetUrl: equipment?.dataSheetUrl || "",
       inStock: equipment?.inStock !== false,
-      leadTimeDays: equipment?.leadTimeDays || "",
+      leadTimeDays: equipment?.leadTimeDays ?? undefined,
     },
   });
 
@@ -264,7 +264,7 @@ export function EquipmentForm({
                 id="unitPrice"
                 type="number"
                 step="0.01"
-                {...form.register("unitPrice")}
+                {...form.register("unitPrice", { valueAsNumber: true })}
                 className="mt-1 bg-white border-slate-300"
               />
               {form.formState.errors.unitPrice && (
@@ -280,7 +280,7 @@ export function EquipmentForm({
               <Input
                 id="leadTimeDays"
                 type="number"
-                {...form.register("leadTimeDays")}
+                {...form.register("leadTimeDays", { valueAsNumber: true })}
                 className="mt-1 bg-white border-slate-300"
               />
             </div>

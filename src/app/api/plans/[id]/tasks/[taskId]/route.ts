@@ -130,6 +130,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; taskId: string }> }
 ) {
   try {
+    const { id, taskId } = await params;
     // Verify task belongs to plan
     const existingTask = await prisma.planTask.findUnique({
       where: { id: taskId },

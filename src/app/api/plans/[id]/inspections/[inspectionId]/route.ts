@@ -118,7 +118,7 @@ export async function PATCH(
     else if (hasScheduled) planInspectionStatus = "scheduled";
 
     await prisma.plan.update({
-      where: { projectId: params.id },
+      where: { projectId: id },
       data: { inspectionStatus: planInspectionStatus },
     });
 
@@ -151,6 +151,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string; inspectionId: string }> }
 ) {
   try {
+    const { id, inspectionId } = await params;
     // Verify inspection belongs to plan
     const existingInspection = await prisma.planInspection.findUnique({
       where: { id: inspectionId },
