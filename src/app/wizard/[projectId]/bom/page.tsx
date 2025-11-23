@@ -47,35 +47,49 @@ export default function BOMPage() {
   }, []);
 
   const loadBOMItems = async () => {
-    setGenerating(true);
+    setLoading(true);
     try {
-      // First, try to fetch existing BOM items
+      // Fetch existing BOM items (if any)
       const response = await fetch(`/api/bom?projectId=${projectId}`);
       const data = await response.json();
 
       if (data.success && data.bomItems && data.bomItems.length > 0) {
-        // BOM already exists, just load it
+        // BOM already exists, load it
         setBomItems(data.bomItems);
         setTotalCost(data.totalCost);
-        
+
         // Update validation state
         if (data.validation) {
           setValidationErrors(data.validation.errors || []);
           setValidationWarnings(data.validation.warnings || []);
         }
-        
-        setInitialLoad(false);
       } else {
-        // No BOM exists yet, generate it for the first time
-        await generateBOM(false);
+        // No BOM exists - leave empty, user will manually generate/add items
+        setBomItems([]);
+        setTotalCost(0);
       }
+
+      // Fetch default distributor for equipment selection
+      if (!distributorId) {
+        const distResponse = await fetch('/api/distributors');
+        const distData = await distResponse.json();
+        if (distData.success && distData.distributors && distData.distributors.length > 0) {
+          // Set first active distributor as default
+          const activeDistributor = distData.distributors.find((d: { isActive: boolean }) => d.isActive);
+          if (activeDistributor) {
+            setDistributorId(activeDistributor.id);
+          }
+        }
+      }
+
+      setInitialLoad(false);
     } catch (error) {
       console.error("Error loading BOM items:", error);
       toast.error("Error", {
         description: "Failed to load BOM items",
       });
     } finally {
-      setGenerating(false);
+      setLoading(false);
     }
   };
 
@@ -350,7 +364,6 @@ const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => 
           </Button>
           <Button
             onClick={() => setAddDialogOpen(true)}
-            disabled={!distributorId && bomItems.length === 0}
             className="flex items-center gap-2"
           >
             <Plus className="h-4 w-4" />
@@ -375,67 +388,109 @@ const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => 
               </tr>
             </thead>
             <tbody>
-              {bomItems.map((item) => (
-                <tr key={item.id} className="border-b border-border last:border-0">
-                  <td className="py-3">
-                    {item.imageUrl ? (
-                      <img
-                        src={item.imageUrl}
-                        alt={item.itemName}
-                        className="h-16 w-16 object-contain rounded border border-border"
-                        onError={(e) => {
-                          const img = e.currentTarget as HTMLImageElement;
-                          if (img.src.endsWith("/images/placeholder.svg")) return;
-                          img.src = "/images/placeholder.svg";
-                        }}
-                      />
-                    ) : (
-                      <div className="h-16 w-16 bg-muted rounded border border-border flex items-center justify-center text-xs text-muted-foreground">
-                        No Image
+              {bomItems.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12">
+                    <div className="text-center">
+                      <div className="flex justify-center mb-4">
+                        <div className="rounded-full bg-muted p-4">
+                          <svg className="h-12 w-12 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                          </svg>
+                        </div>
                       </div>
-                    )}
-                  </td>
-                  <td className="py-3 text-sm capitalize text-foreground">{item.category}</td>
-                  <td className="py-3">
-                    <div className="text-sm text-foreground font-medium">{item.itemName}</div>
-                    {item.manufacturer && (
-                      <div className="text-xs text-muted-foreground">{item.manufacturer}</div>
-                    )}
-                  </td>
-                  <td className="py-3 text-xs font-mono text-muted-foreground">
-                    {item.modelNumber}
-                  </td>
-                  <td className="py-3 text-sm text-right text-foreground">{item.quantity}</td>
-                  <td className="py-3 text-sm text-right text-foreground">
-                    {formatCurrency(item.unitPriceUsd)}
-                  </td>
-                  <td className="py-3 text-sm text-right font-semibold text-foreground">
-                    {formatCurrency(item.totalPriceUsd)}
-                  </td>
-                  <td className="py-3 text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditEquipment(item)}
-                        className="h-8 w-8 p-0 text-blue-500 hover:text-blue-700 hover:bg-blue-50"
-                        title="Change equipment"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteItem(item.id)}
-                        className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
-                        title="Delete item"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      <h3 className="text-lg font-semibold text-foreground mb-2">No Equipment Added</h3>
+                      <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+                        Your bill of materials is empty. Generate a BOM with suggested equipment or manually add items.
+                      </p>
+                      <div className="flex gap-3 justify-center">
+                        <Button
+                          onClick={() => generateBOM(false)}
+                          disabled={generating}
+                          className="flex items-center gap-2"
+                        >
+                          {generating ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <RefreshCw className="h-4 w-4" />
+                          )}
+                          Generate Suggested BOM
+                        </Button>
+                        <Button
+                          onClick={() => setAddDialogOpen(true)}
+                          variant="outline"
+                          className="flex items-center gap-2"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Add Item Manually
+                        </Button>
+                      </div>
                     </div>
                   </td>
                 </tr>
-              ))}
+              ) : (
+                bomItems.map((item) => (
+                  <tr key={item.id} className="border-b border-border last:border-0">
+                    <td className="py-3">
+                      {item.imageUrl ? (
+                        <img
+                          src={item.imageUrl}
+                          alt={item.itemName}
+                          className="h-16 w-16 object-contain rounded border border-border"
+                          onError={(e) => {
+                            const img = e.currentTarget as HTMLImageElement;
+                            if (img.src.endsWith("/images/placeholder.svg")) return;
+                            img.src = "/images/placeholder.svg";
+                          }}
+                        />
+                      ) : (
+                        <div className="h-16 w-16 bg-muted rounded border border-border flex items-center justify-center text-xs text-muted-foreground">
+                          No Image
+                        </div>
+                      )}
+                    </td>
+                    <td className="py-3 text-sm capitalize text-foreground">{item.category}</td>
+                    <td className="py-3">
+                      <div className="text-sm text-foreground font-medium">{item.itemName}</div>
+                      {item.manufacturer && (
+                        <div className="text-xs text-muted-foreground">{item.manufacturer}</div>
+                      )}
+                    </td>
+                    <td className="py-3 text-xs font-mono text-muted-foreground">
+                      {item.modelNumber}
+                    </td>
+                    <td className="py-3 text-sm text-right text-foreground">{item.quantity}</td>
+                    <td className="py-3 text-sm text-right text-foreground">
+                      {formatCurrency(item.unitPriceUsd)}
+                    </td>
+                    <td className="py-3 text-sm text-right font-semibold text-foreground">
+                      {formatCurrency(item.totalPriceUsd)}
+                    </td>
+                    <td className="py-3 text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEditEquipment(item)}
+                          className="h-8 w-8 p-0 text-blue-500 hover:text-blue-700 hover:bg-blue-50"
+                          title="Change equipment"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeleteItem(item.id)}
+                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          title="Delete item"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
             <tfoot>
               <tr className="border-t-2 border-border">
