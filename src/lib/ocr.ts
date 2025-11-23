@@ -1,5 +1,6 @@
 import { readFile } from "fs/promises";
 import Anthropic from "@anthropic-ai/sdk";
+import { retryWithTimeout, generateErrorMessage, isNetworkError } from "./ocr-utils";
 // Dynamic import for pdf-parse and Tesseract to avoid serverless environment issues
 
 export interface OCRResult {
@@ -11,64 +12,79 @@ export interface OCRResult {
 /**
  * Extract text and structured data from PDF using Claude AI
  * This provides the most accurate extraction with intelligent parsing
+ * Includes retry logic and timeout handling for robustness
  */
 export async function extractTextWithClaude(
   filePath: string,
 ): Promise<OCRResult> {
-  try {
-    const anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
+  return retryWithTimeout(
+    async () => {
+      const anthropic = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
 
-    // Read PDF file as buffer
-    const pdfBuffer = await readFile(filePath);
-    const base64Pdf = pdfBuffer.toString("base64");
+      // Read PDF file as buffer
+      const pdfBuffer = await readFile(filePath);
+      const base64Pdf = pdfBuffer.toString("base64");
 
-    console.log("Using Claude AI for PDF extraction...");
+      console.log("Using Claude AI for PDF extraction...");
 
-    const message = await anthropic.messages.create({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 4096,
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "document",
-              source: {
-                type: "base64",
-                media_type: "application/pdf",
-                data: base64Pdf,
+      const message = await anthropic.messages.create({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 4096,
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "document",
+                source: {
+                  type: "base64",
+                  media_type: "application/pdf",
+                  data: base64Pdf,
+                },
               },
-            },
-            {
-              type: "text",
-              text: "Please extract ALL text content from this utility bill PDF. Return the complete text exactly as it appears in the document, preserving formatting, numbers, and structure. Do not summarize or interpret - just extract the raw text.",
-            },
-          ],
-        },
-      ],
-    });
+              {
+                type: "text",
+                text: "Please extract ALL text content from this utility bill PDF. Return the complete text exactly as it appears in the document, preserving formatting, numbers, and structure. Do not summarize or interpret - just extract the raw text.",
+              },
+            ],
+          },
+        ],
+      });
 
-    const extractedText = message.content
-      .filter((block) => block.type === "text")
-      .map((block) => (block as { type: "text"; text: string }).text)
-      .join("\n");
+      const extractedText = message.content
+        .filter((block) => block.type === "text")
+        .map((block) => (block as { type: "text"; text: string }).text)
+        .join("\n");
 
-    console.log(
-      `Claude extraction complete: ${extractedText.length} characters`,
+      console.log(
+        `Claude extraction complete: ${extractedText.length} characters`,
+      );
+
+      return {
+        text: extractedText,
+        confidence: 0.98, // Claude's accuracy is very high
+        pageCount: 1,
+      };
+    },
+    {
+      maxRetries: 3,
+      baseDelay: 2000,
+      maxDelay: 10000,
+      retryableErrors: ["ETIMEDOUT", "ECONNRESET", "timeout", "network", "connection"],
+    },
+    {
+      timeoutMs: 120000, // 2 minutes for Claude API
+      timeoutMessage: "Claude AI extraction timed out",
+    }
+  ).catch((error) => {
+    const friendlyError = new Error(
+      generateErrorMessage(error, "Claude AI PDF extraction")
     );
-
-    return {
-      text: extractedText,
-      confidence: 0.98, // Claude's accuracy is very high
-      pageCount: 1,
-    };
-  } catch (error) {
-    console.error("Claude PDF extraction failed:", error);
-    // Don't throw here - let the caller handle the fallback
-    throw error;
-  }
+    friendlyError.cause = error;
+    throw friendlyError;
+  });
 }
 
 /**
@@ -84,32 +100,44 @@ interface PdfParseModule {
 }
 
 export async function extractTextFromPDF(filePath: string): Promise<OCRResult> {
-  try {
-    const dataBuffer = await readFile(filePath);
+  return retryWithTimeout(
+    async () => {
+      const dataBuffer = await readFile(filePath);
 
-    // Dynamic import of pdf-parse (proper way to handle CommonJS in Next.js)
-    const pdfParseModule = await import("pdf-parse") as unknown as PdfParseModule;
-    // pdf-parse exports the function as default
-    const pdfParse = pdfParseModule.default;
+      // Dynamic import of pdf-parse (proper way to handle CommonJS in Next.js)
+      const pdfParseModule = await import("pdf-parse") as unknown as PdfParseModule;
+      // pdf-parse exports the function as default
+      const pdfParse = pdfParseModule.default;
 
-    console.log("Using pdf-parse for text extraction...");
-    
-    // Use pdf-parse to extract text from PDF buffer
-    const pdfData = await pdfParse(dataBuffer);
+      console.log("Using pdf-parse for text extraction...");
+      
+      // Use pdf-parse to extract text from PDF buffer
+      const pdfData = await pdfParse(dataBuffer);
 
-    console.log(`PDF parsed successfully: ${pdfData.text.length} characters, ${pdfData.numpages} pages`);
+      console.log(`PDF parsed successfully: ${pdfData.text.length} characters, ${pdfData.numpages} pages`);
 
-    return {
-      text: pdfData.text || "",
-      pageCount: pdfData.numpages || 1,
-      confidence: 0.95, // PDF text extraction is usually highly accurate
-    };
-  } catch (error) {
-    console.error("Error extracting text from PDF:", error);
-    throw new Error(
-      `Failed to extract text from PDF: ${error instanceof Error ? error.message : "Unknown error"}`,
+      return {
+        text: pdfData.text || "",
+        pageCount: pdfData.numpages || 1,
+        confidence: 0.95, // PDF text extraction is usually highly accurate
+      };
+    },
+    {
+      maxRetries: 2,
+      baseDelay: 1000,
+      maxDelay: 5000,
+    },
+    {
+      timeoutMs: 60000, // 1 minute for pdf-parse
+      timeoutMessage: "PDF parsing timed out",
+    }
+  ).catch((error) => {
+    const friendlyError = new Error(
+      generateErrorMessage(error, "PDF text extraction")
     );
-  }
+    friendlyError.cause = error;
+    throw friendlyError;
+  });
 }
 
 /**
@@ -119,38 +147,51 @@ export async function extractTextFromPDF(filePath: string): Promise<OCRResult> {
 export async function extractTextFromImage(
   filePath: string,
 ): Promise<OCRResult> {
-  try {
-    // Check if we're in a serverless environment (Vercel, Lambda, etc.)
-    const isServerless =
-      process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+  return retryWithTimeout(
+    async () => {
+      // Check if we're in a serverless environment (Vercel, Lambda, etc.)
+      const isServerless =
+        process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
 
-    if (isServerless) {
-      console.warn(
-        "OCR disabled in serverless environment - canvas/DOMMatrix not available",
-      );
-      throw new Error("Image OCR is not available in serverless environments. Please use PDF files instead.");
+      if (isServerless) {
+        console.warn(
+          "OCR disabled in serverless environment - canvas/DOMMatrix not available",
+        );
+        throw new Error("Image OCR is not available in serverless environments. Please use PDF files instead.");
+      }
+
+      // Dynamic import to avoid loading Tesseract in serverless environments
+      const Tesseract = await import("tesseract.js");
+
+      const result = await Tesseract.default.recognize(filePath, "eng", {
+        logger: (info) => {
+          if (info.status === "recognizing text") {
+            console.log(`OCR Progress: ${Math.round(info.progress * 100)}%`);
+          }
+        },
+      });
+
+      return {
+        text: result.data.text,
+        confidence: result.data.confidence / 100, // Convert to 0-1 scale
+      };
+    },
+    {
+      maxRetries: 2,
+      baseDelay: 2000,
+      maxDelay: 8000,
+    },
+    {
+      timeoutMs: 180000, // 3 minutes for Tesseract (can be slow)
+      timeoutMessage: "Image OCR processing timed out",
     }
-
-    // Dynamic import to avoid loading Tesseract in serverless environments
-    const Tesseract = await import("tesseract.js");
-
-    const result = await Tesseract.default.recognize(filePath, "eng", {
-      logger: (info) => {
-        if (info.status === "recognizing text") {
-          console.log(`OCR Progress: ${Math.round(info.progress * 100)}%`);
-        }
-      },
-    });
-
-    return {
-      text: result.data.text,
-      confidence: result.data.confidence / 100, // Convert to 0-1 scale
-    };
-  } catch (error) {
-    console.error("Error extracting text from image:", error);
-    // Throw error - do not return fake data, let caller handle the failure
-    throw new Error(`Image OCR processing failed: ${error instanceof Error ? error.message : "Unknown error"}`);
-  }
+  ).catch((error) => {
+    const friendlyError = new Error(
+      generateErrorMessage(error, "image OCR processing")
+    );
+    friendlyError.cause = error;
+    throw friendlyError;
+  });
 }
 
 /**
@@ -188,15 +229,335 @@ export async function performOCR(
   } else if (fileType === "image") {
     return extractTextFromImage(filePath);
   } else if (fileType === "csv") {
-    // For CSV, just read the file directly
-    const text = await readFile(filePath, "utf-8");
-    return {
-      text,
-      confidence: 1.0,
-    };
+    // Enhanced CSV parsing with structured extraction
+    return parseCSVFile(filePath);
   }
 
   throw new Error(`Unsupported file type: ${fileType}`);
+}
+
+/**
+ * Parse CSV file and extract structured bill data
+ * Handles various CSV formats for utility bills
+ */
+async function parseCSVFile(filePath: string): Promise<OCRResult> {
+  try {
+    const csvContent = await readFile(filePath, "utf-8");
+    const lines = csvContent.split("\n").filter((line) => line.trim().length > 0);
+
+    if (lines.length === 0) {
+      return {
+        text: csvContent,
+        confidence: 1.0,
+      };
+    }
+
+    // Try to detect CSV structure
+    const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
+    
+    // Build structured text representation for parsing
+    let structuredText = "";
+    
+    // Common CSV patterns for utility bills
+    const datePattern = /date|period|billing|service/i;
+    const usagePattern = /kwh|usage|consumption|energy/i;
+    const costPattern = /cost|charge|amount|total|due|price/i;
+    const accountPattern = /account|acct|customer|id/i;
+    
+    // Extract relevant data from CSV
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(",").map((v) => v.trim());
+      
+      for (let j = 0; j < headers.length && j < values.length; j++) {
+        const header = headers[j];
+        const value = values[j];
+        
+        if (value && value.length > 0) {
+          // Format as key-value pairs for parsing
+          if (datePattern.test(header)) {
+            structuredText += `${header}: ${value}\n`;
+          } else if (usagePattern.test(header)) {
+            structuredText += `${header}: ${value}\n`;
+          } else if (costPattern.test(header)) {
+            structuredText += `${header}: ${value}\n`;
+          } else if (accountPattern.test(header)) {
+            structuredText += `${header}: ${value}\n`;
+          }
+        }
+      }
+    }
+
+    // Combine headers and structured data
+    const fullText = lines.join("\n") + "\n\n" + structuredText;
+
+    return {
+      text: fullText,
+      confidence: 1.0,
+    };
+  } catch (error) {
+    console.error("Error parsing CSV file:", error);
+    // Fallback to raw text
+    const text = await readFile(filePath, "utf-8");
+    return {
+      text,
+      confidence: 0.8, // Lower confidence due to parsing error
+    };
+  }
+}
+
+/**
+ * Validate extracted date string
+ */
+function validateDate(dateString: string): { isValid: boolean; date?: Date; error?: string } {
+  try {
+    // Try multiple date formats
+    const formats = [
+      // "Jan 1, 2025"
+      /^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{1,2},?\s+\d{4}$/i,
+      // "01/01/2025" or "01-01-2025"
+      /^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/,
+      // ISO format
+      /^\d{4}-\d{2}-\d{2}$/,
+    ];
+
+    let parsedDate: Date | null = null;
+
+    for (const format of formats) {
+      if (format.test(dateString.trim())) {
+        parsedDate = new Date(dateString);
+        if (!isNaN(parsedDate.getTime())) {
+          // Validate date is reasonable (not too far in past/future)
+          const now = new Date();
+          const yearsDiff = Math.abs(now.getFullYear() - parsedDate.getFullYear());
+          if (yearsDiff <= 10) {
+            return { isValid: true, date: parsedDate };
+          }
+        }
+      }
+    }
+
+    return {
+      isValid: false,
+      error: `Invalid date format: ${dateString}`,
+    };
+  } catch {
+    return {
+      isValid: false,
+      error: `Failed to parse date: ${dateString}`,
+    };
+  }
+}
+
+/**
+ * Validate extracted amount (currency)
+ */
+function validateAmount(amount: number): { isValid: boolean; error?: string } {
+  if (isNaN(amount)) {
+    return { isValid: false, error: "Amount is not a valid number" };
+  }
+
+  if (amount < 0) {
+    return { isValid: false, error: "Amount cannot be negative" };
+  }
+
+  if (amount > 1000000) {
+    return { isValid: false, error: "Amount exceeds maximum limit ($1,000,000)" };
+  }
+
+  return { isValid: true };
+}
+
+/**
+ * Validate extracted usage values (kWh, kW)
+ */
+function validateUsage(usage: number, type: "kwh" | "kw"): { isValid: boolean; error?: string } {
+  if (isNaN(usage)) {
+    return { isValid: false, error: `${type.toUpperCase()} is not a valid number` };
+  }
+
+  if (usage < 0) {
+    return { isValid: false, error: `${type.toUpperCase()} cannot be negative` };
+  }
+
+  const maxValue = type === "kwh" ? 1000000 : 100000; // 1M kWh or 100MW
+  if (usage > maxValue) {
+    return {
+      isValid: false,
+      error: `${type.toUpperCase()} exceeds maximum limit (${maxValue})`,
+    };
+  }
+
+  return { isValid: true };
+}
+
+/**
+ * Cross-field validation for bill data
+ */
+function validateBillDataCrossFields(data: ParsedBillData): {
+  isValid: boolean;
+  errors: string[];
+  warnings: string[];
+} {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+
+  // Validate billing period dates
+  if (data.billingPeriod?.start && data.billingPeriod?.end) {
+    const startValidation = validateDate(data.billingPeriod.start);
+    const endValidation = validateDate(data.billingPeriod.end);
+
+    if (!startValidation.isValid) {
+      errors.push(`Invalid billing period start date: ${startValidation.error}`);
+    }
+    if (!endValidation.isValid) {
+      errors.push(`Invalid billing period end date: ${endValidation.error}`);
+    }
+
+    // Check if end date is after start date
+    if (startValidation.date && endValidation.date) {
+      if (endValidation.date < startValidation.date) {
+        errors.push("Billing period end date must be after start date");
+      }
+
+      // Check if period is reasonable (1-90 days)
+      const daysDiff = Math.ceil(
+        (endValidation.date.getTime() - startValidation.date.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      if (daysDiff < 1 || daysDiff > 90) {
+        warnings.push(`Billing period is ${daysDiff} days (expected 1-90 days)`);
+      }
+    }
+  }
+
+  // Validate usage values
+  if (data.usage?.kwh !== undefined) {
+    const kwhValidation = validateUsage(data.usage.kwh, "kwh");
+    if (!kwhValidation.isValid) {
+      errors.push(kwhValidation.error!);
+    }
+  }
+
+  if (data.usage?.kw !== undefined) {
+    const kwValidation = validateUsage(data.usage.kw, "kw");
+    if (!kwValidation.isValid) {
+      errors.push(kwValidation.error!);
+    }
+  }
+
+  // Validate charges
+  if (data.charges?.total !== undefined) {
+    const totalValidation = validateAmount(data.charges.total);
+    if (!totalValidation.isValid) {
+      errors.push(`Total charge: ${totalValidation.error}`);
+    }
+  }
+
+  if (data.charges?.energyCharge !== undefined) {
+    const energyValidation = validateAmount(data.charges.energyCharge);
+    if (!energyValidation.isValid) {
+      errors.push(`Energy charge: ${energyValidation.error}`);
+    }
+  }
+
+  if (data.charges?.demandCharge !== undefined) {
+    const demandValidation = validateAmount(data.charges.demandCharge);
+    if (!demandValidation.isValid) {
+      errors.push(`Demand charge: ${demandValidation.error}`);
+    }
+  }
+
+  // Cross-field checks
+  if (data.charges?.energyCharge && data.charges?.demandCharge && data.charges?.total) {
+    const sum = (data.charges.energyCharge || 0) + (data.charges.demandCharge || 0);
+    const total = data.charges.total;
+    const diff = Math.abs(sum - total);
+    
+    // Allow 10% difference for taxes/fees
+    if (diff > total * 0.1 && diff > 5) {
+      warnings.push(
+        `Sum of energy and demand charges ($${sum.toFixed(2)}) differs from total ($${total.toFixed(2)}) by $${diff.toFixed(2)}`
+      );
+    }
+  }
+
+  // Validate average daily usage calculation
+  if (data.averageDailyUsage !== undefined) {
+    if (data.averageDailyUsage < 0) {
+      errors.push("Average daily usage cannot be negative");
+    }
+    if (data.averageDailyUsage > 10000) {
+      warnings.push("Average daily usage is unusually high (>10,000 kWh/day)");
+    }
+  }
+
+  return {
+    isValid: errors.length === 0,
+    errors,
+    warnings,
+  };
+}
+
+/**
+ * Fallback parsing strategies for edge cases
+ */
+function parseBillTextFallback(text: string): ParsedBillData {
+  const data: ParsedBillData = {};
+
+  // Strategy 1: Look for numbers with units in context
+  const numberWithUnitPattern = /(\d+(?:,\d+)?(?:\.\d+)?)\s*(kWh|kW|kw|kilowatt|megawatt|MW|mw)/gi;
+  const matches = [...text.matchAll(numberWithUnitPattern)];
+  
+  for (const match of matches) {
+    const value = parseFloat(match[1].replace(/,/g, ""));
+    const unit = match[2].toLowerCase();
+    
+    if (!isNaN(value) && value > 0) {
+      if ((unit.includes("kwh") || unit.includes("kilowatt")) && !data.usage?.kwh) {
+        if (!data.usage) data.usage = {};
+        data.usage.kwh = value;
+      } else if ((unit.includes("kw") || unit.includes("kilowatt")) && !data.usage?.kw) {
+        if (!data.usage) data.usage = {};
+        data.usage.kw = value;
+      }
+    }
+  }
+
+  // Strategy 2: Look for currency amounts
+  const currencyPattern = /\$\s*(\d+(?:,\d+)?(?:\.\d{2})?)/gi;
+  const currencyMatches = [...text.matchAll(currencyPattern)];
+  if (currencyMatches.length > 0) {
+    // Take the largest amount as total
+    const amounts = currencyMatches
+      .map((m) => parseFloat(m[1].replace(/,/g, "")))
+      .filter((n) => !isNaN(n) && n > 0)
+      .sort((a, b) => b - a);
+    
+    if (amounts.length > 0 && !data.charges?.total) {
+      if (!data.charges) data.charges = {};
+      data.charges.total = amounts[0];
+    }
+  }
+
+  // Strategy 3: Look for dates in various formats
+  const datePatterns = [
+    /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/g,
+    /((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{1,2},?\s+\d{4})/gi,
+  ];
+
+  const dates: string[] = [];
+  for (const pattern of datePatterns) {
+    const dateMatches = [...text.matchAll(pattern)];
+    dates.push(...dateMatches.map((m) => m[1]));
+  }
+
+  if (dates.length >= 2 && !data.billingPeriod) {
+    data.billingPeriod = {
+      start: dates[0],
+      end: dates[dates.length - 1],
+    };
+  }
+
+  return data;
 }
 
 /**
@@ -489,6 +850,49 @@ export function parseBillText(text: string): ParsedBillData {
       capacity: capacityValue,
       capacityUnit: capacityUnit,
     };
+  }
+
+  // Validate extracted data
+  const validation = validateBillDataCrossFields(data);
+  
+  // If primary parsing found minimal data, try fallback strategies
+  const hasMinimalData =
+    data.usage?.kwh ||
+    data.usage?.kw ||
+    data.charges?.total ||
+    data.billingPeriod?.start;
+
+  if (!hasMinimalData && text.length > 100) {
+    // Try fallback parsing
+    const fallbackData = parseBillTextFallback(text);
+    
+    // Merge fallback data (only if primary didn't find it)
+    if (!data.usage?.kwh && fallbackData.usage?.kwh) {
+      if (!data.usage) data.usage = {};
+      data.usage.kwh = fallbackData.usage.kwh;
+    }
+    if (!data.usage?.kw && fallbackData.usage?.kw) {
+      if (!data.usage) data.usage = {};
+      data.usage.kw = fallbackData.usage.kw;
+    }
+    if (!data.charges?.total && fallbackData.charges?.total) {
+      if (!data.charges) data.charges = {};
+      data.charges.total = fallbackData.charges.total;
+    }
+    if (!data.billingPeriod && fallbackData.billingPeriod) {
+      data.billingPeriod = fallbackData.billingPeriod;
+    }
+  }
+
+  // Re-validate after fallback merge
+  const finalValidation = validateBillDataCrossFields(data);
+  
+  // Log validation results
+  if (finalValidation.errors.length > 0) {
+    console.warn("Bill data validation errors:", finalValidation.errors);
+  }
+  if (finalValidation.warnings.length > 0) {
+    console.info("Bill data validation warnings:", finalValidation.warnings);
   }
 
   return data;

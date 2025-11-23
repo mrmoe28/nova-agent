@@ -6,6 +6,7 @@ import { performMindeeOCR } from "@/lib/ocr-mindee";
 import { performOCR as performMicroserviceOCR } from "@/lib/ocr-microservice";
 import { performOCR as performFallbackOCR } from "@/lib/ocr";
 import { parseBillText, validateRenewableSource } from "@/lib/ocr";
+import { generateErrorMessage } from "@/lib/ocr-utils";
 
 // Required for file uploads in Next.js 15
 export const runtime = "nodejs";
@@ -19,7 +20,11 @@ export async function POST(request: NextRequest) {
 
     if (!projectId || !file) {
       return NextResponse.json(
-        { success: false, error: "Project ID and file are required" },
+        {
+          success: false,
+          error: "Project ID and file are required",
+          message: "Please provide both a project ID and a file to upload. Make sure you're uploading from within a project.",
+        },
         { status: 400 },
       );
     }
@@ -38,8 +43,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error:
-            "Invalid file type. Only PDF, images (JPG, PNG), and CSV are allowed.",
+          error: "Invalid file type",
+          message:
+            `File type "${file.type}" is not supported. Please upload a PDF, image (JPG, PNG), or CSV file. Supported types: PDF, JPEG, PNG, CSV.`,
+          supportedTypes: ["application/pdf", "image/jpeg", "image/png", "text/csv"],
         },
         { status: 400 },
       );
@@ -48,8 +55,15 @@ export async function POST(request: NextRequest) {
     // Validate file size (max 10MB)
     const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
       return NextResponse.json(
-        { success: false, error: "File size must be less than 10MB" },
+        {
+          success: false,
+          error: "File size exceeds limit",
+          message: `File size (${sizeMB} MB) exceeds the maximum allowed size of 10 MB. Please compress or split the file and try again.`,
+          maxSize: "10 MB",
+          actualSize: `${sizeMB} MB`,
+        },
         { status: 400 },
       );
     }
@@ -107,7 +121,9 @@ export async function POST(request: NextRequest) {
         // Use the structured data directly from Mindee
         parsedData = mindeeResult.data;
       } catch (mindeeError) {
-        console.warn("Mindee OCR failed, falling back.", mindeeError);
+        const mindeeErrorMessage = mindeeError instanceof Error ? mindeeError.message : String(mindeeError);
+        console.warn("Mindee OCR failed, falling back.", mindeeErrorMessage);
+        
         // If Mindee fails, proceed with the existing fallback logic
         let fallbackResult;
         try {
@@ -115,10 +131,18 @@ export async function POST(request: NextRequest) {
           fallbackResult = await performMicroserviceOCR(filePath, fileType);
           console.log("Used OCR microservice for extraction");
         } catch (microserviceError) {
+          const microserviceErrorMessage = microserviceError instanceof Error ? microserviceError.message : String(microserviceError);
           // Tier 3: Attempt Fallback OCR
-          console.warn("OCR microservice unavailable, using final fallback OCR", microserviceError);
-          fallbackResult = await performFallbackOCR(filePath, fileType);
-          console.log("Used final fallback OCR for extraction");
+          console.warn("OCR microservice unavailable, using final fallback OCR", microserviceErrorMessage);
+          try {
+            fallbackResult = await performFallbackOCR(filePath, fileType);
+            console.log("Used final fallback OCR for extraction");
+          } catch (fallbackError) {
+            // All OCR methods failed
+            const errorMessage = generateErrorMessage(fallbackError, "OCR processing");
+            console.error("All OCR methods failed:", errorMessage);
+            throw new Error(`OCR processing failed: ${errorMessage}`);
+          }
         }
         
         ocrText = fallbackResult.text;
@@ -160,10 +184,12 @@ export async function POST(request: NextRequest) {
         console.log("All OCR methods failed or returned empty text, no data to parse");
       }
     } catch (ocrError) {
-      console.error("Overall OCR processing failed:", ocrError);
+      const errorMessage = generateErrorMessage(ocrError, "OCR processing");
+      console.error("Overall OCR processing failed:", errorMessage);
       // Do not set fake data - leave ocrText and extractedData as null
       // File will still be saved but without OCR data
       console.log("File will be saved without OCR data due to processing failure");
+      // Log the error but don't throw - allow file to be saved for manual review
     }
 
     // Save to database with URL path for web access
@@ -192,9 +218,20 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error("Error uploading file:", error);
+    const errorMessage = generateErrorMessage(error, "file upload");
+    console.error("Error uploading file:", errorMessage);
     return NextResponse.json(
-      { success: false, error: "Failed to upload file" },
+      {
+        success: false,
+        error: "Failed to upload file",
+        message: errorMessage,
+        troubleshooting: [
+          "Check that your file is a valid PDF, image, or CSV file",
+          "Ensure the file size is under 10 MB",
+          "Verify your internet connection is stable",
+          "Try uploading again in a few moments",
+        ],
+      },
       { status: 500 },
     );
   }
