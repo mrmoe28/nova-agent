@@ -109,16 +109,69 @@ model BOMItem {
 model Plan {
   id              String   @id @default(cuid())
   projectId       String   @unique
-  necChecks       String   // JSON array of checks
-  warnings        String?  // JSON array of warnings
-  installSteps    String   // JSON array of steps
-  timeline        String?
-  laborHoursEst   Float?
+  
+  // Site Assessment
+  siteSurvey      String?  // JSON: roof assessment, shading, structural
+  roofType        String?  // asphalt, tile, metal, flat
+  roofPitch       Float?   // degrees
+  availableArea   Float?   // square feet
+  shadingAnalysis String?  // JSON: obstructions, time-of-day shading
+  structuralNotes String?
+  
+  // Permit Management
+  permitStatus    String?  // not_started, submitted, under_review, approved, rejected
+  permitNumber    String?
+  permitSubmitDate DateTime?
+  permitApprovalDate DateTime?
+  permitDocuments String?  // JSON: array of document references
+  ahjName         String?  // Authority Having Jurisdiction
+  ahjContact      String?
   permitNotes     String?
+  
+  // Utility Interconnection
+  utilityStatus   String?  // not_started, application_submitted, approved, pto_received
+  utilityName     String?
+  utilityAccount  String?
+  interconnectionLimit Float? // kW limit
+  applicationDate DateTime?
+  approvalDate    DateTime?
+  ptoDate         DateTime? // Permission to Operate
+  netMeteringType String?  // net_metering, net_billing, feed_in_tariff
+  
+  // Installation Management
+  installSteps    String   // JSON: enhanced with dependencies, status, assignees
+  installationPhase String? // pre_install, install, post_install, complete
+  crewAssignments String?  // JSON: crew members, roles, schedules
+  materialDeliveryDate DateTime?
+  installStartDate DateTime?
+  installCompleteDate DateTime?
+  
+  // Inspection Tracking
+  inspections     String?  // JSON: array of inspection records
+  inspectionStatus String? // pending, scheduled, passed, failed, rescheduled
+  
+  // Financial Tracking
+  costBreakdown   String?  // JSON: costs by phase (permits, materials, labor, etc.)
+  changeOrders    String?  // JSON: array of change orders
+  budgetVariance  Float?   // percentage over/under budget
+  
+  // Risk Management
+  risks           String?  // JSON: identified risks and mitigation
+  contingencies   String?  // JSON: backup plans
+  
+  // Existing fields (enhanced)
+  necChecks       String   // Enhanced with detailed compliance tracking
+  warnings        String?
+  timeline        String?  // Enhanced with actual dates
+  laborHoursEst   Float?
   finalPdfPath    String?
   createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  tasks           PlanTask[]
+  planDocuments   PlanDocument[]
+  planInspections PlanInspection[]
 }
 
 model Distributor {
@@ -568,4 +621,70 @@ model Project {
   sizingRecommendations     SizingRecommendation[]
   projectMetrics            ProjectMetrics?
   systemAlerts              SystemAlert[]
+}
+
+// Task management for installation plans
+model PlanTask {
+  id            String   @id @default(cuid())
+  planId        String
+  title         String
+  description   String?
+  phase         String   // permitting, procurement, installation, inspection, interconnection
+  status        String   // not_started, in_progress, blocked, completed
+  priority      String   // low, medium, high, critical
+  assignee      String?
+  dueDate       DateTime?
+  completedDate DateTime?
+  dependencies  String?  // JSON: array of task IDs this depends on
+  estimatedHours Float?
+  actualHours   Float?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  plan          Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  
+  @@index([planId, phase])
+  @@index([status])
+  @@index([dueDate])
+}
+
+// Document management for plans
+model PlanDocument {
+  id            String   @id @default(cuid())
+  planId        String
+  type          String   // permit_application, drawing, invoice, inspection_report, etc.
+  category      String   // permit, utility, installation, inspection
+  fileName      String
+  filePath      String
+  uploadedBy    String?
+  uploadedAt    DateTime @default(now())
+  version       Int      @default(1)
+  
+  plan          Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  
+  @@index([planId, category])
+  @@index([type])
+}
+
+// Inspection tracking for plans
+model PlanInspection {
+  id            String   @id @default(cuid())
+  planId        String
+  type          String   // structural, electrical, final, utility
+  scheduledDate DateTime?
+  actualDate    DateTime?
+  inspector     String?
+  status        String   // scheduled, passed, failed, rescheduled
+  notes         String?
+  findings      String?  // JSON: array of findings
+  photos        String?  // JSON: array of photo URLs
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  plan          Plan     @relation(fields: [planId], references: [id], onDelete: Cascade)
+  
+  @@index([planId, type])
+  @@index([status])
+  @@index([scheduledDate])
 }

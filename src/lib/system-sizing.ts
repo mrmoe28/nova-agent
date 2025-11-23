@@ -428,6 +428,12 @@ export async function regeneratePlan(
     throw new SizingError("System design must be completed first", 400);
   }
 
+  // Get project for address/location data
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    include: { analysis: true },
+  });
+
   const necChecks = [
     {
       code: "NEC 690.8",
@@ -482,41 +488,191 @@ export async function regeneratePlan(
     warnings.push("Large battery system - additional fire safety measures required");
   }
 
+  // Enhanced install steps with task structure
   const installSteps = [
-    "Site survey and structural assessment",
-    "Apply for permits and utility interconnection",
-    "Install roof mounting system",
-    "Mount solar panels and complete array wiring",
-    "Install battery storage system",
-    "Install inverter and electrical connections",
-    "Complete AC/DC disconnects and labeling",
-    "System commissioning and testing",
-    "Final inspection and utility approval",
-    "Customer training and handoff",
+    { 
+      title: "Site survey and structural assessment",
+      phase: "pre_install",
+      estimatedHours: 4,
+      dependencies: []
+    },
+    { 
+      title: "Apply for permits and utility interconnection",
+      phase: "pre_install",
+      estimatedHours: 8,
+      dependencies: []
+    },
+    { 
+      title: "Install roof mounting system",
+      phase: "install",
+      estimatedHours: system.solarPanelCount * 0.3,
+      dependencies: [0, 1]
+    },
+    { 
+      title: "Mount solar panels and complete array wiring",
+      phase: "install",
+      estimatedHours: system.solarPanelCount * 0.5,
+      dependencies: [2]
+    },
+    { 
+      title: "Install battery storage system",
+      phase: "install",
+      estimatedHours: system.batteryKwh * 2,
+      dependencies: [2]
+    },
+    { 
+      title: "Install inverter and electrical connections",
+      phase: "install",
+      estimatedHours: 8,
+      dependencies: [3, 4]
+    },
+    { 
+      title: "Complete AC/DC disconnects and labeling",
+      phase: "install",
+      estimatedHours: 4,
+      dependencies: [5]
+    },
+    { 
+      title: "System commissioning and testing",
+      phase: "post_install",
+      estimatedHours: 4,
+      dependencies: [6]
+    },
+    { 
+      title: "Final inspection and utility approval",
+      phase: "post_install",
+      estimatedHours: 2,
+      dependencies: [7]
+    },
+    { 
+      title: "Customer training and handoff",
+      phase: "post_install",
+      estimatedHours: 2,
+      dependencies: [8]
+    },
   ];
 
   const laborHoursEst =
     system.solarPanelCount * 0.5 + system.batteryKwh * 2 + 16;
 
+  // Calculate estimated dates
+  const estimatedDays = Math.ceil(laborHoursEst / 8);
+  const today = new Date();
+  const permitSubmitDate = new Date(today);
+  permitSubmitDate.setDate(today.getDate() + 7); // Assume permit submitted 1 week from now
+  
+  const permitApprovalDate = new Date(permitSubmitDate);
+  permitApprovalDate.setDate(permitSubmitDate.getDate() + 21); // 3 weeks for approval
+  
+  const installStartDate = new Date(permitApprovalDate);
+  installStartDate.setDate(permitApprovalDate.getDate() + 7); // 1 week after permit approval
+  
+  const installCompleteDate = new Date(installStartDate);
+  installCompleteDate.setDate(installStartDate.getDate() + estimatedDays);
+
+  // Enhanced site survey defaults (can be updated later)
+  const siteSurvey = {
+    roofType: "asphalt", // Default, should be updated from actual survey
+    roofPitch: 30, // Default 30 degrees
+    availableArea: system.solarPanelCount * 20, // Approximate 20 sq ft per panel
+    shadingAnalysis: {
+      obstructions: [],
+      morningShading: false,
+      afternoonShading: false,
+      notes: "Shading analysis to be completed during site survey"
+    },
+    structuralNotes: "Structural assessment required before installation"
+  };
+
+  // Enhanced cost breakdown
+  const costBreakdown = {
+    permits: system.estimatedCostUsd * 0.02, // 2% for permits
+    materials: system.estimatedCostUsd * 0.65, // 65% for materials
+    labor: system.estimatedCostUsd * 0.25, // 25% for labor
+    inspections: system.estimatedCostUsd * 0.03, // 3% for inspections
+    contingency: system.estimatedCostUsd * 0.05, // 5% contingency
+    total: system.estimatedCostUsd
+  };
+
+  // Enhanced risks
+  const risks = [
+    {
+      id: "risk-1",
+      title: "Permit delays",
+      severity: "medium",
+      probability: "medium",
+      impact: "Schedule delay of 1-2 weeks",
+      mitigation: "Submit permit application early, maintain communication with AHJ"
+    },
+    {
+      id: "risk-2",
+      title: "Weather delays",
+      severity: "low",
+      probability: "medium",
+      impact: "Installation delay of 1-3 days",
+      mitigation: "Monitor weather forecast, have backup installation dates"
+    },
+    {
+      id: "risk-3",
+      title: "Equipment availability",
+      severity: "medium",
+      probability: "low",
+      impact: "Project delay of 2-4 weeks",
+      mitigation: "Order equipment early, maintain inventory buffer"
+    }
+  ];
+
+  // Check if plan exists to preserve enhanced fields
+  const existingPlan = await prisma.plan.findUnique({
+    where: { projectId },
+  });
+
+  const baseUpdateData: any = {
+    necChecks: JSON.stringify(necChecks),
+    warnings: JSON.stringify(warnings),
+    installSteps: JSON.stringify(installSteps),
+    timeline: `${estimatedDays} days estimated`,
+    laborHoursEst,
+    permitNotes: "Standard residential solar + storage permit required",
+  };
+
+  // Only set enhanced fields if they don't exist
+  if (!existingPlan || !existingPlan.siteSurvey) {
+    baseUpdateData.siteSurvey = JSON.stringify(siteSurvey);
+    baseUpdateData.roofType = siteSurvey.roofType;
+    baseUpdateData.roofPitch = siteSurvey.roofPitch;
+    baseUpdateData.availableArea = siteSurvey.availableArea;
+    baseUpdateData.shadingAnalysis = JSON.stringify(siteSurvey.shadingAnalysis);
+    baseUpdateData.structuralNotes = siteSurvey.structuralNotes;
+  }
+
+  if (!existingPlan || !existingPlan.permitStatus) {
+    baseUpdateData.permitStatus = "not_started";
+  }
+
+  if (!existingPlan || !existingPlan.utilityStatus) {
+    baseUpdateData.utilityStatus = "not_started";
+  }
+
+  if (!existingPlan || !existingPlan.installationPhase) {
+    baseUpdateData.installationPhase = "pre_install";
+  }
+
+  if (!existingPlan || !existingPlan.costBreakdown) {
+    baseUpdateData.costBreakdown = JSON.stringify(costBreakdown);
+  }
+
+  if (!existingPlan || !existingPlan.risks) {
+    baseUpdateData.risks = JSON.stringify(risks);
+  }
+
   const plan = await prisma.plan.upsert({
     where: { projectId },
     create: {
       projectId,
-      necChecks: JSON.stringify(necChecks),
-      warnings: JSON.stringify(warnings),
-      installSteps: JSON.stringify(installSteps),
-      timeline: `${Math.ceil(laborHoursEst / 8)} days estimated`,
-      laborHoursEst,
-      permitNotes: "Standard residential solar + storage permit required",
+      ...baseUpdateData,
     },
-    update: {
-      necChecks: JSON.stringify(necChecks),
-      warnings: JSON.stringify(warnings),
-      installSteps: JSON.stringify(installSteps),
-      timeline: `${Math.ceil(laborHoursEst / 8)} days estimated`,
-      laborHoursEst,
-      permitNotes: "Standard residential solar + storage permit required",
-    },
+    update: baseUpdateData,
   });
 
   if (!skipStatusUpdate) {

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, Download, CheckCircle2, AlertTriangle, Edit3 } from "lucide-react";
+import { Loader2, Download, CheckCircle2, AlertTriangle, Edit3, FileText, Calendar, Building2, Zap, ClipboardList } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import dynamic from "next/dynamic";
 
@@ -52,9 +52,14 @@ export default function ReviewPage() {
   const [project, setProject] = useState<ProjectData | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [siteSurvey, setSiteSurvey] = useState<any>(null);
+  const [permit, setPermit] = useState<any>(null);
+  const [utility, setUtility] = useState<any>(null);
+  const [tasks, setTasks] = useState<any[]>([]);
 
   useEffect(() => {
     fetchProject();
+    fetchEnhancedData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -73,6 +78,40 @@ export default function ReviewPage() {
       alert("Failed to load project");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchEnhancedData = async () => {
+    try {
+      // Fetch site survey
+      const surveyRes = await fetch(`/api/plans/${projectId}/site-survey`);
+      if (surveyRes.ok) {
+        const surveyData = await surveyRes.json();
+        if (surveyData.success) setSiteSurvey(surveyData.siteSurvey);
+      }
+
+      // Fetch permit data
+      const permitRes = await fetch(`/api/plans/${projectId}/permits`);
+      if (permitRes.ok) {
+        const permitData = await permitRes.json();
+        if (permitData.success) setPermit(permitData.permit);
+      }
+
+      // Fetch utility data
+      const utilityRes = await fetch(`/api/plans/${projectId}/utility`);
+      if (utilityRes.ok) {
+        const utilityData = await utilityRes.json();
+        if (utilityData.success) setUtility(utilityData.utility);
+      }
+
+      // Fetch tasks
+      const tasksRes = await fetch(`/api/plans/${projectId}/tasks`);
+      if (tasksRes.ok) {
+        const tasksData = await tasksRes.json();
+        if (tasksData.success) setTasks(tasksData.tasks);
+      }
+    } catch (error) {
+      console.error("Error fetching enhanced data:", error);
     }
   };
 
@@ -138,9 +177,13 @@ export default function ReviewPage() {
   const warnings = project.plan?.warnings
     ? JSON.parse(project.plan.warnings)
     : [];
-  const installSteps = project.plan
+  const installStepsRaw = project.plan
     ? JSON.parse(project.plan.installSteps)
     : [];
+  // Handle both old string format and new object format
+  const installSteps = installStepsRaw.map((step: any, idx: number) => 
+    typeof step === "string" ? step : step.title || step
+  );
 
   return (
     <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
@@ -271,6 +314,190 @@ export default function ReviewPage() {
             />
           )}
         </Card>
+
+        {/* Site Survey */}
+        {siteSurvey && (
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Building2 className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Site Assessment</h2>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {siteSurvey.roofType && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Roof Type</p>
+                  <p className="font-semibold capitalize">{siteSurvey.roofType}</p>
+                </div>
+              )}
+              {siteSurvey.roofPitch && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Roof Pitch</p>
+                  <p className="font-semibold">{siteSurvey.roofPitch}°</p>
+                </div>
+              )}
+              {siteSurvey.availableArea && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Available Area</p>
+                  <p className="font-semibold">{siteSurvey.availableArea.toFixed(0)} sq ft</p>
+                </div>
+              )}
+              {siteSurvey.structuralNotes && (
+                <div className="sm:col-span-2">
+                  <p className="text-sm text-muted-foreground">Structural Notes</p>
+                  <p className="text-sm">{siteSurvey.structuralNotes}</p>
+                </div>
+              )}
+            </div>
+          </Card>
+        )}
+
+        {/* Permit Status */}
+        {permit && (
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <FileText className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Permit Status</h2>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className={`h-3 w-3 rounded-full ${
+                  permit.permitStatus === "approved" ? "bg-green-500" :
+                  permit.permitStatus === "submitted" || permit.permitStatus === "under_review" ? "bg-yellow-500" :
+                  permit.permitStatus === "rejected" ? "bg-red-500" :
+                  "bg-gray-400"
+                }`} />
+                <div>
+                  <p className="font-semibold capitalize">
+                    {permit.permitStatus?.replace("_", " ") || "Not Started"}
+                  </p>
+                  {permit.permitNumber && (
+                    <p className="text-sm text-muted-foreground">
+                      Permit #: {permit.permitNumber}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {permit.ahjName && (
+                <div>
+                  <p className="text-sm text-muted-foreground">AHJ</p>
+                  <p className="font-semibold">{permit.ahjName}</p>
+                  {permit.ahjContact && (
+                    <p className="text-sm text-muted-foreground">{permit.ahjContact}</p>
+                  )}
+                </div>
+              )}
+              {permit.permitSubmitDate && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Submitted</p>
+                  <p className="text-sm">
+                    {new Date(permit.permitSubmitDate).toLocaleDateString()}
+                  </p>
+                </div>
+              )}
+              {permit.permitApprovalDate && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Approved</p>
+                  <p className="text-sm">
+                    {new Date(permit.permitApprovalDate).toLocaleDateString()}
+                  </p>
+                </div>
+              )}
+            </div>
+          </Card>
+        )}
+
+        {/* Utility Interconnection */}
+        {utility && (
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Zap className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Utility Interconnection</h2>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className={`h-3 w-3 rounded-full ${
+                  utility.utilityStatus === "pto_received" ? "bg-green-500" :
+                  utility.utilityStatus === "approved" ? "bg-blue-500" :
+                  utility.utilityStatus === "application_submitted" ? "bg-yellow-500" :
+                  "bg-gray-400"
+                }`} />
+                <div>
+                  <p className="font-semibold capitalize">
+                    {utility.utilityStatus?.replace("_", " ") || "Not Started"}
+                  </p>
+                </div>
+              </div>
+              {utility.utilityName && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Utility Company</p>
+                  <p className="font-semibold">{utility.utilityName}</p>
+                </div>
+              )}
+              {utility.interconnectionLimit && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Interconnection Limit</p>
+                  <p className="font-semibold">{utility.interconnectionLimit} kW</p>
+                </div>
+              )}
+              {utility.applicationDate && (
+                <div>
+                  <p className="text-sm text-muted-foreground">Application Date</p>
+                  <p className="text-sm">
+                    {new Date(utility.applicationDate).toLocaleDateString()}
+                  </p>
+                </div>
+              )}
+              {utility.ptoDate && (
+                <div>
+                  <p className="text-sm text-muted-foreground">PTO Received</p>
+                  <p className="text-sm font-semibold text-green-600">
+                    {new Date(utility.ptoDate).toLocaleDateString()}
+                  </p>
+                </div>
+              )}
+            </div>
+          </Card>
+        )}
+
+        {/* Task Management */}
+        {tasks.length > 0 && (
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <ClipboardList className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Installation Tasks</h2>
+            </div>
+            <div className="space-y-3">
+              {tasks.slice(0, 5).map((task: any) => (
+                <div key={task.id} className="flex items-start gap-3 p-3 rounded-lg border">
+                  <div className={`h-2 w-2 rounded-full mt-2 ${
+                    task.status === "completed" ? "bg-green-500" :
+                    task.status === "in_progress" ? "bg-blue-500" :
+                    task.status === "blocked" ? "bg-red-500" :
+                    "bg-gray-400"
+                  }`} />
+                  <div className="flex-1">
+                    <p className="font-medium">{task.title}</p>
+                    <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
+                      <span className="capitalize">{task.phase}</span>
+                      <span className="capitalize">{task.status?.replace("_", " ")}</span>
+                      {task.dueDate && (
+                        <span>
+                          <Calendar className="h-3 w-3 inline mr-1" />
+                          {new Date(task.dueDate).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {tasks.length > 5 && (
+                <p className="text-sm text-muted-foreground text-center">
+                  +{tasks.length - 5} more tasks
+                </p>
+              )}
+            </div>
+          </Card>
+        )}
 
         {/* NEC Compliance */}
         <Card className="p-6">
