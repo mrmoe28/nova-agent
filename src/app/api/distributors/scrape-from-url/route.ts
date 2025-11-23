@@ -306,6 +306,10 @@ export async function POST(request: NextRequest) {
               browserScraper = await getBrowserScraper();
               logger.info({ productsToScrape: productUrls.length }, "Browser scraper initialized");
 
+              if (!browserScraper) {
+                throw new Error("Failed to initialize browser scraper");
+              }
+
               scrapedProducts = await logOperation(
                 logger,
                 "scrape-products-browser",
