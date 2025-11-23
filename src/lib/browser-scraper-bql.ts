@@ -2,6 +2,7 @@ import * as cheerio from "cheerio";
 import { createLogger } from "./logger";
 import { ScrapedProduct, ScraperConfig } from "./scraper";
 import { BROWSER_CONFIG } from "./config";
+import { validateScrapingUrl } from "./url-validator";
 
 const logger = createLogger("browser-scraper-bql");
 
@@ -20,14 +21,7 @@ export class BrowserScraperBQL {
       const error = new Error(
         "BROWSERLESS_TOKEN not configured. Please set your Browserless API token in Vercel environment variables.",
       );
-      logger.error(
-        {
-          envKeys: Object.keys(process.env).filter((k) =>
-            k.includes("BROWSER"),
-          ),
-        },
-        "BROWSERLESS_TOKEN missing",
-      );
+      logger.error("BROWSERLESS_TOKEN missing - check environment configuration");
       throw error;
     }
 
@@ -72,6 +66,9 @@ export class BrowserScraperBQL {
   async fetchHTMLWithImage(
     url: string,
   ): Promise<{ html: string; imageUrl: string | null }> {
+    // Validate URL to prevent SSRF attacks
+    validateScrapingUrl(url);
+
     logger.info({ url }, "Fetching page with BrowserQL");
 
     // Step 1: Navigate and get HTML
@@ -204,7 +201,15 @@ export class BrowserScraperBQL {
       // Try schema.org JSON-LD first
       $('script[type="application/ld+json"]').each((_, script) => {
         try {
-          const data = JSON.parse($(script).html() || "{}");
+          const jsonText = $(script).html() || "{}";
+
+          // Limit JSON size to prevent memory exhaustion (1MB max)
+          if (jsonText.length > 1024 * 1024) {
+            logger.warn({ size: jsonText.length, url }, "JSON-LD script too large, skipping");
+            return;
+          }
+
+          const data = JSON.parse(jsonText);
           if (
             data["@type"] === "Product" ||
             data["@context"]?.includes("schema.org")

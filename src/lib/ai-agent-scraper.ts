@@ -13,6 +13,7 @@ import * as cheerio from "cheerio";
 import { createLogger } from "./logger";
 import { scrapeMultipleProducts, fetchHTML, isProductPageUrl } from "./scraper";
 import { getBrowserScraper, closeBrowserScraper } from "./browser-scraper-bql";
+import { validateScrapingUrl, filterValidUrls } from "./url-validator";
 import type { ScrapedProduct, ScraperConfig } from "./scraper";
 import { AI_CONFIG } from "./config";
 
@@ -79,6 +80,9 @@ export class AIAgentScraper {
     url: string,
     config: Partial<ScraperConfig> = {},
   ): Promise<ScrapedProduct[]> {
+    // Validate URL at entry point to prevent SSRF attacks
+    validateScrapingUrl(url);
+
     logger.info({ url }, "AI Agent starting intelligent scraping");
 
     try {
@@ -218,14 +222,17 @@ Respond in JSON format:
 
     const analysis: PageAnalysis = JSON.parse(jsonMatch[0]);
 
-    // Make product links absolute
-    analysis.productLinks = analysis.productLinks.map((link) => {
+    // Make product links absolute and validate them
+    const absoluteLinks = analysis.productLinks.map((link) => {
       try {
         return link.startsWith("http") ? link : new URL(link, url).href;
       } catch {
         return link;
       }
     });
+
+    // Filter out invalid/blocked URLs
+    analysis.productLinks = filterValidUrls(absoluteLinks);
 
     return analysis;
   }
@@ -251,13 +258,16 @@ Respond in JSON format:
 
     // If it's a category/listing page with products found
     if (analysis.productLinks.length > 0) {
+      // Validate all target URLs before proceeding
+      const validUrls = filterValidUrls(analysis.productLinks);
+
       return {
         method: analysis.recommendedApproach === "browser" ? "browser" : "http",
         approach: analysis.paginationLinks.length > 0 ? "crawl" : "direct",
-        targetUrls: analysis.productLinks,
+        targetUrls: validUrls,
         maxDepth: analysis.paginationLinks.length > 0 ? 2 : 0,
         selectors: analysis.selectors,
-        reasoning: `Found ${analysis.productLinks.length} product links on category page`,
+        reasoning: `Found ${validUrls.length} valid product links on category page`,
       };
     }
 

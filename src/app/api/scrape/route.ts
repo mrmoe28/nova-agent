@@ -1,135 +1,85 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import {
-  scrapeProductPage,
-  scrapeMultipleProducts,
-  detectCategory,
-} from "@/lib/scraper";
+import * as cheerio from 'cheerio';
+import { detectPageType } from '@/lib/page-detection';
 
-/**
- * POST /api/scrape - Scrape product URL(s) and optionally save to database
- */
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json();
-    const { url, urls, distributorId, saveToDatabase, category } = body;
-
-    if (!url && !urls) {
-      return NextResponse.json(
-        { success: false, error: "URL or URLs array is required" },
-        { status: 400 },
-      );
-    }
-
-    if (saveToDatabase && !distributorId) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "distributorId is required when saveToDatabase is true",
-        },
-        { status: 400 },
-      );
-    }
-
-    // Scrape single or multiple URLs
-    const urlsToScrape = urls || [url];
-    console.log(`Scraping ${urlsToScrape.length} URL(s)...`);
-
-    const scrapedProducts = await scrapeMultipleProducts(urlsToScrape, {
-      rateLimit: 1500, // 1.5 seconds between requests
-      timeout: 30000,
-    });
-
-    console.log(`Scraped ${scrapedProducts.length} products`);
-
-    // Optionally save to database
-    const savedEquipment = [];
-    if (saveToDatabase && distributorId) {
-      for (const product of scrapedProducts) {
-        if (!product.name || !product.price) {
-          console.log("Skipping product with missing name or price");
-          continue;
-        }
-
-        const detectedCategory = category || detectCategory(product);
-
-        try {
-          const equipment = await prisma.equipment.create({
-            data: {
-              distributorId,
-              category: detectedCategory,
-              name: product.name,
-              manufacturer: product.manufacturer || null,
-              modelNumber: product.modelNumber || product.name.substring(0, 50),
-              description: product.description || null,
-              specifications: product.specifications
-                ? JSON.stringify(product.specifications)
-                : null,
-              unitPrice: product.price,
-              imageUrl: product.imageUrl || null,
-              dataSheetUrl: product.dataSheetUrl || null,
-              inStock: product.inStock !== false,
-            },
-          });
-
-          savedEquipment.push(equipment);
-          console.log(`Saved equipment: ${equipment.name}`);
-        } catch (error) {
-          console.error("Error saving equipment:", error);
-        }
-      }
-    }
-
-    return NextResponse.json({
-      success: true,
-      scraped: scrapedProducts.length,
-      saved: savedEquipment.length,
-      products: scrapedProducts,
-      equipment: savedEquipment,
-    });
-  } catch (error) {
-    console.error("Scrape API error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : "Failed to scrape",
-      },
-      { status: 500 },
-    );
-  }
+// Standard interface for our scraped data
+export interface ScrapedData {
+  type: 'PRODUCT' | 'CATEGORY';
+  url: string;
+  name?: string;
+  price?: number;
+  description?: string;
+  image?: string;
+  inStock?: boolean;
+  links?: string[]; // For category pages
 }
 
-/**
- * GET /api/scrape - Test endpoint to scrape a single URL
- */
-export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const url = searchParams.get("url");
+// Helper to clean price strings (e.g., "$1,299.00" -> 1299.00)
+function parsePrice(text: string): number | undefined {
+  const clean = text.replace(/[^0-9.]/g, '');
+  const num = parseFloat(clean);
+  return isNaN(num) ? undefined : num;
+}
 
-  if (!url) {
-    return NextResponse.json(
-      { success: false, error: "URL parameter is required" },
-      { status: 400 },
-    );
-  }
+export async function scrapeUrl(url: string): Promise<ScrapedData> {
+  const response = await fetch(url, {
+    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; NovaAgent/1.0)' }
+  });
+  
+  if (!response.ok) throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
+  const html = await response.text();
+  const $ = cheerio.load(html);
 
-  try {
-    const product = await scrapeProductPage(url);
-    const category = detectCategory(product);
+  // 1. DETECT PAGE TYPE using robust detection (Schema.org, URL patterns, visual heuristics)
+  const pageType = detectPageType($, url);
 
-    return NextResponse.json({
-      success: true,
-      product,
-      suggestedCategory: category,
+  if (pageType === 'CATEGORY') {
+    // --- CATEGORY PAGE LOGIC ---
+    // Extract all product links to process later
+    const links = new Set<string>();
+    $('a[href]').each((_, el) => {
+      const href = $(el).attr('href');
+      if (href && (href.includes('/products/') || href.includes('/item/'))) {
+        // Normalize URL
+        try {
+          const fullUrl = new URL(href, url).toString();
+          links.add(fullUrl);
+        } catch (e) {}
+      }
     });
-  } catch (error) {
-    console.error("Scrape test error:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : "Failed to scrape",
-      },
-      { status: 500 },
-    );
+
+    return { type: 'CATEGORY', url, links: Array.from(links) };
   }
+
+  // --- PRODUCT PAGE LOGIC ---
+  // Try multiple common selectors for robustness
+  const name = $('h1').first().text().trim() || $('meta[property="og:title"]').attr('content');
+  
+  let price = undefined;
+  const priceSelectors = ['[property="og:price:amount"]', '.price', '.product-price', '.money', '[itemprop="price"]'];
+  for (const sel of priceSelectors) {
+    const val = $(sel).first().text().trim() || $(sel).attr('content');
+    if (val) {
+        const parsed = parsePrice(val);
+        if (parsed) { price = parsed; break; }
+    }
+  }
+
+  const description = $('meta[name="description"]').attr('content') || 
+                      $('[itemprop="description"]').first().text().trim();
+  
+  const image = $('meta[property="og:image"]').attr('content') || 
+                $('img[itemprop="image"]').attr('src');
+
+  const inStock = !($(':contains("Out of stock")').length > 0 || 
+                    $(':contains("Sold Out")').length > 0);
+
+  return {
+    type: 'PRODUCT',
+    url,
+    name,
+    price,
+    description,
+    image,
+    inStock
+  };
 }

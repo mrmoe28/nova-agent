@@ -5,6 +5,7 @@ import { robotsChecker } from "./robots-checker";
 import { SCRAPER_CONFIG } from "./config";
 import { categorizeProduct } from "./categorize-product";
 import { htmlCache, productCache } from "./cache";
+import { validateScrapingUrl, validateConstructedUrl } from "./url-validator";
 import type { EquipmentCategory } from "@prisma/client";
 
 const logger = createLogger("scraper");
@@ -43,87 +44,66 @@ function getRandomUserAgent(): string {
 
 /**
  * Detect if a URL is likely a product page vs a category/listing page
- * Product pages have longer, more specific paths with dashes
- * Category pages have shorter, generic paths
+ * 
+ * NOTE: This function is deprecated. Use detectPageType() from @/lib/page-detection instead
+ * for more robust detection using Schema.org JSON-LD, URL patterns, and visual heuristics.
+ * 
+ * This is kept for backward compatibility.
  */
 export function isProductPageUrl(url: string): boolean {
+  // Import the new detection function
+  // For URL-only detection, we use the legacy heuristics
   try {
     const urlObj = new URL(url);
     const pathname = urlObj.pathname.toLowerCase();
-
-    // Remove trailing slash for consistent matching
     const cleanPath = pathname.replace(/\/$/, "");
 
-    // Category page indicators (check these FIRST to avoid false positives)
+    // Category page indicators
     const categoryPatterns = [
       /^\/(shop|catalog|store|category|collection|collections|batteries|solar-panels|inverters|all-products|browse)$/,
-      /^\/collections\//, // Shopify collections (category pages)
+      /^\/collections\//, // Shopify collections
       /^\/(shop|catalog)\/(new|featured|best-sellers|clearance)$/,
-      /^\/(all-products|shop)\/.+\/$/, // Category subdirectories with trailing slash
-      /^\/(kits-bundles|kits|bundles)\//, // Kit/bundle category pages
-      /^\/(all-products|kits-bundles|shop)\/(kits|bundles|batteries|panels|inverters|chargers|cables)/, // Common category paths
-      /\/(complete-off-grid|complete-hybrid|complete-grid-tie|new-arrivals)\//, // Specific category paths
-      /^\/[^\/]+\/(wall-mount|server-rack|stackable|free-standing|12-volt|24-volt|48-volt)$/,
+      /^\/(kits-bundles|kits|bundles)\//,
       /page[\/=]\d+/, // Pagination
-      /_bc_fsnf=/, // BigCommerce filter
       /\?.*brand=/, // Brand filters
       /^\/pages\//, // Static pages
-      // NEW: Generic category names in /products/ path (1 level deep only)
       /^\/products\/(solar-panels|solar-inverters|inverters|batteries|battery|solar-racking|racking|mounting|energy-storage|ev-charging|monitoring|balance-system|electrical|wiring|cables|accessories)$/i,
     ];
 
-    // If it matches category patterns, it's NOT a product page
-    if (
-      categoryPatterns.some(
-        (pattern) => pattern.test(pathname) || pattern.test(url),
-      )
-    ) {
+    if (categoryPatterns.some((pattern) => pattern.test(pathname) || pattern.test(url))) {
       return false;
     }
 
-    // Shopify-style product URLs (must be 2+ levels deep to avoid categories)
-    // Example: /products/solar-inverters/m/enphase-energy-275 (product)
-    // vs: /products/solar-inverters (category)
+    // Shopify-style product URLs
     const productsMatch = cleanPath.match(/^\/products\/([^\/]+)(?:\/(.+))?$/);
     if (productsMatch) {
       const [, category, productSlug] = productsMatch;
-
-      // If there's a second segment (productSlug), it's likely a product page
-      // Example: /products/solar-inverters/m/enphase-275
+      
       if (productSlug) {
         return true;
       }
 
-      // If only 1 segment after /products/, check if it's a specific product
-      // Look for patterns that indicate it's a product, not a category
       const hasProductIndicators =
-        /[a-z0-9]+-[a-z0-9]+-[a-z0-9]+/.test(category) || // 3+ dashes (eg4-lifepower4-48v-200ah)
-        /-\d{2,}(ah|v|kw|w)/i.test(category) || // Contains specs (-100ah, -48v, -5kw)
-        /\d{3,}/.test(category) || // Contains 3+ digit model numbers
-        /(^|\-)(iq|se|iq8|micro|eg4|ll-s|lifepower|wallbox|powerwall)/i.test(category); // Known product prefixes
+        /[a-z0-9]+-[a-z0-9]+-[a-z0-9]+/.test(category) ||
+        /-\d{2,}(ah|v|kw|w)/i.test(category) ||
+        /\d{3,}/.test(category) ||
+        /(^|\-)(iq|se|iq8|micro|eg4|ll-s|lifepower|wallbox|powerwall)/i.test(category);
 
-      if (hasProductIndicators) {
-        return true;
-      }
-
-      // Otherwise it's a category page
-      return false;
+      return hasProductIndicators;
     }
 
-    // Product page indicators (longer, specific paths with multiple dashes)
+    // Product page indicators
     const productPatterns = [
-      /\/[a-z0-9]+-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+/, // 4+ segments with dashes (eg4-ll-s-lithium-battery)
+      /\/[a-z0-9]+-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+/,
       /\/(product|item|detail|p|pd|dp|gp|itm)\//,
-      /-\d{2,}ah|-\d{2,}v|-\d+kw/, // Contains specs like -100ah, -48v, -5kw
-      /\/(eg4|bigbattery|canadian-solar|pytes|enphase|ecoflow|anker|jackery)-[a-z0-9-]+$/, // Brand-specific products
+      /-\d{2,}ah|-\d{2,}v|-\d+kw/,
+      /\/(eg4|bigbattery|canadian-solar|pytes|enphase|ecoflow|anker|jackery)-[a-z0-9-]+$/,
     ];
 
-    // If it matches product patterns, it's a product page
     if (productPatterns.some((pattern) => pattern.test(pathname))) {
       return true;
     }
 
-    // Default: paths with 3+ dashes are likely products
     const dashCount = (cleanPath.match(/-/g) || []).length;
     return dashCount >= 3;
   } catch {
@@ -268,6 +248,9 @@ export async function fetchHTML(
   url: string,
   config: ScraperConfig,
 ): Promise<string> {
+  // Validate URL first to prevent SSRF attacks
+  validateScrapingUrl(url);
+
   // Check cache first (1 hour TTL by default)
   const cached = htmlCache.get(url);
   if (cached) {
@@ -370,7 +353,15 @@ function extractProductData($: cheerio.Root, url: string): ScrapedProduct {
   // First, try to extract from schema.org JSON-LD (most reliable)
   $('script[type="application/ld+json"]').each((_, script) => {
     try {
-      const data = JSON.parse($(script).html() || "{}");
+      const jsonText = $(script).html() || "{}";
+
+      // Limit JSON size to prevent memory exhaustion (1MB max)
+      if (jsonText.length > 1024 * 1024) {
+        logger.warn({ size: jsonText.length, url }, "JSON-LD script too large, skipping");
+        return;
+      }
+
+      const data = JSON.parse(jsonText);
       // Check if it's a Product schema
       if (
         data["@type"] === "Product" ||
@@ -514,7 +505,8 @@ function extractProductData($: cheerio.Root, url: string): ScrapedProduct {
     /SKU\s*:?\s*([A-Z0-9-]+)/i,
   ];
 
-  const pageText = $("body").text();
+  // Limit text length to prevent ReDoS attacks (max 10KB)
+  const pageText = $("body").text().substring(0, 10000);
   for (const pattern of modelPatterns) {
     const match = pageText.match(pattern);
     if (match) {
@@ -742,7 +734,15 @@ export async function scrapeCompanyInfo(
     // Try to extract from schema.org Organization markup (JSON-LD)
     $('script[type="application/ld+json"]').each((_, script) => {
       try {
-        const data = JSON.parse($(script).html() || "{}");
+        const jsonText = $(script).html() || "{}";
+
+        // Limit JSON size to prevent memory exhaustion (1MB max)
+        if (jsonText.length > 1024 * 1024) {
+          logger.warn({ size: jsonText.length, url }, "JSON-LD script too large, skipping");
+          return;
+        }
+
+        const data = JSON.parse(jsonText);
         if (
           data["@type"] === "Organization" ||
           data["@context"]?.includes("schema.org")
@@ -862,17 +862,27 @@ export async function scrapeCompanyInfo(
         !linkHref.includes("javascript")
       ) {
         try {
+          // Ensure company.website is defined
+          if (!company.website) return;
+
           // Make URL absolute
           const absoluteUrl = href.startsWith("http")
             ? href
             : new URL(href, company.website).href;
 
+          // Validate constructed URL to prevent protocol manipulation
+          validateConstructedUrl(absoluteUrl, company.website);
+
           // Only include URLs from the same domain
           if (new URL(absoluteUrl).hostname === urlObj.hostname) {
             productLinks.add(absoluteUrl);
           }
-        } catch {
-          // Invalid URL, skip
+        } catch (error) {
+          // Invalid or blocked URL, skip
+          logger.debug(
+            { href, error: error instanceof Error ? error.message : "Unknown" },
+            "Skipping invalid product link",
+          );
         }
       }
     });
@@ -1075,6 +1085,10 @@ export async function deepCrawlForProducts(
                 const absoluteUrl = href.startsWith("http")
                   ? href
                   : new URL(href, url).href;
+
+                // Validate constructed URL
+                validateConstructedUrl(absoluteUrl, url);
+
                 const linkObj = new URL(absoluteUrl);
 
                 // Only include same domain and valid product URLs
@@ -1088,8 +1102,12 @@ export async function deepCrawlForProducts(
                   const normalizedUrl = absoluteUrl.split('?')[0].split('#')[0].replace(/\/$/, '');
                   shopifyProductLinks.add(normalizedUrl);
                 }
-              } catch {
-                // Invalid URL, skip
+              } catch (error) {
+                // Invalid or blocked URL, skip
+                logger.debug(
+                  { href, error: error instanceof Error ? error.message : "Unknown" },
+                  "Skipping invalid Shopify product link",
+                );
               }
             });
           });
@@ -1121,6 +1139,10 @@ export async function deepCrawlForProducts(
               const absoluteUrl = href.startsWith("http")
                 ? href
                 : new URL(href, url).href;
+
+              // Validate constructed URL
+              validateConstructedUrl(absoluteUrl, url);
+
               const linkObj = new URL(absoluteUrl);
 
               // Only follow links on the same domain
