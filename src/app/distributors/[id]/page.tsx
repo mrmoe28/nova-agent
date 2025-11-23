@@ -147,7 +147,7 @@ export default function DistributorDetailPage() {
           saveToDatabase: true,
           scrapeProducts: true,
           distributorId: distributor.id,
-          maxProducts: 500,
+          maxProducts: 100,
           useBrowser, // Use browser mode if enabled
         }),
       });
@@ -201,7 +201,7 @@ export default function DistributorDetailPage() {
           saveToDatabase: true,
           scrapeProducts: true,
           distributorId: distributor.id,
-          maxProducts: 500,
+          maxProducts: 100,
           useBrowser,
         }),
       });
