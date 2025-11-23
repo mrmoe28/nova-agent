@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { scrapeUrl } from "@/lib/scraper";
+import { scrapeUrl } from "@/lib/scrape-url";
 
 export async function POST(request: NextRequest) {
   try {
