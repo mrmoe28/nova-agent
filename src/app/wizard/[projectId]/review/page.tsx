@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, Download, CheckCircle2, AlertTriangle, Edit3, FileText, Calendar, Building2, Zap, ClipboardList } from "lucide-react";
+import { Loader2, Download, CheckCircle2, AlertTriangle, Edit3, FileText, Calendar, Building2, Zap, ClipboardList, Users, DollarSign, Search } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import dynamic from "next/dynamic";
 
@@ -56,6 +56,9 @@ export default function ReviewPage() {
   const [permit, setPermit] = useState<any>(null);
   const [utility, setUtility] = useState<any>(null);
   const [tasks, setTasks] = useState<any[]>([]);
+  const [inspections, setInspections] = useState<any[]>([]);
+  const [crew, setCrew] = useState<any[]>([]);
+  const [costBreakdown, setCostBreakdown] = useState<any>(null);
 
   useEffect(() => {
     fetchProject();
@@ -109,6 +112,27 @@ export default function ReviewPage() {
       if (tasksRes.ok) {
         const tasksData = await tasksRes.json();
         if (tasksData.success) setTasks(tasksData.tasks);
+      }
+
+      // Fetch inspections
+      const inspectionsRes = await fetch(`/api/plans/${projectId}/inspections`);
+      if (inspectionsRes.ok) {
+        const inspectionsData = await inspectionsRes.json();
+        if (inspectionsData.success) setInspections(inspectionsData.inspections);
+      }
+
+      // Fetch crew
+      const crewRes = await fetch(`/api/plans/${projectId}/crew`);
+      if (crewRes.ok) {
+        const crewData = await crewRes.json();
+        if (crewData.success) setCrew(crewData.crew);
+      }
+
+      // Fetch cost breakdown
+      const costRes = await fetch(`/api/plans/${projectId}/cost-breakdown`);
+      if (costRes.ok) {
+        const costData = await costRes.json();
+        if (costData.success) setCostBreakdown(costData.costBreakdown);
       }
     } catch (error) {
       console.error("Error fetching enhanced data:", error);
@@ -494,6 +518,128 @@ export default function ReviewPage() {
                 <p className="text-sm text-muted-foreground text-center">
                   +{tasks.length - 5} more tasks
                 </p>
+              )}
+            </div>
+          </Card>
+        )}
+
+        {/* Inspections */}
+        {inspections.length > 0 && (
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Search className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Inspections</h2>
+            </div>
+            <div className="space-y-3">
+              {inspections.map((inspection: any) => (
+                <div key={inspection.id} className="flex items-start gap-3 p-3 rounded-lg border">
+                  <div className={`h-2 w-2 rounded-full mt-2 ${
+                    inspection.status === "passed" ? "bg-green-500" :
+                    inspection.status === "failed" ? "bg-red-500" :
+                    inspection.status === "scheduled" ? "bg-blue-500" :
+                    "bg-gray-400"
+                  }`} />
+                  <div className="flex-1">
+                    <div className="flex items-center justify-between">
+                      <p className="font-medium capitalize">{inspection.type} Inspection</p>
+                      <span className="text-sm text-muted-foreground capitalize">
+                        {inspection.status?.replace("_", " ")}
+                      </span>
+                    </div>
+                    {inspection.scheduledDate && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        <Calendar className="h-3 w-3 inline mr-1" />
+                        Scheduled: {new Date(inspection.scheduledDate).toLocaleDateString()}
+                      </p>
+                    )}
+                    {inspection.actualDate && (
+                      <p className="text-sm text-muted-foreground">
+                        Completed: {new Date(inspection.actualDate).toLocaleDateString()}
+                      </p>
+                    )}
+                    {inspection.inspector && (
+                      <p className="text-sm text-muted-foreground">
+                        Inspector: {inspection.inspector}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        {/* Crew Assignments */}
+        {crew.length > 0 && (
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <Users className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Crew Assignments</h2>
+            </div>
+            <div className="space-y-3">
+              {crew.map((member: any) => (
+                <div key={member.id} className="flex items-start gap-3 p-3 rounded-lg border">
+                  <div className="flex-1">
+                    <p className="font-medium">{member.name}</p>
+                    <p className="text-sm text-muted-foreground capitalize">{member.role}</p>
+                    {member.email && (
+                      <p className="text-sm text-muted-foreground">{member.email}</p>
+                    )}
+                    {member.assignedTasks && member.assignedTasks.length > 0 && (
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {member.assignedTasks.length} task(s) assigned
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+        )}
+
+        {/* Cost Breakdown */}
+        {costBreakdown && (
+          <Card className="p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <DollarSign className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Cost Breakdown</h2>
+            </div>
+            <div className="space-y-2">
+              {costBreakdown.permits && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Permits</span>
+                  <span className="font-semibold">{formatCurrency(costBreakdown.permits)}</span>
+                </div>
+              )}
+              {costBreakdown.materials && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Materials</span>
+                  <span className="font-semibold">{formatCurrency(costBreakdown.materials)}</span>
+                </div>
+              )}
+              {costBreakdown.labor && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Labor</span>
+                  <span className="font-semibold">{formatCurrency(costBreakdown.labor)}</span>
+                </div>
+              )}
+              {costBreakdown.inspections && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Inspections</span>
+                  <span className="font-semibold">{formatCurrency(costBreakdown.inspections)}</span>
+                </div>
+              )}
+              {costBreakdown.contingency && (
+                <div className="flex justify-between">
+                  <span className="text-sm text-muted-foreground">Contingency</span>
+                  <span className="font-semibold">{formatCurrency(costBreakdown.contingency)}</span>
+                </div>
+              )}
+              {costBreakdown.total && (
+                <div className="flex justify-between pt-2 border-t mt-2">
+                  <span className="font-semibold">Total</span>
+                  <span className="text-lg font-bold text-primary">{formatCurrency(costBreakdown.total)}</span>
+                </div>
               )}
             </div>
           </Card>
