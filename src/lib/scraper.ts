@@ -422,6 +422,7 @@ function extractProductData($: cheerio.Root, url: string): ScrapedProduct {
       $('h1[itemprop="name"]').first().text().trim() ||
       $("h1.product-title").first().text().trim() ||
       $("h1.product-name").first().text().trim() ||
+      $("h1").first().text().trim() ||
       $('meta[property="og:title"]').attr("content") ||
       $("title").text().split("|")[0].trim();
   }
@@ -438,6 +439,23 @@ function extractProductData($: cheerio.Root, url: string): ScrapedProduct {
       const priceMatch = priceText.replace(/[,$]/g, "").match(/(\d+\.?\d*)/);
       if (priceMatch) {
         product.price = parseFloat(priceMatch[1]);
+      }
+    }
+  }
+
+  // Final fallback: scan body text for a currency-like pattern (e.g. "$ 2730.03 EA")
+  // This helps on sites like Platt where prices are plain text without price-specific classes.
+  if (!product.price) {
+    const bodyText = $("body").text();
+    const currencyMatch = bodyText.match(
+      /\$\s*([0-9]{1,3}(?:,[0-9]{3})*(?:\.[0-9]+)?)/,
+    );
+
+    if (currencyMatch && currencyMatch[1]) {
+      const normalized = currencyMatch[1].replace(/,/g, "");
+      const parsed = parseFloat(normalized);
+      if (!Number.isNaN(parsed)) {
+        product.price = parsed;
       }
     }
   }
