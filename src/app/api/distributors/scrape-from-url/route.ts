@@ -16,6 +16,27 @@ import { createLogger, logOperation } from "@/lib/logger";
 
 const logger = createLogger("scrape-api");
 
+const QUICK_COMPANY_SCRAPE_CONFIG = {
+  rateLimit: 200,
+  timeout: 8000,
+  respectRobotsTxt: true,
+  maxRetries: 2,
+} as const;
+
+const QUICK_PRODUCT_SCRAPE_CONFIG = {
+  rateLimit: 200,
+  timeout: 10000,
+  respectRobotsTxt: true,
+  maxRetries: 2,
+} as const;
+
+const QUICK_CRAWL_CONFIG = {
+  rateLimit: 200,
+  timeout: 10000,
+  respectRobotsTxt: true,
+  maxRetries: 2,
+} as const;
+
 // Allow up to 60 seconds for scraping operations (Pro tier)
 // Hobby tier is limited to 10 seconds
 // Note: For production, we use conservative limits to avoid timeouts
@@ -91,7 +112,13 @@ export async function POST(request: NextRequest) {
           });
           logger.debug({ crawlJobId }, "Heartbeat: Job still alive");
         } catch (error) {
-          logger.warn({ crawlJobId }, "Heartbeat failed, job may have been deleted");
+          logger.warn(
+            {
+              crawlJobId,
+              error: error instanceof Error ? error.message : String(error),
+            },
+            "Heartbeat failed, job may have been deleted",
+          );
           clearInterval(heartbeat);
         }
       }
@@ -101,13 +128,7 @@ export async function POST(request: NextRequest) {
     const companyInfo = await logOperation(
       logger,
       "scrape-company-info",
-      () =>
-        scrapeCompanyInfo(url, {
-          rateLimit: 200, // Fast rate limit
-          timeout: 5000, // 5 second timeout
-          respectRobotsTxt: true,
-          maxRetries: 1,
-        }),
+      () => scrapeCompanyInfo(url, { ...QUICK_COMPANY_SCRAPE_CONFIG }),
       { url },
     );
 
@@ -172,12 +193,7 @@ export async function POST(request: NextRequest) {
               maxPages, // Configurable: Crawl up to N pages to find all products
               maxDepth, // Configurable: Follow subcategories and sub-sublinks up to N levels deep
               concurrency: 5, // Process 5 pages in parallel for faster crawling
-              config: {
-                rateLimit: 200, // Fast rate limit
-                timeout: 5000, // 5 second timeout
-                respectRobotsTxt: true,
-                maxRetries: 1,
-              },
+              config: { ...QUICK_CRAWL_CONFIG },
             });
 
             // Check if we're running out of time
@@ -230,13 +246,7 @@ export async function POST(request: NextRequest) {
           scrapedProducts = await logOperation(
             logger,
             "scrape-products",
-            () =>
-              scrapeMultipleProducts(productUrls, {
-                rateLimit: 200,
-                timeout: 5000,
-                respectRobotsTxt: true,
-                maxRetries: 1,
-              }),
+            () => scrapeMultipleProducts(productUrls, { ...QUICK_PRODUCT_SCRAPE_CONFIG }),
             { count: productUrls.length, method: "fetch" },
           );
         } else {
@@ -264,13 +274,7 @@ export async function POST(request: NextRequest) {
             scrapedProducts = await logOperation(
               logger,
               "scrape-products",
-              () =>
-                scrapeMultipleProducts(productUrls, {
-                  rateLimit: 200,
-                  timeout: 5000,
-                  respectRobotsTxt: true,
-                  maxRetries: 1,
-                }),
+              () => scrapeMultipleProducts(productUrls, { ...QUICK_PRODUCT_SCRAPE_CONFIG }),
               { count: productUrls.length, method: "fetch" },
             );
           }
@@ -280,13 +284,7 @@ export async function POST(request: NextRequest) {
         scrapedProducts = await logOperation(
           logger,
           "scrape-products",
-          () =>
-            scrapeMultipleProducts(productUrls, {
-              rateLimit: 200,
-              timeout: 5000,
-              respectRobotsTxt: true,
-              maxRetries: 1,
-            }),
+          () => scrapeMultipleProducts(productUrls, { ...QUICK_PRODUCT_SCRAPE_CONFIG }),
           { count: productUrls.length, method: "fetch" },
         );
       }

@@ -194,6 +194,23 @@ function isHoneypotLink($link: cheerio.Cheerio): boolean {
   return false;
 }
 
+const ROBOTS_SENSITIVE_PATHS = [
+  /^\/cart/i,
+  /^\/carts/i,
+  /^\/checkout/i,
+  /^\/checkouts/i,
+  /^\/orders/i,
+  /^\/account/i,
+  /^\/a\/downloads\//i,
+  /^\/sf_private_access_tokens/i,
+  /^\/cdn\/wpm\//i,
+  /^\/apple-app-site-association/i,
+];
+
+function isRobotsSensitivePath(pathname: string): boolean {
+  return ROBOTS_SENSITIVE_PATHS.some((pattern) => pattern.test(pathname));
+}
+
 export interface ScraperConfig {
   rateLimit?: number; // milliseconds between requests (used as base for random delays)
   randomDelay?: boolean; // Add random delays between requests (10-20s recommended for production)
@@ -1151,12 +1168,16 @@ export async function deepCrawlForProducts(
                 // Only include same domain and valid product URLs
                 if (
                   linkObj.hostname === baseHostname &&
+                  !isRobotsSensitivePath(linkObj.pathname) &&
                   isProductPageUrl(absoluteUrl) &&
                   !absoluteUrl.includes("#") &&
                   !absoluteUrl.includes("javascript:")
                 ) {
                   // Normalize URL (remove query params, fragments, trailing slashes)
-                  const normalizedUrl = absoluteUrl.split('?')[0].split('#')[0].replace(/\/$/, '');
+                  const normalizedUrl = absoluteUrl
+                    .split("?")[0]
+                    .split("#")[0]
+                    .replace(/\/$/, "");
                   shopifyProductLinks.add(normalizedUrl);
                 }
               } catch (error) {
@@ -1216,7 +1237,12 @@ export async function deepCrawlForProducts(
 
               const linkText = $(link).text().toLowerCase();
               const linkHref = href.toLowerCase();
-              const pathname = linkObj.pathname.toLowerCase();
+              const rawPathname = linkObj.pathname;
+              const pathname = rawPathname.toLowerCase();
+
+              if (isRobotsSensitivePath(rawPathname)) {
+                return;
+              }
 
               // Enhanced product link detection with multiple patterns
               const productPatterns = [
@@ -1319,6 +1345,51 @@ export async function deepCrawlForProducts(
               }
             } catch {
               // Invalid URL, skip
+            }
+          });
+
+          // HTML rel-based pagination (e.g., <link rel="next" href="?page=2">)
+          const relPaginationSelectors = [
+            'link[rel="next"]',
+            'link[rel="nextpage"]',
+            'link[rel="prev"]',
+          ];
+          const relPaginationLinks = new Set<string>();
+
+          relPaginationSelectors.forEach((selector) => {
+            $(selector).each((_, element) => {
+              const href = $(element).attr("href");
+              if (!href) return;
+
+              try {
+                const absoluteUrl = href.startsWith("http")
+                  ? href
+                  : new URL(href, url).href;
+
+                validateConstructedUrl(absoluteUrl, url);
+
+                const linkObj = new URL(absoluteUrl);
+                if (
+                  linkObj.hostname === baseHostname &&
+                  !isRobotsSensitivePath(linkObj.pathname)
+                ) {
+                  relPaginationLinks.add(
+                    absoluteUrl.split("#")[0], // Keep query params for ?page=
+                  );
+                }
+              } catch {
+                // Ignore malformed rel links
+              }
+            });
+          });
+
+          relPaginationLinks.forEach((nextUrl) => {
+            if (
+              depth < maxDepth &&
+              !visitedUrls.has(nextUrl) &&
+              !pageNextUrls.some((item) => item.url === nextUrl)
+            ) {
+              pageNextUrls.push({ url: nextUrl, depth: depth + 1 });
             }
           });
 
