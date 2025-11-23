@@ -18,7 +18,7 @@ export const SYSTEM_SIZING = {
   SOLAR_SIZING_FACTOR: parseFloat(process.env.SOLAR_SIZING_FACTOR || "1.2"),
 
   /** Average peak sun hours per day (varies by geography) */
-  PEAK_SUN_HOURS: parseFloat(process.env.PEAK_SUN_HOURS || "4"),
+  PEAK_SUN_HOURS: Math.max(0.1, parseFloat(process.env.PEAK_SUN_HOURS || "4")),
 
   /** Standard solar panel wattage in watts */
   SOLAR_PANEL_WATTAGE: parseInt(process.env.SOLAR_PANEL_WATTAGE || "400"),

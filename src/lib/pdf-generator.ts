@@ -258,10 +258,9 @@ export function generateNovaAgentPDF(
         let rightY = yPos + 60;
 
         const solarProduction = system.totalSolarKw * 4 * 30; // Rough estimate
-        const solarCoverage = Math.min(
-          (solarProduction / analysis.monthlyUsageKwh) * 100,
-          100,
-        );
+        const solarCoverage = analysis.monthlyUsageKwh > 0
+          ? Math.min((solarProduction / analysis.monthlyUsageKwh) * 100, 100)
+          : 0;
         const estimatedSavings = (analysis.annualCostUsd * solarCoverage) / 100;
 
         doc
@@ -320,9 +319,11 @@ export function generateNovaAgentPDF(
           );
         yPos += 18;
 
-        const paybackYears = system.estimatedCostUsd / estimatedSavings;
+        const paybackYears = estimatedSavings > 0
+          ? system.estimatedCostUsd / estimatedSavings
+          : Infinity;
         doc.text(
-          `Estimated Payback: ${paybackYears.toFixed(1)} years`,
+          `Estimated Payback: ${paybackYears !== Infinity ? paybackYears.toFixed(1) + ' years' : 'N/A'}`,
           70,
           yPos,
         );
@@ -349,12 +350,13 @@ export function generateNovaAgentPDF(
         yPos = 120;
 
         const solarProduction = system.totalSolarKw * 4 * 30; // Monthly production estimate
-        const solarCoverage = Math.min(
-          (solarProduction / analysis.monthlyUsageKwh) * 100,
-          100,
-        );
+        const solarCoverage = analysis.monthlyUsageKwh > 0
+          ? Math.min((solarProduction / analysis.monthlyUsageKwh) * 100, 100)
+          : 0;
         const annualSavings = (analysis.annualCostUsd * solarCoverage) / 100;
-        const paybackYears = system.estimatedCostUsd / annualSavings;
+        const paybackYears = annualSavings > 0
+          ? system.estimatedCostUsd / annualSavings
+          : Infinity;
 
         // Draw savings visualization graph
         const graphX = 70;
@@ -1043,7 +1045,13 @@ export function generateNovaAgentPDF(
         yPos += 50;
 
         // NEC Checks
-        const necChecks = JSON.parse(plan.necChecks);
+        let necChecks = [];
+        try {
+          necChecks = JSON.parse(plan.necChecks);
+        } catch (error) {
+          console.error('Invalid JSON in plan.necChecks:', error);
+          necChecks = [];
+        }
         doc.fontSize(10).font("Helvetica");
         necChecks.forEach(
           (check: {
@@ -1093,7 +1101,13 @@ export function generateNovaAgentPDF(
 
         // Warnings Section
         if (plan.warnings) {
-          const warnings = JSON.parse(plan.warnings);
+          let warnings = [];
+          try {
+            warnings = JSON.parse(plan.warnings);
+          } catch (error) {
+            console.error('Invalid JSON in plan.warnings:', error);
+            warnings = [];
+          }
           if (warnings.length > 0) {
             if (yPos > 600) {
               doc.addPage();
@@ -1231,7 +1245,13 @@ export function generateNovaAgentPDF(
           .text("Installation Steps", 50, yPos);
         yPos += 30;
 
-        const installSteps = JSON.parse(plan.installSteps);
+        let installSteps = [];
+        try {
+          installSteps = JSON.parse(plan.installSteps);
+        } catch (error) {
+          console.error('Invalid JSON in plan.installSteps:', error);
+          installSteps = [];
+        }
         doc.fontSize(10).font("Helvetica").fillColor(textDark);
         installSteps.forEach((step: string, index: number) => {
           if (yPos > 700) {

@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
                 }
             }
         }
-        if (billsWithData > 0) {
+        if (billsWithData > 0 && totalKwh > 0) {
             monthlyUsageKwh = totalKwh / billsWithData;
             averageCostPerKwh = totalCost / totalKwh;
         } else {
