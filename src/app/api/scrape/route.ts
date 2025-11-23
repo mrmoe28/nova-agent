@@ -3,9 +3,15 @@ import { prisma } from "@/lib/prisma";
 import { scrapeUrl } from "@/lib/scrape-url";
 import { categorizeProduct } from "@/lib/categorize-product";
 
+type ScrapeRequest = {
+  url: string;
+  distributorId?: string;
+  saveToDatabase?: boolean;
+};
+
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const body = (await request.json()) as ScrapeRequest;
     const { url, distributorId, saveToDatabase } = body;
 
     if (!url) {
@@ -29,27 +35,33 @@ export async function POST(request: NextRequest) {
 
     // 3. Handle Product Pages (Save to DB)
     let equipment = null;
-    if (saveToDatabase && distributorId && data.type === 'PRODUCT') {
-        if (!data.name || !data.price) {
-            return NextResponse.json({ success: false, error: "Could not parse name or price" }, { status: 422 });
-        }
+    if (
+      saveToDatabase &&
+      distributorId &&
+      data.type === "PRODUCT"
+    ) {
+      if (!data.name || !data.price) {
+        return NextResponse.json(
+          { success: false, error: "Could not parse name or price" },
+          { status: 422 },
+        );
+      }
 
-        // Automatically categorize the product
-        const category = categorizeProduct(data.name, data.description);
+      const category = categorizeProduct(data.name, data.description);
 
-        equipment = await prisma.equipment.create({
-            data: {
-                distributorId,
-                category,
-                name: data.name,
-                description: data.description,
-                unitPrice: data.price,
-                imageUrl: data.image,
-                inStock: data.inStock || true,
-                specifications: JSON.stringify({ source: 'Auto-scraped' })
-            }
-        });
-        console.log(`Saved equipment: ${equipment.name} as ${category}`);
+      equipment = await prisma.equipment.create({
+        data: {
+          distributorId,
+          category,
+          name: data.name,
+          description: data.description,
+          unitPrice: data.price,
+          imageUrl: data.image,
+          inStock: data.inStock ?? true,
+          specifications: JSON.stringify({ source: "Auto-scraped" }),
+        },
+      });
+      console.log(`Saved equipment: ${equipment.name} as ${category}`);
     }
 
     return NextResponse.json({
