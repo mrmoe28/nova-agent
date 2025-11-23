@@ -212,62 +212,7 @@ export async function POST(request: NextRequest) {
       allProductLinks.length > 0 &&
       scrapedProducts.length === 0
     ) {
-      let productUrls = allProductLinks.slice(0, maxProducts);
-
-      // If we're attaching to a specific distributor, avoid re-scraping URLs that
-      // are already in the database for that distributor. This keeps repeat
-      // scrapes focused on truly new products instead of constantly updating
-      // existing ones.
-      if (saveToDatabase && distributorId) {
-        try {
-          const existingForDistributor = await prisma.equipment.findMany({
-            where: {
-              distributorId,
-              sourceUrl: { in: productUrls },
-            },
-            select: {
-              sourceUrl: true,
-            },
-          });
-
-          const existingSet = new Set(
-            existingForDistributor
-              .map((e) => e.sourceUrl)
-              .filter((url): url is string => !!url),
-          );
-
-          const beforeCount = productUrls.length;
-          productUrls = productUrls.filter((url) => !existingSet.has(url));
-
-          logger.info(
-            {
-              totalLinks: beforeCount,
-              existing: existingSet.size,
-              toScrape: productUrls.length,
-            },
-            "Filtered out already-scraped product URLs for distributor",
-          );
-        } catch (filterError) {
-          logger.warn(
-            {
-              error:
-                filterError instanceof Error
-                  ? filterError.message
-                  : "Unknown error",
-            },
-            "Failed to filter existing equipment by sourceUrl; falling back to scraping all links",
-          );
-        }
-      }
-
-      if (productUrls.length === 0) {
-        logger.info(
-          {
-            allProductLinks: allProductLinks.length,
-          },
-          "No new product URLs to scrape after filtering existing equipment",
-        );
-      }
+      const productUrls = allProductLinks.slice(0, maxProducts);
 
       logger.info(
         { productsToScrape: productUrls.length, useBrowser },
