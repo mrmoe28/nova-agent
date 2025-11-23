@@ -42,7 +42,7 @@ export function selectEquipment(
   if (preference.manufacturer) {
     const mfgLower = preference.manufacturer.toLowerCase();
     filtered = filtered.filter((e) =>
-      e.manufacturer?.toLowerCase().includes(mfgLower)
+      e.manufacturer?.toLowerCase()?.includes(mfgLower) ?? false
     );
   }
 
@@ -74,7 +74,7 @@ export function selectEquipment(
   if (preference.distributorName) {
     const distLower = preference.distributorName.toLowerCase();
     filtered = filtered.filter((e) =>
-      e.distributor?.name.toLowerCase().includes(distLower)
+      e.distributor?.name?.toLowerCase()?.includes(distLower) ?? false
     );
   }
 

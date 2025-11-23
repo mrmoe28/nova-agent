@@ -1006,9 +1006,57 @@ export async function scrapeCompanyInfo(
 }
 
 /**
+ * Normalize URL by removing query params except pagination-related ones
+ * This prevents circular pagination from being added multiple times with different params
+ *
+ * @example
+ * normalizeUrl("https://example.com/products?page=2&sort=price&color=red")
+ * // Returns: "https://example.com/products?page=2"
+ *
+ * normalizeUrl("https://example.com/products?sort=price&color=red#section")
+ * // Returns: "https://example.com/products"
+ */
+function normalizeUrlForVisited(url: string): string {
+  try {
+    const urlObj = new URL(url);
+    // Keep only pagination-related query parameters
+    const page = urlObj.searchParams.get("page");
+    const pageParam = urlObj.searchParams.get("p");
+    const offset = urlObj.searchParams.get("offset");
+
+    // Clear all search params first
+    urlObj.search = "";
+
+    // Rebuild with only pagination params
+    if (page) {
+      urlObj.searchParams.set("page", page);
+    } else if (pageParam) {
+      urlObj.searchParams.set("p", pageParam);
+    } else if (offset) {
+      urlObj.searchParams.set("offset", offset);
+    }
+
+    // Remove hash/fragment
+    urlObj.hash = "";
+
+    // Remove trailing slash for consistency
+    let normalized = urlObj.toString();
+    if (normalized.endsWith("/") && urlObj.pathname !== "/") {
+      normalized = normalized.slice(0, -1);
+    }
+
+    return normalized;
+  } catch {
+    // If URL parsing fails, return original
+    return url;
+  }
+}
+
+/**
  * Crawl multiple pages to find more product links
  * Follows pagination and category pages
  * Now uses parallel page processing for 3x performance improvement
+ * Includes circular pagination prevention via URL normalization
  */
 export async function deepCrawlForProducts(
   startUrl: string,
@@ -1028,7 +1076,11 @@ export async function deepCrawlForProducts(
 
   const productLinks: Set<string> = new Set();
   const catalogPages: Set<string> = new Set();
-  const visitedUrls: Set<string> = new Set();
+  const visitedUrls: Set<string> = new Set(); // Stores normalized URLs to prevent revisits
+  const normalizedUrlMap: Map<string, string> = new Map(); // Maps original URLs to normalized versions
+  let iterationCount = 0;
+  const maxIterations = maxPages * 5; // Safety safeguard: prevent runaway loops
+
   const urlQueue: { url: string; depth: number }[] = [
     { url: startUrl, depth: 0 },
   ];
@@ -1064,21 +1116,26 @@ export async function deepCrawlForProducts(
   const paginationKeywords = ["page", "p=", "pg", "offset", "start", "limit"];
 
   logger.info(
-    { startUrl, maxPages, maxDepth, concurrency, parallel: true },
-    "Starting parallel deep crawl",
+    { startUrl, maxPages, maxDepth, concurrency, parallel: true, maxIterationSafeguard: maxIterations },
+    "Starting parallel deep crawl with circular pagination prevention",
   );
 
   // Process URL queue in parallel batches
-  while (urlQueue.length > 0 && visitedUrls.size < maxPages) {
+  while (urlQueue.length > 0 && visitedUrls.size < maxPages && iterationCount < maxIterations) {
+    iterationCount++;
+
     // Take batch of URLs to process concurrently
     const batch: { url: string; depth: number }[] = [];
 
     while (batch.length < concurrency && urlQueue.length > 0) {
       const item = urlQueue.shift()!;
+      const normalizedUrl = normalizeUrlForVisited(item.url);
+
       // Skip already visited or too deep
-      if (!visitedUrls.has(item.url) && item.depth <= maxDepth) {
+      if (!visitedUrls.has(normalizedUrl) && item.depth <= maxDepth) {
         batch.push(item);
-        visitedUrls.add(item.url); // Mark as visited immediately to avoid duplicates
+        visitedUrls.add(normalizedUrl); // Mark as visited immediately to avoid duplicates
+        normalizedUrlMap.set(item.url, normalizedUrl); // Track mapping for debugging
       }
     }
 

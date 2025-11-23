@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { validateBOMSubtotals } from "@/lib/bom-calculations";
 
 /**
  * POST /api/bom/add - Add equipment to project BOM
@@ -54,9 +55,22 @@ export async function POST(request: NextRequest) {
         },
       });
 
+      // Validate subtotal after update
+      const expectedTotal = updatedItem.quantity * updatedItem.unitPriceUsd;
+      if (Math.abs(updatedItem.totalPriceUsd - expectedTotal) > 0.01) {
+        // Auto-correct if mismatch
+        const correctedItem = await prisma.bOMItem.update({
+          where: { id: updatedItem.id },
+          data: { totalPriceUsd: expectedTotal },
+        });
+        return NextResponse.json({ success: true, bomItem: correctedItem, action: 'updated', corrected: true });
+      }
+
       return NextResponse.json({ success: true, bomItem: updatedItem, action: 'updated' });
     } else {
       // Create new BOM item
+      const totalPriceUsd = quantity * equipment.unitPrice;
+      
       const newBOMItem = await prisma.bOMItem.create({
         data: {
           projectId,
@@ -66,10 +80,10 @@ export async function POST(request: NextRequest) {
           modelNumber: equipment.modelNumber,
           quantity,
           unitPriceUsd: equipment.unitPrice,
-          totalPriceUsd: quantity * equipment.unitPrice,
+          totalPriceUsd: totalPriceUsd, // Ensure correct calculation
           sourceUrl: equipment.sourceUrl || "",
           imageUrl: equipment.imageUrl || null,
-          notes: `Added from ${equipment.distributor.name}`,
+          notes: `Added from ${equipment.distributor.name}${equipment.specifications ? ` | Specs: ${equipment.specifications}` : ''}`,
         },
       });
 

@@ -50,6 +50,12 @@ next-env.d.ts
 test-*.ts
 test-*.js
 
+# Log files
+*.log
+dev-server.log
+test-*.log
+.dev-server.pid
+
 # Uploaded images (keep .gitkeep but ignore actual files)
 /public/uploads/**
 !/public/uploads/**/.gitkeep

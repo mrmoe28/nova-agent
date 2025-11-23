@@ -80,10 +80,15 @@ export async function POST(request: NextRequest) {
     const systemPrompt = knowledgeBase.getSystemContext();
 
     // Combine messages: system prompt + context + conversation history
+    // Filter out system messages from user's array, then apply slicing
+    const conversationHistory = messages
+      .filter(m => m.role !== "system")
+      .slice(-AI_ASSISTANT_CONFIG.MAX_HISTORY);
+
     const allMessages: ChatMessage[] = [
       { role: "system", content: systemPrompt },
       ...contextMessages,
-      ...messages.slice(-AI_ASSISTANT_CONFIG.MAX_HISTORY), // Limit history
+      ...conversationHistory,
     ];
 
     // Get AI service and stream response

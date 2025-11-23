@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { regenerateBom, SizingError } from "@/lib/system-sizing";
 import { prisma } from "@/lib/prisma";
+import { validateBOMSubtotals, getBOMTotalCost } from "@/lib/bom-calculations";
 
 /**
  * GET /api/bom?projectId=X - Fetch existing BOM items without regenerating
@@ -23,13 +24,15 @@ export async function GET(request: NextRequest) {
       orderBy: { category: "asc" },
     });
 
-    // Calculate total cost
-    const totalCost = bomItems.reduce((sum, item) => sum + item.totalPriceUsd, 0);
+    // Validate and get total cost with validation
+    const costData = await getBOMTotalCost(projectId);
 
     return NextResponse.json({
       success: true,
       bomItems,
-      totalCost,
+      totalCost: costData.totalCost,
+      itemCount: costData.itemCount,
+      validation: costData.validation,
       distributorId: null, // Distributor ID is managed separately in page state
     });
   } catch (error) {

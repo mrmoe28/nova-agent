@@ -37,6 +37,9 @@ export default function BOMPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [initialLoad, setInitialLoad] = useState(true);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
+  const [recalculating, setRecalculating] = useState(false);
 
   useEffect(() => {
     loadBOMItems();
@@ -54,6 +57,13 @@ export default function BOMPage() {
         // BOM already exists, just load it
         setBomItems(data.bomItems);
         setTotalCost(data.totalCost);
+        
+        // Update validation state
+        if (data.validation) {
+          setValidationErrors(data.validation.errors || []);
+          setValidationWarnings(data.validation.warnings || []);
+        }
+        
         setInitialLoad(false);
       } else {
         // No BOM exists yet, generate it for the first time
@@ -234,6 +244,33 @@ const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => 
         setBomItems([...data.bomItems]);
         setTotalCost(data.totalCost);
         
+        // Update validation state
+        if (data.validation) {
+          setValidationErrors(data.validation.errors || []);
+          setValidationWarnings(data.validation.warnings || []);
+          
+          // Show warnings if any
+          if (data.validation.warnings && data.validation.warnings.length > 0) {
+            data.validation.warnings.forEach((warning: string) => {
+              toast.warning("Validation Warning", { description: warning });
+            });
+          }
+          
+          // Show errors if any
+          if (data.validation.errors && data.validation.errors.length > 0) {
+            data.validation.errors.forEach((error: string) => {
+              toast.error("Validation Error", { description: error });
+            });
+          }
+          
+          // Show success if items were corrected
+          if (data.validation.correctedItems && data.validation.correctedItems.length > 0) {
+            toast.success("Subtotals Corrected", {
+              description: `${data.validation.correctedItems.length} item(s) had incorrect totals and were auto-corrected.`,
+            });
+          }
+        }
+        
         // Log for debugging
         console.log(`BOM items refreshed: ${data.bomItems.length} items`);
       } else {
@@ -247,6 +284,36 @@ const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => 
       toast.error("Error", {
         description: "Failed to refresh BOM items. Please refresh the page.",
       });
+    }
+  };
+
+  const handleRecalculateEnergy = async () => {
+    setRecalculating(true);
+    try {
+      const response = await fetch("/api/bom/recalculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ projectId, updateAnalysis: true }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast.success("Energy Calculations Updated", {
+          description: "System specs and energy production recalculated from actual BOM equipment.",
+        });
+        // Refresh BOM to show updated totals
+        await handleItemAdded();
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      console.error("Error recalculating energy:", error);
+      toast.error("Error", {
+        description: "Failed to recalculate energy from BOM equipment.",
+      });
+    } finally {
+      setRecalculating(false);
     }
   };
 
@@ -270,6 +337,16 @@ const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => 
           >
             <RefreshCw className={`h-4 w-4 ${generating ? 'animate-spin' : ''}`} />
             Regenerate BOM
+          </Button>
+          <Button
+            onClick={handleRecalculateEnergy}
+            variant="outline"
+            disabled={recalculating || bomItems.length === 0}
+            className="flex items-center gap-2"
+            title="Recalculate energy production from actual BOM equipment"
+          >
+            <RefreshCw className={`h-4 w-4 ${recalculating ? 'animate-spin' : ''}`} />
+            Recalculate Energy
           </Button>
           <Button
             onClick={() => setAddDialogOpen(true)}
@@ -369,6 +446,34 @@ const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => 
                   {formatCurrency(totalCost)}
                 </td>
               </tr>
+              {validationErrors.length > 0 && (
+                <tr>
+                  <td colSpan={8} className="pt-2">
+                    <div className="bg-red-50 border border-red-200 rounded p-2 text-sm text-red-700">
+                      <strong>Validation Errors:</strong>
+                      <ul className="list-disc list-inside mt-1">
+                        {validationErrors.map((error, idx) => (
+                          <li key={idx}>{error}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {validationWarnings.length > 0 && validationErrors.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="pt-2">
+                    <div className="bg-yellow-50 border border-yellow-200 rounded p-2 text-sm text-yellow-700">
+                      <strong>Validation Warnings:</strong>
+                      <ul className="list-disc list-inside mt-1">
+                        {validationWarnings.map((warning, idx) => (
+                          <li key={idx}>{warning}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </td>
+                </tr>
+              )}
             </tfoot>
           </table>
         </div>

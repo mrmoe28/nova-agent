@@ -65,8 +65,8 @@ export class KnowledgeBase {
    */
   private async loadAppDocumentation(): Promise<void> {
     try {
-      // Only load files in Node.js runtime (not during build)
-      if (typeof window === "undefined" && (process.env.NODE_ENV !== "production" || process.env.VERCEL !== "1")) {
+      // Only load files in Node.js runtime (not during browser execution)
+      if (typeof window === "undefined") {
         const claudeMdPath = path.join(process.cwd(), "CLAUDE.md");
         if (fs.existsSync(claudeMdPath)) {
           const content = fs.readFileSync(claudeMdPath, "utf-8");

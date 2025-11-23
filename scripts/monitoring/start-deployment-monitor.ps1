@@ -78,9 +78,10 @@ Write-Host "[OK] Node.js found" -ForegroundColor Green
 Write-Host ""
 
 # Check if deployment-monitor.js exists
-if (-not (Test-Path "deployment-monitor.js")) {
+$scriptPath = Join-Path $PSScriptRoot "deployment-monitor.js"
+if (-not (Test-Path $scriptPath)) {
     Write-Host "[ERROR] deployment-monitor.js not found!" -ForegroundColor Red
-    Write-Host "  Please run this script from the project root directory" -ForegroundColor Yellow
+    Write-Host "  Expected at: $scriptPath" -ForegroundColor Yellow
     Write-Host ""
     pause
     exit 1
@@ -89,13 +90,13 @@ if (-not (Test-Path "deployment-monitor.js")) {
 if ($Background) {
     Write-Host "[INFO] Starting monitor in background window..." -ForegroundColor Yellow
     Write-Host ""
-    
+
     Start-Process powershell -ArgumentList `
         "-NoExit", `
         "-Command", `
-        "`$env:VERCEL_TOKEN='$env:VERCEL_TOKEN'; node deployment-monitor.js" `
+        "`$env:VERCEL_TOKEN='$env:VERCEL_TOKEN'; node '$scriptPath'" `
         -WindowStyle Normal
-    
+
     Write-Host "[OK] Monitor started in background" -ForegroundColor Green
     Write-Host ""
 } else {
@@ -104,9 +105,9 @@ if ($Background) {
     Write-Host ""
     Write-Host "----------------------------------------"
     Write-Host ""
-    
-    node deployment-monitor.js
-    
+
+    node $scriptPath
+
     Write-Host ""
     Write-Host "Monitor stopped." -ForegroundColor Yellow
 }

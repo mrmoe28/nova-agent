@@ -90,11 +90,17 @@ export async function POST(request: NextRequest) {
     const systemCapacityWatts = systemCapacityKw * 1000;
 
     // 5. Call PVWatts API
+    // Calculate optimal tilt angle: use absolute value of latitude to handle both hemispheres
+    // - Northern hemisphere: positive latitude (e.g., 40°N) → 40° tilt
+    // - Southern hemisphere: negative latitude (e.g., -33°S) → 33° tilt (not 0°)
+    // Using Math.abs() ensures we get the correct tilt regardless of hemisphere.
+    const optimalTilt = Math.min(90, Math.max(0, Math.abs(coordinates.latitude)));
+
     const pvWattsOutput = await getPVWattsProduction({
         lat: coordinates.latitude,
         lon: coordinates.longitude,
         system_capacity: systemCapacityKw,
-        tilt: Math.min(90, Math.max(0, coordinates.latitude)), // Clamp to valid range
+        tilt: optimalTilt,
         azimuth: 180, // South-facing (default)
         array_type: 1, // Fixed roof mount
         module_type: 0, // Standard

@@ -55,7 +55,7 @@ echo.
 echo ----------------------------------------
 echo.
 
-node deployment-monitor.js
+node "%~dp0deployment-monitor.js"
 
 echo.
 echo Monitor stopped.

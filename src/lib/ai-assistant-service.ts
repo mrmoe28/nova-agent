@@ -54,7 +54,10 @@ export class AIAssistantService {
    */
   private initializeClients(): void {
     // Initialize Ollama client if endpoint is configured
-    if (AI_ASSISTANT_CONFIG.OLLAMA_ENDPOINT) {
+    if (
+      AI_ASSISTANT_CONFIG.OLLAMA_ENDPOINT &&
+      AI_ASSISTANT_CONFIG.OLLAMA_ENDPOINT.trim() !== ""
+    ) {
       try {
         this.ollamaClient = new OpenAI({
           baseURL: `${AI_ASSISTANT_CONFIG.OLLAMA_ENDPOINT}/v1`,
@@ -67,18 +70,31 @@ export class AIAssistantService {
       } catch (error) {
         logger.warn({ error }, "Failed to initialize Ollama client");
       }
+    } else if (AI_ASSISTANT_CONFIG.OLLAMA_ENDPOINT === "") {
+      logger.warn(
+        "Ollama endpoint is empty string - will not initialize Ollama client",
+      );
     }
 
-    // Initialize OpenAI client if API key is configured
-    if (AI_ASSISTANT_CONFIG.OPENAI_API_KEY) {
+    // Initialize OpenAI client if API key is configured and non-empty
+    if (
+      AI_ASSISTANT_CONFIG.OPENAI_API_KEY &&
+      AI_ASSISTANT_CONFIG.OPENAI_API_KEY.trim() !== ""
+    ) {
       try {
         this.openaiClient = new OpenAI({
           apiKey: AI_ASSISTANT_CONFIG.OPENAI_API_KEY,
         });
-        logger.info("OpenAI client initialized");
+        logger.info("OpenAI client initialized successfully");
       } catch (error) {
         logger.error({ error }, "Failed to initialize OpenAI client");
       }
+    } else if (AI_ASSISTANT_CONFIG.OPENAI_API_KEY === "") {
+      logger.warn(
+        "OpenAI API key is empty string - OpenAI fallback will not be available",
+      );
+    } else {
+      logger.warn("OpenAI API key not configured - OpenAI client disabled");
     }
 
     // Check Ollama health on startup

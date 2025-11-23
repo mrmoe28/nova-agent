@@ -248,6 +248,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // Check if we're running out of time before browser scraping
+    let elapsedBeforeBrowser = Date.now() - startTime;
+    if (elapsedBeforeBrowser > SAFE_TIMEOUT_MS) {
+      logger.warn(
+        { elapsed: elapsedBeforeBrowser },
+        "Approaching timeout limit before browser scraping, skipping browser mode",
+      );
+    }
+
     // Step 3: Traditional product scraping (skip if AI already succeeded)
     if (
       scrapeProducts &&
@@ -276,24 +285,46 @@ export async function POST(request: NextRequest) {
             { count: productUrls.length, method: "fetch" },
           );
         } else {
+          // Browser scraper with guaranteed cleanup via try-finally
+          let browserScraper = null;
           try {
-            const browserScraper = await getBrowserScraper();
-            scrapedProducts = await logOperation(
-              logger,
-              "scrape-products-browser",
-              () =>
-                browserScraper.scrapeMultipleProducts(productUrls, {
-                  rateLimit: 1000,
-                  timeout: 10000,
-                }),
-              { count: productUrls.length, method: "browser" },
-            );
+            // Check if we're running out of time before starting browser scraping
+            const timeBeforeBrowser = Date.now() - startTime;
+            if (timeBeforeBrowser > SAFE_TIMEOUT_MS) {
+              logger.warn(
+                { elapsed: timeBeforeBrowser },
+                "Timeout approaching before browser scraping, falling back to standard scraping",
+              );
+              scrapedProducts = await logOperation(
+                logger,
+                "scrape-products",
+                () => scrapeMultipleProducts(productUrls, { ...QUICK_PRODUCT_SCRAPE_CONFIG }),
+                { count: productUrls.length, method: "fetch" },
+              );
+            } else {
+              browserScraper = await getBrowserScraper();
+              logger.info({ productsToScrape: productUrls.length }, "Browser scraper initialized");
 
-            // Clean up browser
-            await closeBrowserScraper();
+              scrapedProducts = await logOperation(
+                logger,
+                "scrape-products-browser",
+                () =>
+                  browserScraper.scrapeMultipleProducts(productUrls, {
+                    rateLimit: 1000,
+                    timeout: 10000,
+                  }),
+                { count: productUrls.length, method: "browser" },
+              );
+
+              logger.info({ productsScrapped: scrapedProducts.length }, "Browser scraping completed successfully");
+            }
           } catch (error: unknown) {
             logger.error(
-              { error: error instanceof Error ? error.message : String(error) },
+              {
+                error: error instanceof Error ? error.message : String(error),
+                stack: error instanceof Error ? error.stack : undefined,
+                browserScraperActive: !!browserScraper,
+              },
               "Browser scraper failed, falling back to standard scraping",
             );
             // Fall back to standard scraping
@@ -303,6 +334,23 @@ export async function POST(request: NextRequest) {
               () => scrapeMultipleProducts(productUrls, { ...QUICK_PRODUCT_SCRAPE_CONFIG }),
               { count: productUrls.length, method: "fetch" },
             );
+          } finally {
+            // CRITICAL: Ensure browser cleanup ALWAYS happens, even on timeout/error
+            if (browserScraper) {
+              try {
+                logger.info("Cleaning up browser scraper connection");
+                await closeBrowserScraper();
+                logger.info("Browser scraper connection closed successfully");
+              } catch (cleanupError) {
+                logger.error(
+                  {
+                    error: cleanupError instanceof Error ? cleanupError.message : String(cleanupError),
+                    stack: cleanupError instanceof Error ? cleanupError.stack : undefined,
+                  },
+                  "Critical: Failed to close browser scraper connection (potential connection leak)",
+                );
+              }
+            }
           }
         }
       } else {
