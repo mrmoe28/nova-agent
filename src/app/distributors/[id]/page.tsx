@@ -119,6 +119,12 @@ export default function DistributorDetailPage() {
     fetchDistributor();
   }, [fetchDistributor]);
 
+  useEffect(() => {
+    if (!showAddUrlDialog) {
+      setNewUrl("");
+    }
+  }, [showAddUrlDialog]);
+
   const handleRescrape = async () => {
     if (!distributor?.website) {
       alert("No website URL found for this distributor");
@@ -696,6 +702,9 @@ export default function DistributorDetailPage() {
                 id="newUrl"
                 placeholder="https://example.com/products/solar-panels"
                 value={newUrl}
+                autoComplete="off"
+                spellCheck={false}
+                autoCorrect="off"
                 onChange={(e) => setNewUrl(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
