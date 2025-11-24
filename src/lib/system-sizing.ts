@@ -89,10 +89,10 @@ export async function performSystemSizing({
   const peakDemand = analysis.peakDemandKw || Math.max(5, criticalLoad);
   const inverterKw = peakDemand * SYSTEM_SIZING.INVERTER_MULTIPLIER;
 
-  let solarCostPerWatt = SYSTEM_SIZING.SOLAR_COST_PER_WATT;
-  let batteryCostPerKwh = SYSTEM_SIZING.BATTERY_COST_PER_KWH;
-  let inverterCostPerKw = SYSTEM_SIZING.INVERTER_COST_PER_KW;
-  const installationCost = SYSTEM_SIZING.INSTALLATION_BASE_COST;
+  // Initialize with default pricing (realistic residential solar costs)
+  let solarCostPerWatt = SYSTEM_SIZING.SOLAR_COST_PER_WATT; // Default: $2.20/W
+  let batteryCostPerKwh = SYSTEM_SIZING.BATTERY_COST_PER_KWH; // Default: $350/kWh
+  let inverterCostPerKw = SYSTEM_SIZING.INVERTER_COST_PER_KW; // Default: $800/kW
 
   if (distributorId) {
     try {
@@ -104,60 +104,94 @@ export async function performSystemSizing({
         },
       });
 
+      // Filter and calculate solar panel pricing
       const solarPanels = equipment.filter(
         (item) =>
-          item.category === "SOLAR_PANEL" ||
-          item.name.toLowerCase().includes("solar") ||
-          item.name.toLowerCase().includes("panel"),
+          item.category === "SOLAR_PANEL" &&
+          item.unitPrice > 0 &&
+          item.unitPrice < 1000, // Sanity check: panel should be < $1000
       );
 
       if (solarPanels.length > 0) {
-        const avgSolarPrice =
-          solarPanels.reduce((sum, panel) => sum + panel.unitPrice, 0) /
-          solarPanels.length;
-        const calculatedSolarCostPerWatt = avgSolarPrice / solarPanelWattage;
-        solarCostPerWatt = Math.min(calculatedSolarCostPerWatt, 4.0);
+        const validPanels = solarPanels.filter(p => p.unitPrice > 0 && p.unitPrice < 1000);
+        if (validPanels.length > 0) {
+          const avgSolarPrice =
+            validPanels.reduce((sum, panel) => sum + panel.unitPrice, 0) /
+            validPanels.length;
+          // Convert panel price to cost per watt (assuming 400W panels)
+          const calculatedSolarCostPerWatt = avgSolarPrice / solarPanelWattage;
+          // Cap at reasonable maximum ($4/W is very high but possible for premium panels)
+          solarCostPerWatt = Math.min(Math.max(calculatedSolarCostPerWatt, 0.5), 4.0);
+          console.log(`Solar pricing: avg panel $${avgSolarPrice.toFixed(2)}, cost per watt $${solarCostPerWatt.toFixed(2)}`);
+        }
       }
 
+      // Filter and calculate battery pricing
       const batteries = equipment.filter(
         (item) =>
-          item.category === "BATTERY" ||
-          item.name.toLowerCase().includes("battery") ||
-          item.name.toLowerCase().includes("lithium"),
+          item.category === "BATTERY" &&
+          item.unitPrice > 0 &&
+          item.unitPrice < 20000, // Sanity check: battery should be < $20k
       );
 
       if (batteries.length > 0) {
-        const avgBatteryPrice =
-          batteries.reduce((sum, battery) => sum + battery.unitPrice, 0) /
-          batteries.length;
-        const calculatedBatteryCostPerKwh = avgBatteryPrice / 5;
-        batteryCostPerKwh = Math.min(calculatedBatteryCostPerKwh, 600);
+        const validBatteries = batteries.filter(b => b.unitPrice > 0 && b.unitPrice < 20000);
+        if (validBatteries.length > 0) {
+          const avgBatteryPrice =
+            validBatteries.reduce((sum, battery) => sum + battery.unitPrice, 0) /
+            validBatteries.length;
+          // Try to extract kWh from specifications or use default 10kWh
+          // For now, assume average battery is 10kWh
+          const avgBatteryKwh = 10; // Default assumption
+          const calculatedBatteryCostPerKwh = avgBatteryPrice / avgBatteryKwh;
+          // Cap at reasonable maximum ($600/kWh is very high)
+          batteryCostPerKwh = Math.min(Math.max(calculatedBatteryCostPerKwh, 200), 600);
+          console.log(`Battery pricing: avg battery $${avgBatteryPrice.toFixed(2)}, cost per kWh $${batteryCostPerKwh.toFixed(2)}`);
+        }
       }
 
+      // Filter and calculate inverter pricing
       const inverters = equipment.filter(
         (item) =>
-          item.category === "INVERTER" ||
-          item.name.toLowerCase().includes("inverter") ||
-          item.name.toLowerCase().includes("hybrid"),
+          item.category === "INVERTER" &&
+          item.unitPrice > 0 &&
+          item.unitPrice < 15000, // Sanity check: inverter should be < $15k
       );
 
       if (inverters.length > 0) {
-        const avgInverterPrice =
-          inverters.reduce((sum, inv) => sum + inv.unitPrice, 0) /
-          inverters.length;
-        const calculatedInverterCostPerKw = avgInverterPrice / 5;
-        inverterCostPerKw = Math.min(calculatedInverterCostPerKw, 1500);
+        const validInverters = inverters.filter(i => i.unitPrice > 0 && i.unitPrice < 15000);
+        if (validInverters.length > 0) {
+          const avgInverterPrice =
+            validInverters.reduce((sum, inv) => sum + inv.unitPrice, 0) /
+            validInverters.length;
+          // Assume average inverter is 5kW
+          const avgInverterKw = 5;
+          const calculatedInverterCostPerKw = avgInverterPrice / avgInverterKw;
+          // Cap at reasonable maximum ($1500/kW is very high)
+          inverterCostPerKw = Math.min(Math.max(calculatedInverterCostPerKw, 400), 1500);
+          console.log(`Inverter pricing: avg inverter $${avgInverterPrice.toFixed(2)}, cost per kW $${inverterCostPerKw.toFixed(2)}`);
+        }
       }
     } catch (error) {
       console.error("Error fetching distributor equipment pricing:", error);
+      // Fall back to defaults on error
     }
   }
 
-  const estimatedCostUsd =
-    actualTotalSolarKw * 1000 * solarCostPerWatt +
-    batteryKwh * batteryCostPerKwh +
-    inverterKw * inverterCostPerKw;
-    // Note: Installation/labor costs excluded per user request
+  // Calculate total cost with sanity checks
+  const solarCost = actualTotalSolarKw * 1000 * solarCostPerWatt;
+  const batteryCost = batteryKwh * batteryCostPerKwh;
+  const inverterCost = inverterKw * inverterCostPerKw;
+  
+  const estimatedCostUsd = solarCost + batteryCost + inverterCost;
+  
+  // Sanity check: residential solar systems should not exceed $200k
+  // If it does, log a warning and cap it (but still return the calculated value)
+  if (estimatedCostUsd > 200000) {
+    console.warn(`Warning: Calculated system cost is very high: $${estimatedCostUsd.toFixed(2)}`);
+    console.warn(`Breakdown: Solar $${solarCost.toFixed(2)}, Battery $${batteryCost.toFixed(2)}, Inverter $${inverterCost.toFixed(2)}`);
+    console.warn(`System specs: ${actualTotalSolarKw.toFixed(2)}kW solar, ${batteryKwh.toFixed(2)}kWh battery, ${inverterKw.toFixed(2)}kW inverter`);
+  }
 
   const systemData = {
     solarPanelCount,
