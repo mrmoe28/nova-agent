@@ -13,6 +13,7 @@ import {
   AlertCircle,
   X,
   ExternalLink,
+  Plus,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -23,6 +24,12 @@ interface SearchResult {
   currency: string;
   inStock: boolean;
   distributorName?: string;
+  distributorUrl?: string;
+  distributorHostname?: string;
+  imageUrl?: string;
+  manufacturer?: string;
+  modelNumber?: string;
+  specifications?: string;
 }
 
 interface SearchStatus {
@@ -39,8 +46,10 @@ interface SearchStatus {
 
 export function EquipmentSearchPrompt({
   onDistributorAdded,
+  onEquipmentAdded,
 }: {
   onDistributorAdded?: () => void;
+  onEquipmentAdded?: () => void;
 }) {
   const [query, setQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -215,55 +224,67 @@ export function EquipmentSearchPrompt({
               </div>
             )}
 
-            {/* Price Comparison Results */}
+            {/* Price Comparison Results - Sorted by Price (Lowest First) */}
             {searchStatus.results && searchStatus.results.length > 0 && (
               <div>
-                <h4 className="font-semibold text-gray-900 mb-2">Price Comparison:</h4>
-                <div className="space-y-2">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-gray-900">
+                    Price Comparison ({searchStatus.results.length} results)
+                  </h4>
+                  <span className="text-xs text-gray-500">Sorted by price (lowest first)</span>
+                </div>
+                <div className="space-y-3">
                   {searchStatus.results
                     .sort((a, b) => a.price - b.price)
                     .map((result, index) => (
-                      <div
+                      <SearchResultCard
                         key={index}
-                        className="p-3 bg-gray-50 border border-gray-200 rounded-lg"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="font-medium text-gray-900">{result.source}</p>
-                              {result.distributorName && (
-                                <Badge variant="outline" className="text-xs">
-                                  {result.distributorName}
-                                </Badge>
-                              )}
-                              {result.inStock ? (
-                                <Badge className="bg-green-100 text-green-800 text-xs">
-                                  In Stock
-                                </Badge>
-                              ) : (
-                                <Badge variant="secondary" className="text-xs">
-                                  Out of Stock
-                                </Badge>
-                              )}
-                            </div>
-                            <p className="text-2xl font-bold text-gray-900">
-                              {result.currency}
-                              {result.price.toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2,
-                              })}
-                            </p>
-                          </div>
-                          <a
-                            href={result.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="ml-4 text-blue-600 hover:text-blue-800"
-                          >
-                            <ExternalLink className="h-5 w-5" />
-                          </a>
-                        </div>
-                      </div>
+                        result={result}
+                        onAddToDatabase={async () => {
+                          try {
+                            // Determine category from query or result
+                            const category = determineCategory(query, result.source);
+                            
+                            const response = await fetch("/api/equipment/add-from-search", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({
+                                distributorName: result.distributorName,
+                                distributorUrl: result.distributorUrl,
+                                itemName: result.source,
+                                manufacturer: result.manufacturer,
+                                modelNumber: result.modelNumber,
+                                category,
+                                unitPrice: result.price,
+                                specifications: result.specifications,
+                                imageUrl: result.imageUrl,
+                                sourceUrl: result.url,
+                                inStock: result.inStock,
+                              }),
+                            });
+
+                            const data = await response.json();
+                            if (data.success) {
+                              toast.success(
+                                data.action === "created" 
+                                  ? "Equipment added to database" 
+                                  : "Equipment updated in database"
+                              );
+                              onEquipmentAdded?.();
+                              onDistributorAdded?.();
+                            } else {
+                              throw new Error(data.error || "Failed to add equipment");
+                            }
+                          } catch (error) {
+                            console.error("Error adding equipment:", error);
+                            toast.error(
+                              error instanceof Error 
+                                ? error.message 
+                                : "Failed to add equipment to database"
+                            );
+                          }
+                        }}
+                      />
                     ))}
                 </div>
               </div>

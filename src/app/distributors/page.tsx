@@ -242,6 +242,9 @@ export default function DistributorsPage() {
                 fetchDistributors();
                 fetchEquipment();
               }}
+              onEquipmentAdded={() => {
+                fetchEquipment();
+              }}
             />
             <Button
               onClick={() => {
