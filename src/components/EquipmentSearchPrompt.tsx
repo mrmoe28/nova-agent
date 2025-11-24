@@ -16,6 +16,7 @@ import {
   Plus,
 } from "lucide-react";
 import { toast } from "sonner";
+import { EquipmentCategory } from "@prisma/client";
 
 interface SearchResult {
   source: string;
@@ -42,6 +43,89 @@ interface SearchStatus {
     website: string;
     productCount: number;
   }>;
+}
+
+// Helper to determine category based on query and result
+const determineCategory = (query: string, itemName: string): EquipmentCategory => {
+  const lowerQuery = query.toLowerCase();
+  const lowerItemName = itemName.toLowerCase();
+
+  if (lowerQuery.includes("solar panel") || lowerItemName.includes("solar panel")) return "SOLAR_PANEL";
+  if (lowerQuery.includes("battery") || lowerItemName.includes("battery")) return "BATTERY";
+  if (lowerQuery.includes("inverter") || lowerItemName.includes("inverter")) return "INVERTER";
+  if (lowerQuery.includes("mounting") || lowerItemName.includes("mounting") || lowerItemName.includes("rail") || lowerItemName.includes("clamp")) return "MOUNTING";
+  if (lowerQuery.includes("electrical") || lowerItemName.includes("electrical") || lowerItemName.includes("rsd") || lowerItemName.includes("disconnect")) return "ELECTRICAL";
+  
+  return "OTHER"; // Default category
+};
+
+// Sub-component for displaying a single search result
+function SearchResultCard({ result, onAddToDatabase }: { result: SearchResult; onAddToDatabase: () => void }) {
+  const [adding, setAdding] = useState(false);
+
+  return (
+    <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg flex items-center justify-between">
+      <div className="flex-1 pr-4">
+        <div className="flex items-center gap-2 mb-1">
+          <p className="font-medium text-gray-900">{result.source}</p>
+          {result.distributorName && (
+            <Badge variant="outline" className="text-xs">
+              {result.distributorName}
+            </Badge>
+          )}
+          {result.inStock ? (
+            <Badge className="bg-green-100 text-green-800 text-xs">
+              In Stock
+            </Badge>
+          ) : (
+            <Badge variant="secondary" className="text-xs">
+              Out of Stock
+            </Badge>
+          )}
+        </div>
+        <p className="text-2xl font-bold text-gray-900">
+          {result.currency}
+          {result.price.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
+        </p>
+        {result.modelNumber && (
+          <p className="text-xs text-gray-500 mt-1">Model: {result.modelNumber}</p>
+        )}
+        {result.manufacturer && (
+          <p className="text-xs text-gray-500">Manufacturer: {result.manufacturer}</p>
+        )}
+      </div>
+      <div className="flex flex-col items-end gap-2">
+        <a
+          href={result.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-600 hover:text-blue-800"
+        >
+          <ExternalLink className="h-5 w-5" />
+        </a>
+        <Button
+          size="sm"
+          onClick={async () => {
+            setAdding(true);
+            await onAddToDatabase();
+            setAdding(false);
+          }}
+          disabled={adding}
+          className="bg-blue-500 hover:bg-blue-600 text-white"
+        >
+          {adding ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Plus className="h-4 w-4 mr-1" />
+          )}
+          Add to DB
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 export function EquipmentSearchPrompt({
