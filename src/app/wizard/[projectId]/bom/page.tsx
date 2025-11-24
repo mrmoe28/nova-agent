@@ -109,13 +109,6 @@ export default function BOMPage() {
   };
 
   const generateBOM = async (forceRegenerate = false) => {
-    if (!distributorId) {
-      toast.error("Please select a distributor", {
-        description: "You must select a distributor before generating the BOM.",
-      });
-      return;
-    }
-
     setGenerating(true);
     try {
       const response = await fetch("/api/bom", {
@@ -353,7 +346,7 @@ export default function BOMPage() {
           <Button
             onClick={handleRegenerateBOM}
             variant="outline"
-            disabled={generating || !distributorId}
+            disabled={generating}
             className="bg-white border-2 border-slate-300 text-slate-700 hover:bg-slate-50"
           >
             <RefreshCw className={`h-4 w-4 mr-2 ${generating ? 'animate-spin' : ''}`} />
@@ -361,7 +354,6 @@ export default function BOMPage() {
           </Button>
           <Button
             onClick={() => setAddDialogOpen(true)}
-            disabled={!distributorId}
             className="bg-teal-600 hover:bg-teal-700 text-white"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -382,7 +374,7 @@ export default function BOMPage() {
                 <div className="flex gap-3 justify-center">
                   <Button
                     onClick={() => generateBOM(false)}
-                    disabled={generating || !distributorId}
+                    disabled={generating}
                     className="bg-teal-600 hover:bg-teal-700 text-white"
                   >
                     {generating ? (
@@ -395,7 +387,6 @@ export default function BOMPage() {
                   <Button
                     onClick={() => setAddDialogOpen(true)}
                     variant="outline"
-                    disabled={!distributorId}
                     className="bg-white border-2 border-slate-300 text-slate-700 hover:bg-slate-50"
                   >
                     <Plus className="h-4 w-4 mr-2" />
@@ -445,6 +436,11 @@ export default function BOMPage() {
                             <div className="text-sm font-semibold text-slate-900">{item.itemName}</div>
                             {item.manufacturer && (
                               <div className="text-xs text-slate-500">{item.manufacturer}</div>
+                            )}
+                            {item.notes && item.notes.includes("|") && (
+                              <div className="text-xs text-teal-600 font-medium mt-1">
+                                {item.notes.split("|")[0].trim()}
+                              </div>
                             )}
                           </td>
                           <td className="py-4 text-xs font-mono text-slate-600">{item.modelNumber}</td>

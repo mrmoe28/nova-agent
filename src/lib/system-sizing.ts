@@ -259,159 +259,262 @@ export async function regenerateBom(
     where: { projectId },
   });
 
-  // Require distributorId to be explicitly provided
-  if (!distributorId) {
-    throw new SizingError(
-      "Distributor ID is required. Please select a distributor before generating the BOM.",
-      400
-    );
-  }
+  // Fetch equipment from ALL distributors (not just one)
+  // Prefer EG4 for inverter and battery
+  let solarPanel: any = null;
+  let battery: any = null;
+  let inverter: any = null;
+  let rsd: any = null;
+  let mountingRails: any = null;
+  let midBolts: any = null;
+  let solarDeck: any = null;
 
-  // Fetch real equipment from distributor if provided
-  let solarPanel = null;
-  let battery = null;
-  let inverter = null;
-  let mounting = null;
-  let electrical = null;
+  try {
+    // Get all active distributors
+    const allDistributors = await prisma.distributor.findMany({
+      where: { isActive: true },
+      select: { id: true, name: true },
+    });
 
-  if (distributorId) {
-    try {
-      const { DEFAULT_EQUIPMENT_CONFIG, SELECTION_STRATEGY } = await import("./default-equipment-config");
-      const { selectEquipment } = await import("./equipment-selector");
-
-      const equipment = await prisma.equipment.findMany({
-        where: {
-          distributorId,
-          isActive: true,
-          inStock: true,
-        },
-        select: {
-          id: true,
-          category: true,
-          name: true,
-          manufacturer: true,
-          modelNumber: true,
-          unitPrice: true,
-          specifications: true,
-          imageUrl: true,
-          createdAt: true,
-          distributor: {
-            select: {
-              name: true,
-            },
+    // Fetch equipment from all distributors
+    const allEquipment = await prisma.equipment.findMany({
+      where: {
+        isActive: true,
+        inStock: true,
+      },
+      select: {
+        id: true,
+        category: true,
+        name: true,
+        manufacturer: true,
+        modelNumber: true,
+        unitPrice: true,
+        specifications: true,
+        imageUrl: true,
+        distributorId: true,
+        distributor: {
+          select: {
+            name: true,
           },
         },
-      });
+      },
+    });
 
-      // Find best match for each category using configured preferences
-      const solarPanels = equipment.filter((e) => e.category === "SOLAR_PANEL");
-      const batteries = equipment.filter((e) => e.category === "BATTERY");
-      const inverters = equipment.filter((e) => e.category === "INVERTER");
-      const mountingSystems = equipment.filter((e) => e.category === "MOUNTING");
-      const electricalSystems = equipment.filter((e) => e.category === "ELECTRICAL");
-
-      // Select equipment based on configured preferences
-      solarPanel = selectEquipment(solarPanels, DEFAULT_EQUIPMENT_CONFIG.solarPanel, SELECTION_STRATEGY);
-      battery = selectEquipment(batteries, DEFAULT_EQUIPMENT_CONFIG.battery, SELECTION_STRATEGY);
-      inverter = selectEquipment(inverters, DEFAULT_EQUIPMENT_CONFIG.inverter, SELECTION_STRATEGY);
-      mounting = selectEquipment(mountingSystems, DEFAULT_EQUIPMENT_CONFIG.mounting, SELECTION_STRATEGY);
-      electrical = selectEquipment(electricalSystems, DEFAULT_EQUIPMENT_CONFIG.electrical, SELECTION_STRATEGY);
-
-      console.log("Selected equipment based on preferences:", {
-        solarPanel: solarPanel?.name,
-        battery: battery?.name,
-        inverter: inverter?.name,
-        mounting: mounting?.name,
-        electrical: electrical?.name,
-      });
-    } catch (error) {
-      console.error("Error fetching distributor equipment:", error);
+    // Find solar panels (any distributor)
+    const solarPanels = allEquipment.filter((e) => e.category === "SOLAR_PANEL");
+    if (solarPanels.length > 0) {
+      // Prefer lower price, but ensure quality (price between $200-$1000 per panel)
+      const validPanels = solarPanels.filter(p => p.unitPrice >= 200 && p.unitPrice <= 1000);
+      if (validPanels.length > 0) {
+        solarPanel = validPanels.sort((a, b) => a.unitPrice - b.unitPrice)[0];
+      } else {
+        solarPanel = solarPanels[0];
+      }
     }
+
+    // Find batteries - PREFER EG4
+    const batteries = allEquipment.filter((e) => e.category === "BATTERY");
+    if (batteries.length > 0) {
+      const eg4Batteries = batteries.filter(b => 
+        b.manufacturer?.toUpperCase().includes("EG4") || 
+        b.name.toUpperCase().includes("EG4")
+      );
+      if (eg4Batteries.length > 0) {
+        battery = eg4Batteries[0];
+      } else {
+        battery = batteries[0];
+      }
+    }
+
+    // Find inverters - PREFER EG4
+    const inverters = allEquipment.filter((e) => e.category === "INVERTER");
+    if (inverters.length > 0) {
+      const eg4Inverters = inverters.filter(i => 
+        i.manufacturer?.toUpperCase().includes("EG4") || 
+        i.name.toUpperCase().includes("EG4")
+      );
+      if (eg4Inverters.length > 0) {
+        inverter = eg4Inverters[0];
+      } else {
+        inverter = inverters[0];
+      }
+    }
+
+    // Find RSD (Rapid Shutdown Device) - one per panel
+    const rsdDevices = allEquipment.filter((e) => 
+      e.category === "ELECTRICAL" && (
+        e.name.toUpperCase().includes("RSD") ||
+        e.name.toUpperCase().includes("RAPID SHUTDOWN") ||
+        e.name.toUpperCase().includes("RAPID-SHUTDOWN") ||
+        e.modelNumber.toUpperCase().includes("RSD")
+      )
+    );
+    if (rsdDevices.length > 0) {
+      rsd = rsdDevices[0];
+    }
+
+    // Find mounting rails
+    const mountingItems = allEquipment.filter((e) => 
+      e.category === "MOUNTING" && (
+        e.name.toUpperCase().includes("RAIL") ||
+        e.name.toUpperCase().includes("MOUNTING RAIL")
+      )
+    );
+    if (mountingItems.length > 0) {
+      mountingRails = mountingItems[0];
+    }
+
+    // Find mid bolts (mid clamps)
+    const boltItems = allEquipment.filter((e) => 
+      e.category === "MOUNTING" && (
+        e.name.toUpperCase().includes("BOLT") ||
+        e.name.toUpperCase().includes("CLAMP") ||
+        e.name.toUpperCase().includes("MID")
+      )
+    );
+    if (boltItems.length > 0) {
+      midBolts = boltItems[0];
+    }
+
+    // Find solar deck
+    const deckItems = allEquipment.filter((e) => 
+      e.category === "MOUNTING" && (
+        e.name.toUpperCase().includes("DECK") ||
+        e.name.toUpperCase().includes("FLASHING")
+      )
+    );
+    if (deckItems.length > 0) {
+      solarDeck = deckItems[0];
+    }
+
+    console.log("Selected equipment from multiple distributors:", {
+      solarPanel: solarPanel ? `${solarPanel.name} (${solarPanel.distributor.name})` : "none",
+      battery: battery ? `${battery.name} (${battery.distributor.name})` : "none",
+      inverter: inverter ? `${inverter.name} (${inverter.distributor.name})` : "none",
+      rsd: rsd ? `${rsd.name} (${rsd.distributor.name})` : "none",
+    });
+  } catch (error) {
+    console.error("Error fetching equipment from distributors:", error);
   }
 
-  // Solar Panel - use real product or fallback to defaults
-  const solarUnitPrice = solarPanel
-    ? solarPanel.unitPrice
-    : (SYSTEM_SIZING.SOLAR_PANEL_WATTAGE * SYSTEM_SIZING.SOLAR_COST_PER_WATT) / 2;
+  // Only create BOM items for equipment that exists in distributor database
+  // Do NOT use fallback prices - only real distributor prices
+  const bomItems = [];
 
-  // Battery - calculate price based on kWh capacity
-  const batteryUnitPrice = battery
-    ? battery.unitPrice
-    : system.batteryKwh * SYSTEM_SIZING.BATTERY_COST_PER_KWH;
-
-  // Inverter - calculate price based on kW capacity
-  const inverterUnitPrice = inverter
-    ? inverter.unitPrice
-    : system.inverterKw * SYSTEM_SIZING.INVERTER_COST_PER_KW;
-
-  // Mounting - use real product or fallback
-  const mountingUnitPrice = mounting ? mounting.unitPrice : 300;
-
-  // Electrical - use real product or fallback
-  const electricalUnitPrice = electrical ? electrical.unitPrice : 2000;
-
-  const bomItems = [
-    {
+  // Solar Panels - Only add if found in database
+  if (solarPanel && solarPanel.unitPrice > 0) {
+    bomItems.push({
       projectId,
       category: "solar" as const,
-      itemName: solarPanel?.name || "Solar Panel - Monocrystalline",
-      manufacturer: solarPanel?.manufacturer || "SolarTech",
-      modelNumber: solarPanel?.modelNumber || "ST-400W",
+      itemName: solarPanel.name,
+      manufacturer: solarPanel.manufacturer || null,
+      modelNumber: solarPanel.modelNumber,
       quantity: system.solarPanelCount,
-      unitPriceUsd: solarUnitPrice,
-      totalPriceUsd: system.solarPanelCount * solarUnitPrice,
-      imageUrl: solarPanel?.imageUrl || null,
-      notes: solarPanel?.specifications || "400W high-efficiency panels",
-    },
-    {
-      projectId,
-      category: "battery" as const,
-      itemName: battery?.name || "Lithium Battery Storage System",
-      manufacturer: battery?.manufacturer || "PowerStore",
-      modelNumber: battery?.modelNumber || `PS-${Math.ceil(system.batteryKwh)}kWh`,
-      quantity: 1,
-      unitPriceUsd: batteryUnitPrice,
-      totalPriceUsd: batteryUnitPrice,
-      imageUrl: battery?.imageUrl || null,
-      notes: battery?.specifications || `${system.batteryKwh.toFixed(1)}kWh capacity`,
-    },
-    {
-      projectId,
-      category: "inverter" as const,
-      itemName: inverter?.name || "Hybrid String Inverter",
-      manufacturer: inverter?.manufacturer || "InverterPro",
-      modelNumber: inverter?.modelNumber || `IP-${Math.ceil(system.inverterKw)}K`,
-      quantity: 1,
-      unitPriceUsd: inverterUnitPrice,
-      totalPriceUsd: inverterUnitPrice,
-      imageUrl: inverter?.imageUrl || null,
-      notes: inverter?.specifications || `${system.inverterKw.toFixed(1)}kW capacity`,
-    },
-    {
-      projectId,
-      category: "mounting" as const,
-      itemName: mounting?.name || "Roof Mounting Rails & Hardware",
-      manufacturer: mounting?.manufacturer || "MountTech",
-      modelNumber: mounting?.modelNumber || "MT-RAIL-KIT",
-      quantity: Math.max(1, Math.ceil(system.solarPanelCount / 4)),
-      unitPriceUsd: mountingUnitPrice,
-      totalPriceUsd: Math.max(1, Math.ceil(system.solarPanelCount / 4)) * mountingUnitPrice,
-      imageUrl: mounting?.imageUrl || null,
-      notes: mounting?.specifications || "Aluminum rails with stainless hardware",
-    },
-    {
+      unitPriceUsd: solarPanel.unitPrice,
+      totalPriceUsd: system.solarPanelCount * solarPanel.unitPrice,
+      imageUrl: solarPanel.imageUrl || null,
+      notes: `${solarPanel.distributor.name} | ${solarPanel.specifications || "Solar panel"}`,
+    });
+  }
+
+  // RSD - One per panel - Only add if found in database
+  if (rsd && rsd.unitPrice > 0) {
+    bomItems.push({
       projectId,
       category: "electrical" as const,
-      itemName: electrical?.name || "Electrical BOS Components",
-      manufacturer: electrical?.manufacturer || "Various",
-      modelNumber: electrical?.modelNumber || "BOS-COMPLETE",
+      itemName: rsd.name,
+      manufacturer: rsd.manufacturer || null,
+      modelNumber: rsd.modelNumber,
+      quantity: system.solarPanelCount,
+      unitPriceUsd: rsd.unitPrice,
+      totalPriceUsd: system.solarPanelCount * rsd.unitPrice,
+      imageUrl: rsd.imageUrl || null,
+      notes: `${rsd.distributor.name} | ${rsd.specifications || "Module-level rapid shutdown device"}`,
+    });
+  }
+
+  // Inverter - Prefer EG4 - Only add if found in database
+  if (inverter && inverter.unitPrice > 0) {
+    bomItems.push({
+      projectId,
+      category: "inverter" as const,
+      itemName: inverter.name,
+      manufacturer: inverter.manufacturer || null,
+      modelNumber: inverter.modelNumber,
       quantity: 1,
-      unitPriceUsd: electricalUnitPrice,
-      totalPriceUsd: electricalUnitPrice,
-      imageUrl: electrical?.imageUrl || null,
-      notes: electrical?.specifications || "DC/AC disconnects, combiner box, conduit, wire",
-    },
-  ].filter(item => item.quantity > 0); // Only create items with quantity > 0
+      unitPriceUsd: inverter.unitPrice,
+      totalPriceUsd: inverter.unitPrice,
+      imageUrl: inverter.imageUrl || null,
+      notes: `${inverter.distributor.name} | ${inverter.specifications || `${system.inverterKw.toFixed(1)}kW capacity`}`,
+    });
+  }
+
+  // Battery - Prefer EG4 - Only add if found in database
+  if (battery && battery.unitPrice > 0) {
+    bomItems.push({
+      projectId,
+      category: "battery" as const,
+      itemName: battery.name,
+      manufacturer: battery.manufacturer || null,
+      modelNumber: battery.modelNumber,
+      quantity: 1,
+      unitPriceUsd: battery.unitPrice,
+      totalPriceUsd: battery.unitPrice,
+      imageUrl: battery.imageUrl || null,
+      notes: `${battery.distributor.name} | ${battery.specifications || `${system.batteryKwh.toFixed(1)}kWh capacity`}`,
+    });
+  }
+
+  // Mounting Rails - Only add if found in database
+  if (mountingRails && mountingRails.unitPrice > 0) {
+    const railQuantity = Math.max(1, Math.ceil(system.solarPanelCount / 4)); // One rail kit per 4 panels
+    bomItems.push({
+      projectId,
+      category: "mounting" as const,
+      itemName: mountingRails.name,
+      manufacturer: mountingRails.manufacturer || null,
+      modelNumber: mountingRails.modelNumber,
+      quantity: railQuantity,
+      unitPriceUsd: mountingRails.unitPrice,
+      totalPriceUsd: railQuantity * mountingRails.unitPrice,
+      imageUrl: mountingRails.imageUrl || null,
+      notes: `${mountingRails.distributor.name} | ${mountingRails.specifications || "Aluminum mounting rails"}`,
+    });
+  }
+
+  // Mid Bolts/Clamps - Only add if found in database
+  if (midBolts && midBolts.unitPrice > 0) {
+    const boltQuantity = system.solarPanelCount * 2; // 2 bolts per panel (mid clamps)
+    bomItems.push({
+      projectId,
+      category: "mounting" as const,
+      itemName: midBolts.name,
+      manufacturer: midBolts.manufacturer || null,
+      modelNumber: midBolts.modelNumber,
+      quantity: boltQuantity,
+      unitPriceUsd: midBolts.unitPrice,
+      totalPriceUsd: boltQuantity * midBolts.unitPrice,
+      imageUrl: midBolts.imageUrl || null,
+      notes: `${midBolts.distributor.name} | ${midBolts.specifications || "Mid clamps for panel mounting"}`,
+    });
+  }
+
+  // Solar Deck/Flashing - Only add if found in database
+  if (solarDeck && solarDeck.unitPrice > 0) {
+    const deckQuantity = system.solarPanelCount; // One deck/flashing per panel
+    bomItems.push({
+      projectId,
+      category: "mounting" as const,
+      itemName: solarDeck.name,
+      manufacturer: solarDeck.manufacturer || null,
+      modelNumber: solarDeck.modelNumber,
+      quantity: deckQuantity,
+      unitPriceUsd: solarDeck.unitPrice,
+      totalPriceUsd: deckQuantity * solarDeck.unitPrice,
+      imageUrl: solarDeck.imageUrl || null,
+      notes: `${solarDeck.distributor.name} | ${solarDeck.specifications || "Roof flashing/deck for rail attachment"}`,
+    });
+  }
 
   if (bomItems.length === 0) {
     throw new SizingError(
