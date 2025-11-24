@@ -512,6 +512,15 @@ export default function ProjectDetailsPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.push(`/projects/${projectId}/progress`)}
+            className="text-white border-white/20 hover:bg-white/10"
+          >
+            <Clock className="mr-2 h-4 w-4" />
+            Track Progress
+          </Button>
           <Badge variant="secondary" className="bg-white/10 text-white border-white/20">{getSystemTypeLabel()}</Badge>
           <Badge 
             variant={project.status === 'completed' ? 'default' : 'outline'}
