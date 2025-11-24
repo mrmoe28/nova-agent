@@ -537,7 +537,7 @@ export default function EquipmentEditorEnhanced({
                       handleProductSelect(product, product.category);
                     }}
                   >
-                    <CardContent className="p-4" onClick={(e) => e.stopPropagation()}>
+                    <CardContent className="p-4">
                     {/* Product Image */}
                     <div className="relative h-48 bg-gray-100 rounded-lg mb-4 overflow-hidden">
                       {product.imageUrl ? (
@@ -645,7 +645,7 @@ export default function EquipmentEditorEnhanced({
                     </CardContent>
                   </Card>
                 );
-              }))
+              })
             )}
           </div>
 
