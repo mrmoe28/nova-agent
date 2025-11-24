@@ -208,19 +208,60 @@ export default function EquipmentEditorEnhanced({
 
   // Load distributor products
   useEffect(() => {
-    if (distributorId) {
-      loadDistributorProducts();
-    }
+    loadDistributorProducts();
   }, [distributorId]);
 
   const loadDistributorProducts = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`/api/equipment?distributorId=${distributorId}`);
-      const data = await response.json();
-      if (data.success) {
-        setProducts(data.equipment);
-        setFilteredProducts(data.equipment);
+      if (distributorId) {
+        const response = await fetch(`/api/equipment?distributorId=${distributorId}`);
+        const data = await response.json();
+        if (data.success && data.equipment && data.equipment.length > 0) {
+          // Transform API response to DistributorProduct format
+          const transformedProducts: DistributorProduct[] = data.equipment.map((item: any) => {
+            // Parse specifications if it's a string
+            let specs: Record<string, string | number> = {};
+            if (item.specifications) {
+              try {
+                specs = typeof item.specifications === 'string' 
+                  ? JSON.parse(item.specifications) 
+                  : item.specifications;
+              } catch (e) {
+                console.warn("Failed to parse specifications:", e);
+              }
+            }
+
+            return {
+              id: item.id,
+              name: item.name,
+              category: item.category as DistributorProduct['category'],
+              manufacturer: item.manufacturer || 'Unknown',
+              modelNumber: item.modelNumber,
+              specifications: specs,
+              unitPrice: item.unitPrice,
+              imageUrl: item.imageUrl,
+              inStock: item.inStock ?? true,
+              warranty: item.warranty,
+              efficiency: specs.efficiency as number | undefined,
+              rating: item.rating,
+              reviews: item.reviewCount,
+              distributorName: item.distributor?.name || 'Unknown Distributor',
+              distributorId: item.distributorId || item.distributor?.id || ''
+            };
+          });
+          
+          setProducts(transformedProducts);
+          setFilteredProducts(transformedProducts);
+        } else {
+          // API returned empty array or no data, use mock products
+          setProducts(MOCK_PRODUCTS);
+          setFilteredProducts(MOCK_PRODUCTS);
+        }
+      } else {
+        // No distributorId provided, use mock products
+        setProducts(MOCK_PRODUCTS);
+        setFilteredProducts(MOCK_PRODUCTS);
       }
     } catch (error) {
       console.error("Error loading products:", error);

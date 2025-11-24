@@ -16,8 +16,9 @@ import { EquipmentSelectionDialog } from "@/components/EquipmentSelectionDialog"
 import { AddEquipmentDialog } from "@/components/AddEquipmentDialog";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { Loader2, Trash2, Edit, Plus, RefreshCw, ShoppingCart, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, Trash2, Edit, Plus, RefreshCw, ShoppingCart, CheckCircle2, AlertCircle, Minus } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 interface BOMItem {
   id: string;
@@ -50,6 +51,7 @@ export default function BOMPage() {
   const [recalculating, setRecalculating] = useState(false);
   const [distributors, setDistributors] = useState<Array<{ id: string; name: string; _count?: { equipment: number } }>>([]);
   const [loadingDistributors, setLoadingDistributors] = useState(false);
+  const [editingQuantities, setEditingQuantities] = useState<Record<string, number>>({});
 
   useEffect(() => {
     loadBOMItems();
@@ -213,6 +215,53 @@ export default function BOMPage() {
       console.error("Error deleting item:", error);
       toast.error("Error", {
         description: "Failed to remove BOM item.",
+      });
+    }
+  };
+
+  const handleQuantityChange = async (itemId: string, newQuantity: number) => {
+    // Validate quantity
+    if (newQuantity < 0) {
+      toast.error("Invalid Quantity", {
+        description: "Quantity cannot be negative.",
+      });
+      return;
+    }
+
+    const item = bomItems.find(i => i.id === itemId);
+    if (!item) return;
+
+    try {
+      const response = await fetch(`/api/bom/${itemId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          quantity: newQuantity,
+          unitPriceUsd: item.unitPriceUsd,
+        }),
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        // Update local state
+        const updatedItems = bomItems.map(i =>
+          i.id === itemId ? { ...i, quantity: newQuantity, totalPriceUsd: newQuantity * i.unitPriceUsd } : i
+        );
+        setBomItems(updatedItems);
+        
+        // Recalculate total cost
+        const newTotal = updatedItems.reduce((sum, item) => sum + item.totalPriceUsd, 0);
+        setTotalCost(newTotal);
+
+        // Reload BOM items to get updated validation and any auto-updated related items
+        await loadBOMItems();
+      } else {
+        throw new Error(data.error);
+      }
+    } catch (error) {
+      console.error("Error updating quantity:", error);
+      toast.error("Error", {
+        description: "Failed to update quantity.",
       });
     }
   };
@@ -444,7 +493,55 @@ export default function BOMPage() {
                             )}
                           </td>
                           <td className="py-4 text-xs font-mono text-slate-600">{item.modelNumber}</td>
-                          <td className="py-4 text-sm text-right font-medium text-slate-900">{item.quantity}</td>
+                          <td className="py-4">
+                            <div className="flex items-center justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleQuantityChange(item.id, Math.max(0, item.quantity - 1))}
+                                className="h-7 w-7 p-0 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                                disabled={item.quantity <= 0}
+                                title="Decrease quantity"
+                              >
+                                <Minus className="h-3 w-3" />
+                              </Button>
+                              <Input
+                                type="number"
+                                min="0"
+                                value={editingQuantities[item.id] !== undefined ? editingQuantities[item.id] : item.quantity}
+                                onChange={(e) => {
+                                  const value = parseInt(e.target.value) || 0;
+                                  setEditingQuantities(prev => ({ ...prev, [item.id]: value }));
+                                }}
+                                onBlur={(e) => {
+                                  const value = parseInt(e.target.value) || 0;
+                                  if (value !== item.quantity) {
+                                    handleQuantityChange(item.id, value);
+                                  }
+                                  setEditingQuantities(prev => {
+                                    const newState = { ...prev };
+                                    delete newState[item.id];
+                                    return newState;
+                                  });
+                                }}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    e.currentTarget.blur();
+                                  }
+                                }}
+                                className="w-16 h-8 text-center text-sm font-medium text-slate-900 border-slate-300 focus:border-teal-500 focus:ring-teal-500"
+                              />
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                                className="h-7 w-7 p-0 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                                title="Increase quantity"
+                              >
+                                <Plus className="h-3 w-3" />
+                              </Button>
+                            </div>
+                          </td>
                           <td className="py-4 text-sm text-right text-slate-700">{formatCurrency(item.unitPriceUsd)}</td>
                           <td className="py-4 text-sm text-right font-semibold text-slate-900">{formatCurrency(item.totalPriceUsd)}</td>
                           <td className="py-4 text-center">
