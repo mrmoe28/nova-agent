@@ -70,12 +70,11 @@ export async function POST(request: NextRequest) {
     const document = await prisma.planDocument.create({
       data: {
         planId: projectId, // Assuming planId matches projectId for now
-        title: file.name,
+        fileName: file.name,
         type: documentType || "planset",
+        category: "permit", // Default category for plansets
         filePath: `/uploads/plansets/${fileName}`,
-        fileSize: file.size.toString(),
         uploadedBy: "System", // TODO: Replace with actual user
-        status: "pending",
       },
     });
 
