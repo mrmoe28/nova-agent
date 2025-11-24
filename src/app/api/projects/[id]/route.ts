@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { recalculateSystemFromBOM } from "@/lib/bom-calculations";
 
 export async function GET(
   request: NextRequest,
@@ -23,6 +24,32 @@ export async function GET(
         { success: false, error: "Project not found" },
         { status: 404 },
       );
+    }
+
+    // If BOM items exist, ensure system record is synced with actual BOM
+    if (project.bomItems && project.bomItems.length > 0 && project.system) {
+      try {
+        const systemResult = await recalculateSystemFromBOM(id);
+        if (systemResult.success && systemResult.updated) {
+          // Refetch project to get updated system data
+          const updatedProject = await prisma.project.findUnique({
+            where: { id },
+            include: {
+              bills: true,
+              analysis: true,
+              system: true,
+              bomItems: true,
+              plan: true,
+            },
+          });
+          if (updatedProject) {
+            return NextResponse.json({ success: true, project: updatedProject });
+          }
+        }
+      } catch (error) {
+        console.error("Error recalculating system from BOM:", error);
+        // Continue with original project data if recalculation fails
+      }
     }
 
     return NextResponse.json({ success: true, project });
