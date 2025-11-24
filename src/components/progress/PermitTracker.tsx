@@ -234,22 +234,41 @@ export function PermitTracker({ projectId, initialData, customerAddress, ptoAgen
           )}
         </div>
 
-        {/* Permit Office Lookup */}
-        {customerAddress && (
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm font-medium">Permit Office Lookup</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLookupPermitOffice}
-                disabled={lookingUp}
-              >
-                <Search className="h-4 w-4 mr-2" />
-                {lookingUp ? "Looking up..." : "Find by Address"}
-              </Button>
+        {/* Customer Address Display & Permit Office Lookup */}
+        <div className="space-y-3">
+          <Label className="text-sm font-medium">Customer Address</Label>
+          <div className="flex gap-2">
+            <Input
+              value={customerAddress || "No address on file"}
+              readOnly={!editing}
+              onChange={(e) => {
+                // Note: This would need to be lifted to parent to actually update
+                // For now, it's read-only unless in edit mode
+              }}
+              className="flex-1"
+              placeholder="Enter customer address..."
+            />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLookupPermitOffice}
+              disabled={lookingUp || !customerAddress}
+            >
+              <Search className="h-4 w-4 mr-2" />
+              {lookingUp ? "Looking up..." : "Find by Address"}
+            </Button>
+          </div>
+          <p className="text-xs text-gray-500">
+            This address is used to identify the correct permit office and jurisdiction
+          </p>
+          {!customerAddress && (
+            <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-800">
+                ⚠️ No address on file. Please add a customer address to use automatic permit office lookup.
+              </p>
             </div>
-            {permitOfficeInfo && (
+          )}
+          {customerAddress && permitOfficeInfo && (
               <div className="p-4 bg-green-50 rounded-lg border border-green-200">
                 <div className="space-y-2">
                   <div>
@@ -296,8 +315,7 @@ export function PermitTracker({ projectId, initialData, customerAddress, ptoAgen
                 </div>
               </div>
             )}
-          </div>
-        )}
+        </div>
 
         {/* PTO Agent Integration */}
         {ptoAgentUrl && (

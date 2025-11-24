@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProgressOverview } from "@/components/progress/ProgressOverview";
 import { PermitTracker } from "@/components/progress/PermitTracker";
 import { InterconnectionTracker } from "@/components/progress/InterconnectionTracker";
+import { PlansetUploader } from "@/components/progress/PlansetUploader";
 import { ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
 
