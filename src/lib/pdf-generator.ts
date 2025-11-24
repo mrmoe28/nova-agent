@@ -1,6 +1,7 @@
 import PDFDocument from "pdfkit";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { calculateEnergyProductionFromBOM, calculateEnergySavingsFromBOM } from "@/lib/energy-calculations";
+import { GEORGIA_FEES } from "@/lib/config";
 import https from "https";
 import http from "http";
 
@@ -192,125 +193,141 @@ export function generateNovaAgentPDF(
           .fillColor(brandCyan)
           .fontSize(20)
           .font("Helvetica-Bold")
-          .text("Energy Usage & Savings Comparison", 50, yPos);
+          .text("Monthly Power Bill Comparison", 50, yPos);
         yPos += 40;
 
         const boxWidth = 230;
-        const boxHeight = 280;
+        const boxHeight = 310;
         const leftX = 50;
         const rightX = 310;
 
-        // LEFT BOX - CURRENT USAGE
+        // Calculate proper solar production using capacity factor
+        const capacityFactor = 0.20; // 20% average capacity factor for solar
+        const annualProductionKwh = system.totalSolarKw * capacityFactor * 8760;
+        const monthlyProductionKwh = annualProductionKwh / 12;
+        
+        // Calculate how much grid power is still needed
+        const remainingGridUsageKwh = Math.max(0, analysis.monthlyUsageKwh - monthlyProductionKwh);
+        const gridCostAfterSolar = remainingGridUsageKwh * analysis.averageCostPerKwh;
+        
+        const monthlyBillBefore = analysis.annualCostUsd / 12;
+        const monthlyBillAfter = gridCostAfterSolar;
+        const monthlySavings = monthlyBillBefore - monthlyBillAfter;
+        const annualSavings = monthlySavings * 12;
+        
+        const solarCoverage = analysis.monthlyUsageKwh > 0
+          ? Math.min((monthlyProductionKwh / analysis.monthlyUsageKwh) * 100, 100)
+          : 0;
+
+        // LEFT BOX - CURRENT POWER BILL
         doc.fillColor("#FEE2E2").rect(leftX, yPos, boxWidth, boxHeight).fill();
         doc
           .fillColor("#991B1B")
           .fontSize(16)
           .font("Helvetica-Bold")
-          .text("Current Usage", leftX + 20, yPos + 20, { width: boxWidth - 40 });
+          .text("Current Power Bill", leftX + 20, yPos + 20, { width: boxWidth - 40 });
+        
+        doc
+          .fillColor("#7F1D1D")
+          .fontSize(11)
+          .font("Helvetica")
+          .text("(Without Solar)", leftX + 20, yPos + 45, { width: boxWidth - 40 });
 
-        doc.fontSize(10).font("Helvetica").fillColor(textDark);
-        let leftY = yPos + 60;
+        doc.fontSize(11).font("Helvetica").fillColor(textDark);
+        let leftY = yPos + 75;
 
         doc
           .font("Helvetica-Bold")
           .text("Monthly Usage:", leftX + 20, leftY);
         doc
           .font("Helvetica")
+          .fontSize(13)
           .text(
             `${Math.round(analysis.monthlyUsageKwh)} kWh`,
             leftX + 20,
-            leftY + 15,
+            leftY + 18,
           );
-        leftY += 45;
+        leftY += 52;
 
-        doc.font("Helvetica-Bold").text("Annual Cost:", leftX + 20, leftY);
-        doc
-          .font("Helvetica")
-          .text(formatCurrency(analysis.annualCostUsd), leftX + 20, leftY + 15);
-        leftY += 45;
-
+        doc.fontSize(11).font("Helvetica-Bold").text("Monthly Bill:", leftX + 20, leftY);
         doc
           .font("Helvetica-Bold")
-          .text("Avg Cost per kWh:", leftX + 20, leftY);
+          .fontSize(18)
+          .fillColor("#DC2626")
+          .text(formatCurrency(monthlyBillBefore), leftX + 20, leftY + 18);
+        leftY += 52;
+
+        doc.fontSize(11).fillColor(textDark).font("Helvetica-Bold").text("Annual Bill:", leftX + 20, leftY);
         doc
           .font("Helvetica")
+          .fontSize(13)
+          .text(formatCurrency(analysis.annualCostUsd), leftX + 20, leftY + 18);
+        leftY += 52;
+
+        doc.fontSize(11).font("Helvetica-Bold").text("Utility Rate:", leftX + 20, leftY);
+        doc
+          .font("Helvetica")
+          .fontSize(13)
           .text(
-            formatCurrency(analysis.averageCostPerKwh),
+            `${formatCurrency(analysis.averageCostPerKwh)}/kWh`,
             leftX + 20,
-            leftY + 15,
+            leftY + 18,
           );
-        leftY += 45;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Solar Coverage:", leftX + 20, leftY);
-        doc.font("Helvetica").text("0%", leftX + 20, leftY + 15);
-
-        // RIGHT BOX - WITH SOLAR
+        // RIGHT BOX - POWER BILL WITH SOLAR
         doc.fillColor("#D1FAE5").rect(rightX, yPos, boxWidth, boxHeight).fill();
         doc
           .fillColor("#065F46")
           .fontSize(16)
           .font("Helvetica-Bold")
-          .text("With Solar & Battery", rightX + 20, yPos + 20, {
+          .text("Power Bill With Solar", rightX + 20, yPos + 20, {
             width: boxWidth - 40,
           });
-
-        doc.fontSize(10).font("Helvetica").fillColor(textDark);
-        let rightY = yPos + 60;
-
-        // Calculate proper solar production using capacity factor
-        // Annual production = System Capacity (kW) × Capacity Factor (20%) × Hours per Year (8760)
-        // Monthly production = Annual / 12
-        const capacityFactor = 0.20; // 20% average capacity factor for solar
-        const annualProductionKwh = system.totalSolarKw * capacityFactor * 8760;
-        const monthlyProductionKwh = annualProductionKwh / 12;
         
-        const solarCoverage = analysis.monthlyUsageKwh > 0
-          ? Math.min((monthlyProductionKwh / analysis.monthlyUsageKwh) * 100, 100)
-          : 0;
-        
-        // Calculate savings: production × cost per kWh
-        const estimatedSavings = annualProductionKwh * analysis.averageCostPerKwh;
+        doc
+          .fillColor("#064E3B")
+          .fontSize(11)
+          .font("Helvetica")
+          .text("(With Solar & Battery)", rightX + 20, yPos + 45, { width: boxWidth - 40 });
+
+        doc.fontSize(11).font("Helvetica").fillColor(textDark);
+        let rightY = yPos + 75;
 
         doc
           .font("Helvetica-Bold")
           .text("Solar Production:", rightX + 20, rightY);
         doc
           .font("Helvetica")
-          .text(`${Math.round(monthlyProductionKwh)} kWh/mo`, rightX + 20, rightY + 15);
-        rightY += 45;
+          .fontSize(13)
+          .fillColor("#059669")
+          .text(`${Math.round(monthlyProductionKwh)} kWh/mo`, rightX + 20, rightY + 18);
+        rightY += 52;
 
+        doc.fontSize(11).fillColor(textDark).font("Helvetica-Bold").text("New Monthly Bill:", rightX + 20, rightY);
         doc
           .font("Helvetica-Bold")
-          .text("Est. Annual Savings:", rightX + 20, rightY);
-        doc
-          .font("Helvetica")
-          .text(formatCurrency(estimatedSavings), rightX + 20, rightY + 15);
-        rightY += 45;
+          .fontSize(18)
+          .fillColor("#059669")
+          .text(formatCurrency(monthlyBillAfter), rightX + 20, rightY + 18);
+        rightY += 52;
 
+        doc.fontSize(11).fillColor(textDark).font("Helvetica-Bold").text("Monthly Savings:", rightX + 20, rightY);
         doc
           .font("Helvetica-Bold")
-          .text("New Annual Cost:", rightX + 20, rightY);
-        doc
-          .font("Helvetica")
-          .text(
-            formatCurrency(analysis.annualCostUsd - estimatedSavings),
-            rightX + 20,
-            rightY + 15,
-          );
-        rightY += 45;
+          .fontSize(16)
+          .fillColor("#10B981")
+          .text(formatCurrency(monthlySavings), rightX + 20, rightY + 18);
+        rightY += 52;
 
-        doc
-          .font("Helvetica-Bold")
-          .text("Solar Coverage:", rightX + 20, rightY);
+        doc.fontSize(11).fillColor(textDark).font("Helvetica-Bold").text("Solar Coverage:", rightX + 20, rightY);
         doc
           .font("Helvetica")
-          .text(`${solarCoverage.toFixed(0)}%`, rightX + 20, rightY + 15);
+          .fontSize(13)
+          .text(`${solarCoverage.toFixed(0)}% offset`, rightX + 20, rightY + 18);
 
         yPos += boxHeight + 30;
 
-        // System Investment
+        // System Investment with Georgia Fees
         doc
           .fillColor(brandNavy)
           .fontSize(14)
@@ -318,33 +335,51 @@ export function generateNovaAgentPDF(
           .text("System Investment", 50, yPos);
         yPos += 25;
 
+        // Calculate total with Georgia permit & admin fees
+        const georgiaFees = GEORGIA_FEES.TOTAL;
+        const totalSystemCostWithFees = system.estimatedCostUsd + georgiaFees;
+
         doc
           .fillColor(textDark)
           .fontSize(11)
           .font("Helvetica")
           .text(
-            `Total System Cost: ${formatCurrency(system.estimatedCostUsd)}`,
+            `Equipment & Installation: ${formatCurrency(system.estimatedCostUsd)}`,
             70,
             yPos,
           );
         yPos += 18;
+        
+        doc.text(
+          `Georgia Permits & Admin Fees: ${formatCurrency(georgiaFees)}`,
+          70,
+          yPos,
+        );
+        yPos += 18;
+        
+        doc.font("Helvetica-Bold").text(
+          `Total System Cost: ${formatCurrency(totalSystemCostWithFees)}`,
+          70,
+          yPos,
+        );
+        yPos += 20;
 
         // Calculate payback period accounting for 30% federal tax credit
         const federalTaxCredit = 0.30;
-        const netSystemCost = system.estimatedCostUsd * (1 - federalTaxCredit);
-        const paybackYears = estimatedSavings > 0
-          ? netSystemCost / estimatedSavings
+        const netSystemCost = totalSystemCostWithFees * (1 - federalTaxCredit);
+        const paybackYears = annualSavings > 0
+          ? netSystemCost / annualSavings
           : Infinity;
-        doc.text(
+        doc.font("Helvetica").text(
           `Estimated Payback: ${paybackYears !== Infinity ? paybackYears.toFixed(1) + ' years' : 'N/A'}`,
           70,
           yPos,
         );
         yPos += 18;
 
-        const year25Savings = estimatedSavings * 25;
+        const year25Savings = annualSavings * 25 - totalSystemCostWithFees;
         doc.text(
-          `25-Year Savings: ${formatCurrency(year25Savings)}`,
+          `25-Year Net Savings: ${formatCurrency(year25Savings)}`,
           70,
           yPos,
         );
@@ -374,9 +409,11 @@ export function generateNovaAgentPDF(
         // Calculate savings: production × cost per kWh
         const annualSavings = annualProductionKwh * analysis.averageCostPerKwh;
         
-        // Calculate payback period accounting for 30% federal tax credit
+        // Calculate payback period accounting for 30% federal tax credit and Georgia fees
         const federalTaxCredit = 0.30;
-        const netSystemCost = system.estimatedCostUsd * (1 - federalTaxCredit);
+        const georgiaFees = GEORGIA_FEES.TOTAL;
+        const totalSystemCostWithFees = system.estimatedCostUsd + georgiaFees;
+        const netSystemCost = totalSystemCostWithFees * (1 - federalTaxCredit);
         const paybackYears = annualSavings > 0
           ? netSystemCost / annualSavings
           : Infinity;
@@ -653,10 +690,12 @@ export function generateNovaAgentPDF(
         doc
           .fillColor(brandCyan)
           .fontSize(20)
-          .font("Helvetica-Bold")
-          .text(battery.itemName, 50, 95, { width: 500 });
+          .font("Helvetica-Bold");
+        const titleHeight = doc.heightOfString(battery.itemName, { width: 500 });
+        doc.text(battery.itemName, 50, 95, { width: 500 });
 
-        yPos = 135;
+        // Ensure proper spacing after title
+        yPos = 95 + titleHeight + 20;
 
         // Try to fetch and display image (centered)
         let imageHeight = 0;
@@ -723,16 +762,6 @@ export function generateNovaAgentPDF(
         doc.font("Helvetica-Bold").text("Total Cost:", rightColX, rightY);
         doc.fillColor(brandCyan).fontSize(16).font("Helvetica-Bold")
           .text(formatCurrency(battery.totalPriceUsd), rightColX, rightY + 15);
-
-        // Notes at bottom (larger font)
-        if (battery.notes) {
-          yPos = Math.max(leftY, rightY) + 60;
-          doc
-            .fillColor(textLight)
-            .fontSize(10)
-            .font("Helvetica")
-            .text(battery.notes, 70, yPos, { width: 470, align: "justify" });
-        }
       }
 
       // Inverter Page
@@ -821,16 +850,6 @@ export function generateNovaAgentPDF(
         doc.font("Helvetica-Bold").text("Total Cost:", rightColX, rightY);
         doc.fillColor(brandCyan).fontSize(16).font("Helvetica-Bold")
           .text(formatCurrency(inverter.totalPriceUsd), rightColX, rightY + 15);
-
-        // Notes at bottom (larger font)
-        if (inverter.notes) {
-          yPos = Math.max(leftY, rightY) + 60;
-          doc
-            .fillColor(textLight)
-            .fontSize(10)
-            .font("Helvetica")
-            .text(inverter.notes, 70, yPos, { width: 470, align: "justify" });
-        }
       }
 
       // Mounting & Racking Page

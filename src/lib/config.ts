@@ -45,6 +45,37 @@ export const SYSTEM_SIZING = {
 } as const;
 
 // ============================================================================
+// GEORGIA STATE FEES CONFIGURATION
+// ============================================================================
+
+/**
+ * Georgia state-specific permit and administrative fees for solar installations
+ * Based on typical residential solar installation requirements in Georgia
+ */
+export const GEORGIA_FEES = {
+  /** Building permit fee (residential solar) */
+  BUILDING_PERMIT: parseFloat(process.env.GA_BUILDING_PERMIT_FEE || "300"),
+  
+  /** Electrical permit fee */
+  ELECTRICAL_PERMIT: parseFloat(process.env.GA_ELECTRICAL_PERMIT_FEE || "125"),
+  
+  /** Plan review fee */
+  PLAN_REVIEW: parseFloat(process.env.GA_PLAN_REVIEW_FEE || "175"),
+  
+  /** Utility interconnection application fee */
+  INTERCONNECTION_FEE: parseFloat(process.env.GA_INTERCONNECTION_FEE || "100"),
+  
+  /** Administrative processing fee */
+  ADMIN_PROCESSING: parseFloat(process.env.GA_ADMIN_PROCESSING_FEE || "85"),
+  
+  /** Total permit and admin fees */
+  get TOTAL() {
+    return this.BUILDING_PERMIT + this.ELECTRICAL_PERMIT + this.PLAN_REVIEW + 
+           this.INTERCONNECTION_FEE + this.ADMIN_PROCESSING;
+  }
+} as const;
+
+// ============================================================================
 // WEB SCRAPING CONFIGURATION
 // ============================================================================
 

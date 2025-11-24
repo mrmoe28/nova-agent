@@ -160,13 +160,31 @@ export async function calculateSystemSpecsFromBOM(
     // Try to extract wattage from model number, name, or notes
     const searchText = `${panel.modelNumber} ${panel.itemName} ${panel.notes || ""}`;
     
-    // Pattern: "400W", "400 W", "400 watts"
-    const wattageMatch = searchText.match(/(\d+)\s*w/i);
-    const wattage = wattageMatch ? parseInt(wattageMatch[1]) : 400; // Default 400W
+    let wattage = 400; // Default 400W
+    
+    // Pattern 1: Look for "###W" or "### W" or "### watt" (most common)
+    const wattMatch = searchText.match(/(\d{3,4})\s*w(?:att)?s?(?!\w)/i);
+    if (wattMatch) {
+      wattage = parseInt(wattMatch[1]);
+    } else {
+      // Pattern 2: Look for "###-watt" or "### watt"
+      const wattMatch2 = searchText.match(/(\d{3,4})[\s-]watt/i);
+      if (wattMatch2) {
+        wattage = parseInt(wattMatch2[1]);
+      }
+    }
+    
+    // Sanity check: solar panels are typically 250-600W
+    if (wattage < 250 || wattage > 600) {
+      console.warn(`Unusual solar panel wattage detected: ${wattage}W for "${panel.itemName}". Using default 400W.`);
+      wattage = 400;
+    }
 
     // Try to extract efficiency
     const efficiencyMatch = searchText.match(/(\d+\.?\d*)%\s*efficiency/i);
     const efficiency = efficiencyMatch ? parseFloat(efficiencyMatch[1]) : undefined;
+
+    console.log(`Solar panel "${panel.itemName}" (${panel.modelNumber}): ${wattage}W × ${panel.quantity} = ${(wattage * panel.quantity) / 1000}kW`);
 
     return {
       wattage,
