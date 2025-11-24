@@ -117,21 +117,27 @@ npm run build
 
 ### Fix #1: documents/[id]/download/route.ts
 ```typescript
-// Before:
+// Before (causing type error):
 return new NextResponse(fileBuffer, { ... });
 
-// After:
-return new NextResponse(fileBuffer.buffer.slice(fileBuffer.byteOffset, fileBuffer.byteOffset + fileBuffer.byteLength), { ... });
+// After (Next.js 15 compatible):
+return new NextResponse(new Uint8Array(fileBuffer), { ... });
 ```
 
 ### Fix #2: pdf/route.ts
 ```typescript
-// Before:
+// Before (using unsafe type cast):
 return new NextResponse(pdfBuffer as unknown as BodyInit, { ... });
 
-// After:
-return new NextResponse(pdfBuffer.buffer.slice(pdfBuffer.byteOffset, pdfBuffer.byteOffset + pdfBuffer.byteLength), { ... });
+// After (Next.js 15 compatible):
+return new NextResponse(new Uint8Array(pdfBuffer), { ... });
 ```
+
+**Why Uint8Array?**
+- Next.js 15 expects `BodyInit` type for `NextResponse`
+- `Uint8Array` is the cleanest way to convert Node.js `Buffer` to `BodyInit`
+- Already proven working in `bills/[id]/file/route.ts`
+- Simpler and more readable than `buffer.slice()` approach
 
 ### Verified Clean:
 - ✅ `bills/[id]/file/route.ts` - Already using `Uint8Array` (correct)
