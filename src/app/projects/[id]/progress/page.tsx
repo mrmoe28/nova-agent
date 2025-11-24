@@ -18,6 +18,7 @@ async function getProjectProgress(projectId: string) {
     select: {
       id: true,
       clientName: true,
+      address: true,
     },
   });
 
@@ -160,6 +161,8 @@ export default async function ProgressPage({ params }: ProgressPageProps) {
             <div className="grid grid-cols-1 gap-6">
               <PermitTracker
                 projectId={id}
+                customerAddress={project.address || undefined}
+                ptoAgentUrl={process.env.NEXT_PUBLIC_PTO_AGENT_URL}
                 initialData={{
                   permitStatus: plan.permitStatus,
                   permitNumber: plan.permitNumber,
@@ -189,6 +192,8 @@ export default async function ProgressPage({ params }: ProgressPageProps) {
           <TabsContent value="permits">
             <PermitTracker
               projectId={id}
+              customerAddress={project.address || undefined}
+              ptoAgentUrl={process.env.NEXT_PUBLIC_PTO_AGENT_URL}
               initialData={{
                 permitStatus: plan.permitStatus,
                 permitNumber: plan.permitNumber,
