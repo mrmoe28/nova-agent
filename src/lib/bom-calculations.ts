@@ -259,17 +259,57 @@ export async function recalculateSystemFromBOM(
       };
     }
 
-    // Update System record with actual BOM specs
-    const system = await prisma.system.findUnique({
+    // Get or create System record
+    let system = await prisma.system.findUnique({
       where: { projectId },
     });
 
     if (!system) {
+      // Create a new system record from BOM specs
+      const totalWattage = systemSpecs.actualEquipmentSpecs.solarPanels.reduce(
+        (sum, panel) => sum + panel.wattage * panel.quantity,
+        0
+      );
+      const avgPanelWattage = systemSpecs.solarPanelCount > 0
+        ? Math.round(totalWattage / systemSpecs.solarPanelCount)
+        : 400;
+
+      // Calculate total cost from BOM items
+      const bomItems = await prisma.bOMItem.findMany({
+        where: { projectId },
+      });
+      const totalCost = bomItems.reduce((sum, item) => sum + item.totalPriceUsd, 0);
+
+      // Enforce 10kW limit
+      const MAX_ROOF_CAPACITY_KW = 10;
+      let finalPanelCount = systemSpecs.solarPanelCount;
+      let finalTotalKw = systemSpecs.totalSolarKw;
+      
+      if (finalTotalKw > MAX_ROOF_CAPACITY_KW) {
+        finalTotalKw = MAX_ROOF_CAPACITY_KW;
+        finalPanelCount = Math.floor((MAX_ROOF_CAPACITY_KW * 1000) / avgPanelWattage);
+      }
+
+      system = await prisma.system.create({
+        data: {
+          projectId,
+          solarPanelCount: finalPanelCount,
+          solarPanelWattage: avgPanelWattage,
+          totalSolarKw: finalTotalKw,
+          batteryKwh: systemSpecs.totalBatteryKwh,
+          batteryType: "lithium",
+          inverterKw: systemSpecs.totalInverterKw,
+          inverterType: "Hybrid String Inverter",
+          backupDurationHrs: 24,
+          criticalLoadKw: 3,
+          estimatedCostUsd: totalCost,
+        },
+      });
+
       return {
-        success: false,
-        updated: false,
+        success: true,
+        updated: true,
         systemSpecs,
-        error: "System record not found. Complete system sizing first.",
       };
     }
 

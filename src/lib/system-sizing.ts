@@ -580,12 +580,27 @@ export async function regeneratePlan(
   projectId: string,
   skipStatusUpdate = false,
 ) {
-  const system = await prisma.system.findUnique({
+  let system = await prisma.system.findUnique({
     where: { projectId },
   });
 
+  // If no system exists, try to create one from BOM items
   if (!system) {
-    throw new SizingError("System design must be completed first", 400);
+    const { recalculateSystemFromBOM } = await import("@/lib/bom-calculations");
+    const result = await recalculateSystemFromBOM(projectId);
+    
+    if (!result.success || !result.systemSpecs) {
+      throw new SizingError("System design must be completed first. Please go back to the Sizing step or ensure equipment is added to the BOM.", 400);
+    }
+    
+    // Fetch the newly created system
+    system = await prisma.system.findUnique({
+      where: { projectId },
+    });
+    
+    if (!system) {
+      throw new SizingError("Failed to create system from BOM. Please complete the Sizing step first.", 400);
+    }
   }
 
   // Get project for address/location data
