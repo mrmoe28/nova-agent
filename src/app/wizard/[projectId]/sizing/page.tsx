@@ -3,323 +3,247 @@
 import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, AlertTriangle } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Loader2, Sun, Battery, Zap, CheckCircle2, ArrowRight } from "lucide-react";
 
-interface Distributor {
-  id: string;
-  name: string;
-  equipment?: { id: string; category: string }[];
-  _count?: {
-    equipment: number;
-  };
+interface SystemSize {
+  solarPanelCount: number;
+  totalSolarKw: number;
+  batteryKwh: number;
+  inverterKw: number;
+  monthlyUsageKwh: number;
+  dailyUsageKwh: number;
 }
 
 export default function SizingPage() {
   const router = useRouter();
   const params = useParams();
   const projectId = params.projectId as string;
-  const [loading, setLoading] = useState(false);
-  const [distributors, setDistributors] = useState<Distributor[]>([]);
-  const [loadingDistributors, setLoadingDistributors] = useState(true);
-  const [estimatedPanelCount, setEstimatedPanelCount] = useState<number | null>(null);
-  const [estimatedTotalKw, setEstimatedTotalKw] = useState<number | null>(null);
-  const [formData, setFormData] = useState({
-    backupDurationHrs: 24,
-    criticalLoadKw: 3,
-    distributorId: "",
-    manualPanelCount: null as number | null,
-  });
+  const [loading, setLoading] = useState(true);
+  const [systemSize, setSystemSize] = useState<SystemSize | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch distributors on component mount
   useEffect(() => {
-    const fetchDistributors = async () => {
-      try {
-        const response = await fetch("/api/distributors");
-        const data = await response.json();
-        if (data.success) {
-          setDistributors(data.distributors);
-        }
-      } catch (error) {
-        console.error("Error fetching distributors:", error);
-      } finally {
-        setLoadingDistributors(false);
-      }
-    };
-
-    fetchDistributors();
-  }, []);
-
-  // Fetch estimated system size to show warnings
-  useEffect(() => {
-    const fetchEstimatedSize = async () => {
-      if (!projectId) return;
-
-      try {
-        const response = await fetch(`/api/projects/${projectId}/system`);
-        const data = await response.json();
-
-        if (data.success && data.analysis) {
-          // Calculate estimated panel count based on usage
-          // Using same logic as system-sizing.ts
-          const SOLAR_PANEL_WATTAGE = 400;
-          const PEAK_SUN_HOURS = 4;
-          const SOLAR_SIZING_FACTOR = 1.2;
-
-          const dailyKwh = data.analysis.monthlyUsageKwh / 30;
-          const solarKw = (dailyKwh / PEAK_SUN_HOURS) * SOLAR_SIZING_FACTOR;
-          const panelCount = Math.ceil((solarKw * 1000) / SOLAR_PANEL_WATTAGE);
-          const totalKw = (panelCount * SOLAR_PANEL_WATTAGE) / 1000;
-
-          setEstimatedPanelCount(panelCount);
-          setEstimatedTotalKw(totalKw);
-        }
-      } catch (error) {
-        console.error("Error fetching estimated size:", error);
-      }
-    };
-
-    fetchEstimatedSize();
+    loadSystemSize();
   }, [projectId]);
 
-  const calculateTotalKw = (panelCount: number) => {
-    const SOLAR_PANEL_WATTAGE = 400;
-    return (panelCount * SOLAR_PANEL_WATTAGE) / 1000;
-  };
-
-  const currentPanelCount = formData.manualPanelCount || estimatedPanelCount || 0;
-  const currentTotalKw = calculateTotalKw(currentPanelCount);
-  const exceedsLimit = currentTotalKw > 10;
-  const maxAllowedPanels = Math.floor((10 * 1000) / 400); // 400W panels
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const loadSystemSize = async () => {
     setLoading(true);
-
+    setError(null);
     try {
-      const response = await fetch("/api/size", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          projectId,
-          ...formData,
-        }),
-      });
-
+      const response = await fetch(`/api/projects/${projectId}/system`);
       const data = await response.json();
 
-      if (data.success) {
-        router.push(`/wizard/${projectId}/bom`);
+      if (data.success && data.analysis) {
+        const analysis = data.analysis;
+        const monthlyUsageKwh = analysis.monthlyUsageKwh || 0;
+        const dailyUsageKwh = monthlyUsageKwh / 30;
+
+        // Calculate system size based on energy usage
+        const SOLAR_PANEL_WATTAGE = 400;
+        const PEAK_SUN_HOURS = 4;
+        const SOLAR_SIZING_FACTOR = 1.2;
+
+        const totalSolarKw = (dailyUsageKwh / PEAK_SUN_HOURS) * SOLAR_SIZING_FACTOR;
+        const solarPanelCount = Math.ceil((totalSolarKw * 1000) / SOLAR_PANEL_WATTAGE);
+        const actualTotalSolarKw = (solarPanelCount * SOLAR_PANEL_WATTAGE) / 1000;
+
+        // Battery sizing (default 24h backup, 3kW critical load)
+        const criticalDailyKwh = Math.min(dailyUsageKwh * 0.4, 15);
+        const backupDays = 1; // 24 hours
+        const BATTERY_OVERHEAD = 1.2;
+        const calculatedBatteryKwh = criticalDailyKwh * backupDays * BATTERY_OVERHEAD;
+        const batteryKwh = Math.max(5, Math.min(40, calculatedBatteryKwh));
+
+        // Inverter sizing (125% of peak demand)
+        const peakDemand = analysis.peakDemandKw || Math.max(5, 3);
+        const inverterKw = peakDemand * 1.25;
+
+        setSystemSize({
+          solarPanelCount,
+          totalSolarKw: actualTotalSolarKw,
+          batteryKwh: Math.round(batteryKwh * 10) / 10,
+          inverterKw: Math.round(inverterKw * 10) / 10,
+          monthlyUsageKwh,
+          dailyUsageKwh: Math.round(dailyUsageKwh * 10) / 10,
+        });
       } else {
-        alert(`Error: ${data.error}`);
+        setError("No energy analysis found. Please upload and analyze bills first.");
       }
     } catch (error) {
-      console.error("Error sizing system:", error);
-      alert("Failed to size system");
+      console.error("Error loading system size:", error);
+      setError("Failed to load system size calculation.");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen">
-      <div className="container max-w-2xl mx-auto px-4 py-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">System Sizing & Configuration</h1>
-        <p className="mt-2 text-muted-foreground">
-          Configure backup duration and critical load requirements
-        </p>
+  const handleContinue = () => {
+    router.push(`/wizard/${projectId}/bom`);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-12 w-12 animate-spin text-teal-600 mx-auto mb-4" />
+          <p className="text-slate-600 text-lg">Calculating system size...</p>
+        </div>
       </div>
+    );
+  }
 
-      <Card className="p-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="distributorId">Equipment Distributor</Label>
-            <Select
-              value={formData.distributorId}
-              onValueChange={(value) =>
-                setFormData({ ...formData, distributorId: value })
-              }
+  if (error || !systemSize) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center px-4">
+        <Card className="max-w-md w-full bg-white border-2 border-red-200 shadow-lg">
+          <div className="p-8 text-center">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">⚠️</span>
+            </div>
+            <h2 className="text-2xl font-bold text-slate-900 mb-2">Unable to Calculate</h2>
+            <p className="text-slate-600 mb-6">{error || "System size calculation unavailable"}</p>
+            <Button
+              onClick={() => router.push(`/wizard/${projectId}/intake`)}
+              className="bg-teal-600 hover:bg-teal-700 text-white"
             >
-              <SelectTrigger className="bg-white !text-black">
-                <SelectValue placeholder={loadingDistributors ? "Loading distributors..." : "Select a distributor for pricing"} />
-              </SelectTrigger>
-              <SelectContent>
-                {distributors.map((distributor) => {
-                  const equipmentCount = distributor._count?.equipment || 0;
-                  return (
-                    <SelectItem key={distributor.id} value={distributor.id}>
-                      {distributor.name}
-                      {equipmentCount > 0 && (
-                        <span className="text-muted-foreground ml-2">
-                          ({equipmentCount} {equipmentCount === 1 ? "product" : "products"})
-                        </span>
-                      )}
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              Choose your preferred distributor to get accurate equipment pricing
-            </p>
+              Go Back to Upload Bills
+            </Button>
           </div>
+        </Card>
+      </div>
+    );
+  }
 
-          {/* Solar Panel Count Override */}
-          {estimatedPanelCount !== null && (
-            <div className="space-y-2">
-              <Label htmlFor="manualPanelCount">
-                Solar Panel Count
-                {formData.manualPanelCount === null && (
-                  <span className="text-xs text-muted-foreground ml-2">
-                    (Auto: {estimatedPanelCount} panels)
-                  </span>
-                )}
-              </Label>
-              <div className="flex gap-2">
-                <Input
-                  id="manualPanelCount"
-                  type="number"
-                  min="1"
-                  max="50"
-                  value={formData.manualPanelCount ?? estimatedPanelCount}
-                  onChange={(e) => {
-                    const value = parseInt(e.target.value);
-                    setFormData({
-                      ...formData,
-                      manualPanelCount: value || null,
-                    });
-                  }}
-                  className="bg-white !text-black flex-1"
-                  style={{ color: "#000000" }}
-                />
-                {formData.manualPanelCount !== null && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setFormData({ ...formData, manualPanelCount: null })}
-                  >
-                    Reset
-                  </Button>
-                )}
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-teal-50">
+      <div className="container max-w-4xl mx-auto px-4 py-12">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-bold text-slate-900 mb-3">System Size Calculation</h1>
+          <p className="text-lg text-slate-600">
+            Based on your energy usage, here's the recommended system size
+          </p>
+        </div>
+
+        {/* Energy Usage Summary */}
+        <Card className="bg-white border-2 border-slate-200 shadow-lg mb-6">
+          <div className="p-6">
+            <h2 className="text-xl font-semibold text-slate-900 mb-4">Your Energy Usage</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                <div className="text-sm text-slate-600 mb-1">Monthly Usage</div>
+                <div className="text-2xl font-bold text-slate-900">{systemSize.monthlyUsageKwh.toFixed(0)} kWh</div>
               </div>
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">
-                  Standard 400W panels. Total system: {currentTotalKw.toFixed(2)} kW
-                </p>
-                {exceedsLimit && (
-                  <p className="text-xs text-orange-600 font-medium">
-                    Maximum for Georgia residential permit: {maxAllowedPanels} panels (10 kW)
-                  </p>
-                )}
+              <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+                <div className="text-sm text-slate-600 mb-1">Daily Usage</div>
+                <div className="text-2xl font-bold text-slate-900">{systemSize.dailyUsageKwh.toFixed(1)} kWh</div>
               </div>
             </div>
-          )}
-
-          {/* NEC 10kW Limit Warning */}
-          {exceedsLimit && (
-            <Alert variant="destructive" className="border-orange-500 bg-orange-50">
-              <AlertTriangle className="h-4 w-4 stroke-orange-600" />
-              <AlertTitle className="text-orange-900">Georgia Residential Permit Limit Exceeded</AlertTitle>
-              <AlertDescription className="text-orange-800">
-                Your system ({currentTotalKw.toFixed(2)} kW) exceeds Georgia's 10 kW residential limit.
-                <br />
-                <strong>Options:</strong>
-                <ul className="list-disc list-inside mt-2">
-                  <li>Reduce to {maxAllowedPanels} panels (10 kW) or less</li>
-                  <li>Apply for commercial permit instead</li>
-                  <li>Obtain pre-approval from utility company</li>
-                </ul>
-              </AlertDescription>
-            </Alert>
-          )}
-
-          <div className="space-y-2">
-            <Label htmlFor="backupDurationHrs">Backup Duration (hours)</Label>
-            <Input
-              id="backupDurationHrs"
-              type="number"
-              min="1"
-              max="168"
-              value={formData.backupDurationHrs}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  backupDurationHrs: parseInt(e.target.value),
-                })
-              }
-              className="bg-white !text-black"
-              style={{ color: "#000000" }}
-            />
-            <p className="text-xs text-muted-foreground">
-              Recommended: 24h (1 day), 48h (2 days), or 72h (3 days)
-            </p>
           </div>
+        </Card>
 
-          <div className="space-y-2">
-            <Label htmlFor="criticalLoadKw">Critical Load (kW)</Label>
-            <Input
-              id="criticalLoadKw"
-              type="number"
-              step="0.1"
-              min="0.5"
-              max="20"
-              value={formData.criticalLoadKw}
-              onChange={(e) =>
-                setFormData({
-                  ...formData,
-                  criticalLoadKw: parseFloat(e.target.value),
-                })
-              }
-              className="bg-white !text-black"
-              style={{ color: "#000000" }}
-            />
-            <p className="text-xs text-muted-foreground">
-              Essential circuits to keep powered during outage (refrigerator,
-              lights, internet, etc.)
-            </p>
-          </div>
+        {/* System Size Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Solar Panels */}
+          <Card className="bg-white border-2 border-teal-200 shadow-lg hover:shadow-xl transition-shadow">
+            <div className="p-6">
+              <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center mb-4">
+                <Sun className="h-6 w-6 text-teal-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">Solar Panels</h3>
+              <div className="space-y-2">
+                <div>
+                  <div className="text-sm text-slate-600">Panel Count</div>
+                  <div className="text-3xl font-bold text-teal-600">{systemSize.solarPanelCount}</div>
+                  <div className="text-xs text-slate-500">panels</div>
+                </div>
+                <div className="pt-2 border-t border-slate-200">
+                  <div className="text-sm text-slate-600">Total Capacity</div>
+                  <div className="text-2xl font-bold text-slate-900">{systemSize.totalSolarKw.toFixed(2)} kW</div>
+                </div>
+              </div>
+            </div>
+          </Card>
 
-          <div className="rounded-lg bg-muted p-4">
-            <h3 className="font-semibold">What happens next?</h3>
-            <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-              <li>• Solar panel array will be sized for daily usage</li>
-              <li>• Battery capacity calculated for backup duration</li>
-              <li>• Inverter sized for peak demand + critical loads</li>
-              <li>• Equipment BOM generated with pricing</li>
-              <li>• NEC compliance checks performed</li>
-            </ul>
-          </div>
+          {/* Battery */}
+          <Card className="bg-white border-2 border-blue-200 shadow-lg hover:shadow-xl transition-shadow">
+            <div className="p-6">
+              <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                <Battery className="h-6 w-6 text-blue-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">Battery Storage</h3>
+              <div className="space-y-2">
+                <div>
+                  <div className="text-sm text-slate-600">Capacity</div>
+                  <div className="text-3xl font-bold text-blue-600">{systemSize.batteryKwh.toFixed(1)}</div>
+                  <div className="text-xs text-slate-500">kWh</div>
+                </div>
+                <div className="pt-2 border-t border-slate-200">
+                  <div className="text-sm text-slate-600">Backup Duration</div>
+                  <div className="text-2xl font-bold text-slate-900">24 hours</div>
+                </div>
+              </div>
+            </div>
+          </Card>
 
-          <div className="flex gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push(`/wizard/${projectId}/intake`)}
-            >
-              Back
-            </Button>
-            <Button
-              type="submit"
-              disabled={loading || !formData.distributorId || loadingDistributors}
-              className="flex-1"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Calculating...
-                </>
-              ) : (
-                "Calculate System Size"
-              )}
-            </Button>
+          {/* Inverter */}
+          <Card className="bg-white border-2 border-indigo-200 shadow-lg hover:shadow-xl transition-shadow">
+            <div className="p-6">
+              <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                <Zap className="h-6 w-6 text-indigo-600" />
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">Inverter</h3>
+              <div className="space-y-2">
+                <div>
+                  <div className="text-sm text-slate-600">Capacity</div>
+                  <div className="text-3xl font-bold text-indigo-600">{systemSize.inverterKw.toFixed(1)}</div>
+                  <div className="text-xs text-slate-500">kW</div>
+                </div>
+                <div className="pt-2 border-t border-slate-200">
+                  <div className="text-sm text-slate-600">Type</div>
+                  <div className="text-2xl font-bold text-slate-900">Hybrid</div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Info Card */}
+        <Card className="bg-gradient-to-r from-teal-50 to-blue-50 border-2 border-teal-200 shadow-lg mb-8">
+          <div className="p-6">
+            <div className="flex items-start gap-4">
+              <CheckCircle2 className="h-6 w-6 text-teal-600 flex-shrink-0 mt-1" />
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900 mb-2">System Sizing Complete</h3>
+                <p className="text-slate-700 leading-relaxed">
+                  These calculations are based on your actual energy usage. The system is sized to cover 120% of your 
+                  daily energy needs, providing room for future growth. The battery capacity is calculated to power 
+                  essential circuits for 24 hours during an outage.
+                </p>
+              </div>
+            </div>
           </div>
-        </form>
-      </Card>
+        </Card>
+
+        {/* Action Buttons */}
+        <div className="flex gap-4 justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.push(`/wizard/${projectId}/intake`)}
+            className="bg-white border-2 border-slate-300 text-slate-700 hover:bg-slate-50 px-8 py-6 text-lg"
+          >
+            Back
+          </Button>
+          <Button
+            onClick={handleContinue}
+            className="bg-gradient-to-r from-teal-600 to-blue-600 hover:from-teal-700 hover:to-blue-700 text-white px-8 py-6 text-lg shadow-lg"
+          >
+            Choose Equipment
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
+        </div>
       </div>
     </div>
   );
