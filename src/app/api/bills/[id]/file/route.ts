@@ -21,6 +21,7 @@ export async function GET(
         fileName: true,
         fileType: true,
         filePath: true,
+        fileData: true, // Include fileData for persistent storage
       },
     });
 
@@ -31,24 +32,44 @@ export async function GET(
       );
     }
 
-    // Try to read file
+    // Determine content type
+    let contentType = "application/octet-stream";
+    if (bill.fileType === "pdf") {
+      contentType = "application/pdf";
+    } else if (bill.fileType === "image") {
+      const lower = bill.fileName.toLowerCase();
+      if (lower.endsWith(".png")) {
+        contentType = "image/png";
+      } else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
+        contentType = "image/jpeg";
+      }
+    } else if (bill.fileType === "csv") {
+      contentType = "text/csv";
+    }
+
+    // Try to get file from database (persistent storage)
+    if (bill.fileData) {
+      try {
+        // Decode base64 file data
+        const fileBuffer = Buffer.from(bill.fileData, 'base64');
+        
+        // Return file (convert Buffer to Uint8Array for NextResponse)
+        return new NextResponse(new Uint8Array(fileBuffer), {
+          status: 200,
+          headers: {
+            "Content-Type": contentType,
+            "Content-Disposition": `inline; filename="${bill.fileName}"`,
+            "Cache-Control": "public, max-age=31536000, immutable",
+          },
+        });
+      } catch (decodeError) {
+        console.error(`Error decoding file data for bill ${bill.id}:`, decodeError);
+      }
+    }
+
+    // Fallback: Try to read from file system (for files uploaded before this fix)
     try {
       const fileBuffer = await readFile(bill.filePath);
-
-      // Determine content type
-      let contentType = "application/octet-stream";
-      if (bill.fileType === "pdf") {
-        contentType = "application/pdf";
-      } else if (bill.fileType === "image") {
-        const lower = bill.fileName.toLowerCase();
-        if (lower.endsWith(".png")) {
-          contentType = "image/png";
-        } else if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
-          contentType = "image/jpeg";
-        }
-      } else if (bill.fileType === "csv") {
-        contentType = "text/csv";
-      }
 
       // Return file (convert Buffer to Uint8Array for NextResponse)
       return new NextResponse(new Uint8Array(fileBuffer), {

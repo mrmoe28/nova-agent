@@ -95,6 +95,9 @@ export async function POST(request: NextRequest) {
 
     console.log(`File saved to: ${filePath} (${buffer.length} bytes)`);
 
+    // Store file as base64 for persistent storage (files in /tmp are ephemeral)
+    const fileDataBase64 = buffer.toString('base64');
+
     // Determine file type category
     let fileType: "pdf" | "image" | "csv" = "pdf";
     if (file.type.startsWith("image/")) {
@@ -192,13 +195,14 @@ export async function POST(request: NextRequest) {
       // Log the error but don't throw - allow file to be saved for manual review
     }
 
-    // Save to database with URL path for web access
+    // Save to database with URL path and file data for persistent storage
     const bill = await prisma.bill.create({
       data: {
         projectId,
         fileName: file.name,
         fileType,
-        filePath: urlPath, // Store URL path instead of filesystem path
+        filePath: urlPath, // Store URL path for reference
+        fileData: fileDataBase64, // Store base64-encoded file for persistent access
         ocrText,
         extractedData,
       },

@@ -39,6 +39,7 @@ model Bill {
   fileName      String
   fileType      String   // pdf, image, csv
   filePath      String
+  fileData      String?  // Base64-encoded file content for persistent storage
   uploadedAt    DateTime @default(now())
   ocrText       String?
   extractedData String?  // JSON string

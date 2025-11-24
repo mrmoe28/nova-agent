@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +25,7 @@ import {
   FileSpreadsheet,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface Bill {
   id: string;
@@ -41,15 +42,19 @@ interface BillsModalProps {
   onOpenChange: (open: boolean) => void;
   projectId: string;
   bills: Bill[];
+  onBillsChange?: (bills: Bill[]) => void;
 }
 
 export function BillsModal({
   open,
   onOpenChange,
-  projectId: _projectId,
+  projectId,
   bills,
+  onBillsChange,
 }: BillsModalProps) {
   const [selectedBill, setSelectedBill] = useState<Bill | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const getFileIcon = (fileType: string) => {
     switch (fileType.toLowerCase()) {
@@ -148,6 +153,79 @@ export function BillsModal({
     window.open(fileUrl, '_blank');
   };
 
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+
+    const files = Array.from(e.target.files);
+    setUploading(true);
+
+    try {
+      const uploadedBills: Bill[] = [];
+
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("projectId", projectId);
+
+        try {
+          const response = await fetch("/api/upload", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error(`Upload failed with status ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (data.success && data.bill) {
+            const newBill: Bill = {
+              id: data.bill.id,
+              fileName: data.bill.fileName,
+              fileType: data.bill.fileType,
+              filePath: data.bill.filePath,
+              uploadedAt: data.bill.uploadedAt,
+              ocrText: data.bill.ocrText || null,
+              extractedData: data.bill.extractedData || null,
+            };
+            uploadedBills.push(newBill);
+            toast.success(`${file.name} uploaded successfully`);
+          } else {
+            toast.error(`Failed to upload ${file.name}`, {
+              description: data.error || "Unknown error",
+            });
+          }
+        } catch (error) {
+          console.error(`Error uploading ${file.name}:`, error);
+          toast.error(`Failed to upload ${file.name}`, {
+            description: error instanceof Error ? error.message : "Unknown error",
+          });
+        }
+      }
+
+      if (uploadedBills.length > 0 && onBillsChange) {
+        onBillsChange([...bills, ...uploadedBills]);
+      }
+
+      // Reset file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error) {
+      console.error("Error uploading files:", error);
+      toast.error("Upload failed", {
+        description: "An unexpected error occurred. Please try again.",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl w-[95vw] max-h-[95vh] flex flex-col bg-white">
@@ -161,14 +239,29 @@ export function BillsModal({
           </DialogDescription>
         </DialogHeader>
 
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.csv,.xlsx,.xls"
+          multiple
+          className="hidden"
+          onChange={handleFileSelect}
+        />
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0 overflow-hidden">
           {/* Bills List */}
           <div className="lg:col-span-2 space-y-4 flex flex-col min-h-0">
             <div className="flex items-center justify-between flex-shrink-0">
               <h3 className="text-lg font-semibold text-gray-900">Bills & Documents</h3>
-              <Button variant="outline" size="sm" className="text-gray-900 border-gray-300 hover:bg-gray-50">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="text-gray-900 border-gray-300 hover:bg-gray-50"
+                onClick={handleUploadClick}
+                disabled={uploading}
+              >
                 <Upload className="h-4 w-4 mr-2" />
-                Upload More
+                {uploading ? "Uploading..." : "Upload More"}
               </Button>
             </div>
 
@@ -195,10 +288,12 @@ export function BillsModal({
                           <div className="p-2 bg-gray-100 rounded-lg">
                             {getFileIcon(bill.fileType)}
                           </div>
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 overflow-hidden">
                             <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-medium truncate text-gray-900">{bill.fileName}</h4>
-                              <Badge variant="outline" className="text-xs text-gray-700 border-gray-300">
+                              <h4 className="font-medium text-gray-900 break-words line-clamp-2" title={bill.fileName}>
+                                {bill.fileName}
+                              </h4>
+                              <Badge variant="outline" className="text-xs text-gray-700 border-gray-300 flex-shrink-0">
                                 {getFileTypeLabel(bill.fileType)}
                               </Badge>
                             </div>
@@ -269,8 +364,10 @@ export function BillsModal({
                 <Card className="p-4 bg-white border border-gray-200">
                   <div className="flex items-center gap-3 mb-3">
                     {getFileIcon(selectedBill.fileType)}
-                    <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">{selectedBill.fileName}</h4>
+                    <div className="flex-1 min-w-0 overflow-hidden">
+                      <h4 className="font-medium text-gray-900 break-words" title={selectedBill.fileName}>
+                        {selectedBill.fileName}
+                      </h4>
                       <p className="text-sm text-gray-600">
                         {getFileTypeLabel(selectedBill.fileType)}
                       </p>
@@ -318,11 +415,11 @@ export function BillsModal({
                     <h5 className="font-medium mb-3 text-gray-900">Extracted Data</h5>
                     <div className="space-y-2 text-sm">
                       {Object.entries(selectedBill.extractedData).map(([key, value]) => (
-                        <div key={key} className="flex justify-between">
-                          <span className="text-gray-600 capitalize">
+                        <div key={key} className="flex justify-between gap-2">
+                          <span className="text-gray-600 capitalize flex-shrink-0">
                             {key.replace(/([A-Z])/g, ' $1').trim()}:
                           </span>
-                          <span className="text-right text-gray-900">
+                          <span className="text-right text-gray-900 break-words min-w-0">
                             {typeof value === 'number' && (key.includes('amount') || key.includes('cost')) 
                               ? formatCurrency(value) 
                               : String(value)
