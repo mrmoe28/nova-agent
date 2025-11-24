@@ -45,8 +45,16 @@ export default function SizingPage() {
         const SOLAR_SIZING_FACTOR = 1.2;
 
         const totalSolarKw = (dailyUsageKwh / PEAK_SUN_HOURS) * SOLAR_SIZING_FACTOR;
-        const solarPanelCount = Math.ceil((totalSolarKw * 1000) / SOLAR_PANEL_WATTAGE);
-        const actualTotalSolarKw = (solarPanelCount * SOLAR_PANEL_WATTAGE) / 1000;
+        let solarPanelCount = Math.ceil((totalSolarKw * 1000) / SOLAR_PANEL_WATTAGE);
+        let actualTotalSolarKw = (solarPanelCount * SOLAR_PANEL_WATTAGE) / 1000;
+        
+        // Apply 10kW roof limit for residential installations
+        const MAX_ROOF_CAPACITY_KW = 10;
+        if (actualTotalSolarKw > MAX_ROOF_CAPACITY_KW) {
+          actualTotalSolarKw = MAX_ROOF_CAPACITY_KW;
+          // Recalculate panel count to match the 10kW limit
+          solarPanelCount = Math.floor((MAX_ROOF_CAPACITY_KW * 1000) / SOLAR_PANEL_WATTAGE);
+        }
 
         // Battery sizing (default 24h backup, 3kW critical load)
         const criticalDailyKwh = Math.min(dailyUsageKwh * 0.4, 15);

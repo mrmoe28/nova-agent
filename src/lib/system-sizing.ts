@@ -55,7 +55,15 @@ export async function performSystemSizing({
   }
 
   // Recalculate actual total solar kW based on final panel count
-  const actualTotalSolarKw = (solarPanelCount * solarPanelWattage) / 1000;
+  let actualTotalSolarKw = (solarPanelCount * solarPanelWattage) / 1000;
+  
+  // Apply 10kW roof limit for residential installations
+  const MAX_ROOF_CAPACITY_KW = 10;
+  if (actualTotalSolarKw > MAX_ROOF_CAPACITY_KW) {
+    actualTotalSolarKw = MAX_ROOF_CAPACITY_KW;
+    // Recalculate panel count to match the 10kW limit
+    solarPanelCount = Math.floor((MAX_ROOF_CAPACITY_KW * 1000) / solarPanelWattage);
+  }
 
   // Calculate battery size based on daily critical load consumption, not continuous power
   // Typical home uses 30 kWh/day, critical loads are ~30-50% of that
