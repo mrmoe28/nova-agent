@@ -1,43 +1,42 @@
 @import "tailwindcss";
 
 :root {
-  --background: 0 0% 100%;
-  --foreground: 210 20% 12%;
+  --background: 248 250 252; /* slate-50 */
+  --foreground: 15 23 42; /* slate-900 */
 }
 
 .dark {
-  --background: 220 13% 10%;
-  --foreground: 210 20% 98%;
+  --background: 15 23 42;
+  --foreground: 248 250 252;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-primary: #22d3ee;
-  --color-secondary: #e0e7eb;
-  --color-accent: #6ee7f9;
-  --color-muted: #f5f7fa;
-  --color-muted-foreground: #6b7280;
-  --color-border: #e5e7eb;
-  --radius-lg: 1rem;
+  --color-primary: #14b8a6; /* teal-500 */
+  --color-secondary: #64748b; /* slate-500 */
+  --color-accent: #0ea5e9; /* sky-500 */
+  --color-muted: #f1f5f9; /* slate-100 */
+  --color-muted-foreground: #64748b; /* slate-500 */
+  --color-border: #cbd5e1; /* slate-300 */
+  --radius-lg: 0.75rem;
 }
 
-/* Modern glassmorphism effect */
+/* Remove glassmorphism - use solid backgrounds only */
 .glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: #ffffff;
+  border: 2px solid #cbd5e1;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 .dark .glass-card {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #1e293b;
+  border: 2px solid #334155;
 }
 
 /* Smooth transitions */
 * {
-  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
@@ -49,16 +48,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #f1f5f9;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground) / 0.3);
+  background: #94a3b8;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground) / 0.5);
+  background: #64748b;
 }
 
 body {
@@ -85,53 +84,40 @@ input[type="url"],
 input[type="search"],
 button[role="combobox"],
 [role="combobox"] {
-  color: #000000 !important;
-  caret-color: #000000 !important;
+  color: #0f172a !important;
+  caret-color: #0f172a !important;
+  background-color: #ffffff !important;
 }
 
 /* Placeholder text - visible gray */
 input::placeholder,
 textarea::placeholder,
 select::placeholder {
-  color: #6b7280 !important;
+  color: #64748b !important;
   opacity: 1 !important;
 }
 
-/* Select dropdown values */
-select option,
-[role="option"] {
-  color: #000000 !important;
+/* Force solid backgrounds for all cards and dropdowns */
+.card,
+[class*="Card"],
+[class*="card"] {
   background-color: #ffffff !important;
+  border: 2px solid #cbd5e1 !important;
 }
 
-/* Ensure dropdown trigger text is visible */
-[data-radix-select-trigger],
-button[role="combobox"] span {
-  color: #000000 !important;
+/* Force solid backgrounds for dropdowns */
+[role="listbox"],
+[role="menu"],
+[class*="SelectContent"],
+[class*="DropdownContent"] {
+  background-color: #ffffff !important;
+  border: 2px solid #cbd5e1 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
 }
 
-/* Dark theme overrides */
-.dark input,
-.dark textarea,
-.dark select,
-.dark input[type="text"],
-.dark input[type="number"],
-.dark input[type="email"],
-.dark input[type="password"],
-.dark button[role="combobox"] {
-  color: #ffffff !important;
-  caret-color: #ffffff !important;
-}
-
-.dark input::placeholder,
-.dark textarea::placeholder,
-.dark select::placeholder {
-  color: #9ca3af !important;
-  opacity: 1 !important;
-}
-
-.dark select option,
-.dark [role="option"] {
-  color: #ffffff !important;
-  background-color: #1f2937 !important;
+/* Force solid backgrounds for dialogs/modals */
+[role="dialog"],
+[class*="Dialog"],
+[class*="Modal"] {
+  background-color: #ffffff !important;
 }

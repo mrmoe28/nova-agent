@@ -33,14 +33,14 @@ export interface PageConfig {
 export const defaultPageConfig: PageConfig = {
   theme: {
     leftPanel: {
-      backgroundColor: "from-[#0A0F1C] via-[#0f1829] to-[#0A0F1C]",
-      textColor: "text-white",
-      accentColor: "text-cyan-400",
+      backgroundColor: "from-slate-50 via-blue-50 to-teal-50",
+      textColor: "text-slate-900",
+      accentColor: "text-teal-600",
     },
     rightPanel: {
-      backgroundColor: "bg-[#0A0F1C]",
-      textColor: "text-white",
-      accentColor: "text-cyan-400",
+      backgroundColor: "bg-white",
+      textColor: "text-slate-900",
+      accentColor: "text-teal-600",
     },
   },
   layout: {
@@ -60,9 +60,9 @@ export const darkRightPanelConfig: PageConfig = {
   theme: {
     ...defaultPageConfig.theme,
     rightPanel: {
-      backgroundColor: "bg-gradient-to-b from-[#0A0F1C] via-[#0f1829] to-[#0A0F1C]",
-      textColor: "text-white",
-      accentColor: "text-cyan-400",
+      backgroundColor: "bg-slate-100",
+      textColor: "text-slate-900",
+      accentColor: "text-teal-600",
     },
   },
 };
@@ -76,4 +76,3 @@ export function getPageConfig(pageId: string = "default"): PageConfig {
   
   return configs[pageId] || defaultPageConfig;
 }
-
