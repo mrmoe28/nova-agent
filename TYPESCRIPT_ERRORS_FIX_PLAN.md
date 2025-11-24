@@ -108,6 +108,7 @@ npm run build
 - [x] Error #2: Buffer type in PDF route - **FIXED**
 - [x] Error #3: PlanDocument PATCH route invalid fields - **FIXED**
 - [x] Error #4: Document upload route invalid fields - **FIXED**
+- [x] Error #5: Nodemailer method name typo - **FIXED**
 - [x] Local type check passed - **NO ERRORS**
 - [x] Committed and pushed - **DONE**
 - [ ] Vercel deployment monitoring
@@ -197,6 +198,25 @@ await prisma.planDocument.create({
   },
 });
 ```
+
+### Fix #5: permits/send-planset/route.ts
+```typescript
+// Before (wrong method name):
+const transporter = nodemailer.createTransporter({  // ❌ No such method
+  host: process.env.SMTP_HOST || "smtp.gmail.com",
+  // ...
+});
+
+// After (correct method name):
+const transporter = nodemailer.createTransport({    // ✅ Correct method name
+  host: process.env.SMTP_HOST || "smtp.gmail.com",
+  // ...
+});
+```
+
+**Issue**: Typo in nodemailer method name
+- ❌ `createTransporter()` - doesn't exist
+- ✅ `createTransport()` - correct method
 
 ### Verified Clean:
 - ✅ `bills/[id]/file/route.ts` - Already using `Uint8Array` (correct)
