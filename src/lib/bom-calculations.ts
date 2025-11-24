@@ -282,14 +282,25 @@ export async function recalculateSystemFromBOM(
       ? Math.round(totalWattage / systemSpecs.solarPanelCount)
       : 400;
 
+    // Enforce 10kW limit when updating system from BOM
+    const MAX_ROOF_CAPACITY_KW = 10;
+    let finalPanelCount = systemSpecs.solarPanelCount;
+    let finalTotalKw = systemSpecs.totalSolarKw;
+    
+    if (finalTotalKw > MAX_ROOF_CAPACITY_KW) {
+      finalTotalKw = MAX_ROOF_CAPACITY_KW;
+      finalPanelCount = Math.floor((MAX_ROOF_CAPACITY_KW * 1000) / avgPanelWattage);
+      console.log(`System panel count adjusted from ${systemSpecs.solarPanelCount} to ${finalPanelCount} to comply with 10kW roof capacity limit`);
+    }
+
     // Update System record
     await prisma.system.update({
       where: { projectId },
       data: {
-        totalSolarKw: systemSpecs.totalSolarKw,
+        totalSolarKw: finalTotalKw,
         batteryKwh: systemSpecs.totalBatteryKwh,
         inverterKw: systemSpecs.totalInverterKw,
-        solarPanelCount: systemSpecs.solarPanelCount,
+        solarPanelCount: finalPanelCount,
         solarPanelWattage: avgPanelWattage,
       },
     });

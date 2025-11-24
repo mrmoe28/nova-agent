@@ -33,14 +33,14 @@ export interface PageConfig {
 export const defaultPageConfig: PageConfig = {
   theme: {
     leftPanel: {
-      backgroundColor: "from-slate-50 via-blue-50 to-teal-50",
+      backgroundColor: "from-orange-50 via-white to-orange-50",
       textColor: "text-slate-900",
-      accentColor: "text-teal-600",
+      accentColor: "text-orange-600",
     },
     rightPanel: {
       backgroundColor: "bg-white",
       textColor: "text-slate-900",
-      accentColor: "text-teal-600",
+      accentColor: "text-orange-600",
     },
   },
   layout: {
@@ -60,9 +60,9 @@ export const darkRightPanelConfig: PageConfig = {
   theme: {
     ...defaultPageConfig.theme,
     rightPanel: {
-      backgroundColor: "bg-slate-100",
+      backgroundColor: "bg-white",
       textColor: "text-slate-900",
-      accentColor: "text-teal-600",
+      accentColor: "text-orange-600",
     },
   },
 };

@@ -113,6 +113,55 @@ export async function PATCH(
             totalSolarKw: newTotalKw,
           },
         });
+        
+        // Also update RSD and mounting quantities to match new panel count
+        const bomItems = await prisma.bOMItem.findMany({
+          where: { 
+            projectId: existingItem.projectId,
+            category: { in: ["electrical", "mounting"] }
+          },
+        });
+        
+        // Update RSD quantity (one per panel)
+        const rsdItem = bomItems.find(item => 
+          item.category === "electrical" && 
+          (item.itemName.toUpperCase().includes("RSD") || 
+           item.itemName.toUpperCase().includes("RAPID SHUTDOWN"))
+        );
+        if (rsdItem) {
+          await prisma.bOMItem.update({
+            where: { id: rsdItem.id },
+            data: {
+              quantity: finalQuantity,
+              totalPriceUsd: finalQuantity * rsdItem.unitPriceUsd,
+            },
+          });
+        }
+        
+        // Update mounting-related quantities
+        const mountingItems = bomItems.filter(item => item.category === "mounting");
+        for (const item of mountingItems) {
+          let newQuantity = item.quantity;
+          if (item.itemName.toUpperCase().includes("DECK") || 
+              item.itemName.toUpperCase().includes("FLASHING")) {
+            newQuantity = finalQuantity; // One per panel
+          } else if (item.itemName.toUpperCase().includes("BOLT") || 
+                     item.itemName.toUpperCase().includes("CLAMP")) {
+            newQuantity = finalQuantity * 2; // 2 bolts per panel
+          } else if (item.itemName.toUpperCase().includes("RAIL")) {
+            newQuantity = Math.max(1, Math.ceil(finalQuantity / 4)); // One rail per 4 panels
+          }
+          
+          if (newQuantity !== item.quantity) {
+            await prisma.bOMItem.update({
+              where: { id: item.id },
+              data: {
+                quantity: newQuantity,
+                totalPriceUsd: newQuantity * item.unitPriceUsd,
+              },
+            });
+          }
+        }
       }
     }
 

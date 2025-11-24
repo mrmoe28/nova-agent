@@ -234,20 +234,20 @@ export default function ReviewPage() {
   );
 
   return (
-    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
+    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50">
       <div className="w-full max-w-5xl mx-auto px-4 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold">Project Review</h1>
-        <p className="mt-2 text-muted-foreground">
+        <h1 className="text-2xl font-bold text-slate-900">Project Review</h1>
+        <p className="mt-2 text-slate-700">
           Review the complete NovaAgent energy plan for {project.clientName}
         </p>
       </div>
 
       <div className="space-y-6">
         {/* System Summary */}
-        <Card className="p-6">
+        <Card className="p-6 bg-white border-2 border-orange-200">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold">System Summary</h2>
+            <h2 className="text-lg font-semibold text-slate-900">System Summary</h2>
             {!editing && project.system && (
               <Button
                 variant="outline"
@@ -264,52 +264,57 @@ export default function ReviewPage() {
           {project.system && !editing && (
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <p className="text-sm text-muted-foreground">Solar Array</p>
-                <p className="text-lg font-semibold">
+                <p className="text-sm text-slate-600">Solar Array</p>
+                <p className="text-lg font-semibold text-slate-900">
                   {project.system.solarPanelCount > 0 ? (
                     <>
                       {project.system.solarPanelCount} ×{" "}
                       {project.system.solarPanelWattage}W ={" "}
                       {project.system.totalSolarKw.toFixed(2)} kW
+                      {project.system.totalSolarKw > 10 && (
+                        <span className="ml-2 text-xs text-orange-600 font-normal">
+                          (Exceeds 10kW limit)
+                        </span>
+                      )}
                     </>
                   ) : (
-                    <span className="text-muted-foreground">No Solar Panels</span>
+                    <span className="text-slate-500">No Solar Panels</span>
                   )}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Battery Storage</p>
-                <p className="text-lg font-semibold">
+                <p className="text-sm text-slate-600">Battery Storage</p>
+                <p className="text-lg font-semibold text-slate-900">
                   {project.system.batteryKwh > 0 ? (
                     `${project.system.batteryKwh.toFixed(2)} kWh`
                   ) : (
-                    <span className="text-muted-foreground">No Battery Storage</span>
+                    <span className="text-slate-500">No Battery Storage</span>
                   )}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Inverter</p>
-                <p className="text-lg font-semibold">
+                <p className="text-sm text-slate-600">Inverter</p>
+                <p className="text-lg font-semibold text-slate-900">
                   {project.system.inverterKw > 0 ? (
                     `${project.system.inverterKw.toFixed(2)} kW`
                   ) : (
-                    <span className="text-muted-foreground">No Inverter</span>
+                    <span className="text-slate-500">No Inverter</span>
                   )}
                 </p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Backup Duration</p>
-                <p className="text-lg font-semibold">
+                <p className="text-sm text-slate-600">Backup Duration</p>
+                <p className="text-lg font-semibold text-slate-900">
                   {project.system.backupDurationHrs > 0 ? (
                     `${project.system.backupDurationHrs} hours`
                   ) : (
-                    <span className="text-muted-foreground">No Backup</span>
+                    <span className="text-slate-500">No Backup</span>
                   )}
                 </p>
               </div>
               <div className="sm:col-span-2">
-                <p className="text-sm text-muted-foreground">Estimated Cost</p>
-                <p className="text-2xl font-bold text-primary">
+                <p className="text-sm text-slate-600">Estimated Cost</p>
+                <p className="text-2xl font-bold text-orange-600">
                   {formatCurrency(project.system.estimatedCostUsd)}
                 </p>
               </div>
@@ -365,10 +370,10 @@ export default function ReviewPage() {
 
         {/* Site Survey */}
         {siteSurvey && (
-          <Card className="p-6">
+          <Card className="p-6 bg-white border-2 border-orange-200">
             <div className="flex items-center gap-2 mb-4">
-              <Building2 className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Site Assessment</h2>
+              <Building2 className="h-5 w-5 text-orange-600" />
+              <h2 className="text-lg font-semibold text-slate-900">Site Assessment</h2>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               {siteSurvey.roofType && (
@@ -401,10 +406,10 @@ export default function ReviewPage() {
 
         {/* Permit Status */}
         {permit && (
-          <Card className="p-6">
+          <Card className="p-6 bg-white border-2 border-orange-200">
             <div className="flex items-center gap-2 mb-4">
-              <FileText className="h-5 w-5 text-primary" />
-              <h2 className="text-lg font-semibold">Permit Status</h2>
+              <FileText className="h-5 w-5 text-orange-600" />
+              <h2 className="text-lg font-semibold text-slate-900">Permit Status</h2>
             </div>
             <div className="space-y-4">
               <div className="flex items-center gap-3">
