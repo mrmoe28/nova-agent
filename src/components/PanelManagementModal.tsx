@@ -161,8 +161,8 @@ export function PanelManagementModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden bg-white">
-        <DialogHeader>
+      <DialogContent className="max-w-6xl w-[95vw] max-h-[95vh] flex flex-col bg-white">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2 text-gray-900">
             <Sun className="h-5 w-5" />
             Solar Panel Configuration
@@ -172,7 +172,7 @@ export function PanelManagementModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0 overflow-y-auto pr-2">
           {/* Panel Configuration */}
           <div className="space-y-4">
             <Card className="bg-white border border-gray-200">

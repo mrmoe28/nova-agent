@@ -150,8 +150,8 @@ export function BillsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden bg-white">
-        <DialogHeader>
+      <DialogContent className="max-w-6xl w-[95vw] max-h-[95vh] flex flex-col bg-white">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2 text-gray-900">
             <FileText className="h-5 w-5" />
             Uploaded Bills & Documents ({bills.length})
@@ -161,20 +161,20 @@ export function BillsModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0 overflow-hidden">
           {/* Bills List */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Bills & Documents</h3>
-              <Button variant="outline" size="sm">
+          <div className="lg:col-span-2 space-y-4 flex flex-col min-h-0">
+            <div className="flex items-center justify-between flex-shrink-0">
+              <h3 className="text-lg font-semibold text-gray-900">Bills & Documents</h3>
+              <Button variant="outline" size="sm" className="text-gray-900 border-gray-300 hover:bg-gray-50">
                 <Upload className="h-4 w-4 mr-2" />
                 Upload More
               </Button>
             </div>
 
-            <div className="space-y-3 max-h-96 overflow-y-auto">
+            <div className="space-y-3 flex-1 overflow-y-auto min-h-0 pr-2">
               {bills.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
+                <div className="text-center py-12 text-gray-600">
                   <Upload className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>No bills uploaded yet</p>
                   <p className="text-sm">Upload utility bills to get started</p>
@@ -197,12 +197,12 @@ export function BillsModal({
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <h4 className="font-medium truncate">{bill.fileName}</h4>
-                              <Badge variant="outline" className="text-xs">
+                              <h4 className="font-medium truncate text-gray-900">{bill.fileName}</h4>
+                              <Badge variant="outline" className="text-xs text-gray-700 border-gray-300">
                                 {getFileTypeLabel(bill.fileType)}
                               </Badge>
                             </div>
-                            <div className="text-sm text-muted-foreground space-y-1">
+                            <div className="text-sm text-gray-600 space-y-1">
                               <div className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
                                 {formatDate(bill.uploadedAt)}
@@ -230,6 +230,7 @@ export function BillsModal({
                           <Button
                             variant="ghost"
                             size="sm"
+                            className="text-gray-700 hover:text-gray-900 hover:bg-gray-100"
                             disabled={!bill.filePath}
                             onClick={(e) => {
                               e.stopPropagation();
@@ -241,6 +242,7 @@ export function BillsModal({
                           <Button
                             variant="ghost"
                             size="sm"
+                            className="text-gray-700 hover:text-gray-900 hover:bg-gray-100"
                             disabled={!bill.filePath}
                             onClick={(e) => {
                               e.stopPropagation();
@@ -259,17 +261,17 @@ export function BillsModal({
           </div>
 
           {/* Bill Details Panel */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Bill Details</h3>
+          <div className="space-y-4 flex flex-col min-h-0 overflow-hidden">
+            <h3 className="text-lg font-semibold text-gray-900 flex-shrink-0">Bill Details</h3>
             
             {selectedBill ? (
-              <div className="space-y-4">
+              <div className="space-y-4 flex-1 overflow-y-auto min-h-0 pr-2">
                 <Card className="p-4 bg-white border border-gray-200">
                   <div className="flex items-center gap-3 mb-3">
                     {getFileIcon(selectedBill.fileType)}
                     <div className="flex-1">
-                      <h4 className="font-medium">{selectedBill.fileName}</h4>
-                      <p className="text-sm text-muted-foreground">
+                      <h4 className="font-medium text-gray-900">{selectedBill.fileName}</h4>
+                      <p className="text-sm text-gray-600">
                         {getFileTypeLabel(selectedBill.fileType)}
                       </p>
                     </div>
@@ -279,19 +281,19 @@ export function BillsModal({
                   
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Uploaded:</span>
-                      <span>{formatDate(selectedBill.uploadedAt)}</span>
+                      <span className="text-gray-600">Uploaded:</span>
+                      <span className="text-gray-900">{formatDate(selectedBill.uploadedAt)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">File Type:</span>
-                      <span>{selectedBill.fileType.toUpperCase()}</span>
+                      <span className="text-gray-600">File Type:</span>
+                      <span className="text-gray-900">{selectedBill.fileType.toUpperCase()}</span>
                     </div>
                   </div>
                   
                   <div className="flex gap-2 mt-4">
                     <Button 
                       size="sm" 
-                      className="flex-1"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                       disabled={!selectedBill.filePath}
                       onClick={() => handleViewBill(selectedBill)}
                     >
@@ -301,6 +303,7 @@ export function BillsModal({
                     <Button 
                       variant="outline" 
                       size="sm" 
+                      className="text-gray-900 border-gray-300 hover:bg-gray-50"
                       disabled={!selectedBill.filePath}
                       onClick={() => handleDownloadBill(selectedBill)}
                     >
@@ -312,14 +315,14 @@ export function BillsModal({
                 {/* Extracted Data */}
                 {selectedBill.extractedData && (
                   <Card className="p-4 bg-white border border-gray-200">
-                    <h5 className="font-medium mb-3">Extracted Data</h5>
+                    <h5 className="font-medium mb-3 text-gray-900">Extracted Data</h5>
                     <div className="space-y-2 text-sm">
                       {Object.entries(selectedBill.extractedData).map(([key, value]) => (
                         <div key={key} className="flex justify-between">
-                          <span className="text-muted-foreground capitalize">
+                          <span className="text-gray-600 capitalize">
                             {key.replace(/([A-Z])/g, ' $1').trim()}:
                           </span>
-                          <span className="text-right">
+                          <span className="text-right text-gray-900">
                             {typeof value === 'number' && (key.includes('amount') || key.includes('cost')) 
                               ? formatCurrency(value) 
                               : String(value)
@@ -334,15 +337,15 @@ export function BillsModal({
                 {/* OCR Text */}
                 {selectedBill.ocrText && (
                   <Card className="p-4 bg-white border border-gray-200">
-                    <h5 className="font-medium mb-3">OCR Text</h5>
-                    <div className="text-sm text-muted-foreground max-h-32 overflow-y-auto border rounded p-2 bg-gray-50">
+                    <h5 className="font-medium mb-3 text-gray-900">OCR Text</h5>
+                    <div className="text-sm text-gray-900 max-h-32 overflow-y-auto border rounded p-2 bg-gray-50">
                       {selectedBill.ocrText}
                     </div>
                   </Card>
                 )}
               </div>
             ) : (
-              <div className="text-center py-12 text-muted-foreground">
+              <div className="text-center py-12 text-gray-600">
                 <FileText className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <p>Select a bill to view details</p>
               </div>

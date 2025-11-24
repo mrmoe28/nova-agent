@@ -204,8 +204,8 @@ export function BOMItemsModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden bg-white">
-        <DialogHeader>
+      <DialogContent className="max-w-7xl w-[95vw] max-h-[95vh] flex flex-col bg-white">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2 text-gray-900">
             <Archive className="h-5 w-5" />
             BOM Items & Available Equipment
@@ -215,10 +215,10 @@ export function BOMItemsModal({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0 overflow-hidden">
           {/* Current BOM Items */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="space-y-4 flex flex-col min-h-0">
+            <div className="flex items-center justify-between flex-shrink-0">
               <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-900">
                 <Package className="h-5 w-5" />
                 Current BOM ({bomItems.length} items)
@@ -228,7 +228,7 @@ export function BOMItemsModal({
               </Badge>
             </div>
 
-            <div className="space-y-2 max-h-96 overflow-y-auto">
+            <div className="space-y-2 flex-1 overflow-y-auto min-h-0 pr-2">
               {bomItems.length === 0 ? (
                 <div className="text-center py-8 text-gray-600">
                   <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -300,8 +300,8 @@ export function BOMItemsModal({
           </div>
 
           {/* Available Equipment */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
+          <div className="space-y-4 flex flex-col min-h-0">
+            <div className="flex items-center justify-between flex-shrink-0">
               <h3 className="text-lg font-semibold flex items-center gap-2 text-gray-900">
                 <Building2 className="h-5 w-5" />
                 Available Equipment ({distributorEquipment.length} items)
@@ -318,7 +318,7 @@ export function BOMItemsModal({
             </div>
 
             {/* Search & Filter */}
-            <div className="space-y-2">
+            <div className="space-y-2 flex-shrink-0">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
                 <Input
@@ -343,7 +343,7 @@ export function BOMItemsModal({
               </Select>
             </div>
 
-            <div className="space-y-2 max-h-96 overflow-y-auto">
+            <div className="space-y-2 flex-1 overflow-y-auto min-h-0 pr-2">
               {loading ? (
                 <div className="text-center py-8 text-gray-600">Loading equipment...</div>
               ) : filteredEquipment.length === 0 ? (
