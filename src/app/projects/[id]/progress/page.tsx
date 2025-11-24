@@ -17,12 +17,7 @@ async function getProjectProgress(projectId: string) {
     where: { id: projectId },
     select: {
       id: true,
-      name: true,
-      client: {
-        select: {
-          name: true,
-        },
-      },
+      clientName: true,
     },
   });
 
@@ -133,9 +128,9 @@ export default async function ProgressPage({ params }: ProgressPageProps) {
                 </Button>
               </Link>
             </div>
-            <h1 className="text-3xl font-bold">{project.name}</h1>
+            <h1 className="text-3xl font-bold">Installation Progress</h1>
             <p className="text-slate-600">
-              Client: {project.client?.name || "Unknown"}
+              Client: {project.clientName}
             </p>
           </div>
           <div className="flex gap-2">
