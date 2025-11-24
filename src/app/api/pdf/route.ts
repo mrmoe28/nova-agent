@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generateNovaAgentPDF } from "@/lib/pdf-generator";
+import { recalculateSystemFromBOM } from "@/lib/bom-calculations";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
 import { homedir } from "os";
@@ -35,6 +36,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Recalculate system from BOM to ensure accurate data
+    if (project.bomItems && project.bomItems.length > 0) {
+      await recalculateSystemFromBOM(projectId);
+      // Refetch project with updated system data
+      const updatedProject = await prisma.project.findUnique({
+        where: { id: projectId },
+        include: {
+          analysis: true,
+          system: true,
+          bomItems: true,
+          plan: true,
+        },
+      });
+      if (updatedProject) {
+        project.system = updatedProject.system;
+      }
+    }
+
     // Generate PDF
     const pdfBuffer = await generateNovaAgentPDF(
       project,
@@ -42,6 +61,7 @@ export async function POST(request: NextRequest) {
       project.system,
       project.bomItems,
       project.plan,
+      projectId,
     );
 
     // Update project status and save PDF path

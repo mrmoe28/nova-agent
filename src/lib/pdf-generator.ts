@@ -1,5 +1,6 @@
 import PDFDocument from "pdfkit";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { calculateEnergyProductionFromBOM, calculateEnergySavingsFromBOM } from "@/lib/energy-calculations";
 import https from "https";
 import http from "http";
 
@@ -82,6 +83,7 @@ export function generateNovaAgentPDF(
   system: SystemData | null,
   bomItems: BOMItemData[],
   plan: PlanData | null,
+  projectId?: string,
 ): Promise<Buffer> {
   return new Promise(async (resolve, reject) => {
     try {
@@ -257,18 +259,26 @@ export function generateNovaAgentPDF(
         doc.fontSize(10).font("Helvetica").fillColor(textDark);
         let rightY = yPos + 60;
 
-        const solarProduction = system.totalSolarKw * 4 * 30; // Rough estimate
+        // Calculate proper solar production using capacity factor
+        // Annual production = System Capacity (kW) × Capacity Factor (20%) × Hours per Year (8760)
+        // Monthly production = Annual / 12
+        const capacityFactor = 0.20; // 20% average capacity factor for solar
+        const annualProductionKwh = system.totalSolarKw * capacityFactor * 8760;
+        const monthlyProductionKwh = annualProductionKwh / 12;
+        
         const solarCoverage = analysis.monthlyUsageKwh > 0
-          ? Math.min((solarProduction / analysis.monthlyUsageKwh) * 100, 100)
+          ? Math.min((monthlyProductionKwh / analysis.monthlyUsageKwh) * 100, 100)
           : 0;
-        const estimatedSavings = (analysis.annualCostUsd * solarCoverage) / 100;
+        
+        // Calculate savings: production × cost per kWh
+        const estimatedSavings = annualProductionKwh * analysis.averageCostPerKwh;
 
         doc
           .font("Helvetica-Bold")
           .text("Solar Production:", rightX + 20, rightY);
         doc
           .font("Helvetica")
-          .text(`${Math.round(solarProduction)} kWh/mo`, rightX + 20, rightY + 15);
+          .text(`${Math.round(monthlyProductionKwh)} kWh/mo`, rightX + 20, rightY + 15);
         rightY += 45;
 
         doc
@@ -319,8 +329,11 @@ export function generateNovaAgentPDF(
           );
         yPos += 18;
 
+        // Calculate payback period accounting for 30% federal tax credit
+        const federalTaxCredit = 0.30;
+        const netSystemCost = system.estimatedCostUsd * (1 - federalTaxCredit);
         const paybackYears = estimatedSavings > 0
-          ? system.estimatedCostUsd / estimatedSavings
+          ? netSystemCost / estimatedSavings
           : Infinity;
         doc.text(
           `Estimated Payback: ${paybackYears !== Infinity ? paybackYears.toFixed(1) + ' years' : 'N/A'}`,
@@ -349,13 +362,23 @@ export function generateNovaAgentPDF(
 
         yPos = 120;
 
-        const solarProduction = system.totalSolarKw * 4 * 30; // Monthly production estimate
+        // Calculate proper solar production using capacity factor
+        const capacityFactor = 0.20; // 20% average capacity factor for solar
+        const annualProductionKwh = system.totalSolarKw * capacityFactor * 8760;
+        const monthlyProductionKwh = annualProductionKwh / 12;
+        
         const solarCoverage = analysis.monthlyUsageKwh > 0
-          ? Math.min((solarProduction / analysis.monthlyUsageKwh) * 100, 100)
+          ? Math.min((monthlyProductionKwh / analysis.monthlyUsageKwh) * 100, 100)
           : 0;
-        const annualSavings = (analysis.annualCostUsd * solarCoverage) / 100;
+        
+        // Calculate savings: production × cost per kWh
+        const annualSavings = annualProductionKwh * analysis.averageCostPerKwh;
+        
+        // Calculate payback period accounting for 30% federal tax credit
+        const federalTaxCredit = 0.30;
+        const netSystemCost = system.estimatedCostUsd * (1 - federalTaxCredit);
         const paybackYears = annualSavings > 0
-          ? system.estimatedCostUsd / annualSavings
+          ? netSystemCost / annualSavings
           : Infinity;
 
         // Draw savings visualization graph
@@ -577,14 +600,22 @@ export function generateNovaAgentPDF(
         doc.font("Helvetica").text(`${panel.quantity} panels`, leftColX, leftY + 15);
         leftY += 40;
 
+        // Calculate actual panel wattage from BOM item
+        const panelWattageMatch = (panel.modelNumber + ' ' + panel.itemName).match(/(\d+)\s*w/i);
+        const panelWattage = panelWattageMatch ? parseInt(panelWattageMatch[1]) : system.solarPanelWattage;
+        
         doc.font("Helvetica-Bold").text("Power per Panel:", leftColX, leftY);
-        doc.font("Helvetica").text(`${system.solarPanelWattage}W`, leftColX, leftY + 15);
+        doc.font("Helvetica").text(`${panelWattage}W`, leftColX, leftY + 15);
 
         // Right column
         let rightY = yPos;
 
+        // Calculate total array power from actual BOM data
+        const calculatedTotalKw = (panelWattage * panel.quantity) / 1000;
+        const displayTotalKw = calculatedTotalKw > 0 ? calculatedTotalKw : system.totalSolarKw;
+        
         doc.font("Helvetica-Bold").text("Total Array Power:", rightColX, rightY);
-        doc.font("Helvetica").text(`${system.totalSolarKw.toFixed(2)} kW`, rightColX, rightY + 15);
+        doc.font("Helvetica").text(`${displayTotalKw.toFixed(2)} kW`, rightColX, rightY + 15);
         rightY += 40;
 
         doc.font("Helvetica-Bold").text("Unit Price:", rightColX, rightY);
