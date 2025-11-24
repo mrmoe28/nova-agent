@@ -588,10 +588,12 @@ export function generateNovaAgentPDF(
         doc
           .fillColor(brandCyan)
           .fontSize(20)
-          .font("Helvetica-Bold")
-          .text(panel.itemName, 50, 95, { width: 500 });
+          .font("Helvetica-Bold");
+        const titleHeight = doc.heightOfString(panel.itemName, { width: 500 });
+        doc.text(panel.itemName, 50, 95, { width: 500 });
 
-        yPos = 135;
+        // Ensure proper spacing after title
+        yPos = 95 + titleHeight + 30;
 
         // Try to fetch and display image (centered)
         let imageHeight = 0;
@@ -600,9 +602,10 @@ export function generateNovaAgentPDF(
           if (imageBuffer) {
             try {
               const imgWidth = 280;
+              const imgHeight = 250; // Increased max height
               const imgX = (doc.page.width - imgWidth) / 2; // Center image
-              doc.image(imageBuffer, imgX, yPos, { width: imgWidth, fit: [imgWidth, 200] });
-              imageHeight = 210; // Reserve space for image
+              doc.image(imageBuffer, imgX, yPos, { width: imgWidth, fit: [imgWidth, imgHeight] });
+              imageHeight = imgHeight + 20; // Actual height plus padding
               yPos += imageHeight;
             } catch {
               // Image failed to load, skip
@@ -610,8 +613,12 @@ export function generateNovaAgentPDF(
           }
         }
 
-        // Add spacing after image
-        yPos += 20;
+        // Ensure minimum spacing even if no image
+        if (imageHeight === 0) {
+          yPos += 40;
+        } else {
+          yPos += 30; // Extra spacing after image
+        }
 
         // Specifications in two-column layout
         const leftColX = 70;
@@ -662,16 +669,6 @@ export function generateNovaAgentPDF(
         doc.font("Helvetica-Bold").text("Total Cost:", rightColX, rightY);
         doc.fillColor(brandCyan).fontSize(16).font("Helvetica-Bold")
           .text(formatCurrency(panel.totalPriceUsd), rightColX, rightY + 15);
-
-        // Notes at bottom (larger font)
-        if (panel.notes) {
-          yPos = Math.max(leftY, rightY) + 60;
-          doc
-            .fillColor(textLight)
-            .fontSize(10)
-            .font("Helvetica")
-            .text(panel.notes, 70, yPos, { width: 470, align: "justify" });
-        }
       }
 
       // Battery Page
@@ -695,7 +692,7 @@ export function generateNovaAgentPDF(
         doc.text(battery.itemName, 50, 95, { width: 500 });
 
         // Ensure proper spacing after title
-        yPos = 95 + titleHeight + 20;
+        yPos = 95 + titleHeight + 30;
 
         // Try to fetch and display image (centered)
         let imageHeight = 0;
@@ -704,9 +701,10 @@ export function generateNovaAgentPDF(
           if (imageBuffer) {
             try {
               const imgWidth = 280;
+              const imgHeight = 250; // Increased max height
               const imgX = (doc.page.width - imgWidth) / 2; // Center image
-              doc.image(imageBuffer, imgX, yPos, { width: imgWidth, fit: [imgWidth, 200] });
-              imageHeight = 210;
+              doc.image(imageBuffer, imgX, yPos, { width: imgWidth, fit: [imgWidth, imgHeight] });
+              imageHeight = imgHeight + 20; // Actual height plus padding
               yPos += imageHeight;
             } catch {
               // Image failed to load, skip
@@ -714,8 +712,12 @@ export function generateNovaAgentPDF(
           }
         }
 
-        // Add spacing after image
-        yPos += 20;
+        // Ensure minimum spacing even if no image
+        if (imageHeight === 0) {
+          yPos += 40;
+        } else {
+          yPos += 30; // Extra spacing after image
+        }
 
         // Specifications in two-column layout
         const leftColX = 70;
@@ -780,10 +782,12 @@ export function generateNovaAgentPDF(
         doc
           .fillColor(brandCyan)
           .fontSize(20)
-          .font("Helvetica-Bold")
-          .text(inverter.itemName, 50, 95, { width: 500 });
+          .font("Helvetica-Bold");
+        const titleHeight = doc.heightOfString(inverter.itemName, { width: 500 });
+        doc.text(inverter.itemName, 50, 95, { width: 500 });
 
-        yPos = 135;
+        // Ensure proper spacing after title
+        yPos = 95 + titleHeight + 30;
 
         // Try to fetch and display image (centered)
         let imageHeight = 0;
@@ -792,9 +796,10 @@ export function generateNovaAgentPDF(
           if (imageBuffer) {
             try {
               const imgWidth = 280;
+              const imgHeight = 250; // Increased max height
               const imgX = (doc.page.width - imgWidth) / 2; // Center image
-              doc.image(imageBuffer, imgX, yPos, { width: imgWidth, fit: [imgWidth, 200] });
-              imageHeight = 210;
+              doc.image(imageBuffer, imgX, yPos, { width: imgWidth, fit: [imgWidth, imgHeight] });
+              imageHeight = imgHeight + 20; // Actual height plus padding
               yPos += imageHeight;
             } catch {
               // Image failed to load, skip
@@ -802,8 +807,12 @@ export function generateNovaAgentPDF(
           }
         }
 
-        // Add spacing after image
-        yPos += 20;
+        // Ensure minimum spacing even if no image
+        if (imageHeight === 0) {
+          yPos += 40;
+        } else {
+          yPos += 30; // Extra spacing after image
+        }
 
         // Specifications in two-column layout
         const leftColX = 70;
