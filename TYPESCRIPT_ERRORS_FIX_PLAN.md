@@ -106,8 +106,9 @@ npm run build
 - [x] Error #1: Buffer type in download route - **FIXED**
 - [x] Scan similar routes - **FOUND 1 MORE**
 - [x] Error #2: Buffer type in PDF route - **FIXED**
+- [x] Error #3: PlanDocument PATCH route invalid fields - **FIXED**
 - [x] Local type check passed - **NO ERRORS**
-- [ ] Committed and pushed - **IN PROGRESS**
+- [x] Committed and pushed - **DONE**
 - [ ] Vercel deployment monitoring
 - [ ] Deployment successful
 
@@ -138,6 +139,35 @@ return new NextResponse(new Uint8Array(pdfBuffer), { ... });
 - `Uint8Array` is the cleanest way to convert Node.js `Buffer` to `BodyInit`
 - Already proven working in `bills/[id]/file/route.ts`
 - Simpler and more readable than `buffer.slice()` approach
+
+### Fix #3: documents/[id]/route.ts (PATCH method)
+```typescript
+// Before (trying to update non-existent fields):
+const { status, notes } = body;
+await prisma.planDocument.update({
+  where: { id },
+  data: {
+    status: status || undefined,    // ❌ status doesn't exist in schema
+    notes: notes !== undefined ? notes : undefined,  // ❌ notes doesn't exist in schema
+  },
+});
+
+// After (only updating fields that exist):
+const { type, category } = body;
+const updateData: any = {};
+if (type !== undefined) updateData.type = type;
+if (category !== undefined) updateData.category = category;
+await prisma.planDocument.update({
+  where: { id },
+  data: updateData,
+});
+```
+
+**PlanDocument Schema Fields:**
+- ✅ `type` - Document type (permit_application, drawing, etc.)
+- ✅ `category` - Category (permit, utility, installation, inspection)
+- ✅ `fileName`, `filePath`, `uploadedBy`, `uploadedAt`, `version`
+- ❌ `status`, `notes` - Don't exist in schema
 
 ### Verified Clean:
 - ✅ `bills/[id]/file/route.ts` - Already using `Uint8Array` (correct)
