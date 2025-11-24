@@ -57,7 +57,7 @@ export async function DELETE(
 
 /**
  * PATCH /api/documents/[id]
- * Update document status
+ * Update document metadata (type, category)
  */
 export async function PATCH(
   request: NextRequest,
@@ -66,14 +66,16 @@ export async function PATCH(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { status, notes } = body;
+    const { type, category } = body;
+
+    // Only update fields that exist in PlanDocument schema
+    const updateData: any = {};
+    if (type !== undefined) updateData.type = type;
+    if (category !== undefined) updateData.category = category;
 
     const document = await prisma.planDocument.update({
       where: { id },
-      data: {
-        status: status || undefined,
-        notes: notes !== undefined ? notes : undefined,
-      },
+      data: updateData,
     });
 
     return NextResponse.json({
