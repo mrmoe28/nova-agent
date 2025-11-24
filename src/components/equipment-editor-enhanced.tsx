@@ -371,10 +371,24 @@ export default function EquipmentEditorEnhanced({
       isExisting: false
     };
 
-    setConfig(prev => ({
-      ...prev,
-      [`selected${category.split('_').map(w => w.charAt(0) + w.slice(1).toLowerCase()).join('')}`]: selectedProduct
-    }));
+    // Map category to the correct config property name
+    const categoryMap: Record<string, keyof SystemConfig> = {
+      'SOLAR_PANEL': 'selectedSolarPanels',
+      'BATTERY': 'selectedBattery',
+      'INVERTER': 'selectedInverter',
+      'MOUNTING': 'selectedMounting',
+      'ELECTRICAL': 'selectedElectrical'
+    };
+
+    const configKey = categoryMap[category];
+    if (configKey) {
+      setConfig(prev => ({
+        ...prev,
+        [configKey]: selectedProduct
+      }));
+    } else {
+      console.warn(`Unknown category: ${category}`);
+    }
   };
 
   // Validate configuration
@@ -503,18 +517,27 @@ export default function EquipmentEditorEnhanced({
                 </CardContent>
               </Card>
             ) : (
-              filteredProducts.map(product => (
-                <Card 
-                  key={product.id}
-                  className={`cursor-pointer transition-all hover:shadow-lg ${
-                    (config.selectedSolarPanels?.product.id === product.id ||
-                     config.selectedBattery?.product.id === product.id ||
-                     config.selectedInverter?.product.id === product.id) 
-                    ? 'ring-2 ring-primary' : ''
-                  }`}
-                  onClick={() => handleProductSelect(product, product.category)}
-                >
-                  <CardContent className="p-4">
+              filteredProducts.map(product => {
+                const isSelected = 
+                  config.selectedSolarPanels?.product.id === product.id ||
+                  config.selectedBattery?.product.id === product.id ||
+                  config.selectedInverter?.product.id === product.id ||
+                  config.selectedMounting?.product.id === product.id ||
+                  config.selectedElectrical?.product.id === product.id;
+
+                return (
+                  <Card 
+                    key={product.id}
+                    className={`cursor-pointer transition-all hover:shadow-lg hover:scale-105 ${
+                      isSelected ? 'ring-2 ring-primary ring-offset-2 bg-primary/5' : ''
+                    }`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleProductSelect(product, product.category);
+                    }}
+                  >
+                    <CardContent className="p-4" onClick={(e) => e.stopPropagation()}>
                     {/* Product Image */}
                     <div className="relative h-48 bg-gray-100 rounded-lg mb-4 overflow-hidden">
                       {product.imageUrl ? (
@@ -618,10 +641,11 @@ export default function EquipmentEditorEnhanced({
                           </Badge>
                         </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              }))
             )}
           </div>
 
