@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generateNovaAgentPDF } from "@/lib/pdf-generator";
+import { writeFile, mkdir } from "fs/promises";
+import { join } from "path";
+import { homedir } from "os";
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,6 +46,18 @@ export async function POST(request: NextRequest) {
 
     // Update project status and save PDF path
     const fileName = `${project.clientName.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}_NovaAgent_Report.pdf`;
+
+    // Save PDF to desktop folder named after the app
+    const desktopPath = join(homedir(), "Desktop", "NovaAgent");
+    try {
+      await mkdir(desktopPath, { recursive: true });
+      const filePath = join(desktopPath, fileName);
+      await writeFile(filePath, pdfBuffer);
+      console.log(`PDF saved to desktop: ${filePath}`);
+    } catch (error) {
+      console.error("Failed to save PDF to desktop:", error);
+      // Continue even if desktop save fails - still return PDF for download
+    }
 
     await prisma.project.update({
       where: { id: projectId },

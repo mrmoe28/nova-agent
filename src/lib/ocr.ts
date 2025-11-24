@@ -570,6 +570,8 @@ export interface ParsedBillData {
     start?: string;
     end?: string;
   };
+  billingPeriodDays?: number; // Number of days in billing period
+  billDate?: string; // Date of the bill
   usage?: {
     kwh?: number;
     kw?: number;
@@ -643,6 +645,13 @@ export function parseBillText(text: string): ParsedBillData {
       /customer\s*(?:number|id)[:\s]*([A-Z0-9-]+)/gi,
       /account[:\s]*(\d{10,15})/gi, // "Account: 10160269001"
       /member\s*account[:\s]*(\d{10,15})/gi, // "Member Account 10160269001"
+    ],
+
+    // Bill date patterns
+    billDate: [
+      /bill\s*date[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/gi,
+      /date[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/gi,
+      /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/gi, // General date pattern (use last occurrence as bill date)
     ],
 
     // Billing period - multiple date formats
@@ -740,23 +749,53 @@ export function parseBillText(text: string): ParsedBillData {
     data.accountNumber = accountValue.trim();
   }
 
+  // Extract bill date (try to find the most recent date, typically the bill date)
+  const billDateValue = tryPatterns(patterns.billDate, normalizedText);
+  if (billDateValue) {
+    try {
+      // Try to parse the date
+      const billDate = new Date(billDateValue);
+      if (!isNaN(billDate.getTime())) {
+        data.billDate = `${billDate.getMonth() + 1}/${billDate.getDate()}/${billDate.getFullYear()}`;
+      }
+    } catch {
+      // If parsing fails, store as-is
+      data.billDate = billDateValue;
+    }
+  }
+
   // Extract billing period
   for (const pattern of patterns.billingPeriod) {
     const match = normalizedText.match(pattern);
     if (match) {
-      // Handle "Billing Period 29 Days" format
+      // Handle "Billing Period X Days" format
       if (match[1] && !match[2] && /days?/i.test(match[0])) {
         const days = parseInt(match[1]);
         if (days > 0 && days <= 40) {
-          // Calculate approximate dates (end date = today, start = days ago)
-          const endDate = new Date();
-          const startDate = new Date();
-          startDate.setDate(endDate.getDate() - days);
+          // Billing period is always 30 days from the bill date
+          // If we have a bill date, use it as the end date; otherwise use today
+          let endDate: Date;
+          if (data.billDate) {
+            try {
+              endDate = new Date(data.billDate);
+              if (isNaN(endDate.getTime())) {
+                endDate = new Date();
+              }
+            } catch {
+              endDate = new Date();
+            }
+          } else {
+            endDate = new Date();
+          }
+          
+          const startDate = new Date(endDate);
+          startDate.setDate(endDate.getDate() - 30); // Always 30 days before bill date
+          
           data.billingPeriod = {
             start: `${startDate.getMonth() + 1}/${startDate.getDate()}/${startDate.getFullYear()}`,
             end: `${endDate.getMonth() + 1}/${endDate.getDate()}/${endDate.getFullYear()}`,
           };
-          data.billingPeriodDays = days; // Store days for calculation
+          data.billingPeriodDays = 30; // Always 30 days for billing period
           break;
         }
       } else if (match[1] && match[2]) {
@@ -765,6 +804,17 @@ export function parseBillText(text: string): ParsedBillData {
           start: match[1],
           end: match[2],
         };
+        // Calculate days from date range, but billing period is always 30 days
+        // Store the actual range days for reference, but use 30 for calculations
+        try {
+          const start = new Date(match[1]);
+          const end = new Date(match[2]);
+          const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24));
+          data.billingPeriodDays = 30; // Always use 30 days for calculations
+        } catch {
+          // Default to 30 days if date parsing fails
+          data.billingPeriodDays = 30;
+        }
         break;
       }
     }
@@ -819,31 +869,11 @@ export function parseBillText(text: string): ParsedBillData {
   }
 
   // Calculate average daily usage if we have kWh
+  // Billing period is always 30 days from the bill date
   if (kwhValue) {
-    let days = 0;
-    
-    // Use billingPeriodDays if available (from "X Days" format)
-    if ((data as any).billingPeriodDays) {
-      days = (data as any).billingPeriodDays;
-    } else if (data.billingPeriod?.start && data.billingPeriod?.end) {
-      try {
-        const start = new Date(data.billingPeriod.start);
-        const end = new Date(data.billingPeriod.end);
-        days = Math.ceil(
-          (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
-        );
-      } catch {
-        // If date parsing fails, use default 30 days
-        days = 30;
-      }
-    } else {
-      // Default to 30 days if no period found
-      days = 30;
-    }
-    
-    if (days > 0) {
-      data.averageDailyUsage = kwhValue / days;
-    }
+    // Always use 30 days for billing period calculations
+    const days = 30;
+    data.averageDailyUsage = kwhValue / days;
   }
 
   // Extract renewable energy source type
