@@ -143,9 +143,17 @@ export async function calculateSystemSpecsFromBOM(
 
   const inverters = bomItems.filter(
     (item) =>
-      item.category.toLowerCase().includes("inverter") ||
-      item.category === "INVERTER"
+      (item.category.toLowerCase().includes("inverter") ||
+      item.category === "INVERTER") &&
+      item.quantity > 0  // Only include inverters with quantity > 0
   );
+  
+  console.log(`Found ${inverters.length} inverter items in BOM:`, inverters.map(i => ({
+    name: i.itemName,
+    model: i.modelNumber,
+    quantity: i.quantity,
+    notes: i.notes
+  })));
 
   // Parse solar panel specs
   const solarSpecs = solarPanels.map((panel) => {
@@ -185,9 +193,37 @@ export async function calculateSystemSpecsFromBOM(
   const inverterSpecs = inverters.map((inverter) => {
     const searchText = `${inverter.modelNumber} ${inverter.itemName} ${inverter.notes || ""}`;
     
-    // Pattern: "5kW", "5 kW", "5000W"
+    let capacityKw = 0;
+    
+    // Pattern 1: "5kW", "5 kW", "12kW"
     const kwMatch = searchText.match(/(\d+\.?\d*)\s*kw/i);
-    const capacityKw = kwMatch ? parseFloat(kwMatch[1]) : 5; // Default 5kW
+    if (kwMatch) {
+      capacityKw = parseFloat(kwMatch[1]);
+    } else {
+      // Pattern 2: "5000W", "12000W" (convert watts to kW)
+      const wattMatch = searchText.match(/(\d+)\s*w(?!\w)/i);
+      if (wattMatch) {
+        const watts = parseInt(wattMatch[1]);
+        // If it's a large number (>1000), it's likely watts, not kW
+        if (watts > 1000) {
+          capacityKw = watts / 1000;
+        }
+      }
+    }
+    
+    // If still no match, try to extract from model number patterns like "18KPV" = 18kW
+    if (capacityKw === 0) {
+      const modelKwMatch = searchText.match(/(\d+)\s*k(?:pv|w|va)/i);
+      if (modelKwMatch) {
+        capacityKw = parseFloat(modelKwMatch[1]);
+      }
+    }
+    
+    // Default to 5kW if still no match (but log a warning)
+    if (capacityKw === 0) {
+      console.warn(`Could not extract inverter capacity from: "${searchText}". Defaulting to 5kW`);
+      capacityKw = 5;
+    }
 
     // Try to extract efficiency
     const efficiencyMatch = searchText.match(/(\d+\.?\d*)%\s*efficiency/i);

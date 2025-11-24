@@ -1046,6 +1046,12 @@ export function generateNovaAgentPDF(
             yPos = 50;
           }
 
+          // Calculate heights for wrapped text
+          const itemNameHeight = doc.heightOfString(item.itemName, { width: 140 });
+          const modelNumberHeight = doc.heightOfString(item.modelNumber, { width: 140 });
+          const rowHeight = Math.max(itemNameHeight, modelNumberHeight, 12); // Minimum 12pt for single line
+
+          // Draw all fields at the same yPos
           doc.fillColor(textDark).text(item.itemName, 50, yPos, { width: 140 });
           doc.text(item.modelNumber, 200, yPos, { width: 140 });
           doc.text(item.quantity.toString(), 350, yPos);
@@ -1053,7 +1059,7 @@ export function generateNovaAgentPDF(
           doc.text(formatCurrency(item.totalPriceUsd), 500, yPos);
 
           totalCost += item.totalPriceUsd;
-          yPos += 20;
+          yPos += rowHeight + 8; // Add row height plus 8pt padding
         });
 
         yPos += 5;
@@ -1192,11 +1198,11 @@ export function generateNovaAgentPDF(
 
         // Timeline phases with visual timeline
         const phases = [
-          { name: "Permitting & Approvals", duration: "2-4 weeks", icon: "📋" },
-          { name: "Equipment Procurement", duration: "1-2 weeks", icon: "📦" },
-          { name: "Installation", duration: plan.timeline || "1-2 weeks", icon: "🔧" },
-          { name: "Inspection & Testing", duration: "3-5 days", icon: "✓" },
-          { name: "Utility Interconnection", duration: "1-3 weeks", icon: "⚡" },
+          { name: "Permitting & Approvals", duration: "2-4 weeks" },
+          { name: "Equipment Procurement", duration: "1-2 weeks" },
+          { name: "Installation", duration: plan.timeline || "1-2 weeks" },
+          { name: "Inspection & Testing", duration: "3-5 days" },
+          { name: "Utility Interconnection", duration: "1-3 weeks" },
         ];
 
         phases.forEach((phase, index) => {
@@ -1212,7 +1218,7 @@ export function generateNovaAgentPDF(
             .fillColor(brandNavy)
             .fontSize(12)
             .font("Helvetica-Bold")
-            .text(`${phase.icon} Phase ${index + 1}: ${phase.name}`, 65, yPos + 10);
+            .text(`Phase ${index + 1}: ${phase.name}`, 65, yPos + 10);
           
           doc
             .fillColor(brandCyan)

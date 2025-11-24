@@ -228,7 +228,7 @@ export function BOMItemsModal({
               </Badge>
             </div>
 
-            <div className="space-y-2 flex-1 overflow-y-auto min-h-0 pr-2">
+            <div className="space-y-3 flex-1 overflow-y-auto min-h-0 pr-2">
               {bomItems.length === 0 ? (
                 <div className="text-center py-8 text-gray-600">
                   <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -237,15 +237,15 @@ export function BOMItemsModal({
                 </div>
               ) : (
                 bomItems.map((item) => (
-                  <Card key={item.id} className="p-3 bg-white border border-gray-200">
-                    <div className="flex items-start gap-3">
+                  <Card key={item.id} className="p-5 bg-white border border-gray-200">
+                    <div className="flex items-start gap-4">
                       {/* Image */}
                       <div className="flex-shrink-0">
                         {item.imageUrl ? (
                           <img
                             src={item.imageUrl}
                             alt={item.itemName}
-                            className="h-20 w-20 object-contain rounded border border-gray-200 bg-gray-50"
+                            className="h-32 w-32 object-contain rounded border border-gray-200 bg-gray-50 p-2"
                             onError={(e) => {
                               const img = e.currentTarget as HTMLImageElement;
                               img.style.display = "none";
@@ -257,40 +257,46 @@ export function BOMItemsModal({
                           />
                         ) : null}
                         <div 
-                          className={`h-20 w-20 bg-gray-50 rounded border border-gray-200 flex items-center justify-center ${item.imageUrl ? 'hidden' : ''}`}
+                          className={`h-32 w-32 bg-gray-50 rounded border border-gray-200 flex items-center justify-center ${item.imageUrl ? 'hidden' : ''}`}
                         >
-                          <Package className="h-8 w-8 text-gray-400" />
+                          <Package className="h-12 w-12 text-gray-400" />
                         </div>
                       </div>
                       
-                      <div className="flex-1 flex items-start justify-between min-w-0">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Badge variant="secondary" className="text-xs">
-                              {item.category}
-                            </Badge>
-                            <span className="font-medium text-gray-900 truncate">{item.itemName}</span>
-                          </div>
-                          <div className="text-sm text-gray-600 space-y-1">
-                            <div>Model: {item.modelNumber}</div>
-                            {item.manufacturer && <div>Mfg: {item.manufacturer}</div>}
-                            <div className="flex items-center gap-4">
-                              <span>Qty: {item.quantity}</span>
-                              <span>{formatCurrency(item.unitPriceUsd)} each</span>
-                              <span className="font-medium">
-                                {formatCurrency(item.totalPriceUsd)} total
-                              </span>
+                      <div className="flex-1 flex flex-col gap-2 min-w-0">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <Badge variant="secondary" className="text-xs flex-shrink-0">
+                                {item.category}
+                              </Badge>
                             </div>
+                            <h4 className="font-semibold text-gray-900 text-base mb-1 break-words">
+                              {item.itemName}
+                            </h4>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteBOMItem(item.id)}
+                            className="text-red-600 hover:text-red-800 flex-shrink-0"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <div className="text-sm text-gray-600 space-y-1.5">
+                          <div className="break-words"><span className="font-medium">Model:</span> {item.modelNumber}</div>
+                          {item.manufacturer && (
+                            <div className="break-words"><span className="font-medium">Mfg:</span> {item.manufacturer}</div>
+                          )}
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1">
+                            <span className="font-medium">Qty: <span className="text-gray-900">{item.quantity}</span></span>
+                            <span className="text-gray-900">{formatCurrency(item.unitPriceUsd)} <span className="text-gray-500">each</span></span>
+                          </div>
+                          <div className="text-base font-semibold text-gray-900 pt-1">
+                            Total: {formatCurrency(item.totalPriceUsd)}
                           </div>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDeleteBOMItem(item.id)}
-                          className="text-red-600 hover:text-red-800 flex-shrink-0"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
                       </div>
                     </div>
                   </Card>
@@ -343,7 +349,7 @@ export function BOMItemsModal({
               </Select>
             </div>
 
-            <div className="space-y-2 flex-1 overflow-y-auto min-h-0 pr-2">
+            <div className="space-y-3 flex-1 overflow-y-auto min-h-0 pr-2">
               {loading ? (
                 <div className="text-center py-8 text-gray-600">Loading equipment...</div>
               ) : filteredEquipment.length === 0 ? (
@@ -354,15 +360,15 @@ export function BOMItemsModal({
                 </div>
               ) : (
                 filteredEquipment.map((equipment) => (
-                  <Card key={equipment.id} className="p-3 bg-white border border-gray-200 hover:shadow-md transition-shadow">
-                    <div className="flex items-start gap-3">
+                  <Card key={equipment.id} className="p-5 bg-white border border-gray-200 hover:shadow-md transition-shadow">
+                    <div className="flex items-start gap-4">
                       {/* Image */}
                       <div className="flex-shrink-0 relative">
                         {equipment.imageUrl ? (
                           <img
                             src={equipment.imageUrl}
                             alt={equipment.name}
-                            className="h-20 w-20 object-contain rounded border border-gray-200 bg-gray-50"
+                            className="h-32 w-32 object-contain rounded border border-gray-200 bg-gray-50 p-2"
                             onError={(e) => {
                               const img = e.currentTarget as HTMLImageElement;
                               img.style.display = "none";
@@ -374,72 +380,85 @@ export function BOMItemsModal({
                           />
                         ) : null}
                         <div 
-                          className={`h-20 w-20 bg-gray-50 rounded border border-gray-200 flex items-center justify-center ${equipment.imageUrl ? 'hidden' : ''}`}
+                          className={`h-32 w-32 bg-gray-50 rounded border border-gray-200 flex items-center justify-center ${equipment.imageUrl ? 'hidden' : ''}`}
                         >
-                          <Package className="h-8 w-8 text-gray-400" />
+                          <Package className="h-12 w-12 text-gray-400" />
                         </div>
+                        <Badge 
+                          variant="outline" 
+                          className="absolute -top-2 -right-2 text-xs bg-white"
+                        >
+                          {equipment.category.replace(/_/g, " ")}
+                        </Badge>
                       </div>
                       
-                      <div className="flex-1 flex items-start justify-between min-w-0">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <Badge variant="outline" className="text-xs">
-                              {equipment.category.replace(/_/g, " ")}
-                            </Badge>
-                            <span className="font-medium text-gray-900 truncate">{equipment.name}</span>
+                      <div className="flex-1 flex flex-col gap-2 min-w-0">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-gray-900 text-base mb-1 break-words">
+                              {equipment.name}
+                            </h4>
                             {!equipment.inStock && (
-                              <Badge variant="destructive" className="text-xs">
+                              <Badge variant="destructive" className="text-xs mb-2">
                                 Out of Stock
                               </Badge>
                             )}
                           </div>
-                          <div className="text-sm text-gray-600 space-y-1">
-                            <div>Model: {equipment.modelNumber}</div>
-                            {equipment.manufacturer && <div>Mfg: {equipment.manufacturer}</div>}
-                            <div className="flex items-center gap-4 flex-wrap">
-                              <span className="font-medium text-green-600">
-                                {formatCurrency(equipment.unitPrice)}
-                              </span>
-                              <span className="text-blue-600">
-                                {equipment.distributor.name}
-                              </span>
-                              {equipment.leadTimeDays && (
-                                <span>{equipment.leadTimeDays}d lead</span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex gap-1 flex-shrink-0 ml-2">
-                          {equipment.sourceUrl && (
+                          <div className="flex gap-1 flex-shrink-0">
+                            {equipment.sourceUrl && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                asChild
+                              >
+                                <a 
+                                  href={equipment.sourceUrl} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  title="View product page"
+                                >
+                                  <ExternalLink className="h-4 w-4" />
+                                </a>
+                              </Button>
+                            )}
                             <Button
                               variant="ghost"
                               size="sm"
-                              asChild
+                              className="text-green-600 hover:text-green-800"
+                              disabled={!equipment.inStock || addingItems.has(equipment.id)}
+                              onClick={() => handleAddBOMItem(equipment.id)}
+                              title="Add to BOM"
                             >
-                              <a 
-                                href={equipment.sourceUrl} 
-                                target="_blank" 
-                                rel="noopener noreferrer"
-                                title="View product page"
-                              >
-                                <ExternalLink className="h-4 w-4" />
-                              </a>
+                              {addingItems.has(equipment.id) ? (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-green-600 border-t-transparent" />
+                              ) : (
+                                <Plus className="h-4 w-4" />
+                              )}
                             </Button>
+                          </div>
+                        </div>
+                        <div className="text-sm text-gray-600 space-y-1.5">
+                          <div className="break-words">
+                            <span className="font-medium">Model:</span> {equipment.modelNumber}
+                          </div>
+                          {equipment.manufacturer && (
+                            <div className="break-words">
+                              <span className="font-medium">Mfg:</span> {equipment.manufacturer}
+                            </div>
                           )}
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-green-600 hover:text-green-800"
-                            disabled={!equipment.inStock || addingItems.has(equipment.id)}
-                            onClick={() => handleAddBOMItem(equipment.id)}
-                            title="Add to BOM"
-                          >
-                            {addingItems.has(equipment.id) ? (
-                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-green-600 border-t-transparent" />
-                            ) : (
-                              <Plus className="h-4 w-4" />
-                            )}
-                          </Button>
+                          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1">
+                            <span className="text-base font-semibold text-green-600">
+                              {formatCurrency(equipment.unitPrice)}
+                            </span>
+                            <span className="text-blue-600 font-medium">
+                              {equipment.distributor.name}
+                            </span>
+                          </div>
+                          {equipment.leadTimeDays && (
+                            <div className="text-xs text-gray-500">
+                              Lead time: {equipment.leadTimeDays} days
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
