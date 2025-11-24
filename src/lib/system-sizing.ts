@@ -401,6 +401,27 @@ export async function regenerateBom(
   // Do NOT use fallback prices - only real distributor prices
   const bomItems = [];
 
+  // Enforce 10kW roof capacity limit for solar panels
+  const MAX_ROOF_CAPACITY_KW = 10;
+  const panelWattage = system.solarPanelWattage || 400;
+  const maxPanels = Math.floor((MAX_ROOF_CAPACITY_KW * 1000) / panelWattage);
+  let actualPanelCount = system.solarPanelCount;
+  
+  // Adjust panel count if it exceeds the 10kW limit
+  if (actualPanelCount > maxPanels) {
+    actualPanelCount = maxPanels;
+    console.log(`Panel count adjusted from ${system.solarPanelCount} to ${actualPanelCount} to comply with 10kW roof capacity limit`);
+    
+    // Update system record with adjusted panel count
+    await prisma.system.update({
+      where: { projectId },
+      data: {
+        solarPanelCount: actualPanelCount,
+        totalSolarKw: (actualPanelCount * panelWattage) / 1000,
+      },
+    });
+  }
+
   // Solar Panels - Only add if found in database
   if (solarPanel && solarPanel.unitPrice > 0) {
     bomItems.push({
@@ -409,9 +430,9 @@ export async function regenerateBom(
       itemName: solarPanel.name,
       manufacturer: solarPanel.manufacturer || null,
       modelNumber: solarPanel.modelNumber,
-      quantity: system.solarPanelCount,
+      quantity: actualPanelCount,
       unitPriceUsd: solarPanel.unitPrice,
-      totalPriceUsd: system.solarPanelCount * solarPanel.unitPrice,
+      totalPriceUsd: actualPanelCount * solarPanel.unitPrice,
       imageUrl: solarPanel.imageUrl || null,
       notes: `${solarPanel.distributor.name} | ${solarPanel.specifications || "Solar panel"}`,
     });
@@ -425,9 +446,9 @@ export async function regenerateBom(
       itemName: rsd.name,
       manufacturer: rsd.manufacturer || null,
       modelNumber: rsd.modelNumber,
-      quantity: system.solarPanelCount,
+      quantity: actualPanelCount,
       unitPriceUsd: rsd.unitPrice,
-      totalPriceUsd: system.solarPanelCount * rsd.unitPrice,
+      totalPriceUsd: actualPanelCount * rsd.unitPrice,
       imageUrl: rsd.imageUrl || null,
       notes: `${rsd.distributor.name} | ${rsd.specifications || "Module-level rapid shutdown device"}`,
     });
@@ -467,7 +488,7 @@ export async function regenerateBom(
 
   // Mounting Rails - Only add if found in database
   if (mountingRails && mountingRails.unitPrice > 0) {
-    const railQuantity = Math.max(1, Math.ceil(system.solarPanelCount / 4)); // One rail kit per 4 panels
+    const railQuantity = Math.max(1, Math.ceil(actualPanelCount / 4)); // One rail kit per 4 panels
     bomItems.push({
       projectId,
       category: "mounting" as const,
@@ -484,7 +505,7 @@ export async function regenerateBom(
 
   // Mid Bolts/Clamps - Only add if found in database
   if (midBolts && midBolts.unitPrice > 0) {
-    const boltQuantity = system.solarPanelCount * 2; // 2 bolts per panel (mid clamps)
+    const boltQuantity = actualPanelCount * 2; // 2 bolts per panel (mid clamps)
     bomItems.push({
       projectId,
       category: "mounting" as const,
@@ -501,7 +522,7 @@ export async function regenerateBom(
 
   // Solar Deck/Flashing - Only add if found in database
   if (solarDeck && solarDeck.unitPrice > 0) {
-    const deckQuantity = system.solarPanelCount; // One deck/flashing per panel
+    const deckQuantity = actualPanelCount; // One deck/flashing per panel
     bomItems.push({
       projectId,
       category: "mounting" as const,
