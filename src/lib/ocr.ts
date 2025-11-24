@@ -641,6 +641,8 @@ export function parseBillText(text: string): ParsedBillData {
       /account\s*(?:number|no|#)[:\s]*([A-Z0-9-]+)/gi,
       /acct[:\s]*([A-Z0-9-]+)/gi,
       /customer\s*(?:number|id)[:\s]*([A-Z0-9-]+)/gi,
+      /account[:\s]*(\d{10,15})/gi, // "Account: 10160269001"
+      /member\s*account[:\s]*(\d{10,15})/gi, // "Member Account 10160269001"
     ],
 
     // Billing period - multiple date formats
@@ -649,6 +651,7 @@ export function parseBillText(text: string): ParsedBillData {
       /(?:billing|service)\s*period[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*(?:to|through|-|–)\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/gi,
       /(?:from|start)[:\s]*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*(?:to|through|-|–)\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/gi,
       /(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})\s*(?:to|through|-|–)\s*(\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4})/gi,
+      /(?:billing|service)\s*period[:\s]*(\d+)\s*days?/gi, // "Billing Period 29 Days" - must be before date patterns
     ],
 
     // Utility companies - comprehensive list
@@ -740,12 +743,30 @@ export function parseBillText(text: string): ParsedBillData {
   // Extract billing period
   for (const pattern of patterns.billingPeriod) {
     const match = normalizedText.match(pattern);
-    if (match && match[1] && match[2]) {
-      data.billingPeriod = {
-        start: match[1],
-        end: match[2],
-      };
-      break;
+    if (match) {
+      // Handle "Billing Period 29 Days" format
+      if (match[1] && !match[2] && /days?/i.test(match[0])) {
+        const days = parseInt(match[1]);
+        if (days > 0 && days <= 40) {
+          // Calculate approximate dates (end date = today, start = days ago)
+          const endDate = new Date();
+          const startDate = new Date();
+          startDate.setDate(endDate.getDate() - days);
+          data.billingPeriod = {
+            start: `${startDate.getMonth() + 1}/${startDate.getDate()}/${startDate.getFullYear()}`,
+            end: `${endDate.getMonth() + 1}/${endDate.getDate()}/${endDate.getFullYear()}`,
+          };
+          data.billingPeriodDays = days; // Store days for calculation
+          break;
+        }
+      } else if (match[1] && match[2]) {
+        // Handle date range format
+        data.billingPeriod = {
+          start: match[1],
+          end: match[2],
+        };
+        break;
+      }
     }
   }
 
@@ -797,19 +818,31 @@ export function parseBillText(text: string): ParsedBillData {
     };
   }
 
-  // Calculate average daily usage if we have kWh and billing period
-  if (kwhValue && data.billingPeriod?.start && data.billingPeriod?.end) {
-    try {
-      const start = new Date(data.billingPeriod.start);
-      const end = new Date(data.billingPeriod.end);
-      const days = Math.ceil(
-        (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
-      );
-      if (days > 0) {
-        data.averageDailyUsage = kwhValue / days;
+  // Calculate average daily usage if we have kWh
+  if (kwhValue) {
+    let days = 0;
+    
+    // Use billingPeriodDays if available (from "X Days" format)
+    if ((data as any).billingPeriodDays) {
+      days = (data as any).billingPeriodDays;
+    } else if (data.billingPeriod?.start && data.billingPeriod?.end) {
+      try {
+        const start = new Date(data.billingPeriod.start);
+        const end = new Date(data.billingPeriod.end);
+        days = Math.ceil(
+          (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24),
+        );
+      } catch {
+        // If date parsing fails, use default 30 days
+        days = 30;
       }
-    } catch {
-      // If date parsing fails, skip average calculation
+    } else {
+      // Default to 30 days if no period found
+      days = 30;
+    }
+    
+    if (days > 0) {
+      data.averageDailyUsage = kwhValue / days;
     }
   }
 
