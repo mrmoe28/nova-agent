@@ -1314,14 +1314,18 @@ export default function ProjectDetailsPage() {
                   <div>
                     <h4 className="font-semibold mb-3 text-gray-900">Installation Steps</h4>
                     <div className="space-y-2">
-                      {plan.installSteps.map((step, index) => (
-                        <div key={index} className="flex items-start gap-3">
-                          <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-semibold">
-                            {index + 1}
+                      {plan.installSteps.map((step: any, index: number) => {
+                        // Handle both string format and object format with title property
+                        const stepText = typeof step === "string" ? step : (step.title || step.name || String(step));
+                        return (
+                          <div key={index} className="flex items-start gap-3">
+                            <div className="flex-shrink-0 w-6 h-6 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-semibold">
+                              {index + 1}
+                            </div>
+                            <p className="text-gray-900">{stepText}</p>
                           </div>
-                          <p className="text-gray-900">{step}</p>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
 

@@ -1253,12 +1253,14 @@ export function generateNovaAgentPDF(
           installSteps = [];
         }
         doc.fontSize(10).font("Helvetica").fillColor(textDark);
-        installSteps.forEach((step: string, index: number) => {
+        installSteps.forEach((step: any, index: number) => {
           if (yPos > 700) {
             doc.addPage();
             yPos = 50;
           }
-          doc.text(`${index + 1}. ${step}`, 70, yPos, { width: 470 });
+          // Handle both string format and object format with title property
+          const stepText = typeof step === "string" ? step : (step.title || step.name || String(step));
+          doc.text(`${index + 1}. ${stepText}`, 70, yPos, { width: 470 });
           yPos += 18;
         });
 
@@ -1322,7 +1324,7 @@ export function generateNovaAgentPDF(
           .fillColor("#1E40AF")
           .fontSize(13)
           .font("Helvetica-Bold")
-          .text("📅 Total Project Duration: 6-12 weeks", 65, yPos + 10);
+          .text("Total Project Duration: 6-12 weeks", 65, yPos + 10);
         doc
           .fontSize(10)
           .font("Helvetica")
