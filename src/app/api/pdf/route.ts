@@ -95,7 +95,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Return PDF as downloadable response
-    return new NextResponse(pdfBuffer as unknown as BodyInit, {
+    // Convert Buffer to ArrayBuffer for Next.js 15 compatibility
+    return new NextResponse(pdfBuffer.buffer.slice(pdfBuffer.byteOffset, pdfBuffer.byteOffset + pdfBuffer.byteLength), {
       headers: {
         "Content-Type": "application/pdf",
         "Content-Disposition": `attachment; filename="${fileName}"`,

@@ -48,7 +48,8 @@ export async function GET(
         );
       }
 
-      return new NextResponse(fileBuffer, {
+      // Convert Node.js Buffer to ArrayBuffer for Next.js 15 compatibility
+      return new NextResponse(fileBuffer.buffer.slice(fileBuffer.byteOffset, fileBuffer.byteOffset + fileBuffer.byteLength), {
         status: 200,
         headers,
       });
