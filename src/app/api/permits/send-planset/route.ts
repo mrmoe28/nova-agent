@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
           </div>
           
           <p style="color: #6b7280; font-size: 14px;">
-            Attached: ${document.title} (${(parseInt(document.fileSize || "0") / 1024 / 1024).toFixed(2)} MB)
+            Attached: ${document.fileName}
           </p>
           
           <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
       `,
       attachments: [
         {
-          filename: document.title,
+          filename: document.fileName,
           content: fileBuffer,
           contentType: "application/pdf",
         },
@@ -108,15 +108,9 @@ export async function POST(request: NextRequest) {
       const info = await transporter.sendMail(mailOptions);
       console.log("Email sent:", info.messageId);
 
-      // Update document status
-      await prisma.planDocument.update({
-        where: { id: documentId },
-        data: {
-          status: "submitted",
-          submittedToAHJ: true,
-          submittedAt: new Date(),
-        },
-      });
+      // Note: Document submission tracking would require schema update
+      // Currently PlanDocument doesn't have status/submittedToAHJ/submittedAt fields
+      console.log(`Document ${documentId} submitted to permit office: ${to}`);
 
       return NextResponse.json({
         success: true,
