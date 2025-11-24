@@ -39,12 +39,12 @@ export async function GET(
       if (download) {
         headers.set(
           "Content-Disposition",
-          `attachment; filename="${encodeURIComponent(document.title)}"`
+          `attachment; filename="${encodeURIComponent(document.fileName)}"`
         );
       } else {
         headers.set(
           "Content-Disposition",
-          `inline; filename="${encodeURIComponent(document.title)}"`
+          `inline; filename="${encodeURIComponent(document.fileName)}"`
         );
       }
 
