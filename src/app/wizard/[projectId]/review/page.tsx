@@ -253,7 +253,7 @@ export default function ReviewPage() {
                 variant="outline"
                 size="sm"
                 onClick={handleEditSystem}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 border-orange-300 text-slate-900 hover:bg-orange-50"
               >
                 <Edit3 className="h-4 w-4" />
                 Edit Equipment

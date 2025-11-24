@@ -501,7 +501,7 @@ export default function ProjectsPage() {
                           router.push(`/projects/${project.id}?tab=panels`);
                         }}
                       >
-                        <Sun className="h-4 w-4 text-yellow-600" />
+                        <Sun className="h-4 w-4 text-orange-600" />
                         <div>
                           <div className="text-lg font-semibold text-gray-900">{project.system.totalSolarKw.toFixed(1)}kW</div>
                           <div className="text-xs text-gray-600">{project.system.solarPanelCount} Panels</div>

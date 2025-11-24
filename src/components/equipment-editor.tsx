@@ -320,7 +320,7 @@ export default function EquipmentEditor({
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="has-panels" className="flex items-center gap-2">
-                    <Sun className="h-4 w-4 text-yellow-600" />
+                    <Sun className="h-4 w-4 text-orange-600" />
                     Has Existing Solar Panels
                   </Label>
                   <Switch

@@ -504,12 +504,12 @@ export default function BOMPage() {
                 )}
 
                 {validationWarnings.length > 0 && validationErrors.length === 0 && (
-                  <div className="mt-6 bg-yellow-50 border-2 border-yellow-200 rounded-lg p-4">
+                  <div className="mt-6 bg-orange-50 border-2 border-orange-200 rounded-lg p-4">
                     <div className="flex items-start gap-3">
-                      <AlertCircle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                      <AlertCircle className="h-5 w-5 text-orange-600 flex-shrink-0 mt-0.5" />
                       <div>
-                        <h4 className="font-semibold text-yellow-900 mb-2">Validation Warnings</h4>
-                        <ul className="list-disc list-inside space-y-1 text-sm text-yellow-700">
+                        <h4 className="font-semibold text-slate-900 mb-2">Validation Warnings</h4>
+                        <ul className="list-disc list-inside space-y-1 text-sm text-slate-700">
                           {validationWarnings.map((warning, idx) => (
                             <li key={idx}>{warning}</li>
                           ))}

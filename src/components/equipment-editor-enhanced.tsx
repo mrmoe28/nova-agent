@@ -597,7 +597,7 @@ export default function EquipmentEditorEnhanced({
                 {config.selectedSolarPanels && (
                   <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
                     <div className="flex items-center gap-3">
-                      <Sun className="h-5 w-5 text-yellow-600" />
+                      <Sun className="h-5 w-5 text-orange-600" />
                       <div>
                         <p className="font-medium text-sm">{config.selectedSolarPanels.product.name}</p>
                         <div className="flex items-center gap-4 mt-1">
@@ -787,7 +787,7 @@ export default function EquipmentEditorEnhanced({
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Solar Capacity</p>
-                <p className="text-2xl font-bold text-yellow-600">{totalSolarKw.toFixed(1)} kW</p>
+                <p className="text-2xl font-bold text-orange-600">{totalSolarKw.toFixed(1)} kW</p>
                 {config.selectedSolarPanels && (
                   <p className="text-xs text-muted-foreground">
                     {config.selectedSolarPanels.quantity} panels
