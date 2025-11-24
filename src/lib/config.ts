@@ -220,6 +220,32 @@ export const AI_ASSISTANT_CONFIG = {
 } as const;
 
 // ============================================================================
+// OCR CONFIGURATION
+// ============================================================================
+
+/**
+ * OCR (Optical Character Recognition) configuration
+ * Used in: src/lib/ocr.ts
+ * Priority: Ollama (local, free) → pdf-parse (fallback, free) → Claude (cloud, paid)
+ */
+export const OCR_CONFIG = {
+  /** Ollama endpoint for local OCR (e.g., "http://localhost:11434") */
+  OLLAMA_ENDPOINT: process.env.OLLAMA_ENDPOINT || "",
+
+  /** Ollama vision model for OCR (e.g., "llava", "llama3.2-vision") */
+  OLLAMA_VISION_MODEL: process.env.OLLAMA_VISION_MODEL || "llava:latest",
+
+  /** Anthropic API key for Claude AI (optional, paid) */
+  ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || "",
+
+  /** Claude model for OCR */
+  CLAUDE_MODEL: "claude-sonnet-4-20250514",
+
+  /** Prefer Ollama over Claude */
+  PREFER_LOCAL: process.env.OCR_PREFER_LOCAL !== "false", // Default: true
+} as const;
+
+// ============================================================================
 // FILE UPLOAD CONFIGURATION
 // ============================================================================
 

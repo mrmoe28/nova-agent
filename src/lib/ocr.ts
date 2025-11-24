@@ -1,6 +1,8 @@
 import { readFile } from "fs/promises";
 import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import { retryWithTimeout, generateErrorMessage, isNetworkError } from "./ocr-utils";
+import { OCR_CONFIG } from "./config";
 // Dynamic import for pdf-parse and Tesseract to avoid serverless environment issues
 
 export interface OCRResult {
@@ -81,6 +83,85 @@ export async function extractTextWithClaude(
   ).catch((error) => {
     const friendlyError = new Error(
       generateErrorMessage(error, "Claude AI PDF extraction")
+    );
+    friendlyError.cause = error;
+    throw friendlyError;
+  });
+}
+
+/**
+ * Extract text and structured data from PDF using Ollama (local, free)
+ * Uses vision models like llava or llama3.2-vision
+ * Includes retry logic and timeout handling for robustness
+ */
+export async function extractTextWithOllama(
+  filePath: string,
+): Promise<OCRResult> {
+  return retryWithTimeout(
+    async () => {
+      if (!OCR_CONFIG.OLLAMA_ENDPOINT) {
+        throw new Error("OLLAMA_ENDPOINT not configured");
+      }
+
+      const ollamaClient = new OpenAI({
+        baseURL: `${OCR_CONFIG.OLLAMA_ENDPOINT}/v1`,
+        apiKey: "ollama", // Ollama doesn't need a real key
+      });
+
+      // Read PDF file as buffer
+      const pdfBuffer = await readFile(filePath);
+      const base64Pdf = pdfBuffer.toString("base64");
+
+      console.log(`Using Ollama (${OCR_CONFIG.OLLAMA_VISION_MODEL}) for PDF extraction...`);
+
+      const response = await ollamaClient.chat.completions.create({
+        model: OCR_CONFIG.OLLAMA_VISION_MODEL,
+        messages: [
+          {
+            role: "user",
+            content: [
+              {
+                type: "image_url",
+                image_url: {
+                  url: `data:application/pdf;base64,${base64Pdf}`,
+                },
+              },
+              {
+                type: "text",
+                text: "Please extract ALL text content from this utility bill PDF. Return the complete text exactly as it appears in the document, preserving formatting, numbers, and structure. Include all important information like account numbers, billing dates, usage (kWh), costs, and utility company name. Do not summarize or interpret - just extract the raw text.",
+              },
+            ],
+          },
+        ],
+        max_tokens: 4096,
+        temperature: 0.1, // Low temperature for accurate extraction
+      });
+
+      const extractedText = response.choices[0]?.message?.content || "";
+
+      console.log(
+        `Ollama extraction complete: ${extractedText.length} characters`,
+      );
+
+      return {
+        text: extractedText,
+        confidence: 0.85, // Ollama vision models are quite accurate
+        pageCount: 1,
+      };
+    },
+    {
+      maxRetries: 2,
+      baseDelay: 1000,
+      maxDelay: 5000,
+      retryableErrors: ["ETIMEDOUT", "ECONNRESET", "timeout", "network", "connection"],
+    },
+    {
+      timeoutMs: 60000, // 1 minute for Ollama (faster than Claude)
+      timeoutMessage: "Ollama OCR extraction timed out",
+    }
+  ).catch((error) => {
+    const friendlyError = new Error(
+      generateErrorMessage(error, "Ollama PDF extraction")
     );
     friendlyError.cause = error;
     throw friendlyError;
@@ -196,36 +277,55 @@ export async function extractTextFromImage(
 
 /**
  * Main OCR function that handles different file types
- * Uses Claude AI for PDFs when available, falls back to pdf-parse
+ * Priority: Ollama (local, free) → pdf-parse (fallback) → Claude (cloud, paid)
  */
 export async function performOCR(
   filePath: string,
   fileType: "pdf" | "image" | "csv",
 ): Promise<OCRResult> {
   if (fileType === "pdf") {
-    // Try Claude AI extraction first (most accurate)
-    if (process.env.ANTHROPIC_API_KEY) {
+    // Priority 1: Try Ollama if configured (local, free, fast)
+    if (OCR_CONFIG.OLLAMA_ENDPOINT && OCR_CONFIG.PREFER_LOCAL) {
       try {
-        console.log("Attempting Claude AI PDF extraction...");
+        console.log("Attempting Ollama PDF extraction (local)...");
+        return await extractTextWithOllama(filePath);
+      } catch (ollamaError) {
+        console.warn(
+          "Ollama extraction failed, trying fallback:",
+          ollamaError instanceof Error ? ollamaError.message : "Unknown error",
+        );
+      }
+    }
+
+    // Priority 2: Try pdf-parse (free, works for text-based PDFs)
+    try {
+      console.log("Using pdf-parse for PDF extraction...");
+      return await extractTextFromPDF(filePath);
+    } catch (pdfParseError) {
+      console.warn(
+        "pdf-parse extraction failed:",
+        pdfParseError instanceof Error ? pdfParseError.message : "Unknown error",
+      );
+    }
+
+    // Priority 3: Try Claude AI as last resort (paid, but most accurate)
+    if (OCR_CONFIG.ANTHROPIC_API_KEY) {
+      try {
+        console.log("Attempting Claude AI PDF extraction (cloud)...");
         return await extractTextWithClaude(filePath);
       } catch (claudeError) {
-        console.warn(
-          "Claude extraction failed, falling back to pdf-parse:",
+        console.error(
+          "Claude extraction failed:",
           claudeError instanceof Error ? claudeError.message : "Unknown error",
         );
-        // Fall back to pdf-parse extraction
-        try {
-          return await extractTextFromPDF(filePath);
-        } catch (pdfError) {
-          console.error("Both Claude AI and pdf-parse failed:", pdfError);
-          // Throw error - do not return fake data, let caller handle the failure
-          throw new Error(`OCR processing failed for both Claude AI and pdf-parse: ${pdfError instanceof Error ? pdfError.message : "Unknown error"}`);
-        }
       }
-    } else {
-      console.log("No ANTHROPIC_API_KEY found, using pdf-parse for PDF extraction");
-      return extractTextFromPDF(filePath);
     }
+
+    // If all methods failed
+    throw new Error(
+      "OCR processing failed: All extraction methods (Ollama, pdf-parse, Claude) failed. " +
+      "Please check your PDF file format and OCR configuration."
+    );
   } else if (fileType === "image") {
     return extractTextFromImage(filePath);
   } else if (fileType === "csv") {
