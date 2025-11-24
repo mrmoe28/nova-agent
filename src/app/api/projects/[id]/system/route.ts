@@ -107,20 +107,35 @@ export async function GET(
   try {
     const { id: projectId } = await params;
 
-    const system = await prisma.system.findUnique({
-      where: { projectId },
-    });
+    // Fetch both system and analysis data
+    const [system, analysis] = await Promise.all([
+      prisma.system.findUnique({
+        where: { projectId },
+      }),
+      prisma.analysis.findUnique({
+        where: { projectId },
+      }),
+    ]);
 
-    if (!system) {
+    // If no analysis exists, return error
+    if (!analysis) {
       return NextResponse.json(
-        { success: false, error: "System not found" },
+        { 
+          success: false, 
+          error: "No energy analysis found. Please upload and analyze bills first." 
+        },
         { status: 404 }
       );
     }
 
+    // If system exists, return both. Otherwise, return analysis for calculation
     return NextResponse.json({
       success: true,
-      system,
+      system: system || null,
+      analysis: {
+        monthlyUsageKwh: analysis.monthlyUsageKwh,
+        peakDemandKw: analysis.peakDemandKw,
+      },
     });
   } catch (error) {
     console.error("Error fetching system:", error);
