@@ -47,16 +47,19 @@ export async function POST(request: NextRequest) {
     // Update project status and save PDF path
     const fileName = `${project.clientName.replace(/\s+/g, "_")}_${new Date().toISOString().split("T")[0]}_NovaAgent_Report.pdf`;
 
-    // Save PDF to desktop folder named after the app
-    const desktopPath = join(homedir(), "Desktop", "NovaAgent");
-    try {
-      await mkdir(desktopPath, { recursive: true });
-      const filePath = join(desktopPath, fileName);
-      await writeFile(filePath, pdfBuffer);
-      console.log(`PDF saved to desktop: ${filePath}`);
-    } catch (error) {
-      console.error("Failed to save PDF to desktop:", error);
-      // Continue even if desktop save fails - still return PDF for download
+    // Save PDF to desktop folder (only in local/development environments)
+    // Skip on Vercel/production as serverless functions don't have access to user's desktop
+    if (process.env.NODE_ENV !== 'production' || process.env.ALLOW_DESKTOP_SAVE === 'true') {
+      try {
+        const desktopPath = join(homedir(), "Desktop", "NovaAgent");
+        await mkdir(desktopPath, { recursive: true });
+        const filePath = join(desktopPath, fileName);
+        await writeFile(filePath, pdfBuffer);
+        console.log(`PDF saved to desktop: ${filePath}`);
+      } catch (error) {
+        console.error("Failed to save PDF to desktop:", error);
+        // Continue even if desktop save fails - still return PDF for download
+      }
     }
 
     await prisma.project.update({
