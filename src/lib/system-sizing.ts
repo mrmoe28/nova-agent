@@ -217,25 +217,12 @@ export async function regenerateBom(
     where: { projectId },
   });
 
-  // Auto-select first available distributor if none provided
+  // Require distributorId to be explicitly provided
   if (!distributorId) {
-    const firstDistributor = await prisma.distributor.findFirst({
-      where: {
-        isActive: true,
-        equipment: {
-          some: {
-            isActive: true,
-            inStock: true,
-          },
-        },
-      },
-      select: { id: true },
-    });
-
-    if (firstDistributor) {
-      distributorId = firstDistributor.id;
-      console.log(`Auto-selected distributor ${distributorId} for BOM generation`);
-    }
+    throw new SizingError(
+      "Distributor ID is required. Please select a distributor before generating the BOM.",
+      400
+    );
   }
 
   // Fetch real equipment from distributor if provided
@@ -364,9 +351,9 @@ export async function regenerateBom(
       itemName: mounting?.name || "Roof Mounting Rails & Hardware",
       manufacturer: mounting?.manufacturer || "MountTech",
       modelNumber: mounting?.modelNumber || "MT-RAIL-KIT",
-      quantity: Math.ceil(system.solarPanelCount / 4),
+      quantity: Math.max(1, Math.ceil(system.solarPanelCount / 4)),
       unitPriceUsd: mountingUnitPrice,
-      totalPriceUsd: Math.ceil(system.solarPanelCount / 4) * mountingUnitPrice,
+      totalPriceUsd: Math.max(1, Math.ceil(system.solarPanelCount / 4)) * mountingUnitPrice,
       imageUrl: mounting?.imageUrl || null,
       notes: mounting?.specifications || "Aluminum rails with stainless hardware",
     },
@@ -382,7 +369,14 @@ export async function regenerateBom(
       imageUrl: electrical?.imageUrl || null,
       notes: electrical?.specifications || "DC/AC disconnects, combiner box, conduit, wire",
     },
-  ];
+  ].filter(item => item.quantity > 0); // Only create items with quantity > 0
+
+  if (bomItems.length === 0) {
+    throw new SizingError(
+      "Cannot generate BOM: System sizing has no equipment quantities. Please complete system sizing first.",
+      400
+    );
+  }
 
   await prisma.bOMItem.createMany({
     data: bomItems,

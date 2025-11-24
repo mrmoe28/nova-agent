@@ -204,3 +204,4 @@ model BOMItem {
 1. `src/lib/bom-calculations.ts` - BOM calculation utilities
 2. `src/lib/energy-calculations.ts` - Energy calculation from BOM
 
+

@@ -4,6 +4,14 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { EquipmentSelectionDialog } from "@/components/EquipmentSelectionDialog";
 import { AddEquipmentDialog } from "@/components/AddEquipmentDialog";
 import { toast } from "sonner";
@@ -40,6 +48,8 @@ export default function BOMPage() {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [validationWarnings, setValidationWarnings] = useState<string[]>([]);
   const [recalculating, setRecalculating] = useState(false);
+  const [distributors, setDistributors] = useState<Array<{ id: string; name: string; _count?: { equipment: number } }>>([]);
+  const [loadingDistributors, setLoadingDistributors] = useState(false);
 
   useEffect(() => {
     loadBOMItems();
@@ -69,18 +79,8 @@ export default function BOMPage() {
         setTotalCost(0);
       }
 
-      // Fetch default distributor for equipment selection
-      if (!distributorId) {
-        const distResponse = await fetch('/api/distributors');
-        const distData = await distResponse.json();
-        if (distData.success && distData.distributors && distData.distributors.length > 0) {
-          // Set first active distributor as default
-          const activeDistributor = distData.distributors.find((d: { isActive: boolean }) => d.isActive);
-          if (activeDistributor) {
-            setDistributorId(activeDistributor.id);
-          }
-        }
-      }
+      // Fetch distributors list
+      await loadDistributors();
 
       setInitialLoad(false);
     } catch (error) {
@@ -93,13 +93,42 @@ export default function BOMPage() {
     }
   };
 
+  const loadDistributors = async () => {
+    setLoadingDistributors(true);
+    try {
+      const distResponse = await fetch('/api/distributors');
+      const distData = await distResponse.json();
+      if (distData.success && distData.distributors) {
+        setDistributors(distData.distributors);
+        // Set first active distributor as default if none selected
+        if (!distributorId && distData.distributors.length > 0) {
+          const activeDistributor = distData.distributors.find((d: { isActive: boolean }) => d.isActive);
+          if (activeDistributor) {
+            setDistributorId(activeDistributor.id);
+          }
+        }
+      }
+    } catch (error) {
+      console.error("Error loading distributors:", error);
+    } finally {
+      setLoadingDistributors(false);
+    }
+  };
+
   const generateBOM = async (forceRegenerate = false) => {
+    if (!distributorId) {
+      toast.error("Please select a distributor", {
+        description: "You must select a distributor before generating the BOM.",
+      });
+      return;
+    }
+
     setGenerating(true);
     try {
       const response = await fetch("/api/bom", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId, forceRegenerate }),
+        body: JSON.stringify({ projectId, forceRegenerate, distributorId }),
       });
 
       const data = await response.json();
@@ -373,6 +402,40 @@ const handleEquipmentChange = async (bomItemId: string, equipmentId: string) => 
       </div>
 
       <Card className="p-6">
+        {/* Distributor Selection */}
+        <div className="mb-6 pb-6 border-b">
+          <Label htmlFor="distributor-select" className="text-base font-semibold mb-2 block">
+            Equipment Distributor
+          </Label>
+          <Select
+            value={distributorId || ""}
+            onValueChange={(value) => setDistributorId(value)}
+            disabled={loadingDistributors}
+          >
+            <SelectTrigger id="distributor-select" className="w-full max-w-md bg-white">
+              <SelectValue placeholder={loadingDistributors ? "Loading distributors..." : "Select a distributor"} />
+            </SelectTrigger>
+            <SelectContent>
+              {distributors.map((distributor) => {
+                const equipmentCount = distributor._count?.equipment || 0;
+                return (
+                  <SelectItem key={distributor.id} value={distributor.id}>
+                    {distributor.name}
+                    {equipmentCount > 0 && (
+                      <span className="text-muted-foreground ml-2">
+                        ({equipmentCount} {equipmentCount === 1 ? "product" : "products"})
+                      </span>
+                    )}
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground mt-2">
+            Choose your preferred distributor to get accurate equipment pricing. BOM will use equipment from the selected distributor.
+          </p>
+        </div>
+
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>

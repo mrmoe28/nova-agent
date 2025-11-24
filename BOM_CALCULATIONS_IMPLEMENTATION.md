@@ -254,3 +254,4 @@ const energyResult = await calculateEnergyProductionFromBOM(projectId);
 
 All functionality implemented and tested. Subtotals are validated automatically, and energy calculations can be updated to reflect actual BOM equipment.
 
+

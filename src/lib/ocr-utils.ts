@@ -191,3 +191,4 @@ export function generateErrorMessage(error: unknown, context: string): string {
   return `Error during ${context}: ${error.message}. Please try again or contact support if the problem persists.`;
 }
 
+
