@@ -243,6 +243,18 @@ export const OCR_CONFIG = {
 
   /** Prefer Ollama over Claude */
   PREFER_LOCAL: process.env.OCR_PREFER_LOCAL !== "false", // Default: true
+
+  /** PDF extraction confidence threshold (0-1) */
+  PDF_CONFIDENCE: parseFloat(process.env.OCR_PDF_CONFIDENCE || "0.95"),
+
+  /** Maximum monthly kWh usage (sanity check) */
+  MAX_KWH_USAGE: parseInt(process.env.OCR_MAX_KWH || "100000"),
+
+  /** Maximum peak kW demand (sanity check) */
+  MAX_KW_DEMAND: parseInt(process.env.OCR_MAX_KW || "10000"),
+
+  /** Maximum bill cost in USD (sanity check) */
+  MAX_BILL_COST: parseInt(process.env.OCR_MAX_COST || "100000"),
 } as const;
 
 // ============================================================================
@@ -263,28 +275,6 @@ export const UPLOAD_CONFIG = {
   ALLOWED_FILE_TYPES: (
     process.env.ALLOWED_FILE_TYPES || "pdf,png,jpg,jpeg,csv"
   ).split(","),
-} as const;
-
-// ============================================================================
-// OCR CONFIGURATION
-// ============================================================================
-
-/**
- * OCR and data validation thresholds
- * Used in: src/lib/ocr.ts
- */
-export const OCR_CONFIG = {
-  /** PDF extraction confidence threshold (0-1) */
-  PDF_CONFIDENCE: parseFloat(process.env.OCR_PDF_CONFIDENCE || "0.95"),
-
-  /** Maximum monthly kWh usage (sanity check) */
-  MAX_KWH_USAGE: parseInt(process.env.OCR_MAX_KWH || "100000"),
-
-  /** Maximum peak kW demand (sanity check) */
-  MAX_KW_DEMAND: parseInt(process.env.OCR_MAX_KW || "10000"),
-
-  /** Maximum bill cost in USD (sanity check) */
-  MAX_BILL_COST: parseInt(process.env.OCR_MAX_COST || "100000"),
 } as const;
 
 // ============================================================================
@@ -328,6 +318,7 @@ export const API_CONFIG = {
  */
 export const CONFIG = {
   SYSTEM_SIZING,
+  GEORGIA_FEES,
   SCRAPER_CONFIG,
   BROWSER_CONFIG,
   AI_CONFIG,
