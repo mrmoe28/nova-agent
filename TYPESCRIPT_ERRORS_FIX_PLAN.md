@@ -109,6 +109,7 @@ npm run build
 - [x] Error #3: PlanDocument PATCH route invalid fields - **FIXED**
 - [x] Error #4: Document upload route invalid fields - **FIXED**
 - [x] Error #5: Nodemailer method name typo - **FIXED**
+- [x] Error #6: Send-planset invalid schema fields - **FIXED**
 - [x] Local type check passed - **NO ERRORS**
 - [x] Committed and pushed - **DONE**
 - [ ] Vercel deployment monitoring
