@@ -65,6 +65,9 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Calculate file size in KB
+    const fileSizeKB = Math.round(fileBuffer.length / 1024);
+
     // Prepare email
     const mailOptions = {
       from: process.env.SMTP_FROM || process.env.SMTP_USER,
@@ -84,7 +87,7 @@ export async function POST(request: NextRequest) {
           </div>
           
           <p style="color: #6b7280; font-size: 14px;">
-            Attached: ${document.fileName}
+            Attached: ${document.fileName} (${fileSizeKB} KB)
           </p>
           
           <hr style="margin: 30px 0; border: none; border-top: 1px solid #e5e7eb;">
