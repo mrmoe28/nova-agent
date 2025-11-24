@@ -107,6 +107,7 @@ npm run build
 - [x] Scan similar routes - **FOUND 1 MORE**
 - [x] Error #2: Buffer type in PDF route - **FIXED**
 - [x] Error #3: PlanDocument PATCH route invalid fields - **FIXED**
+- [x] Error #4: Document upload route invalid fields - **FIXED**
 - [x] Local type check passed - **NO ERRORS**
 - [x] Committed and pushed - **DONE**
 - [ ] Vercel deployment monitoring
@@ -165,9 +166,37 @@ await prisma.planDocument.update({
 
 **PlanDocument Schema Fields:**
 - ✅ `type` - Document type (permit_application, drawing, etc.)
-- ✅ `category` - Category (permit, utility, installation, inspection)
+- ✅ `category` - Category (permit, utility, installation, inspection) - **REQUIRED**
 - ✅ `fileName`, `filePath`, `uploadedBy`, `uploadedAt`, `version`
-- ❌ `status`, `notes` - Don't exist in schema
+- ❌ `title`, `status`, `notes`, `fileSize` - Don't exist in schema
+
+### Fix #4: documents/upload/route.ts
+```typescript
+// Before (trying to use non-existent fields):
+await prisma.planDocument.create({
+  data: {
+    planId: projectId,
+    title: file.name,              // ❌ doesn't exist, should be fileName
+    type: documentType || "planset",
+    filePath: `/uploads/plansets/${fileName}`,
+    fileSize: file.size.toString(), // ❌ doesn't exist
+    uploadedBy: "System",
+    status: "pending",              // ❌ doesn't exist
+  },
+});
+
+// After (using correct schema fields):
+await prisma.planDocument.create({
+  data: {
+    planId: projectId,
+    fileName: file.name,            // ✅ correct field name
+    type: documentType || "planset",
+    category: "permit",             // ✅ required field added
+    filePath: `/uploads/plansets/${fileName}`,
+    uploadedBy: "System",
+  },
+});
+```
 
 ### Verified Clean:
 - ✅ `bills/[id]/file/route.ts` - Already using `Uint8Array` (correct)
