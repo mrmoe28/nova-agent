@@ -66,6 +66,9 @@ model Analysis {
   annualSolarProductionKwh    Float?
   energyOffsetPercentage      Float?
   estimatedAnnualSavingsUsd   Float?
+  grossSystemCost             Float?
+  netSystemCost               Float?
+  totalIncentivesValue        Float?
 
   project                     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 }

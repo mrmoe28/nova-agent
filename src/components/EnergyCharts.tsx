@@ -53,7 +53,7 @@ export default function EnergyCharts({ monthlyData, savingsData, energyBreakdown
 
   // Ensure we're on the client side
   const [mounted, setMounted] = React.useState(false);
-  
+
   React.useEffect(() => {
     setMounted(true);
   }, []);
@@ -72,11 +72,11 @@ export default function EnergyCharts({ monthlyData, savingsData, energyBreakdown
       <div>
         <h4 className="text-sm font-semibold text-gray-700 mb-3">Monthly Energy Usage & Production</h4>
         <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={monthlyData}>
+          <BarChart data={monthlyData} barGap={5} barCategoryGap="20%">
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
             <YAxis stroke="#6b7280" fontSize={12} label={{ value: 'kWh', angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }} />
-            <Tooltip 
+            <Tooltip
               contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }}
               formatter={(value: number) => [`${value.toLocaleString()} kWh`, '']}
             />
@@ -95,15 +95,15 @@ export default function EnergyCharts({ monthlyData, savingsData, energyBreakdown
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
             <XAxis dataKey="month" stroke="#6b7280" fontSize={12} />
             <YAxis stroke="#6b7280" fontSize={12} label={{ value: 'Cost ($)', angle: -90, position: 'insideLeft', style: { fontSize: '12px' } }} />
-            <Tooltip 
+            <Tooltip
               contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }}
               formatter={(value: number) => [formatCurrency(value), 'Monthly Cost']}
             />
             <Legend wrapperStyle={{ fontSize: '12px' }} />
-            <Line 
-              type="monotone" 
-              dataKey="cost" 
-              stroke="#ef4444" 
+            <Line
+              type="monotone"
+              dataKey="cost"
+              stroke="#ef4444"
               strokeWidth={3}
               name="Monthly Cost"
               dot={{ fill: '#ef4444', r: 4 }}
@@ -134,7 +134,7 @@ export default function EnergyCharts({ monthlyData, savingsData, energyBreakdown
                   <Cell key={`cell-${index}`} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip 
+              <Tooltip
                 contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }}
                 formatter={(value: number) => [`${value.toLocaleString()} kWh`, '']}
               />
@@ -151,34 +151,34 @@ export default function EnergyCharts({ monthlyData, savingsData, energyBreakdown
               <AreaChart data={savingsData.slice(0, 10)}>
                 <defs>
                   <linearGradient id="colorSavingsOverview" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.1}/>
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.1} />
                   </linearGradient>
                   <linearGradient id="colorNetSavingsOverview" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
-                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1}/>
+                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8} />
+                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.1} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                 <XAxis dataKey="year" stroke="#6b7280" fontSize={10} />
                 <YAxis stroke="#6b7280" fontSize={10} label={{ value: 'Savings ($)', angle: -90, position: 'insideLeft', style: { fontSize: '10px' } }} />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{ backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', fontSize: '12px' }}
                   formatter={(value: number) => [formatCurrency(value), '']}
                 />
                 <Legend wrapperStyle={{ fontSize: '12px' }} />
-                <Area 
-                  type="monotone" 
-                  dataKey="savings" 
-                  stroke="#10b981" 
+                <Area
+                  type="monotone"
+                  dataKey="savings"
+                  stroke="#10b981"
                   fillOpacity={1}
                   fill="url(#colorSavingsOverview)"
                   name="Cumulative Savings"
                 />
-                <Area 
-                  type="monotone" 
-                  dataKey="netSavings" 
-                  stroke="#3b82f6" 
+                <Area
+                  type="monotone"
+                  dataKey="netSavings"
+                  stroke="#3b82f6"
                   fillOpacity={1}
                   fill="url(#colorNetSavingsOverview)"
                   name="Net Savings"

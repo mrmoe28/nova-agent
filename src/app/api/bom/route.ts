@@ -7,11 +7,14 @@ import { validateBOMSubtotals, getBOMTotalCost } from "@/lib/bom-calculations";
  * GET /api/bom?projectId=X - Fetch existing BOM items without regenerating
  */
 export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const projectId = searchParams.get("projectId");
+  const { searchParams } = new URL(request.url);
+  const projectId = searchParams.get("projectId");
 
-    if (!projectId) {
+  console.log(`[API] GET /api/bom - Project ID: ${projectId}`);
+
+  try {
+    if (!projectId || projectId === "undefined" || projectId === "null") {
+      console.warn(`[API] GET /api/bom - Invalid Project ID: ${projectId}`);
       return NextResponse.json(
         { success: false, error: "Project ID is required" },
         { status: 400 }
@@ -37,8 +40,17 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching BOM items:", error);
+    // Log the full stack trace if available
+    if (error instanceof Error) {
+      console.error(error.stack);
+    }
+
     return NextResponse.json(
-      { success: false, error: "Failed to fetch BOM items" },
+      {
+        success: false,
+        error: "Failed to fetch BOM items",
+        details: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 }
     );
   }

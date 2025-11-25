@@ -29,44 +29,44 @@ export async function POST(request: NextRequest) {
         { status: 404 },
       );
     }
-    
+
     if (project.bills.length === 0) {
-        return NextResponse.json(
-          { success: false, error: "No bills found for analysis" },
-          { status: 400 },
-        );
+      return NextResponse.json(
+        { success: false, error: "No bills found for analysis" },
+        { status: 400 },
+      );
     }
 
     // 2. Get average usage from existing analysis or calculate it
     let monthlyUsageKwh = project.analysis?.monthlyUsageKwh;
     let averageCostPerKwh = project.analysis?.averageCostPerKwh;
-    
+
     if (!monthlyUsageKwh || !averageCostPerKwh) {
-        let totalKwh = 0;
-        let totalCost = 0;
-        let billsWithData = 0;
-        for (const bill of project.bills) {
-            if (bill.extractedData) {
-                const data = JSON.parse(bill.extractedData);
-                if (data.usage?.kwh) {
-                    totalKwh += data.usage.kwh;
-                    billsWithData++;
-                }
-                if (data.charges?.total) {
-                    totalCost += data.charges.total;
-                }
-            }
+      let totalKwh = 0;
+      let totalCost = 0;
+      let billsWithData = 0;
+      for (const bill of project.bills) {
+        if (bill.extractedData) {
+          const data = JSON.parse(bill.extractedData);
+          if (data.usage?.kwh) {
+            totalKwh += data.usage.kwh;
+            billsWithData++;
+          }
+          if (data.charges?.total) {
+            totalCost += data.charges.total;
+          }
         }
-        if (billsWithData > 0 && totalKwh > 0) {
-            monthlyUsageKwh = totalKwh / billsWithData;
-            averageCostPerKwh = totalCost / totalKwh;
-        } else {
-            // Fallback to demo data if no OCR data is available
-            monthlyUsageKwh = 1200;
-            averageCostPerKwh = 0.15;
-        }
+      }
+      if (billsWithData > 0 && totalKwh > 0) {
+        monthlyUsageKwh = totalKwh / billsWithData;
+        averageCostPerKwh = totalCost / totalKwh;
+      } else {
+        // Fallback to demo data if no OCR data is available
+        monthlyUsageKwh = 1200;
+        averageCostPerKwh = 0.15;
+      }
     }
-    
+
     const annualUsageKwh = monthlyUsageKwh * 12;
 
     // 3. Geocode the project address
@@ -76,13 +76,13 @@ export async function POST(request: NextRequest) {
         { status: 400 },
       );
     }
-    
+
     const coordinates = await geocodeAddress(project.address);
     if (!coordinates) {
-        return NextResponse.json(
-            { success: false, error: `Failed to geocode address: ${project.address}` },
-            { status: 500 },
-        );
+      return NextResponse.json(
+        { success: false, error: `Failed to geocode address: ${project.address}` },
+        { status: 500 },
+      );
     }
 
     // 4. Get a preliminary system size
@@ -97,16 +97,16 @@ export async function POST(request: NextRequest) {
     const optimalTilt = Math.min(90, Math.max(0, Math.abs(coordinates.latitude)));
 
     const pvWattsOutput = await getPVWattsProduction({
-        lat: coordinates.latitude,
-        lon: coordinates.longitude,
-        system_capacity: systemCapacityKw,
-        tilt: optimalTilt,
-        azimuth: 180, // South-facing (default)
-        array_type: 1, // Fixed roof mount
-        module_type: 0, // Standard
-        losses: 14, // Standard losses
-        radius: 0,
-        dataset: "NSRDB",
+      lat: coordinates.latitude,
+      lon: coordinates.longitude,
+      system_capacity: systemCapacityKw,
+      tilt: optimalTilt,
+      azimuth: 180, // South-facing (default)
+      array_type: 1, // Fixed roof mount
+      module_type: 0, // Standard
+      losses: 14, // Standard losses
+      radius: 0,
+      dataset: "NSRDB",
     });
 
     const annualSolarProductionKwh = pvWattsOutput.ac_annual;
@@ -114,54 +114,54 @@ export async function POST(request: NextRequest) {
     // 6. Calculate Financials (Pre-Incentives)
     const energyOffsetPercentage = Math.min(1, annualSolarProductionKwh / annualUsageKwh) * 100;
     const estimatedAnnualSavingsUsd = annualSolarProductionKwh * averageCostPerKwh;
-    
+
     // Use a placeholder cost per watt to estimate gross system cost
-    const costPerWatt = 3.00; 
+    const costPerWatt = 3.00;
     const grossSystemCost = systemCapacityWatts * costPerWatt;
 
     // 7. Fetch and Apply Incentives
     const zipCodeMatch = project.address.match(/\b\d{5}\b/);
     const zipCode = zipCodeMatch ? zipCodeMatch[0] : "";
-    
+
     let netSystemCost = grossSystemCost;
     let totalIncentivesValue = 0;
     const appliedIncentives = [];
 
     if (zipCode) {
-        const incentives = await getApplicableIncentives({ zip: zipCode });
-        for (const incentive of incentives) {
-            let incentiveValue = 0;
-            if (incentive.value_type === 'percent' && incentive.value < 1) { // e.g., 0.30 for 30%
-                incentiveValue = grossSystemCost * incentive.value;
-            } else if (incentive.value_type === 'dollar_amount') {
-                incentiveValue = incentive.value;
-            }
-            
-            if (incentiveValue > 0) {
-                netSystemCost -= incentiveValue;
-                totalIncentivesValue += incentiveValue;
-                appliedIncentives.push(`${incentive.program_name}: ~${incentiveValue.toFixed(0)}`);
-            }
+      const incentives = await getApplicableIncentives({ zip: zipCode });
+      for (const incentive of incentives) {
+        let incentiveValue = 0;
+        if (incentive.value_type === 'percent' && incentive.value < 1) { // e.g., 0.30 for 30%
+          incentiveValue = grossSystemCost * incentive.value;
+        } else if (incentive.value_type === 'dollar_amount') {
+          incentiveValue = incentive.value;
         }
+
+        if (incentiveValue > 0) {
+          netSystemCost -= incentiveValue;
+          totalIncentivesValue += incentiveValue;
+          appliedIncentives.push(`${incentive.program_name}: ~${incentiveValue.toFixed(0)}`);
+        }
+      }
     }
 
     // 8. Calculate Advanced Financial Metrics
     const lifetimeYears = 25;
     const annualOandMCost = grossSystemCost * 0.01; // 1% of system cost annually
     const lifetimeProductionKwh = annualSolarProductionKwh * lifetimeYears;
-    
+
     const lcoe = calculateLCOE({
-        netSystemCost,
-        lifetimeProductionKwh,
-        annualOandMCost,
-        lifetimeYears,
+      netSystemCost,
+      lifetimeProductionKwh,
+      annualOandMCost,
+      lifetimeYears,
     });
 
     const annualCashFlows = Array(lifetimeYears).fill(estimatedAnnualSavingsUsd - annualOandMCost);
     const npv = calculateNPV({
-        initialInvestment: -netSystemCost,
-        cashFlows: annualCashFlows,
-        discountRate: 0.05, // 5% discount rate
+      initialInvestment: -netSystemCost,
+      cashFlows: annualCashFlows,
+      discountRate: 0.05, // 5% discount rate
     });
 
     // Simple ROI calculation: (Total Returns - Investment) / Investment * 100
@@ -178,47 +178,50 @@ export async function POST(request: NextRequest) {
 
     // 9. Final Recommendations
     const recommendations = [
-        `Recommended system size: ${systemCapacityKw.toFixed(2)} kW`,
-        `Estimated annual production: ${Math.round(annualSolarProductionKwh)} kWh`,
-        `This could offset ~${energyOffsetPercentage.toFixed(0)}% of your annual electricity usage.`,
-        `Estimated annual savings: $${estimatedAnnualSavingsUsd.toFixed(2)}`,
-        `Estimated net system cost after incentives: $${netSystemCost.toFixed(2)} (includes ~$${totalIncentivesValue.toFixed(0)} in incentives)`,
-        `Levelized Cost of Energy (LCOE): $${lcoe.toFixed(4)}/kWh`,
-        `Net Present Value (NPV): $${npv.toFixed(2)}`,
-        `Return on Investment (ROI): ${roi.toFixed(1)}%`,
-        `Simple payback period: ${paybackPeriod !== Infinity ? paybackPeriod.toFixed(1) + ' years' : 'N/A'}`,
-        ...appliedIncentives,
+      `Recommended system size: ${systemCapacityKw.toFixed(2)} kW`,
+      `Estimated annual production: ${Math.round(annualSolarProductionKwh)} kWh`,
+      `This could offset ~${energyOffsetPercentage.toFixed(0)}% of your annual electricity usage.`,
+      `Estimated annual savings: $${estimatedAnnualSavingsUsd.toFixed(2)}`,
+      `Estimated net system cost after incentives: $${netSystemCost.toFixed(2)} (includes ~$${totalIncentivesValue.toFixed(0)} in incentives)`,
+      `Levelized Cost of Energy (LCOE): $${lcoe.toFixed(4)}/kWh`,
+      `Net Present Value (NPV): $${npv.toFixed(2)}`,
+      `Return on Investment (ROI): ${roi.toFixed(1)}%`,
+      `Simple payback period: ${paybackPeriod !== Infinity ? paybackPeriod.toFixed(1) + ' years' : 'N/A'}`,
+      ...appliedIncentives,
     ].filter(Boolean); // Remove null values
 
     const analysisData = {
-        latitude: coordinates.latitude,
-        longitude: coordinates.longitude,
-        annualSolarProductionKwh,
-        energyOffsetPercentage,
-        estimatedAnnualSavingsUsd,
-        recommendations: JSON.stringify(recommendations),
+      latitude: coordinates.latitude,
+      longitude: coordinates.longitude,
+      annualSolarProductionKwh,
+      energyOffsetPercentage,
+      estimatedAnnualSavingsUsd,
+      grossSystemCost,
+      netSystemCost,
+      totalIncentivesValue,
+      recommendations: JSON.stringify(recommendations),
     };
 
     // 10. Save the enhanced analysis to the database
     console.log("Saving enhanced analysis to database...");
     const updatedAnalysis = await prisma.analysis.update({
-        where: { projectId },
-        data: analysisData,
+      where: { projectId },
+      data: analysisData,
     });
     console.log("Successfully saved enhanced analysis.");
 
     // Return the calculated data
     const finalAnalysisResult = {
-        projectId,
-        monthlyUsageKwh,
-        averageCostPerKwh,
-        ...analysisData,
-        persisted: true, 
+      projectId,
+      monthlyUsageKwh,
+      averageCostPerKwh,
+      ...analysisData,
+      persisted: true,
     };
 
     return NextResponse.json({
-        success: true,
-        analysis: finalAnalysisResult
+      success: true,
+      analysis: finalAnalysisResult
     });
 
   } catch (error) {

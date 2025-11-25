@@ -1,5 +1,5 @@
 {
-  "name": "novaagent",
+  "name": "nova-agent-main",
   "version": "0.1.0",
   "private": true,
   "engines": {
