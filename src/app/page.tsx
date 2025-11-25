@@ -291,6 +291,145 @@ export default function Page() {
         </div>
       </section>
 
+      {/* Existing Installation Section */}
+      <section className="py-16 sm:py-24 bg-gradient-to-b from-background to-orange-950/10 px-4 sm:px-6">
+        <div className="mx-auto max-w-7xl">
+          <div className="grid gap-8 lg:grid-cols-2 items-center">
+            {/* Left Column - Content */}
+            <div className="space-y-6">
+              <Badge
+                variant="secondary"
+                className="bg-orange-500/10 text-orange-600 border-orange-500/20"
+              >
+                <ShieldCheck className="h-3 w-3 mr-1" />
+                Already Have Solar?
+              </Badge>
+
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+                Get Your Existing System
+                <span className="block bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent mt-2">
+                  Permitted & Compliant
+                </span>
+              </h2>
+
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                Many homeowners have solar systems installed without proper permits due to DIY installations,
+                unlicensed contractors, or incomplete paperwork. We provide a streamlined workflow to bring
+                existing installations into compliance.
+              </p>
+
+              <div className="space-y-3 pt-4">
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center mt-0.5">
+                    <ShieldCheck className="h-4 w-4 text-orange-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">NEC Code Compliance</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Automatic compliance checking and remediation recommendations
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center mt-0.5">
+                    <FileText className="h-4 w-4 text-orange-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">Document Preparation</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Complete permit application packages with all required documentation
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-3">
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-orange-500/20 flex items-center justify-center mt-0.5">
+                    <TrendingUp className="h-4 w-4 text-orange-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-1">Cost & Timeline Estimates</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Transparent pricing for permit fees, inspections, and required upgrades
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <Button
+                asChild
+                size="lg"
+                className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold shadow-xl shadow-orange-500/30 hover:shadow-orange-500/50 transition-all duration-200"
+              >
+                <Link href="/existing-installation" className="flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5" />
+                  Complete Your Permits
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+
+            {/* Right Column - Stats Card */}
+            <div className="relative">
+              <Card className="border-orange-500/20 shadow-2xl bg-gradient-to-br from-orange-950/20 to-red-950/20 backdrop-blur-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-xl">
+                    <FileText className="h-5 w-5 text-orange-500" />
+                    Retroactive Permitting
+                  </CardTitle>
+                  <CardDescription>
+                    Typical timeline and costs for permit completion
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg bg-background/50 border border-orange-500/10">
+                      <div className="text-3xl font-bold text-orange-500 mb-1">3-8</div>
+                      <div className="text-sm text-muted-foreground">Weeks to Complete</div>
+                    </div>
+                    <div className="p-4 rounded-lg bg-background/50 border border-orange-500/10">
+                      <div className="text-3xl font-bold text-orange-500 mb-1">$3-4K</div>
+                      <div className="text-sm text-muted-foreground">Average Cost</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 pt-2">
+                    <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">
+                      What's Included
+                    </h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                        <span>Compliance assessment & code checks</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                        <span>Document preparation & submission</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                        <span>Inspection scheduling & coordination</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                        <span>Final approval & PTO processing</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-lg bg-orange-500/10 border border-orange-500/20 mt-4">
+                    <p className="text-sm text-orange-800 dark:text-orange-200 leading-relaxed">
+                      <strong>Peace of Mind:</strong> Protect your investment, maintain insurance coverage,
+                      and avoid issues when selling your home.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-16 bg-gradient-to-r from-cyan-600 to-blue-700 px-4 sm:px-6">
         <div className="mx-auto max-w-7xl text-center">
