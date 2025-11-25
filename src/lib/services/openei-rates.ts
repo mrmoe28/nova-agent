@@ -202,8 +202,8 @@ class OpenEIRatesService {
     const fixedMonthlyCharge = rate.fixedmonthlycharge || 0;
 
     // Demand charges
-    const hasDemandCharges = (rate.demandratestructure && rate.demandratestructure.length > 0) ||
-      (rate.flatdemandstructure && rate.flatdemandstructure.length > 0);
+    const hasDemandCharges = !!((rate.demandratestructure && rate.demandratestructure.length > 0) ||
+      (rate.flatdemandstructure && rate.flatdemandstructure.length > 0));
 
     let demandChargeRate: number | undefined;
     if (rate.demandratestructure && rate.demandratestructure.length > 0) {

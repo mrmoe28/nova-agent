@@ -267,32 +267,36 @@ class RetroactivePermittingService {
     ];
 
     // Determine required inspections
-    const inspectionsRequired = [
+    const inspectionsRequired: Array<{
+      type: 'electrical' | 'structural' | 'final' | 'utility';
+      description: string;
+      status: 'pending' | 'scheduled' | 'passed' | 'failed';
+    }> = [
       {
-        type: 'electrical' as const,
+        type: 'electrical',
         description: 'Electrical inspection of solar PV system',
-        status: 'pending' as const,
+        status: 'pending',
       },
       {
-        type: 'final' as const,
+        type: 'final',
         description: 'Final inspection by AHJ',
-        status: 'pending' as const,
+        status: 'pending',
       },
     ];
 
     if (systemInfo.installationType === 'roof_mount') {
       inspectionsRequired.unshift({
-        type: 'structural' as const,
+        type: 'structural',
         description: 'Structural inspection of roof penetrations',
-        status: 'pending' as const,
+        status: 'pending',
       });
     }
 
     if (systemInfo.hasBattery) {
       inspectionsRequired.push({
-        type: 'electrical' as const,
+        type: 'electrical',
         description: 'Battery system electrical inspection',
-        status: 'pending' as const,
+        status: 'pending',
       });
     }
 

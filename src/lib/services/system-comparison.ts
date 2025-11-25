@@ -72,13 +72,13 @@ class SystemComparisonService {
 
     const { analysis } = project;
     const location = {
-      latitude: project.latitude || 33.7490, // Default to Atlanta
-      longitude: project.longitude || -84.3880,
+      latitude: analysis.latitude || 33.7490, // Default to Atlanta
+      longitude: analysis.longitude || -84.3880,
     };
 
     // Calculate base metrics
     const annualUsageKwh = analysis.monthlyUsageKwh * 12;
-    const currentAnnualBillCost = analysis.avgMonthlyBill * 12;
+    const currentAnnualBillCost = analysis.annualCostUsd;
     const averageElectricityRate = currentAnnualBillCost / annualUsageKwh;
 
     // Generate three sizing scenarios
@@ -152,15 +152,27 @@ class SystemComparisonService {
     const inverterKw = actualSolarKw * SYSTEM_SIZING.INVERTER_MULTIPLIER;
 
     // Get production estimate from PVWatts
-    const productionEstimate = await productionModelingService.estimateProduction({
-      systemSizeKw: actualSolarKw,
-      location,
+    const systemConfiguration = {
       tilt: location.latitude,
       azimuth: 180, // South-facing
-      moduleType: 'standard',
-      losses: 14,
-      arrayType: 'roof_mount',
-    });
+      trackingType: 'fixed' as const,
+      moduleType: 'standard' as const,
+      installationType: 'roof_mount' as const,
+      shadingLoss: 3,
+      soilingLoss: 2,
+      dcLosses: 3,
+      acLosses: 3,
+      inverterEfficiency: 96, // Modern inverters are typically 96-98% efficient
+    };
+
+    const productionEstimate = await productionModelingService.calculateProductionEstimate(
+      projectId,
+      actualSolarKw,
+      systemConfiguration,
+      location.latitude,
+      location.longitude,
+      'pvwatts'
+    );
 
     const annualProductionKwh = productionEstimate.annualProduction;
     const offsetPercentage = (annualProductionKwh / annualUsageKwh) * 100;

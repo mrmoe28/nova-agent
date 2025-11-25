@@ -46,15 +46,27 @@ export async function POST(request: NextRequest) {
     const inverterSizeKw = actualSolarKw * SYSTEM_SIZING.INVERTER_MULTIPLIER;
 
     // Get production estimate
-    const productionEstimate = await productionModelingService.estimateProduction({
-      systemSizeKw: actualSolarKw,
-      location,
+    const systemConfiguration = {
       tilt: location.latitude,
       azimuth: 180,
-      moduleType: 'standard',
-      losses: 14,
-      arrayType: 'roof_mount',
-    });
+      trackingType: 'fixed' as const,
+      moduleType: 'standard' as const,
+      installationType: 'roof_mount' as const,
+      shadingLoss: 3,
+      soilingLoss: 2,
+      dcLosses: 3,
+      acLosses: 3,
+      inverterEfficiency: 96, // Modern inverters are typically 96-98% efficient
+    };
+
+    const productionEstimate = await productionModelingService.calculateProductionEstimate(
+      'quick-estimate', // temporary projectId for quick estimates
+      actualSolarKw,
+      systemConfiguration,
+      location.latitude,
+      location.longitude,
+      'pvwatts'
+    );
 
     const annualProductionKwh = productionEstimate.annualProduction;
     const offsetPercentage = (annualProductionKwh / annualUsageKwh) * 100;
