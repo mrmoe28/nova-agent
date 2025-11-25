@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, FolderOpen, Building2, Zap, LayoutDashboard, ExternalLink } from "lucide-react";
+import { Plus, FolderOpen, Building2, Zap, LayoutDashboard, ExternalLink, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -26,6 +26,11 @@ export default function BrandHeader() {
       label: "Projects",
       href: "/projects",
       icon: FolderOpen,
+    },
+    {
+      label: "Existing Solar",
+      href: "/existing-installation",
+      icon: ShieldCheck,
     },
     {
       label: "PTO Agent",

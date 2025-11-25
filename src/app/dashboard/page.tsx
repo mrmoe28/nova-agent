@@ -221,38 +221,38 @@ export default function DashboardPage() {
                     <div className="p-2 bg-orange-500/20 rounded-lg">
                       <AlertTriangle className="h-6 w-6 text-orange-400" />
                     </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2 break-words">
                         Already Have Solar Installed?
                       </h3>
-                      <p className="text-sm text-orange-300/80">Complete your permits and get compliant</p>
+                      <p className="text-xs sm:text-sm text-orange-300/80">Complete your permits and get compliant</p>
                     </div>
                   </div>
 
-                  <p className="text-gray-300 leading-relaxed">
+                  <p className="text-gray-300 leading-relaxed text-sm">
                     Many homeowners have solar systems installed without proper permits. We provide a streamlined
                     workflow to bring existing installations into compliance with NEC codes.
                   </p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-orange-950/30 border border-orange-500/20">
-                      <ShieldCheck className="h-5 w-5 text-orange-400 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-semibold text-white">NEC Compliance</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
+                    <div className="flex items-center gap-2 p-2.5 rounded-lg bg-orange-950/30 border border-orange-500/20 min-w-0">
+                      <ShieldCheck className="h-4 w-4 sm:h-5 sm:w-5 text-orange-400 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm font-semibold text-white truncate">NEC Compliance</p>
                         <p className="text-xs text-gray-400">Code checks</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-orange-950/30 border border-orange-500/20">
-                      <FileText className="h-5 w-5 text-orange-400 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-semibold text-white">Documentation</p>
+                    <div className="flex items-center gap-2 p-2.5 rounded-lg bg-orange-950/30 border border-orange-500/20 min-w-0">
+                      <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-orange-400 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm font-semibold text-white truncate">Documentation</p>
                         <p className="text-xs text-gray-400">Full packages</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-orange-950/30 border border-orange-500/20">
-                      <TrendingUp className="h-5 w-5 text-orange-400 flex-shrink-0" />
-                      <div>
-                        <p className="text-sm font-semibold text-white">3-8 Weeks</p>
+                    <div className="flex items-center gap-2 p-2.5 rounded-lg bg-orange-950/30 border border-orange-500/20 min-w-0">
+                      <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 text-orange-400 flex-shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs sm:text-sm font-semibold text-white truncate">3-8 Weeks</p>
                         <p className="text-xs text-gray-400">Avg timeline</p>
                       </div>
                     </div>
