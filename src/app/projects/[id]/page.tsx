@@ -349,8 +349,8 @@ export default function ProjectDetailsPage() {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading project details...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-t-2 border-transparent border-b-orange-500 border-t-red-600 mx-auto"></div>
+          <p className="mt-4 text-gray-300">Loading project details...</p>
         </div>
       </div>
     );
@@ -359,9 +359,12 @@ export default function ProjectDetailsPage() {
   if (!project) {
     return (
       <div className="text-center py-12">
-        <h2 className="text-xl font-semibold mb-2">Project Not Found</h2>
-        <p className="text-muted-foreground mb-4">The requested project could not be found.</p>
-        <Button onClick={() => router.push('/projects')}>
+        <h2 className="text-xl font-semibold mb-2 text-white">Project Not Found</h2>
+        <p className="text-gray-300 mb-4">The requested project could not be found.</p>
+        <Button
+          onClick={() => router.push('/projects')}
+          className="bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back to Projects
         </Button>
@@ -513,10 +516,10 @@ export default function ProjectDetailsPage() {
   };
 
   return (
-    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-gradient-to-b from-[#0A0F1C] via-[#0f1829] to-[#0A0F1C]">
+    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-gradient-to-br from-[#0A0F1C] via-[#0F1629] to-[#0A0F1C]">
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f15_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f15_1px,transparent_1px)] bg-[size:14px_24px]" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-[120px]" />
-      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-600/20 rounded-full blur-[100px]" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-orange-500/20 to-red-600/20 rounded-full blur-[120px]" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tl from-orange-600/20 to-red-500/20 rounded-full blur-[100px]" />
       <div className="relative w-full p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -611,37 +614,37 @@ export default function ProjectDetailsPage() {
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <Card
-            className="cursor-pointer hover:shadow-md transition-shadow bg-white/95 backdrop-blur-sm"
+            className="cursor-pointer hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-[#1a2332] to-[#0f1829] border border-orange-500/20 backdrop-blur-sm hover:border-orange-500/40"
             onClick={() => setShowBillsModal(true)}
           >
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <FileText className="h-5 w-5 text-blue-600" />
+                <div className="p-2 bg-gradient-to-br from-orange-500/20 to-red-600/20 rounded-lg">
+                  <FileText className="h-5 w-5 text-orange-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Bills</p>
-                  <p className="text-xl font-semibold text-gray-900">{project.bills?.length || 0}</p>
+                  <p className="text-sm text-gray-300">Bills</p>
+                  <p className="text-xl font-semibold text-white">{project.bills?.length || 0}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
 
           <Card
-            className="cursor-pointer hover:shadow-md transition-shadow bg-white/95 backdrop-blur-sm"
+            className="cursor-pointer hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-[#1a2332] to-[#0f1829] border border-orange-500/20 backdrop-blur-sm hover:border-orange-500/40"
             onClick={() => setShowPanelModal(true)}
           >
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-yellow-100 rounded-lg">
-                  <Zap className="h-5 w-5 text-yellow-600" />
+                <div className="p-2 bg-gradient-to-br from-orange-500/20 to-red-600/20 rounded-lg">
+                  <Zap className="h-5 w-5 text-orange-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Solar</p>
-                  <p className="text-xl font-semibold text-gray-900">
+                  <p className="text-sm text-gray-300">Solar</p>
+                  <p className="text-xl font-semibold text-white">
                     {displaySystem?.totalSolarKw ? displaySystem.totalSolarKw.toFixed(2) : '0.00'}kW
                   </p>
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-gray-400">
                     {displaySystem?.solarPanelCount || 0} Panels
                   </p>
                 </div>
@@ -649,18 +652,18 @@ export default function ProjectDetailsPage() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white/95 backdrop-blur-sm">
+          <Card className="bg-gradient-to-br from-[#1a2332] to-[#0f1829] border border-orange-500/20 backdrop-blur-sm">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <Battery className="h-5 w-5 text-green-600" />
+                <div className="p-2 bg-gradient-to-br from-orange-500/20 to-red-600/20 rounded-lg">
+                  <Battery className="h-5 w-5 text-orange-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Battery</p>
-                  <p className="text-xl font-semibold text-gray-900">
+                  <p className="text-sm text-gray-300">Battery</p>
+                  <p className="text-xl font-semibold text-white">
                     {displaySystem?.batteryKwh ? displaySystem.batteryKwh.toFixed(2) : '0.00'}kWh
                   </p>
-                  <p className="text-xs text-gray-600">
+                  <p className="text-xs text-gray-400">
                     {displaySystem?.backupDurationHrs || 0}hr Backup
                   </p>
                 </div>
@@ -669,18 +672,18 @@ export default function ProjectDetailsPage() {
           </Card>
 
           <Card
-            className="cursor-pointer hover:shadow-md transition-shadow bg-white/95 backdrop-blur-sm"
+            className="cursor-pointer hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-[#1a2332] to-[#0f1829] border border-orange-500/20 backdrop-blur-sm hover:border-orange-500/40"
             onClick={() => setShowBOMModal(true)}
           >
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-orange-100 rounded-lg">
-                  <Archive className="h-5 w-5 text-orange-600" />
+                <div className="p-2 bg-gradient-to-br from-orange-500/20 to-red-600/20 rounded-lg">
+                  <Archive className="h-5 w-5 text-orange-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">BOM Items</p>
-                  <p className="text-xl font-semibold text-gray-900">{bomItems.length}</p>
-                  <p className="text-xs text-gray-600">
+                  <p className="text-sm text-gray-300">BOM Items</p>
+                  <p className="text-xl font-semibold text-white">{bomItems.length}</p>
+                  <p className="text-xs text-gray-400">
                     {formatCurrency(bomItems.reduce((sum, item) => sum + item.totalPriceUsd, 0))} Total
                   </p>
                 </div>
@@ -723,27 +726,27 @@ export default function ProjectDetailsPage() {
         {/* Main Content */}
         <div className="space-y-6">
           <Collapsible open={expandedCards.has('cost')} onOpenChange={() => toggleCard('cost')}>
-            <Card className="bg-white/95 backdrop-blur-sm">
+            <Card className="bg-gradient-to-br from-[#1a2332] to-[#0f1829] border border-orange-500/20 backdrop-blur-sm">
               <CollapsibleTrigger asChild>
-                <CardContent className="p-4 cursor-pointer hover:bg-gray-50/50 transition-colors">
+                <CardContent className="p-4 cursor-pointer hover:bg-white/5 transition-colors">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 bg-emerald-100 rounded-lg">
-                        <DollarSign className="h-5 w-5 text-emerald-600" />
+                      <div className="p-2 bg-gradient-to-br from-orange-500/20 to-red-600/20 rounded-lg">
+                        <DollarSign className="h-5 w-5 text-orange-400" />
                       </div>
                       <div>
-                        <p className="text-sm text-gray-600">Estimated Net Cost</p>
-                        <p className="text-xl font-semibold text-gray-900">
+                        <p className="text-sm text-gray-300">Estimated Net Cost</p>
+                        <p className="text-xl font-semibold text-white">
                           {loadingEnhancedAnalysis ? '...' : formatCurrency(enhancedAnalysis?.netSystemCost ?? totalBomCost)}
                         </p>
                         {enhancedAnalysis && (
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-gray-400 mt-1">
                             {formatCurrency(enhancedAnalysis.grossSystemCost)} Gross - {formatCurrency(enhancedAnalysis.totalIncentivesValue)} Incentives
                           </p>
                         )}
                       </div>
                     </div>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white hover:bg-white/10">
                       {expandedCards.has('cost') ? (
                         <ChevronUp className="h-4 w-4" />
                       ) : (
@@ -756,13 +759,13 @@ export default function ProjectDetailsPage() {
               <CollapsibleContent>
                 <CardContent className="pt-0 pb-4">
                   <div className="text-center">
-                    <p className="text-sm text-gray-600 mb-2">Total Equipment Cost (BOM)</p>
-                    <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalBomCost)}</p>
+                    <p className="text-sm text-gray-300 mb-2">Total Equipment Cost (BOM)</p>
+                    <p className="text-2xl font-bold text-white">{formatCurrency(totalBomCost)}</p>
                     {enhancedAnalysis && (
                       <>
-                        <Separator className="my-2" />
-                        <p className="text-sm text-gray-600 mb-2">Total Incentives</p>
-                        <p className="text-2xl font-bold text-green-600">
+                        <Separator className="my-2 bg-orange-500/20" />
+                        <p className="text-sm text-gray-300 mb-2">Total Incentives</p>
+                        <p className="text-2xl font-bold text-orange-400">
                           - {formatCurrency(enhancedAnalysis.totalIncentivesValue)}
                         </p>
                       </>
@@ -776,34 +779,34 @@ export default function ProjectDetailsPage() {
 
         {/* Detailed Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 bg-green-600 rounded-xl p-1.5">
+          <TabsList className="grid w-full grid-cols-5 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl p-1.5">
             <TabsTrigger
               value="overview"
-              className="text-white data-[state=active]:bg-white data-[state=active]:text-green-600 hover:bg-green-700 hover:text-white transition-all duration-200 rounded-lg"
+              className="text-white data-[state=active]:bg-white data-[state=active]:text-orange-600 hover:bg-orange-600/80 hover:text-white transition-all duration-200 rounded-lg"
             >
               Overview
             </TabsTrigger>
             <TabsTrigger
               value="equipment"
-              className="text-white data-[state=active]:bg-white data-[state=active]:text-green-600 hover:bg-green-700 hover:text-white transition-all duration-200 rounded-lg"
+              className="text-white data-[state=active]:bg-white data-[state=active]:text-orange-600 hover:bg-orange-600/80 hover:text-white transition-all duration-200 rounded-lg"
             >
               Equipment
             </TabsTrigger>
             <TabsTrigger
               value="bills"
-              className="text-white data-[state=active]:bg-white data-[state=active]:text-green-600 hover:bg-green-700 hover:text-white transition-all duration-200 rounded-lg"
+              className="text-white data-[state=active]:bg-white data-[state=active]:text-orange-600 hover:bg-orange-600/80 hover:text-white transition-all duration-200 rounded-lg"
             >
               Bills
             </TabsTrigger>
             <TabsTrigger
               value="energy"
-              className="text-white data-[state=active]:bg-white data-[state=active]:text-green-600 hover:bg-green-700 hover:text-white transition-all duration-200 rounded-lg"
+              className="text-white data-[state=active]:bg-white data-[state=active]:text-orange-600 hover:bg-orange-600/80 hover:text-white transition-all duration-200 rounded-lg"
             >
               Energy
             </TabsTrigger>
             <TabsTrigger
               value="installation"
-              className="text-white data-[state=active]:bg-white data-[state=active]:text-green-600 hover:bg-green-700 hover:text-white transition-all duration-200 rounded-lg"
+              className="text-white data-[state=active]:bg-white data-[state=active]:text-orange-600 hover:bg-orange-600/80 hover:text-white transition-all duration-200 rounded-lg"
             >
               Installation
             </TabsTrigger>
@@ -812,15 +815,15 @@ export default function ProjectDetailsPage() {
           <TabsContent value="overview" className="space-y-6">
             {/* Energy Analysis Section with Charts */}
             <Collapsible open={expandedCards.has('energyAnalysis')} onOpenChange={() => toggleCard('energyAnalysis')}>
-              <Card className="bg-white/95 backdrop-blur-sm">
+              <Card className="bg-gradient-to-br from-[#1a2332] to-[#0f1829] border border-orange-500/20 backdrop-blur-sm">
                 <CollapsibleTrigger asChild>
-                  <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
+                  <CardHeader className="cursor-pointer hover:bg-white/5 transition-colors">
                     <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2 text-gray-900">
-                        <TrendingUp className="h-5 w-5 text-purple-600" />
+                      <CardTitle className="flex items-center gap-2 text-white">
+                        <TrendingUp className="h-5 w-5 text-orange-400" />
                         Enhanced Energy Analysis
                       </CardTitle>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white hover:bg-white/10">
                         {expandedCards.has('energyAnalysis') ? (
                           <ChevronUp className="h-4 w-4" />
                         ) : (
@@ -835,43 +838,43 @@ export default function ProjectDetailsPage() {
                     {loadingEnhancedAnalysis ? (
                       <div className="flex items-center justify-center p-8 min-h-[200px]">
                         <div className="text-center">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                          <div className="text-sm text-muted-foreground">Running enhanced analysis...</div>
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-t-2 border-transparent border-b-orange-500 border-t-red-600 mx-auto mb-2"></div>
+                          <div className="text-sm text-gray-300">Running enhanced analysis...</div>
                         </div>
                       </div>
                     ) : enhancedAnalysis ? (
                       <>
                         {/* Four Metric Cards */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                          <div className="bg-white p-4 rounded-lg border border-gray-100">
-                            <div className="text-2xl font-bold text-gray-900">
+                          <div className="bg-gradient-to-br from-orange-500/10 to-red-600/10 p-4 rounded-lg border border-orange-500/20">
+                            <div className="text-2xl font-bold text-white">
                               {Math.round(enhancedAnalysis.annualSolarProductionKwh).toLocaleString()}
                             </div>
-                            <div className="text-xs text-gray-600">Est. Production</div>
-                            <div className="text-xs text-gray-500 mt-1">kWh/yr (PVWatts)</div>
+                            <div className="text-xs text-gray-300">Est. Production</div>
+                            <div className="text-xs text-gray-400 mt-1">kWh/yr (PVWatts)</div>
                           </div>
-                          <div className="bg-white p-4 rounded-lg border border-gray-100">
-                            <div className="text-2xl font-bold text-gray-900">
+                          <div className="bg-gradient-to-br from-orange-500/10 to-red-600/10 p-4 rounded-lg border border-orange-500/20">
+                            <div className="text-2xl font-bold text-white">
                               {enhancedAnalysis.energyOffsetPercentage.toFixed(0)}%
                             </div>
-                            <div className="text-xs text-gray-600">Energy Offset</div>
-                            <div className="text-xs text-gray-500 mt-1">
+                            <div className="text-xs text-gray-300">Energy Offset</div>
+                            <div className="text-xs text-gray-400 mt-1">
                               {formatCurrency(enhancedAnalysis.estimatedAnnualSavingsUsd)} saved/yr
                             </div>
                           </div>
-                          <div className="bg-white p-4 rounded-lg border border-gray-100">
-                            <div className="text-2xl font-bold text-gray-900">
+                          <div className="bg-gradient-to-br from-orange-500/10 to-red-600/10 p-4 rounded-lg border border-orange-500/20">
+                            <div className="text-2xl font-bold text-white">
                               {formatCurrency(enhancedAnalysis.lcoe ?? 0)}
                             </div>
-                            <div className="text-xs text-gray-600">LCOE</div>
-                            <div className="text-xs text-gray-500 mt-1">per kWh</div>
+                            <div className="text-xs text-gray-300">LCOE</div>
+                            <div className="text-xs text-gray-400 mt-1">per kWh</div>
                           </div>
-                          <div className="bg-white p-4 rounded-lg border border-gray-100">
-                            <div className="text-2xl font-bold text-green-600">
+                          <div className="bg-gradient-to-br from-orange-500/10 to-red-600/10 p-4 rounded-lg border border-orange-500/20">
+                            <div className="text-2xl font-bold text-orange-400">
                               {enhancedAnalysis.irr ? `${(enhancedAnalysis.irr * 100).toFixed(1)}%` : 'N/A'}
                             </div>
-                            <div className="text-xs text-gray-600">IRR</div>
-                            <div className="text-xs text-gray-500 mt-1">
+                            <div className="text-xs text-gray-300">IRR</div>
+                            <div className="text-xs text-gray-400 mt-1">
                               NPV: {formatCurrency(enhancedAnalysis.npv ?? 0)}
                             </div>
                           </div>
@@ -892,7 +895,7 @@ export default function ProjectDetailsPage() {
                         )}
                       </>
                     ) : (
-                      <div className="text-center text-gray-600 py-8">
+                      <div className="text-center text-gray-300 py-8">
                         Could not load enhanced analysis.
                       </div>
                     )}
@@ -904,15 +907,15 @@ export default function ProjectDetailsPage() {
             {/* System Overview - Display from BOM */}
             {displaySystem && (
               <Collapsible open={expandedCards.has('system')} onOpenChange={() => toggleCard('system')}>
-                <Card className="bg-white/95 backdrop-blur-sm">
+                <Card className="bg-gradient-to-br from-[#1a2332] to-[#0f1829] border border-orange-500/20 backdrop-blur-sm">
                   <CollapsibleTrigger asChild>
-                    <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
+                    <CardHeader className="cursor-pointer hover:bg-white/5 transition-colors">
                       <div className="flex items-center justify-between">
-                        <CardTitle className="flex items-center gap-2 text-gray-900">
-                          <Settings className="h-5 w-5" />
-                          System Configuration {systemFromBOM && <Badge variant="outline" className="ml-2 text-xs">From BOM</Badge>}
+                        <CardTitle className="flex items-center gap-2 text-white">
+                          <Settings className="h-5 w-5 text-orange-400" />
+                          System Configuration {systemFromBOM && <Badge variant="outline" className="ml-2 text-xs bg-orange-500/10 border-orange-500/30 text-orange-300">From BOM</Badge>}
                         </CardTitle>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white hover:bg-white/10">
                           {expandedCards.has('system') ? (
                             <ChevronUp className="h-4 w-4" />
                           ) : (
@@ -926,15 +929,15 @@ export default function ProjectDetailsPage() {
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="space-y-4">
-                          <h4 className="font-semibold text-sm text-gray-600 uppercase tracking-wide">
+                          <h4 className="font-semibold text-sm text-gray-300 uppercase tracking-wide">
                             Solar Array
                           </h4>
                           <div className="space-y-2">
-                            <div className="flex justify-between text-gray-900">
+                            <div className="flex justify-between text-white">
                               <span>Panel Count:</span>
                               <span className="font-semibold">{displaySystem.solarPanelCount || 0}</span>
                             </div>
-                            <div className="flex justify-between text-gray-900">
+                            <div className="flex justify-between text-white">
                               <span>Total Capacity:</span>
                               <span className="font-semibold">{displaySystem.totalSolarKw ? displaySystem.totalSolarKw.toFixed(2) : '0.00'} kW</span>
                             </div>
@@ -942,15 +945,15 @@ export default function ProjectDetailsPage() {
                         </div>
 
                         <div className="space-y-4">
-                          <h4 className="font-semibold text-sm text-gray-600 uppercase tracking-wide">
+                          <h4 className="font-semibold text-sm text-gray-300 uppercase tracking-wide">
                             Battery Storage
                           </h4>
                           <div className="space-y-2">
-                            <div className="flex justify-between text-gray-900">
+                            <div className="flex justify-between text-white">
                               <span>Capacity:</span>
                               <span className="font-semibold">{displaySystem.batteryKwh ? displaySystem.batteryKwh.toFixed(2) : '0.00'} kWh</span>
                             </div>
-                            <div className="flex justify-between text-gray-900">
+                            <div className="flex justify-between text-white">
                               <span>Backup Duration:</span>
                               <span className="font-semibold">{displaySystem.backupDurationHrs || 24} hrs</span>
                             </div>
@@ -958,11 +961,11 @@ export default function ProjectDetailsPage() {
                         </div>
 
                         <div className="space-y-4">
-                          <h4 className="font-semibold text-sm text-gray-600 uppercase tracking-wide">
+                          <h4 className="font-semibold text-sm text-gray-300 uppercase tracking-wide">
                             Inverter
                           </h4>
                           <div className="space-y-2">
-                            <div className="flex justify-between text-gray-900">
+                            <div className="flex justify-between text-white">
                               <span>Capacity:</span>
                               <span className="font-semibold">{displaySystem.inverterKw ? displaySystem.inverterKw.toFixed(2) : '0.00'} kW</span>
                             </div>
@@ -977,15 +980,15 @@ export default function ProjectDetailsPage() {
 
             {/* Cost Breakdown - BOM Only */}
             <Collapsible open={expandedCards.has('costBreakdown')} onOpenChange={() => toggleCard('costBreakdown')}>
-              <Card className="bg-white/95 backdrop-blur-sm">
+              <Card className="bg-gradient-to-br from-[#1a2332] to-[#0f1829] border border-orange-500/20 backdrop-blur-sm">
                 <CollapsibleTrigger asChild>
-                  <CardHeader className="cursor-pointer hover:bg-gray-50/50 transition-colors">
+                  <CardHeader className="cursor-pointer hover:bg-white/5 transition-colors">
                     <div className="flex items-center justify-between">
-                      <CardTitle className="flex items-center gap-2 text-gray-900">
-                        <Calculator className="h-5 w-5" />
+                      <CardTitle className="flex items-center gap-2 text-white">
+                        <Calculator className="h-5 w-5 text-orange-400" />
                         Equipment Cost
                       </CardTitle>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-white hover:bg-white/10">
                         {expandedCards.has('costBreakdown') ? (
                           <ChevronUp className="h-4 w-4" />
                         ) : (
@@ -998,13 +1001,13 @@ export default function ProjectDetailsPage() {
                 <CollapsibleContent>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="flex justify-between text-xl font-bold text-gray-900">
+                      <div className="flex justify-between text-xl font-bold text-white">
                         <span>Total Equipment Cost:</span>
-                        <span className="text-green-600">
+                        <span className="text-orange-400">
                           {formatCurrency(totalBomCost)}
                         </span>
                       </div>
-                      <p className="text-sm text-gray-600">Based on selected BOM items only</p>
+                      <p className="text-sm text-gray-300">Based on selected BOM items only</p>
                     </div>
                   </CardContent>
                 </CollapsibleContent>

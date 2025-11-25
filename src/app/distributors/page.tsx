@@ -167,32 +167,38 @@ export default function DistributorsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-muted-foreground">Loading...</div>
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-t-2 border-transparent border-b-orange-500 border-t-red-600 mx-auto mb-2"></div>
+          <div className="text-gray-300">Loading...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-background">
-      <div className="w-full px-4 py-8">
+    <div className="w-screen -ml-[50vw] left-1/2 relative min-h-screen bg-gradient-to-br from-[#0A0F1C] via-[#0F1629] to-[#0A0F1C]">
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#4f4f4f15_1px,transparent_1px),linear-gradient(to_bottom,#4f4f4f15_1px,transparent_1px)] bg-[size:14px_24px]" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-br from-orange-500/20 to-red-600/20 rounded-full blur-[120px]" />
+      <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tl from-orange-600/20 to-red-500/20 rounded-full blur-[100px]" />
+      <div className="relative w-full px-4 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">
+        <h1 className="text-3xl font-bold text-white">
           Distributors & Equipment
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-sm text-gray-300">
           Manage your distributor network and equipment catalog
         </p>
       </div>
 
       {/* Tabs */}
-      <div className="mb-8 border-b border-border">
+      <div className="mb-8 border-b border-orange-500/20">
         <div className="flex gap-8">
           <button
             onClick={() => setActiveTab("distributors")}
-            className={`pb-4 text-sm font-semibold border-b-2 ${
+            className={`pb-4 text-sm font-semibold border-b-2 transition-colors ${
               activeTab === "distributors"
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-slate-600"
+                ? "border-orange-500 text-orange-400"
+                : "border-transparent text-gray-400 hover:text-gray-300"
             }`}
           >
             <Building2 className="inline-block mr-2 h-4 w-4" />
@@ -200,10 +206,10 @@ export default function DistributorsPage() {
           </button>
           <button
             onClick={() => setActiveTab("equipment")}
-            className={`pb-4 text-sm font-semibold border-b-2 ${
+            className={`pb-4 text-sm font-semibold border-b-2 transition-colors ${
               activeTab === "equipment"
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-slate-600"
+                ? "border-orange-500 text-orange-400"
+                : "border-transparent text-gray-400 hover:text-gray-300"
             }`}
           >
             <Package className="inline-block mr-2 h-4 w-4" />
@@ -211,10 +217,10 @@ export default function DistributorsPage() {
           </button>
           <button
             onClick={() => setActiveTab("discovery")}
-            className={`pb-4 text-sm font-semibold border-b-2 ${
+            className={`pb-4 text-sm font-semibold border-b-2 transition-colors ${
               activeTab === "discovery"
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-slate-600"
+                ? "border-orange-500 text-orange-400"
+                : "border-transparent text-gray-400 hover:text-gray-300"
             }`}
           >
             <Zap className="inline-block mr-2 h-4 w-4" />
@@ -227,12 +233,12 @@ export default function DistributorsPage() {
       {activeTab !== "discovery" && (
         <div className="mb-8 flex gap-3 items-start">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
               placeholder={`Search ${activeTab}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 bg-white border-slate-200"
+              className="pl-9 bg-[#1a2332] border-orange-500/20 text-white placeholder:text-gray-400"
             />
           </div>
           <div className="flex gap-3">
@@ -256,7 +262,7 @@ export default function DistributorsPage() {
                   setShowAddEquipment(true);
                 }
               }}
-              className="bg-blue-600 text-white"
+              className="bg-gradient-to-r from-orange-500 to-red-600 text-white hover:from-orange-600 hover:to-red-700"
             >
               <Plus className="mr-2 h-4 w-4" />
               Add {activeTab === "distributors" ? "Distributor" : "Equipment"}
@@ -321,11 +327,11 @@ export default function DistributorsPage() {
                     transition={{ duration: 0.3, delay: index * 0.05 }}
                   >
                     <Card
-                      className="overflow-hidden bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:scale-[1.02] transition-all duration-300 cursor-pointer group"
+                      className="overflow-hidden bg-gradient-to-br from-[#1a2332] to-[#0f1829] border border-orange-500/20 shadow-sm hover:shadow-xl hover:scale-[1.02] hover:border-orange-500/40 transition-all duration-300 cursor-pointer group"
                       onClick={() => router.push(`/distributors/${distributor.id}`)}
                     >
                 {/* Thumbnail Image */}
-                <div className="relative w-full h-48 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
+                <div className="relative w-full h-48 bg-gradient-to-br from-[#1a2332] to-[#0f1829] overflow-hidden">
                   {thumbnailEquipment?.imageUrl ? (
                     <Image
                       src={thumbnailEquipment.imageUrl}
@@ -335,23 +341,23 @@ export default function DistributorsPage() {
                       sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-                      <Package className="h-16 w-16 text-slate-400" />
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-500/10 to-red-600/10">
+                      <Package className="h-16 w-16 text-orange-400/50" />
                     </div>
                   )}
                   {/* Overlay gradient for better text readability */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
 
                 {/* Card Content */}
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-lg text-slate-900 truncate">
+                      <h3 className="font-semibold text-lg text-white truncate">
                         {distributor.name}
                       </h3>
                       {distributor.contactName && (
-                        <p className="text-sm text-slate-600 mt-1 truncate">
+                        <p className="text-sm text-gray-300 mt-1 truncate">
                           {distributor.contactName}
                         </p>
                       )}
@@ -367,33 +373,33 @@ export default function DistributorsPage() {
                           setEditingDistributor(distributor);
                           setShowAddDistributor(true);
                         }}
-                        className="h-8 w-8 p-0 border-slate-300"
+                        className="h-8 w-8 p-0 border-orange-500/30 bg-orange-500/10 hover:bg-orange-500/20"
                       >
-                        <Pencil className="h-3.5 w-3.5 text-slate-700" />
+                        <Pencil className="h-3.5 w-3.5 text-orange-400" />
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
                         onClick={() => handleDeleteDistributor(distributor.id)}
-                        className="h-8 w-8 p-0 border-red-300"
+                        className="h-8 w-8 p-0 border-red-500/30 bg-red-500/10 hover:bg-red-500/20"
                       >
-                        <Trash2 className="h-3.5 w-3.5 text-red-600" />
+                        <Trash2 className="h-3.5 w-3.5 text-red-400" />
                       </Button>
                     </div>
                   </div>
                   <div className="space-y-2 text-sm">
                     {distributor.email && (
-                      <p className="text-slate-600 truncate">{distributor.email}</p>
+                      <p className="text-gray-300 truncate">{distributor.email}</p>
                     )}
                     {distributor.phone && (
-                      <p className="text-slate-600">{distributor.phone}</p>
+                      <p className="text-gray-300">{distributor.phone}</p>
                     )}
                     {distributor.website && (
                       <a
                         href={distributor.website}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 flex items-center gap-1 hover:text-blue-700"
+                        className="text-orange-400 flex items-center gap-1 hover:text-orange-300"
                         onClick={(e) => e.stopPropagation()}
                       >
                         Website <ExternalLink className="h-3 w-3" />
@@ -401,10 +407,10 @@ export default function DistributorsPage() {
                     )}
                   </div>
                   {distributor._count?.equipment && distributor._count.equipment > 0 && (
-                    <div className="mt-4 pt-4 border-t border-slate-200">
+                    <div className="mt-4 pt-4 border-t border-orange-500/20">
                       <Badge
                         variant="secondary"
-                        className="bg-slate-100 text-slate-700"
+                        className="bg-orange-500/10 text-orange-300 border-orange-500/30"
                       >
                         {distributor._count.equipment} equipment item
                         {distributor._count.equipment !== 1 ? "s" : ""}
@@ -453,10 +459,10 @@ export default function DistributorsPage() {
                   transition={{ duration: 0.3, delay: index * 0.05 }}
                 >
                   <Card
-                    className="group p-0 bg-white border border-slate-200 overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:border-primary/50"
+                    className="group p-0 bg-gradient-to-br from-[#1a2332] to-[#0f1829] border border-orange-500/20 overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:border-orange-500/40"
                   >
               {/* Product Image */}
-              <div className="relative w-full h-48 bg-gradient-to-br from-slate-50 to-slate-100 overflow-hidden">
+              <div className="relative w-full h-48 bg-gradient-to-br from-[#1a2332] to-[#0f1829] overflow-hidden">
                 {item.imageUrl ? (
                   <Image
                     src={item.imageUrl}
@@ -540,24 +546,24 @@ export default function DistributorsPage() {
               <div className="p-4 space-y-3">
                 {/* Title and Manufacturer */}
                 <div>
-                  <h3 className="font-semibold text-base leading-tight text-slate-900 line-clamp-2">
+                  <h3 className="font-semibold text-base leading-tight text-white line-clamp-2">
                     {item.name}
                   </h3>
                   {item.manufacturer && (
-                    <p className="text-xs text-slate-500 mt-1 font-medium">
+                    <p className="text-xs text-gray-300 mt-1 font-medium">
                       {item.manufacturer}
                     </p>
                   )}
                 </div>
 
                 {/* Model Number */}
-                <div className="text-xs text-slate-600 bg-slate-50 px-2 py-1 rounded inline-block">
+                <div className="text-xs text-gray-300 bg-orange-500/10 border border-orange-500/20 px-2 py-1 rounded inline-block">
                   Model: {item.modelNumber}
                 </div>
 
                 {/* Description (if available) */}
                 {item.description && (
-                  <p className="text-xs text-slate-600 line-clamp-2">
+                  <p className="text-xs text-gray-400 line-clamp-2">
                     {item.description}
                   </p>
                 )}
@@ -571,14 +577,14 @@ export default function DistributorsPage() {
                           key={i}
                           className={`h-3 w-3 ${
                             i < Math.floor(item.rating!)
-                              ? "text-yellow-400 fill-yellow-400"
-                              : "text-slate-300"
+                              ? "text-orange-400 fill-orange-400"
+                              : "text-gray-600"
                           }`}
                         />
                       ))}
                     </div>
                     {item.reviewCount && (
-                      <span className="text-xs text-slate-500">
+                      <span className="text-xs text-gray-400">
                         ({item.reviewCount})
                       </span>
                     )}
@@ -586,16 +592,16 @@ export default function DistributorsPage() {
                 )}
 
                 {/* Price */}
-                <div className="pt-2 border-t border-slate-100">
-                  <span className="text-2xl font-bold text-blue-600">
+                <div className="pt-2 border-t border-orange-500/20">
+                  <span className="text-2xl font-bold text-orange-400">
                     ${item.unitPrice.toLocaleString()}
                   </span>
                 </div>
 
                 {/* Distributor */}
                 {item.distributor && (
-                  <div className="pt-2 border-t border-slate-100">
-                    <p className="text-xs text-slate-500 flex items-center gap-1">
+                  <div className="pt-2 border-t border-orange-500/20">
+                    <p className="text-xs text-gray-300 flex items-center gap-1">
                       <Building2 className="h-3 w-3" />
                       {item.distributor.name}
                     </p>
