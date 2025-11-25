@@ -15,7 +15,9 @@ import {
   Calendar,
   Clock,
   CheckCircle,
-  Circle
+  Circle,
+  ShieldCheck,
+  AlertTriangle
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
@@ -204,6 +206,108 @@ export default function DashboardPage() {
             <div className="mt-4 flex items-center gap-2 text-sm">
               <TrendingUp className="h-4 w-4 text-green-400" />
               <span className="text-green-400">+12% vs last month</span>
+            </div>
+          </Card>
+        </div>
+
+        {/* Existing Installation / Retroactive Permitting Section */}
+        <div className="px-6 mb-12">
+          <Card className="bg-gradient-to-br from-orange-900/20 via-[#1a2332] to-red-900/20 border-orange-500/30 overflow-hidden">
+            <div className="p-8">
+              <div className="flex items-start justify-between gap-6 flex-col lg:flex-row">
+                {/* Left Column - Content */}
+                <div className="flex-1 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-orange-500/20 rounded-lg">
+                      <AlertTriangle className="h-6 w-6 text-orange-400" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                        Already Have Solar Installed?
+                      </h3>
+                      <p className="text-sm text-orange-300/80">Complete your permits and get compliant</p>
+                    </div>
+                  </div>
+
+                  <p className="text-gray-300 leading-relaxed">
+                    Many homeowners have solar systems installed without proper permits. We provide a streamlined
+                    workflow to bring existing installations into compliance with NEC codes.
+                  </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-orange-950/30 border border-orange-500/20">
+                      <ShieldCheck className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-semibold text-white">NEC Compliance</p>
+                        <p className="text-xs text-gray-400">Code checks</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-orange-950/30 border border-orange-500/20">
+                      <FileText className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-semibold text-white">Documentation</p>
+                        <p className="text-xs text-gray-400">Full packages</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-orange-950/30 border border-orange-500/20">
+                      <TrendingUp className="h-5 w-5 text-orange-400 flex-shrink-0" />
+                      <div>
+                        <p className="text-sm font-semibold text-white">3-8 Weeks</p>
+                        <p className="text-xs text-gray-400">Avg timeline</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4">
+                    <Button
+                      onClick={() => router.push("/existing-installation")}
+                      className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white font-semibold shadow-lg"
+                    >
+                      <ShieldCheck className="mr-2 h-5 w-5" />
+                      Complete Your Permits
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                    <Button
+                      onClick={() => router.push("/existing-installation")}
+                      variant="outline"
+                      className="border-orange-500/30 text-orange-400 hover:bg-orange-500/10"
+                    >
+                      Learn More
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Right Column - Quick Stats */}
+                <div className="flex-shrink-0 lg:w-64">
+                  <div className="p-6 rounded-xl bg-gradient-to-br from-orange-950/50 to-red-950/50 border border-orange-500/30">
+                    <h4 className="text-sm font-semibold text-orange-300 mb-4 flex items-center gap-2">
+                      <FileText className="h-4 w-4" />
+                      Typical Costs
+                    </h4>
+                    <div className="space-y-3">
+                      <div>
+                        <p className="text-2xl font-bold text-white">$3-4K</p>
+                        <p className="text-xs text-gray-400">Average total cost</p>
+                      </div>
+                      <div className="h-px bg-orange-500/20" />
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Permit Fees</span>
+                          <span className="text-white">$300-800</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Inspections</span>
+                          <span className="text-white">$200-500</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-400">Engineering</span>
+                          <span className="text-white">$500-1.5K</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </Card>
         </div>
