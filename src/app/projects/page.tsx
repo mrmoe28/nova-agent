@@ -385,9 +385,9 @@ export default function ProjectsPage() {
   const renderModernCard = (project: Project) => {
     const isExpanded = expandedProjects.has(project.id);
     const isRecalculating = recalculatingCosts.has(project.id);
-    
+
     return (
-      <Card key={project.id} className="group relative overflow-hidden border-0 bg-white shadow-sm ring-1 ring-gray-950/5 transition-all duration-300 hover:shadow-lg hover:ring-gray-950/10">
+      <Card key={project.id} className="group relative overflow-hidden border border-orange-500/20 bg-gradient-to-br from-[#1a2332] to-[#0F1629] shadow-lg transition-all duration-300 hover:shadow-2xl hover:border-orange-500/40">
         <Collapsible open={isExpanded} onOpenChange={() => toggleProjectExpanded(project.id)}>
           <CollapsibleTrigger asChild>
             <div className="cursor-pointer">
@@ -791,43 +791,43 @@ export default function ProjectsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] via-[#0F1629] to-[#0A0F1C] flex items-center justify-center">
         <div className="text-center">
           <div className="relative">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4 mx-auto">
+            <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center mb-4 mx-auto">
               <Loader2 className="h-8 w-8 animate-spin text-white" />
             </div>
-            <div className="absolute inset-0 w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full animate-pulse opacity-50 mx-auto"></div>
+            <div className="absolute inset-0 w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-full animate-pulse opacity-50 mx-auto"></div>
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Loading Projects</h3>
-          <p className="text-gray-600">Please wait while we fetch your data...</p>
+          <h3 className="text-lg font-semibold text-white mb-2">Loading Projects</h3>
+          <p className="text-gray-300">Please wait while we fetch your data...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-[#0A0F1C] via-[#0F1629] to-[#0A0F1C]">
       <div className="w-full max-w-7xl mx-auto px-6 py-8">
         {/* Modern Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
-              <p className="mt-2 text-gray-600">
+              <h1 className="text-3xl font-bold text-white">Projects</h1>
+              <p className="mt-2 text-gray-300">
                 Manage your energy planning projects with intelligent insights
               </p>
             </div>
           </div>
 
           {/* Controls Bar */}
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 bg-white p-4 rounded-xl shadow-sm ring-1 ring-gray-950/5">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4 bg-gradient-to-br from-[#1a2332] to-[#0F1629] p-4 rounded-xl border border-orange-500/20">
             <div className="flex items-center gap-4">
               {/* Distributor Selection */}
               <div className="flex items-center gap-3">
-                <Building2 className="h-5 w-5 text-gray-600" />
+                <Building2 className="h-5 w-5 text-orange-400" />
                 <Select value={selectedDistributor} onValueChange={setSelectedDistributor}>
-                  <SelectTrigger className="w-64 bg-white border-gray-300 text-gray-900">
+                  <SelectTrigger className="w-64 bg-[#0A0F1C] border-orange-500/30 text-white">
                     <SelectValue placeholder="Select distributor for pricing" />
                   </SelectTrigger>
                   <SelectContent>
@@ -847,14 +847,14 @@ export default function ProjectsPage() {
               </div>
 
               {/* View Toggle */}
-              <div className="flex items-center bg-gray-200 rounded-lg p-1 gap-1">
+              <div className="flex items-center bg-[#0A0F1C] rounded-lg p-1 gap-1 border border-orange-500/20">
                 <Button
                   size="sm"
                   onClick={() => setViewMode("cards")}
                   className={`h-8 px-3 border-0 ${
-                    viewMode === "cards" 
-                      ? "bg-blue-600 text-white shadow-sm" 
-                      : "bg-white text-gray-700 shadow-sm"
+                    viewMode === "cards"
+                      ? "bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-sm"
+                      : "bg-[#1a2332] text-gray-300 shadow-sm hover:bg-[#242f42]"
                   }`}
                 >
                   <LayoutGrid className="h-4 w-4" />
@@ -863,9 +863,9 @@ export default function ProjectsPage() {
                   size="sm"
                   onClick={() => setViewMode("grid")}
                   className={`h-8 px-3 border-0 ${
-                    viewMode === "grid" 
-                      ? "bg-blue-600 text-white shadow-sm" 
-                      : "bg-white text-gray-700 shadow-sm"
+                    viewMode === "grid"
+                      ? "bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-sm"
+                      : "bg-[#1a2332] text-gray-300 shadow-sm hover:bg-[#242f42]"
                   }`}
                 >
                   <Grid3X3 className="h-4 w-4" />
@@ -874,9 +874,9 @@ export default function ProjectsPage() {
                   size="sm"
                   onClick={() => setViewMode("table")}
                   className={`h-8 px-3 border-0 ${
-                    viewMode === "table" 
-                      ? "bg-blue-600 text-white shadow-sm" 
-                      : "bg-white text-gray-700 shadow-sm"
+                    viewMode === "table"
+                      ? "bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-sm"
+                      : "bg-[#1a2332] text-gray-300 shadow-sm hover:bg-[#242f42]"
                   }`}
                 >
                   <Table className="h-4 w-4" />
@@ -884,7 +884,7 @@ export default function ProjectsPage() {
               </div>
             </div>
 
-            <Button asChild className="bg-blue-600 text-white shadow-sm border-0">
+            <Button asChild className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white shadow-lg border-0">
               <Link href="/wizard/new">
                 <Plus className="mr-2 h-4 w-4 text-white" />
                 New Project
@@ -895,15 +895,15 @@ export default function ProjectsPage() {
 
         {/* Projects Content */}
         {projects.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center bg-white rounded-xl shadow-sm ring-1 ring-gray-950/5">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4">
+          <div className="flex flex-col items-center justify-center py-16 text-center bg-gradient-to-br from-[#1a2332] to-[#0F1629] rounded-xl border border-orange-500/20">
+            <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center mb-4">
               <FolderOpen className="h-8 w-8 text-white" />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No projects yet</h3>
-            <p className="text-gray-600 mb-8 max-w-md">
+            <h3 className="text-xl font-semibold text-white mb-2">No projects yet</h3>
+            <p className="text-gray-300 mb-8 max-w-md">
               Get started by creating your first energy planning project and unlock intelligent insights for your clients
             </p>
-            <Button asChild className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white">
+            <Button asChild className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white">
               <Link href="/wizard/new">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Your First Project
@@ -913,46 +913,46 @@ export default function ProjectsPage() {
         ) : (
           <>
             {/* Workflow Guide Banner */}
-            <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-6 shadow-sm">
+            <div className="mb-6 bg-gradient-to-r from-orange-900/20 to-red-900/20 border border-orange-500/30 rounded-xl p-6">
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg flex items-center justify-center">
                   <Zap className="h-6 w-6 text-white" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Project Workflow</h3>
-                  <p className="text-sm text-gray-700 mb-4">
+                  <h3 className="text-lg font-semibold text-white mb-2">Project Workflow</h3>
+                  <p className="text-sm text-gray-300 mb-4">
                     Follow these steps to complete your energy planning projects. Click on any project card to view details or continue where you left off.
                   </p>
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
                     <div className="flex items-center gap-2 text-sm">
-                      <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
-                        <span className="text-xs font-semibold text-blue-600">1</span>
+                      <div className="w-6 h-6 rounded-full bg-orange-500/20 border border-orange-500/30 flex items-center justify-center">
+                        <span className="text-xs font-semibold text-orange-400">1</span>
                       </div>
-                      <span className="text-gray-700">Upload Bills</span>
+                      <span className="text-gray-300">Upload Bills</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center">
-                        <span className="text-xs font-semibold text-purple-600">2</span>
+                      <div className="w-6 h-6 rounded-full bg-orange-500/20 border border-orange-500/30 flex items-center justify-center">
+                        <span className="text-xs font-semibold text-orange-400">2</span>
                       </div>
-                      <span className="text-gray-700">Configure System</span>
+                      <span className="text-gray-300">Configure System</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center">
-                        <span className="text-xs font-semibold text-orange-600">3</span>
+                      <div className="w-6 h-6 rounded-full bg-orange-500/20 border border-orange-500/30 flex items-center justify-center">
+                        <span className="text-xs font-semibold text-orange-400">3</span>
                       </div>
-                      <span className="text-gray-700">Review BOM</span>
+                      <span className="text-gray-300">Review BOM</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center">
-                        <span className="text-xs font-semibold text-green-600">4</span>
+                      <div className="w-6 h-6 rounded-full bg-orange-500/20 border border-orange-500/30 flex items-center justify-center">
+                        <span className="text-xs font-semibold text-orange-400">4</span>
                       </div>
-                      <span className="text-gray-700">Generate PDF</span>
+                      <span className="text-gray-300">Generate PDF</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center">
-                        <CheckCircle2 className="h-3 w-3 text-gray-600" />
+                      <div className="w-6 h-6 rounded-full bg-green-500/20 border border-green-500/30 flex items-center justify-center">
+                        <CheckCircle2 className="h-3 w-3 text-green-400" />
                       </div>
-                      <span className="text-gray-700">Complete</span>
+                      <span className="text-gray-300">Complete</span>
                     </div>
                   </div>
                 </div>
