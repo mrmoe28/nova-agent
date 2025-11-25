@@ -45,6 +45,31 @@ export const SYSTEM_SIZING = {
 } as const;
 
 // ============================================================================
+// FINANCIAL ANALYSIS PARAMETERS
+// ============================================================================
+
+/**
+ * Financial analysis parameters for ROI, NPV, and payback calculations
+ * Used in: system comparison and financing calculators
+ */
+export const FINANCIAL_PARAMETERS = {
+  /** Federal Investment Tax Credit (ITC) percentage */
+  federalTaxCredit: parseFloat(process.env.FEDERAL_TAX_CREDIT || "0.30"), // 30%
+
+  /** Discount rate for NPV calculations */
+  discountRate: parseFloat(process.env.DISCOUNT_RATE || "0.06"), // 6%
+
+  /** System lifetime for financial analysis (years) */
+  systemLifeYears: parseInt(process.env.SYSTEM_LIFE_YEARS || "25"),
+
+  /** Annual utility rate escalation */
+  utilityEscalation: parseFloat(process.env.UTILITY_ESCALATION || "0.025"), // 2.5%
+
+  /** Annual O&M cost per kW */
+  oandmCostPerKw: parseFloat(process.env.OANDM_COST_PER_KW || "20"),
+} as const;
+
+// ============================================================================
 // GEORGIA STATE FEES CONFIGURATION
 // ============================================================================
 
@@ -318,6 +343,7 @@ export const API_CONFIG = {
  */
 export const CONFIG = {
   SYSTEM_SIZING,
+  FINANCIAL_PARAMETERS,
   GEORGIA_FEES,
   SCRAPER_CONFIG,
   BROWSER_CONFIG,
