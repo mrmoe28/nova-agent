@@ -394,13 +394,21 @@ export default function ProjectDetailsPage() {
       const usage = baseUsage * seasonalFactor;
       const cost = usage * (project.analysis?.averageCostPerKwh || 0.15);
 
+      // Prioritize enhancedAnalysis (PVWatts) over simple energyMetrics calculation
+      let production = 0;
+      if (enhancedAnalysis?.annualSolarProductionKwh && enhancedAnalysis.annualSolarProductionKwh > 0) {
+        // Use PVWatts data from enhanced analysis (more accurate)
+        production = (enhancedAnalysis.annualSolarProductionKwh / 12) * seasonalFactor;
+      } else if (energyMetrics?.monthlyProduction) {
+        // Fallback to simple calculation
+        production = energyMetrics.monthlyProduction * seasonalFactor * 0.8;
+      }
+
       return {
         month,
         usage: Math.round(usage),
         cost: Math.round(cost * 100) / 100,
-        production: energyMetrics
-          ? energyMetrics.monthlyProduction * seasonalFactor * 0.8
-          : (enhancedAnalysis?.annualSolarProductionKwh ? (enhancedAnalysis.annualSolarProductionKwh / 12) * seasonalFactor * 0.8 : 0),
+        production: Math.round(production),
       };
     });
   };
@@ -408,7 +416,11 @@ export default function ProjectDetailsPage() {
   const prepareCostSavingsData = () => {
     const years = [];
     const annualCost = project.analysis?.annualCostUsd || 2160;
-    const annualProduction = energyMetrics ? energyMetrics.annualProduction : 0;
+
+    // Prioritize enhancedAnalysis for more accurate production data
+    const annualProduction = enhancedAnalysis?.annualSolarProductionKwh ||
+      (energyMetrics ? energyMetrics.annualProduction : 0);
+
     const monthlyUsage = project.analysis?.monthlyUsageKwh || 1200;
     const annualUsage = monthlyUsage * 12;
 
@@ -433,7 +445,12 @@ export default function ProjectDetailsPage() {
 
   const prepareEnergyBreakdown = () => {
     const monthlyUsage = project.analysis?.monthlyUsageKwh || 1200;
-    const monthlyProduction = energyMetrics ? energyMetrics.monthlyProduction : 0;
+
+    // Prioritize enhancedAnalysis for more accurate production data
+    const monthlyProduction = enhancedAnalysis?.annualSolarProductionKwh
+      ? enhancedAnalysis.annualSolarProductionKwh / 12
+      : (energyMetrics ? energyMetrics.monthlyProduction : 0);
+
     const gridUsage = Math.max(0, monthlyUsage - monthlyProduction);
     const solarUsage = Math.min(monthlyUsage, monthlyProduction);
 
@@ -446,6 +463,15 @@ export default function ProjectDetailsPage() {
   const monthlyData = prepareMonthlyUsageData();
   const savingsData = prepareCostSavingsData();
   const energyBreakdown = prepareEnergyBreakdown();
+
+  // Debug logging
+  console.log('Chart Data Debug:', {
+    enhancedAnalysisProduction: enhancedAnalysis?.annualSolarProductionKwh,
+    energyMetricsMonthly: energyMetrics?.monthlyProduction,
+    energyMetricsAnnual: energyMetrics?.annualProduction,
+    monthlyDataSample: monthlyData[0],
+    energyBreakdown,
+  });
 
   const toggleCard = (cardId: string) => {
     setExpandedCards(prev => {
